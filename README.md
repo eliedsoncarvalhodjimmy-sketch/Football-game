@@ -5,7 +5,7 @@ CRM da **Smell** (perfumes, Cuito, Bié, Angola). *Cuidamos de si!*
 Aplicação instalável no telemóvel e no computador (PWA) para gerir clientes, produtos e stock,
 vendas, pagamentos, dívidas, descontos, cupões e pontos de fidelidade, mesmo sem internet.
 
-> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)**, **1B (base de dados)** e **1C (entrada e perfis)**.
+> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)**, **1B (base de dados)**, **1C (entrada e perfis)** e **1D (clientes)**.
 > A especificação está em [`docs/especificacao-smell-crm.md`](docs/especificacao-smell-crm.md)
 > e as decisões em [`docs/decisoes.md`](docs/decisoes.md).
 
@@ -49,7 +49,7 @@ Faça por esta ordem. Use sempre o mesmo email (o do CEO).
 6. **Preparar a base de dados** (criar as tabelas e as regras de segurança):
    - No Supabase, abra **SQL Editor → New query**.
    - Abra no GitHub a pasta [`supabase/migrations`](supabase/migrations). Copie o conteúdo de cada
-     ficheiro, **pela ordem dos números**, cole no editor e carregue em **Run**. São 6 ficheiros.
+     ficheiro, **pela ordem dos números**, cole no editor e carregue em **Run**. São 7 ficheiros.
      Cada um deve terminar com *Success*.
 7. **Criar a sua conta de CEO** (antes de qualquer outra!):
    - **Authentication → Users → Add user → Create new user**.
@@ -119,7 +119,22 @@ e mostradas no fuso `Africa/Luanda`; nenhum segredo no código (só em `.env.loc
 
 ---
 
-## 4. Recibos
+## 4. Protecção de dados (Lei n.º 22/11)
+
+O que a app faz (não substitui a validação por um advogado):
+- **Consentimento registado**: o vendedor marca "consentiu" e fica guardado quem marcou e quando.
+  A recusa ("não quero mensagens") também fica registada.
+- **Acesso restrito**: cada utilizador só vê o que pode (regras na própria base de dados);
+  clientes com etiquetas restritas ficam invisíveis para quem não os pode ver.
+- **Histórico de alterações**: cada alteração fica registada com quem a fez.
+- **Direitos do cliente** (só o CEO, na ficha do cliente → *Protecção de dados*):
+  - **Exportar dados**: descarrega um ficheiro com tudo o que a Smell guarda sobre o cliente.
+  - **Apagar dados**: apaga o cliente. Se já tiver compras, os dados pessoais são apagados e as
+    compras ficam como "Cliente apagado" (as contas da Smell continuam certas). Os dados pessoais
+    também são retirados do histórico de alterações.
+- **Cópia de segurança**: ver o guia no fim da Fase 1 (passo 1J).
+
+## 5. Recibos
 
 Os recibos em PDF gerados pela app **não são facturas certificadas pela AGT**. Levam no rodapé a
 indicação "Documento sem valor fiscal".

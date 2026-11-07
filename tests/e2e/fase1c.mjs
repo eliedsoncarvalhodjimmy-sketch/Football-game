@@ -18,6 +18,7 @@ const { server, state } = await startMock(54321);
 const app = spawn("npx", ["next", "start", "-p", String(PORT)], {
   env: { ...process.env, NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321", NEXT_PUBLIC_SUPABASE_ANON_KEY: ANON_KEY, SUPABASE_SERVICE_ROLE_KEY: SERVICE_KEY },
   stdio: "ignore",
+  detached: true,
 });
 for (let i = 0; i < 60; i++) {
   try { await fetch(BASE); break; } catch { await new Promise((r) => setTimeout(r, 500)); }
@@ -87,7 +88,7 @@ try {
   await cupao.getByRole("button", { name: "Guardar" }).click();
   await cupao.getByText(/Guardado/).waitFor();
   assert(state.tables.settings.find((s) => s.key === "fidelidade.cupao_indicacao").value.percentagem === 7, "cupão passa a 7%");
-  await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/definicoes.png` : "/dev/null", fullPage: true });
+  if (process.env.SHOT_DIR) await page.screenshot({ path: `${process.env.SHOT_DIR}/definicoes.png`, fullPage: true });
 
   console.log("Sair");
   await page.goto(BASE + "/mais/conta");
@@ -151,7 +152,7 @@ try {
   console.error("Últimos pedidos ao Supabase simulado:", state.log.slice(-8));
 } finally {
   await browser.close();
-  app.kill();
+  try { process.kill(-app.pid, "SIGTERM"); } catch { app.kill(); }
   server.close();
   process.exit(failed ? 1 : 0);
 }

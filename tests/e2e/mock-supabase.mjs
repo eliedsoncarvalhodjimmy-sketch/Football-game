@@ -22,6 +22,12 @@ export function createState() {
         { id: crypto.randomUUID(), name: "Embaixador", color: "#C4AA6F", is_system: true },
       ],
       tag_restrictions: [],
+      clients: [],
+      client_tags: [],
+      client_notes: [],
+      coupons: [],
+      referrals: [],
+      summary_overrides: [],
       settings: [
         { key: "fidelidade.pontos", active: true, description: "", updated_at: now, value: { kz_por_ponto: 10000, expiram: false, validade_dias: null, minimo_troca: 50, escaloes: [{ pontos: 50, tipo: "percentagem", valor: 15 }, { pontos: 100, tipo: "percentagem", valor: 30 }, { pontos: 150, tipo: "paga1leva2", item_gratis: "menor_valor" }] } },
         { key: "fidelidade.cupao_indicacao", active: true, description: "", updated_at: now, value: { percentagem: 5, validade_dias: 30 } },
@@ -51,6 +57,11 @@ function applyFilters(rows, params) {
   for (const [k, v] of params) {
     if (["select", "order", "limit", "offset", "on_conflict", "columns"].includes(k)) continue;
     if (v.startsWith("eq.")) out = out.filter((r) => String(r[k]) === v.slice(3));
+    if (v === "is.null") out = out.filter((r) => r[k] === null || r[k] === undefined);
+    if (v.startsWith("in.(")) {
+      const set = v.slice(4, -1).split(",").map((x) => x.replace(/^"|"$/g, ""));
+      out = out.filter((r) => set.includes(String(r[k])));
+    }
   }
   return out;
 }
@@ -118,6 +129,25 @@ export function startMock(port = 54321, state = createState()) {
       return send(204);
     }
 
+    // ---------- Clientes (vista calculada e funções) ----------
+    if (p === "/rest/v1/client_summary" && req.method === "GET") {
+      const rows = state.tables.clients.map((c) => ({
+        client_id: c.id, last_purchase_at: null, days_without_purchase: null, total_spent: "0.00", open_debt: "0.00", points: 0, active_coupons: 0,
+        referrals_who_bought: 0, ...(state.tables.summary_overrides.find((o) => o.client_id === c.id) || {}),
+      }));
+      const out = applyFilters(rows, url.searchParams);
+      if ((req.headers.accept || "").includes("vnd.pgrst.object")) return out.length === 1 ? send(200, out[0]) : send(406, { code: "PGRST116" });
+      return send(200, out);
+    }
+    if (p === "/rest/v1/rpc/export_client_data") {
+      const c = state.tables.clients.find((x) => x.id === json.p_client_id);
+      return send(200, { cliente: c, notas: state.tables.client_notes.filter((n) => n.client_id === c.id) });
+    }
+    if (p === "/rest/v1/rpc/erase_client") {
+      state.tables.clients = state.tables.clients.filter((x) => x.id !== json.p_client_id);
+      return send(200, "apagado");
+    }
+
     // ---------- Tabelas ----------
     const tm = p.match(/^\/rest\/v1\/([a-z_]+)$/);
     if (tm && state.tables[tm[1]]) {
@@ -133,20 +163,37 @@ export function startMock(port = 54321, state = createState()) {
         if (wantsObject) return out.length === 1 ? send(200, out[0]) : send(406, { code: "PGRST116", message: "no rows" });
         return send(200, out);
       }
-      if (!isCeo && name !== "profiles") return send(403, { code: "42501", message: "permission denied" });
+      const anyoneWrites = ["clients", "client_tags", "client_notes"].includes(name);
+      if (!isCeo && !anyoneWrites && name !== "profiles") return send(403, { code: "42501", message: "permission denied" });
       if (req.method === "POST") {
         const items = Array.isArray(json) ? json : [json];
         for (const it of items) {
           if (name === "tags" && rows.some((r) => r.name === it.name)) return send(409, { code: "23505", message: "duplicate key value violates unique constraint" });
-          rows.push({ id: crypto.randomUUID(), is_system: false, ...it });
+          if (name === "clients") {
+            state.seq = (state.seq || 0) + 1;
+            const nowIso = new Date().toISOString();
+            rows.push({
+              address: "", birthday_day: null, birthday_month: null, occupation: "", client_type: "cliente_final", seller_id: null,
+              funnel_stage: "contacto", referred_by: null, consent: false, opt_out: false, notes: "", perfume_preferences: "", erased_at: null,
+              ...it, code: state.seq, created_at: nowIso, updated_at: nowIso, created_by: sub,
+              consent_at: it.consent ? nowIso : null, consent_by: it.consent ? sub : null, opt_out_at: it.opt_out ? nowIso : null,
+            });
+            continue;
+          }
+          if (name === "client_notes") {
+            rows.push({ ...it, created_at: new Date().toISOString(), created_by: sub });
+            continue;
+          }
+          rows.push(name === "client_tags" ? { ...it } : { id: crypto.randomUUID(), is_system: false, ...it });
         }
         return send(201);
       }
       if (req.method === "PATCH") {
-        if (!isCeo) return send(200, []);
+        if (!isCeo && !anyoneWrites) return send(200, []);
         const target = applyFilters(rows, url.searchParams);
         for (const r of target) {
           if (name === "tags" && r.is_system && json.name && json.name !== r.name) return send(400, { code: "P0001", message: "A etiqueta é do sistema" });
+          if (name === "clients" && json.consent && !r.consent) Object.assign(json, { consent_at: new Date().toISOString(), consent_by: sub });
           Object.assign(r, json, name === "settings" ? { updated_at: new Date().toISOString() } : {});
         }
         return send(204);

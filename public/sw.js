@@ -6,10 +6,16 @@
  * - Pedidos à base de dados (Supabase) NUNCA passam por esta cache: os dados offline
  *   vivem no IndexedDB do dispositivo (passo 1I).
  */
-const VERSION = "smell-v1";
+const VERSION = "smell-v2";
 const SHELL_CACHE = `${VERSION}-shell`;
 const STATIC_CACHE = `${VERSION}-static`;
-const SHELL_URLS = ["/", "/clientes", "/vendas", "/produtos", "/mais", "/offline.html", "/manifest.webmanifest"];
+const SHELL_URLS = [
+  "/", "/entrar", "/trocar-palavra-passe",
+  "/clientes", "/clientes/novo", "/clientes/ficha", "/clientes/editar",
+  "/vendas", "/produtos",
+  "/mais", "/mais/conta", "/mais/definicoes", "/mais/utilizadores", "/mais/etiquetas",
+  "/offline.html", "/manifest.webmanifest",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -46,7 +52,7 @@ self.addEventListener("fetch", (event) => {
           }
           return res;
         })
-        .catch(async () => (await caches.match(req)) || (await caches.match("/")) || caches.match("/offline.html")),
+        .catch(async () => (await caches.match(req, { ignoreSearch: true })) || (await caches.match("/")) || caches.match("/offline.html")),
     );
     return;
   }

@@ -23,7 +23,7 @@ export function Button({
     <button
       {...props}
       disabled={props.disabled || loading}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 font-semibold transition-colors ${variants[variant]} ${className}`}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 font-semibold transition-colors ${variants[variant]} ${className}`}
     >
       {loading ? "A processar…" : children}
     </button>
@@ -159,5 +159,50 @@ export function Spinner({ label = "A carregar…" }: { label?: string }) {
     <p role="status" className="py-10 text-center text-sm text-texto-suave">
       {label}
     </p>
+  );
+}
+
+export function TextArea({
+  label,
+  hint,
+  ...props
+}: import("react").TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; hint?: string }) {
+  const id = useId();
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={id} className="text-sm font-medium text-vinho-escuro">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        rows={3}
+        {...props}
+        className="rounded-xl border border-linha bg-white px-3 py-2 text-base text-texto outline-none focus:border-vinho"
+      />
+      {hint && <p className="text-xs text-texto-suave">{hint}</p>}
+    </div>
+  );
+}
+
+export function Checkbox({
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  const id = useId();
+  return (
+    <div className="flex min-h-11 items-start gap-3">
+      <input id={id} type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[#710014]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <label htmlFor={id}>
+        <span className="font-medium text-vinho-escuro">{label}</span>
+        {description && <span className="block text-xs text-texto-suave">{description}</span>}
+      </label>
+    </div>
   );
 }
