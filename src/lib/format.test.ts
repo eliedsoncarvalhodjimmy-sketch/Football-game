@@ -46,3 +46,11 @@ describe("formatClientCode", () => {
     expect(formatClientCode("TEMP-a1b2")).toBe("TEMP-a1b2");
   });
 });
+
+import { formatPercent } from "./format";
+describe("formatPercent", () => {
+  it("vírgula decimal", () => {
+    expect(formatPercent(55.6)).toBe("55,6%");
+    expect(formatPercent(50)).toBe("50%");
+  });
+});

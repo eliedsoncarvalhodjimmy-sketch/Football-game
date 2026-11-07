@@ -13,7 +13,7 @@ export function assert(cond, msg) {
 
 export async function run(title, port, fn) {
   const { server, state } = await startMock(54321);
-  const app = spawn("npx", ["next", "start", "-p", String(port)], {
+  const app = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "-p", String(port)], {
     env: { ...process.env, NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321", NEXT_PUBLIC_SUPABASE_ANON_KEY: ANON_KEY, SUPABASE_SERVICE_ROLE_KEY: SERVICE_KEY },
     stdio: "ignore",
     detached: true, // grupo de processos próprio: assim o "next start" é mesmo terminado no fim
@@ -36,7 +36,7 @@ export async function run(title, port, fn) {
     console.error("Últimos pedidos ao Supabase simulado:", state.log.slice(-8));
   } finally {
     await browser.close();
-    try { process.kill(-app.pid, "SIGTERM"); } catch { app.kill(); }
+    try { process.kill(-app.pid, "SIGKILL"); } catch { app.kill(); }
     server.close();
   }
   return !failed;

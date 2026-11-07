@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "test:db": "bash tests/db/run.sh",
-    "test:e2e": "node tests/e2e/fase1c.mjs && node tests/e2e/fase1d.mjs"
+    "test:e2e": "node tests/e2e/fase1c.mjs && node tests/e2e/fase1d.mjs && node tests/e2e/fase1e.mjs"
   },
   "dependencies": {
     "@fontsource-variable/montserrat": "^5.3.0",

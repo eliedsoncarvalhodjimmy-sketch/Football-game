@@ -28,6 +28,10 @@ export function createState() {
       coupons: [],
       referrals: [],
       summary_overrides: [],
+      products: [],
+      product_variants: [],
+      product_variant_costs: [],
+      stock_movements: [],
       settings: [
         { key: "fidelidade.pontos", active: true, description: "", updated_at: now, value: { kz_por_ponto: 10000, expiram: false, validade_dias: null, minimo_troca: 50, escaloes: [{ pontos: 50, tipo: "percentagem", valor: 15 }, { pontos: 100, tipo: "percentagem", valor: 30 }, { pontos: 150, tipo: "paga1leva2", item_gratis: "menor_valor" }] } },
         { key: "fidelidade.cupao_indicacao", active: true, description: "", updated_at: now, value: { percentagem: 5, validade_dias: 30 } },
@@ -69,9 +73,11 @@ function applyFilters(rows, params) {
 export function startMock(port = 54321, state = createState()) {
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://localhost:${port}`);
-    let body = "";
-    for await (const c of req) body += c;
-    const json = body ? JSON.parse(body) : null;
+    const chunks = [];
+    for await (const c of req) chunks.push(c);
+    const body = Buffer.concat(chunks);
+    let json = null;
+    try { json = body.length ? JSON.parse(body.toString()) : null; } catch { json = null; }
     const cors = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "*",
@@ -148,6 +154,31 @@ export function startMock(port = 54321, state = createState()) {
       return send(200, "apagado");
     }
 
+    // ---------- Produtos: stock calculado e Storage ----------
+    if (p === "/rest/v1/variant_stock" && req.method === "GET") {
+      const rows = state.tables.product_variants.map((v) => ({
+        variant_id: v.id, quantity: state.tables.stock_movements.filter((m) => m.variant_id === v.id).reduce((a, m) => a + m.quantity, 0),
+      }));
+      return send(200, applyFilters(rows, url.searchParams));
+    }
+    if (p === "/rest/v1/product_variant_costs" && req.method === "GET") {
+      const me = state.tables.profiles.find((x) => x.id === subFromAuth(req));
+      if (!me || me.role !== "ceo") return send(200, []); // RLS: só o CEO
+    }
+    const up = p.match(/^\/storage\/v1\/object\/produtos\/(.+)$/);
+    if (up && req.method === "POST") {
+      state.photos = state.photos || {};
+      state.photos[up[1]] = body;
+      return send(200, { Key: `produtos/${up[1]}` });
+    }
+    if (p.startsWith("/storage/v1/object/public/produtos/")) {
+      // PNG 1x1 vinho
+      const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAIAAAADnC86AAAAMUlEQVR4nO3NQREAAAQAMGRQVP+PGO7cVmA50XGhTlaxWCwWi8VisVgsFovFYvHTeAHZtwDVypzilwAAAABJRU5ErkJggg==", "base64");
+      res.writeHead(200, { "Content-Type": "image/png", ...cors });
+      return res.end(png);
+    }
+    if (p === "/storage/v1/object/produtos" && req.method === "DELETE") return send(200, []);
+
     // ---------- Tabelas ----------
     const tm = p.match(/^\/rest\/v1\/([a-z_]+)$/);
     if (tm && state.tables[tm[1]]) {
@@ -163,7 +194,7 @@ export function startMock(port = 54321, state = createState()) {
         if (wantsObject) return out.length === 1 ? send(200, out[0]) : send(406, { code: "PGRST116", message: "no rows" });
         return send(200, out);
       }
-      const anyoneWrites = ["clients", "client_tags", "client_notes"].includes(name);
+      const anyoneWrites = ["clients", "client_tags", "client_notes"].includes(name) || (name === "stock_movements" && me && me.is_adm);
       if (!isCeo && !anyoneWrites && name !== "profiles") return send(403, { code: "42501", message: "permission denied" });
       if (req.method === "POST") {
         const items = Array.isArray(json) ? json : [json];
@@ -179,6 +210,21 @@ export function startMock(port = 54321, state = createState()) {
               consent_at: it.consent ? nowIso : null, consent_by: it.consent ? sub : null, opt_out_at: it.opt_out ? nowIso : null,
             });
             continue;
+          }
+          if (name === "stock_movements") {
+            if (it.movement_type === "entrada" && it.quantity <= 0) return send(400, { code: "23514", message: "stock_movements_sign" });
+            rows.push({ ...it, created_at: new Date().toISOString(), created_by: sub, sale_id: null });
+            continue;
+          }
+          const key = name === "product_variant_costs" ? "variant_id" : "id";
+          const existing = rows.find((r) => it[key] !== undefined && r[key] === it[key]);
+          if (existing && (req.headers.prefer || "").includes("merge-duplicates")) {
+            Object.assign(existing, it);
+            continue;
+          }
+          if (name === "product_variants") {
+            it.sku = String(it.sku).trim().toUpperCase();
+            if (rows.some((r) => r.sku === it.sku)) return send(409, { code: "23505", message: "duplicate key value violates unique constraint product_variants_sku_key" });
           }
           if (name === "client_notes") {
             rows.push({ ...it, created_at: new Date().toISOString(), created_by: sub });

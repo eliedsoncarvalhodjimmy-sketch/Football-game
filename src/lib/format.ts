@@ -78,3 +78,8 @@ export function formatClientCode(code: number | string | null | undefined): stri
   const n = Number(code);
   return Number.isInteger(n) && n > 0 ? String(n).padStart(4, "0") : String(code);
 }
+
+/** 55.6 -> "55,6%" */
+export function formatPercent(value: number): string {
+  return `${new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 1 }).format(value)}%`;
+}

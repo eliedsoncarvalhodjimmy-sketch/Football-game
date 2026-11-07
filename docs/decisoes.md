@@ -80,4 +80,8 @@ Registo das decisões tomadas com o CEO (Eliedson). Quando uma regra da especifi
 | T14 | Apagar dados (D27) | Cliente sem compras: apagado. Com compras: nome, WhatsApp, morada, aniversário, notas e etiquetas apagados; as vendas ficam ligadas a "Cliente apagado". Os dados pessoais são também retirados do `audit_log`; fica só o registo de que houve apagamento. Confirmação escrevendo o código do cliente. |
 | T15 | WhatsApp | Guardado sempre em formato internacional (`+244923456789`). Números de Angola podem ser escritos sem indicativo e têm de ter 9 algarismos começados por 9. Número repetido gera aviso, mas não bloqueia (pode ser a mesma família). |
 | T16 | Botão "Abrir WhatsApp" | Já existe na ficha (abre a conversa sem texto). Os modelos de mensagem com `{nome}`, `{saldo}`… chegam na Fase 2. |
+| T17 | Fotos dos perfumes | Bucket "produtos" com leitura pública (imagens de catálogo, sem dados pessoais), para ficarem guardadas no telemóvel e aparecerem offline. Só o CEO carrega e apaga. Fotos reduzidas no aparelho a 1200 px (WebP/JPEG) antes de enviar. |
+| T18 | Variações | Não se apagam (o histórico de vendas aponta para elas): desactivam-se. O SKU é guardado em maiúsculas e é único. |
+| T19 | Avisos de preço | Custo acima do preço ou revendedor mais caro do que o cliente final geram aviso e pedem confirmação, mas não bloqueiam (pode haver promoções ou erros de fornecedor a corrigir depois). |
+| T20 | Stock inicial | No registo de uma variação nova pode indicar-se o stock inicial; fica gravado como "Entrada de mercadoria — Stock inicial", para o stock continuar a ser a soma dos movimentos. |
 | T4 | Páginas | As páginas são geradas como estáticas e os dados são lidos no aparelho (IndexedDB + Supabase), para a app abrir mesmo sem rede. |

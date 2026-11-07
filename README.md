@@ -5,7 +5,7 @@ CRM da **Smell** (perfumes, Cuito, Bié, Angola). *Cuidamos de si!*
 Aplicação instalável no telemóvel e no computador (PWA) para gerir clientes, produtos e stock,
 vendas, pagamentos, dívidas, descontos, cupões e pontos de fidelidade, mesmo sem internet.
 
-> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)**, **1B (base de dados)**, **1C (entrada e perfis)** e **1D (clientes)**.
+> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)**, **1B (base de dados)**, **1C (entrada e perfis)**, **1D (clientes)** e **1E (produtos e stock)**.
 > A especificação está em [`docs/especificacao-smell-crm.md`](docs/especificacao-smell-crm.md)
 > e as decisões em [`docs/decisoes.md`](docs/decisoes.md).
 
@@ -49,7 +49,7 @@ Faça por esta ordem. Use sempre o mesmo email (o do CEO).
 6. **Preparar a base de dados** (criar as tabelas e as regras de segurança):
    - No Supabase, abra **SQL Editor → New query**.
    - Abra no GitHub a pasta [`supabase/migrations`](supabase/migrations). Copie o conteúdo de cada
-     ficheiro, **pela ordem dos números**, cole no editor e carregue em **Run**. São 7 ficheiros.
+     ficheiro, **pela ordem dos números**, cole no editor e carregue em **Run**. São 8 ficheiros.
      Cada um deve terminar com *Success*.
 7. **Criar a sua conta de CEO** (antes de qualquer outra!):
    - **Authentication → Users → Add user → Create new user**.
@@ -74,7 +74,12 @@ Faça por esta ordem. Use sempre o mesmo email (o do CEO).
    que é mostrada **uma só vez**: passe-a ao vendedor em privado. No primeiro acesso ele escolhe outra.
    Aqui também dá a permissão **ADM** (entradas e ajustes de stock) e escolhe as etiquetas de clientes
    que ele **não** pode ver.
-5. Se um vendedor sair da empresa, desligue **Conta activa**: deixa de conseguir entrar de imediato.
+5. **Produtos → Novo produto**: registe cada perfume com as suas variações (30 ml, 50 ml…),
+   preços de cliente final e de revendedor, preço de custo (só o CEO vê), stock mínimo e,
+   se quiser, o stock inicial. O botão **Sugerir** cria o código (SKU) automaticamente.
+6. Na ficha do produto, **Entrada** regista mercadoria que chegou e **Ajuste** corrige o stock
+   (sempre com motivo). Quem tiver a permissão ADM também o pode fazer.
+7. Se um vendedor sair da empresa, desligue **Conta activa**: deixa de conseguir entrar de imediato.
 
 ---
 
