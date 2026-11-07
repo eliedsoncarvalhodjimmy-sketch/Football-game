@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/*
+ * Paleta oficial Smell (manual de marca, Chicapa Design).
+ * O dourado não faz parte da paleta oficial: usar só em pequenos destaques
+ * (pontos, selo Embaixador, ícones), nunca em texto sobre o fundo bege.
+ */
+:root {
+  --creme: #f6f2d9;        /* fundo principal */
+  --vinho: #710014;        /* acção / primária */
+  --vinho-escuro: #4c020b; /* títulos, texto forte, cabeçalhos */
+  --dourado: #c4aa6f;      /* destaques (tirado do símbolo dourado) */
+  --dourado-claro: #dcc380;
+  --dourado-escuro: #ac905e;
+
+  --superficie: #fffdf3;   /* cartões sobre o fundo bege */
+  --texto: #2e1a1c;        /* texto normal */
+  --texto-suave: #6b5558;  /* texto secundário (contraste AA sobre o bege) */
+  --linha: #e6dfbf;        /* bordas finas */
+  --sucesso: #2f6b3a;
+  --alerta: #8a5a00;
+  --erro: #a1121f;
+}
+
+@theme inline {
+  --color-creme: var(--creme);
+  --color-vinho: var(--vinho);
+  --color-vinho-escuro: var(--vinho-escuro);
+  --color-dourado: var(--dourado);
+  --color-dourado-claro: var(--dourado-claro);
+  --color-dourado-escuro: var(--dourado-escuro);
+  --color-superficie: var(--superficie);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-linha: var(--linha);
+  --color-sucesso: var(--sucesso);
+  --color-alerta: var(--alerta);
+  --color-erro: var(--erro);
+  --font-sans: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
+  --radius-cartao: 1.25rem;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--creme);
+  color: var(--texto);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3 {
+  color: var(--vinho-escuro);
+}
+
+:focus-visible {
+  outline: 3px solid var(--dourado-escuro);
+  outline-offset: 2px;
+}
+
+/* Espaço para a barra inferior no telemóvel, incluindo a "zona segura" do iPhone. */
+.pb-barra {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .pb-barra {
+    padding-bottom: 2rem;
+  }
+}

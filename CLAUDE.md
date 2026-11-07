@@ -2,7 +2,7 @@
 
 A especificação completa (Partes 0, A–F e Fase 1) está em
 [`docs/especificacao-smell-crm.md`](docs/especificacao-smell-crm.md). **Lê-a no início de cada sessão.**
-As decisões tomadas ficam em `docs/decisoes.md`.
+As decisões tomadas ficam em `docs/decisoes.md` (prevalecem sobre a especificação).
 
 ## Regras de trabalho (resumo da Parte 0)
 - O dono (Eliedson, CEO) não é programador: explicar tudo em português simples.
