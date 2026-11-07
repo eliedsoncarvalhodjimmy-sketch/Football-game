@@ -4,11 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { useAuth } from "@/lib/auth/auth-context";
 import { ConnectionStatus } from "./connection-status";
 import { NAV_ITEMS, isActive } from "./nav-items";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { profile } = useAuth();
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
@@ -35,7 +37,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <p className="mt-auto px-2 text-xs text-texto-suave">Cuidamos de si!</p>
+        <Link href="/mais/conta" className="mt-auto rounded-xl px-2 py-2 hover:bg-creme">
+          <span className="block truncate text-sm font-semibold text-vinho-escuro">{profile?.full_name || profile?.email}</span>
+          <span className="block text-xs text-texto-suave">{profile?.role === "ceo" ? "CEO" : "Vendedor"} · Cuidamos de si!</span>
+        </Link>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

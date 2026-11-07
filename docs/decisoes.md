@@ -73,4 +73,7 @@ Registo das decisões tomadas com o CEO (Eliedson). Quando uma regra da especifi
 | T7 | Primeira conta = CEO | Mais simples e seguro do que guardar o email numa variável: o registo público está desligado e o CEO cria a sua conta antes de qualquer outra. |
 | T8 | Permissão ADM | Coluna `profiles.is_adm` (D24). |
 | T9 | Testes da base de dados | `npm run test:db` cria um Postgres temporário, aplica todas as migrações e testa as regras de segurança (o que o Vendedor vê e não vê). |
+| T10 | Gestão de contas | Criar contas, gerar palavras-passe e bloquear contas usa a chave secreta só no servidor (`/api/utilizadores`), depois de confirmar que o pedido vem de um CEO activo. Os perfis são alterados "em nome do CEO", para a auditoria mostrar quem fez. A palavra-passe gerada é mostrada uma única vez. |
+| T11 | Sessão offline | A sessão e o perfil ficam guardados no aparelho: sem internet a app abre na mesma. Entrar pela primeira vez e trocar a palavra-passe exigem rede. Uma conta desactivada é posta fora na próxima vez que a app tiver rede. |
+| T12 | Definições visíveis | Só aparecem as regras que já têm efeito (Fase 1). As da Fase 2 já existem na base de dados e aparecem quando funcionarem, para não haver interruptores "mortos". |
 | T4 | Páginas | As páginas são geradas como estáticas e os dados são lidos no aparelho (IndexedDB + Supabase), para a app abrir mesmo sem rede. |

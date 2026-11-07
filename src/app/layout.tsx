@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/montserrat";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/sw-register";
+import { AuthProvider } from "@/lib/auth/auth-context";
 
 export const metadata: Metadata = {
   title: { default: "Smell CRM", template: "%s · Smell CRM" },
@@ -27,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-AO" className="h-full antialiased">
       <body className="min-h-full">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <ServiceWorkerRegister />
       </body>
     </html>

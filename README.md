@@ -5,7 +5,7 @@ CRM da **Smell** (perfumes, Cuito, Bié, Angola). *Cuidamos de si!*
 Aplicação instalável no telemóvel e no computador (PWA) para gerir clientes, produtos e stock,
 vendas, pagamentos, dívidas, descontos, cupões e pontos de fidelidade, mesmo sem internet.
 
-> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)** e **1B (base de dados)**.
+> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)**, **1B (base de dados)** e **1C (entrada e perfis)**.
 > A especificação está em [`docs/especificacao-smell-crm.md`](docs/especificacao-smell-crm.md)
 > e as decisões em [`docs/decisoes.md`](docs/decisoes.md).
 
@@ -65,6 +65,17 @@ Faça por esta ordem. Use sempre o mesmo email (o do CEO).
 4. Carregue em **Deploy**. Ao fim de 1 a 2 minutos recebe um endereço do tipo
    `https://smell-crm.vercel.app`. É esse o endereço da app (não há domínio próprio por agora).
 
+### 1.4 Primeiros passos na app (CEO)
+1. Abra o endereço da Vercel e entre com o email e a palavra-passe da conta criada no passo 1.2.
+2. **Mais → Definições**: preencha os dados da Smell para o recibo (NIF, morada, telefone, IBAN)
+   e confirme as regras de pontos, cupões e prazos.
+3. **Mais → Etiquetas**: crie as etiquetas de que precisa (VIP e Embaixador já existem).
+4. **Mais → Utilizadores → Novo utilizador**: crie a conta do vendedor. A app gera uma palavra-passe,
+   que é mostrada **uma só vez**: passe-a ao vendedor em privado. No primeiro acesso ele escolhe outra.
+   Aqui também dá a permissão **ADM** (entradas e ajustes de stock) e escolhe as etiquetas de clientes
+   que ele **não** pode ver.
+5. Se um vendedor sair da empresa, desligue **Conta activa**: deixa de conseguir entrar de imediato.
+
 ---
 
 ## 2. Instalar a app no aparelho
@@ -86,6 +97,7 @@ npm install
 npm run dev                  # http://localhost:3000
 npm test                     # testes automáticos (regras de negócio)
 npm run test:db              # migrações + regras de segurança num Postgres temporário (precisa do PostgreSQL)
+npm run test:e2e             # testes de ecrã com Supabase simulado (precisa do Playwright; ver tests/e2e)
 npm run lint && npm run typecheck
 npm run build && npm start   # versão de produção (o service worker só corre aqui)
 ```
