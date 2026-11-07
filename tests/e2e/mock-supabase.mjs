@@ -2,6 +2,7 @@
 // Não imita as regras RLS — essas são testadas na base de dados real (npm run test:db).
 import http from "node:http";
 import crypto from "node:crypto";
+import { salesRpc } from "./mock-sales.mjs";
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
 const jwt = (sub, role = "authenticated") =>
@@ -32,6 +33,12 @@ export function createState() {
       product_variants: [],
       product_variant_costs: [],
       stock_movements: [],
+      sales: [],
+      sale_items: [],
+      sale_item_costs: [],
+      payments: [],
+      loyalty_ledger: [],
+      notifications: [],
       settings: [
         { key: "fidelidade.pontos", active: true, description: "", updated_at: now, value: { kz_por_ponto: 10000, expiram: false, validade_dias: null, minimo_troca: 50, escaloes: [{ pontos: 50, tipo: "percentagem", valor: 15 }, { pontos: 100, tipo: "percentagem", valor: 30 }, { pontos: 150, tipo: "paga1leva2", item_gratis: "menor_valor" }] } },
         { key: "fidelidade.cupao_indicacao", active: true, description: "", updated_at: now, value: { percentagem: 5, validade_dias: 30 } },
@@ -139,11 +146,34 @@ export function startMock(port = 54321, state = createState()) {
     if (p === "/rest/v1/client_summary" && req.method === "GET") {
       const rows = state.tables.clients.map((c) => ({
         client_id: c.id, last_purchase_at: null, days_without_purchase: null, total_spent: "0.00", open_debt: "0.00", points: 0, active_coupons: 0,
-        referrals_who_bought: 0, ...(state.tables.summary_overrides.find((o) => o.client_id === c.id) || {}),
+        referrals_who_bought: 0,
+        points: state.tables.loyalty_ledger.filter((l) => l.client_id === c.id).reduce((a, l) => a + l.points, 0),
+        ...(state.tables.summary_overrides.find((o) => o.client_id === c.id) || {}),
       }));
       const out = applyFilters(rows, url.searchParams);
       if ((req.headers.accept || "").includes("vnd.pgrst.object")) return out.length === 1 ? send(200, out[0]) : send(406, { code: "PGRST116" });
       return send(200, out);
+    }
+    const rpc = p.match(/^\/rest\/v1\/rpc\/(submit_sale|decide_sale|cancel_sale)$/);
+    if (rpc) {
+      const [status, data] = salesRpc(state, rpc[1], json, subFromAuth(req));
+      return send(status, data);
+    }
+    if (p === "/rest/v1/sale_margins" && req.method === "GET") {
+      const me = state.tables.profiles.find((x) => x.id === subFromAuth(req));
+      if (!me || me.role !== "ceo") return send(200, []);
+      const sid = (url.searchParams.get("sale_id") || "").replace("eq.", "");
+      const m = state.tables.sale_item_costs.filter((c) => c.sale_id === sid).reduce((a, c) => a + Number(c.margin), 0);
+      const row = { sale_id: sid, margin: m.toFixed(2) };
+      return (req.headers.accept || "").includes("vnd.pgrst.object") ? send(200, row) : send(200, [row]);
+    }
+    if (p === "/rest/v1/sales" && req.method === "GET") {
+      const rows = applyFilters(state.tables.sales, url.searchParams).map((s) => {
+        const c = state.tables.clients.find((x) => x.id === s.client_id);
+        return { ...s, clients: c ? { code: c.code, name: c.name, client_type: c.client_type } : null };
+      });
+      if ((req.headers.accept || "").includes("vnd.pgrst.object")) return rows.length === 1 ? send(200, rows[0]) : send(406, { code: "PGRST116" });
+      return send(200, rows.reverse());
     }
     if (p === "/rest/v1/rpc/export_client_data") {
       const c = state.tables.clients.find((x) => x.id === json.p_client_id);

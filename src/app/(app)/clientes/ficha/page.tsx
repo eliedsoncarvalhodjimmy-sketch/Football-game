@@ -11,6 +11,8 @@ import { addClientNote, eraseClient, exportClientData, fetchClientDetail, fetchC
 import { MONTHS, clientTypeLabel, stageLabel } from "@/lib/clients/model";
 import { formatWhatsapp, whatsappLink } from "@/lib/clients/whatsapp";
 import { formatClientCode, formatDate, formatDateTime, formatKz } from "@/lib/format";
+import { SaleBadges } from "@/components/sales/sale-badges";
+import { formatSaleNumber, type PaymentStatus, type SaleStatus } from "@/lib/sales/model";
 import { useLoader } from "@/lib/use-loader";
 
 function Stat({ label, value, tone }: { label: string; value: ReactNode; tone?: "erro" }) {
@@ -50,7 +52,7 @@ function FichaInner() {
   if (!data) return <Spinner />;
   if (!data.detail) return <Notice kind="erro">Cliente não encontrado (ou sem permissão para o ver).</Notice>;
 
-  const { client: c, summary: s, tagIds, notes, referrer, referred, coupons } = data.detail;
+  const { client: c, summary: s, tagIds, notes, referrer, referred, coupons, sales } = data.detail;
   const { team, tags } = data.bundle;
   const person = (pid: string | null) => {
     const p = team.find((x) => x.id === pid);
@@ -130,7 +132,10 @@ function FichaInner() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href={whatsappLink(c.whatsapp)} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full bg-vinho px-5 font-semibold text-creme hover:bg-vinho-escuro">
+          <Link href={`/vendas/nova?cliente=${c.id}`} className="inline-flex min-h-11 items-center rounded-full bg-vinho px-5 font-semibold text-creme hover:bg-vinho-escuro">
+            Nova venda
+          </Link>
+          <a href={whatsappLink(c.whatsapp)} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full border border-vinho bg-superficie px-5 font-semibold text-vinho hover:bg-creme">
             Abrir WhatsApp
           </a>
           <Link href={`/clientes/editar?id=${c.id}`} className="inline-flex min-h-11 items-center rounded-full border border-vinho bg-superficie px-5 font-semibold text-vinho hover:bg-creme">
@@ -202,6 +207,29 @@ function FichaInner() {
                 </li>
               ))}
             </ol>
+          )}
+        </Card>
+
+        <Card>
+          <h2 className="mb-3 font-semibold">Compras</h2>
+          {sales.length === 0 ? (
+            <p className="text-sm text-texto-suave">Ainda não há compras.</p>
+          ) : (
+            <ul className="flex flex-col divide-y divide-linha">
+              {sales.map((v) => (
+                <li key={v.id}>
+                  <Link href={`/vendas/ficha?id=${v.id}`} className="flex min-h-11 flex-wrap items-center justify-between gap-2 py-2 hover:text-vinho">
+                    <span className="text-sm">
+                      <span className="font-semibold text-vinho-escuro">Venda {formatSaleNumber(v.number)}</span> · {formatDate(v.created_at)}
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <SaleBadges status={v.status as SaleStatus} paymentStatus={v.payment_status as PaymentStatus} />
+                      <span className="font-semibold">{formatKz(v.total)}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </Card>
 

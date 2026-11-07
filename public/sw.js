@@ -7,14 +7,14 @@
  * - Pedidos à base de dados (Supabase) NUNCA passam por esta cache: os dados offline
  *   vivem no IndexedDB do dispositivo (passo 1I).
  */
-const VERSION = "smell-v3";
+const VERSION = "smell-v4";
 const SHELL_CACHE = `${VERSION}-shell`;
 const STATIC_CACHE = `${VERSION}-static`;
 const PHOTO_CACHE = "smell-fotos"; // não depende da versão: as fotos têm nome único
 const SHELL_URLS = [
   "/", "/entrar", "/trocar-palavra-passe",
   "/clientes", "/clientes/novo", "/clientes/ficha", "/clientes/editar",
-  "/vendas", "/produtos", "/produtos/novo", "/produtos/ficha", "/produtos/editar",
+  "/vendas", "/vendas/nova", "/vendas/ficha", "/produtos", "/produtos/novo", "/produtos/ficha", "/produtos/editar",
   "/mais", "/mais/conta", "/mais/definicoes", "/mais/utilizadores", "/mais/etiquetas",
   "/offline.html", "/manifest.webmanifest",
 ];

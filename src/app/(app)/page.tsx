@@ -19,6 +19,9 @@ export default function InicioPage() {
   return (
     <>
       <PageHeader title={`${greeting()}${firstName ? `, ${firstName}` : ""}`} subtitle="Cuidamos de si!" />
+      <Link href="/vendas/nova" className="mb-4 flex min-h-14 items-center justify-center rounded-[var(--radius-cartao)] bg-vinho px-5 text-lg font-semibold text-creme hover:bg-vinho-escuro">
+        Nova venda
+      </Link>
       <div className="grid gap-3 sm:grid-cols-2">
         {NAV_ITEMS.filter((i) => i.href !== "/").map(({ href, label, Icon }) => (
           <Link key={href} href={href}>

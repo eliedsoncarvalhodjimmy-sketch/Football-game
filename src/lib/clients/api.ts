@@ -28,6 +28,7 @@ export interface ClientDetail {
   referrer: Pick<Client, "id" | "code" | "name"> | null;
   referred: { id: string; code: number | null; name: string; bought: boolean }[];
   coupons: Coupon[];
+  sales: { id: string; number: number; created_at: string; total: string; status: string; payment_status: string }[];
 }
 
 export interface ClientsBundle {
@@ -65,15 +66,16 @@ export async function fetchClientsBundle(): Promise<ClientsBundle> {
 
 export async function fetchClientDetail(id: string): Promise<ClientDetail | null> {
   const sb = getSupabaseBrowserClient();
-  const [c, s, ct, n, r, cp] = await Promise.all([
+  const [c, s, ct, n, r, cp, sl] = await Promise.all([
     sb.from("clients").select("*").eq("id", id).maybeSingle(),
     sb.from("client_summary").select("*").eq("client_id", id).maybeSingle(),
     sb.from("client_tags").select("tag_id").eq("client_id", id),
     sb.from("client_notes").select("id, body, created_at, created_by").eq("client_id", id).order("created_at", { ascending: false }),
     sb.from("clients").select("id, code, name").eq("referred_by", id).is("erased_at", null).order("code"),
     sb.from("coupons").select("id, code, percent, status, expires_at").eq("client_id", id).eq("status", "activo").order("expires_at"),
+    sb.from("sales").select("id, number, created_at, total, status, payment_status").eq("client_id", id).order("created_at", { ascending: false }).limit(50),
   ]);
-  if (c.error || s.error || ct.error || n.error || r.error || cp.error) fail("Não foi possível carregar o cliente. Verifique a ligação.");
+  if (c.error || s.error || ct.error || n.error || r.error || cp.error || sl.error) fail("Não foi possível carregar o cliente. Verifique a ligação.");
   if (!c.data) return null;
   const client = c.data as Client;
   let referrer: ClientDetail["referrer"] = null;
@@ -95,6 +97,7 @@ export async function fetchClientDetail(id: string): Promise<ClientDetail | null
     referrer,
     referred: (r.data as { id: string; code: number | null; name: string }[]).map((x) => ({ ...x, bought: bought.has(x.id) })),
     coupons: cp.data as Coupon[],
+    sales: sl.data as ClientDetail["sales"],
   };
 }
 

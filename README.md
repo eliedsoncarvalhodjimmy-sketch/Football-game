@@ -5,7 +5,7 @@ CRM da **Smell** (perfumes, Cuito, Bié, Angola). *Cuidamos de si!*
 Aplicação instalável no telemóvel e no computador (PWA) para gerir clientes, produtos e stock,
 vendas, pagamentos, dívidas, descontos, cupões e pontos de fidelidade, mesmo sem internet.
 
-> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)**, **1B (base de dados)**, **1C (entrada e perfis)**, **1D (clientes)** e **1E (produtos e stock)**.
+> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)**, **1B (base de dados)**, **1C (entrada e perfis)**, **1D (clientes)**, **1E (produtos e stock)** e **1F (vendas)**.
 > A especificação está em [`docs/especificacao-smell-crm.md`](docs/especificacao-smell-crm.md)
 > e as decisões em [`docs/decisoes.md`](docs/decisoes.md).
 
@@ -49,7 +49,7 @@ Faça por esta ordem. Use sempre o mesmo email (o do CEO).
 6. **Preparar a base de dados** (criar as tabelas e as regras de segurança):
    - No Supabase, abra **SQL Editor → New query**.
    - Abra no GitHub a pasta [`supabase/migrations`](supabase/migrations). Copie o conteúdo de cada
-     ficheiro, **pela ordem dos números**, cole no editor e carregue em **Run**. São 8 ficheiros.
+     ficheiro, **pela ordem dos números**, cole no editor e carregue em **Run**. São 9 ficheiros.
      Cada um deve terminar com *Success*.
 7. **Criar a sua conta de CEO** (antes de qualquer outra!):
    - **Authentication → Users → Add user → Create new user**.

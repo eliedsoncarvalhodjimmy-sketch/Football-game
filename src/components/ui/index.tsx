@@ -46,7 +46,7 @@ export function Field({
 }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string; error?: string }) {
   const id = useId();
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1">
       <label htmlFor={id} className="text-sm font-medium text-vinho-escuro">
         {label}
       </label>
@@ -55,7 +55,7 @@ export function Field({
         {...props}
         aria-invalid={error ? true : undefined}
         aria-describedby={hint || error ? `${id}-d` : undefined}
-        className={`min-h-11 rounded-xl border bg-white px-3 text-base text-texto outline-none focus:border-vinho ${
+        className={`min-h-11 w-full min-w-0 rounded-xl border bg-white px-3 text-base text-texto outline-none focus:border-vinho ${
           error ? "border-erro" : "border-linha"
         } ${props.className ?? ""}`}
       />
@@ -75,14 +75,14 @@ export function Select({
 }: SelectHTMLAttributes<HTMLSelectElement> & { label: string; children: ReactNode }) {
   const id = useId();
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1">
       <label htmlFor={id} className="text-sm font-medium text-vinho-escuro">
         {label}
       </label>
       <select
         id={id}
         {...props}
-        className="min-h-11 rounded-xl border border-linha bg-white px-3 text-base text-texto outline-none focus:border-vinho"
+        className="min-h-11 w-full min-w-0 rounded-xl border border-linha bg-white px-3 text-base text-texto outline-none focus:border-vinho"
       >
         {children}
       </select>
