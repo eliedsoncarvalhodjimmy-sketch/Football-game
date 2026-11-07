@@ -5,7 +5,7 @@ CRM da **Smell** (perfumes, Cuito, Bié, Angola). *Cuidamos de si!*
 Aplicação instalável no telemóvel e no computador (PWA) para gerir clientes, produtos e stock,
 vendas, pagamentos, dívidas, descontos, cupões e pontos de fidelidade, mesmo sem internet.
 
-> **Estado:** Fase 1 em construção. Passo concluído: **1A (fundações)**.
+> **Estado:** Fase 1 em construção. Passos concluídos: **1A (fundações)** e **1B (base de dados)**.
 > A especificação está em [`docs/especificacao-smell-crm.md`](docs/especificacao-smell-crm.md)
 > e as decisões em [`docs/decisoes.md`](docs/decisoes.md).
 
@@ -46,11 +46,22 @@ Faça por esta ordem. Use sempre o mesmo email (o do CEO).
 > e carregue em **Restore project**. Os dados não se perdem. Quando a operação crescer, o plano
 > pago (cerca de 25 USD/mês) elimina as pausas e inclui cópias de segurança diárias.
 
+6. **Preparar a base de dados** (criar as tabelas e as regras de segurança):
+   - No Supabase, abra **SQL Editor → New query**.
+   - Abra no GitHub a pasta [`supabase/migrations`](supabase/migrations). Copie o conteúdo de cada
+     ficheiro, **pela ordem dos números**, cole no editor e carregue em **Run**. São 6 ficheiros.
+     Cada um deve terminar com *Success*.
+7. **Criar a sua conta de CEO** (antes de qualquer outra!):
+   - **Authentication → Users → Add user → Create new user**.
+   - Email: o seu; palavra-passe: uma forte; marque **Auto Confirm User**.
+   - A **primeira conta** criada recebe automaticamente o perfil **CEO**. As contas dos vendedores
+     são criadas depois, por si, dentro da app.
+
 ### 1.3 Vercel: põe a app na internet
 1. Abra https://vercel.com/signup e escolha **Continue with GitHub**. Plano **Hobby** (gratuito).
 2. **Add New… → Project** e escolha o repositório `smell-crm`.
-3. Antes de carregar em **Deploy**, abra **Environment Variables** e adicione as 4 variáveis
-   do ficheiro [`.env.example`](.env.example), com os valores do Supabase e `CEO_EMAIL` com o seu email.
+3. Antes de carregar em **Deploy**, abra **Environment Variables** e adicione as 3 variáveis
+   do ficheiro [`.env.example`](.env.example), com os valores do Supabase.
 4. Carregue em **Deploy**. Ao fim de 1 a 2 minutos recebe um endereço do tipo
    `https://smell-crm.vercel.app`. É esse o endereço da app (não há domínio próprio por agora).
 
@@ -74,6 +85,7 @@ cp .env.example .env.local   # preencher com os valores do Supabase
 npm install
 npm run dev                  # http://localhost:3000
 npm test                     # testes automáticos (regras de negócio)
+npm run test:db              # migrações + regras de segurança num Postgres temporário (precisa do PostgreSQL)
 npm run lint && npm run typecheck
 npm run build && npm start   # versão de produção (o service worker só corre aqui)
 ```
@@ -86,6 +98,8 @@ npm run build && npm start   # versão de produção (o service worker só corre
 | `public/brand/` | Logótipos oficiais (PNG transparentes) |
 | `public/icons/` | Ícones da app instalável |
 | `public/sw.js` | Service worker (funcionamento offline) |
+| `supabase/migrations/` | Base de dados: tabelas, segurança (RLS), auditoria, dados iniciais |
+| `tests/db/` | Testes da base de dados (o que cada perfil pode ver e fazer) |
 | `docs/` | Especificação e decisões |
 
 **Regras:** texto em português de Angola; dinheiro em Kz com `numeric(14,2)`; datas guardadas em UTC

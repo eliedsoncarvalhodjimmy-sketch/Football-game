@@ -22,7 +22,7 @@ Registo das decisões tomadas com o CEO (Eliedson). Quando uma regra da especifi
 |---|------|---------|
 | D9 | Contas GitHub/Supabase/Vercel | O CEO ainda não as tem: o README traz o guia passo a passo. |
 | D10 | Domínio | Sem domínio próprio: usar o endereço gratuito da Vercel (`*.vercel.app`). |
-| D11 | Email do CEO | Definido pela variável `CEO_EMAIL` (não fica escrito no código). Vendedores são adicionados depois pelo CEO, dentro da app. |
+| D11 | Email do CEO | Indicado pelo CEO (não fica escrito no repositório, que pode ser público). **A primeira conta criada no Supabase torna-se CEO automaticamente**; as seguintes são Vendedor. Por isso o CEO cria a sua conta primeiro (ver README). Vendedores são adicionados depois pelo CEO, dentro da app. |
 
 ### Marca
 | # | Tema | Decisão |
@@ -68,4 +68,9 @@ Registo das decisões tomadas com o CEO (Eliedson). Quando uma regra da especifi
 | T1 | Versões | Next.js 16 (App Router), React 19, Tailwind CSS 4, TypeScript 5, Vitest 5. |
 | T2 | Fonte | Montserrat servida a partir da própria app (`@fontsource-variable/montserrat`), para funcionar offline. Nakilla não é usada como fonte web (só existe nos logótipos em imagem). |
 | T3 | Service worker | Escrito à mão (`public/sw.js`), simples e previsível: páginas com "rede primeiro", ficheiros estáticos com "cache primeiro". Os dados nunca passam por esta cache: vivem no IndexedDB (Dexie). |
+| T5 | Preço de custo | Guardado numa tabela à parte (`product_variant_costs`), tal como o custo/margem de cada venda (`sale_item_costs`). Só o CEO tem acesso a estas tabelas; o Vendedor não as consegue ler nem pela API. |
+| T6 | Escritas sensíveis | Vendas, pagamentos, pontos e cupões de indicação só são escritos por funções do servidor (passos 1F–1H), que calculam preços, tectos e margens. O aparelho nunca envia preços finais "à confiança". |
+| T7 | Primeira conta = CEO | Mais simples e seguro do que guardar o email numa variável: o registo público está desligado e o CEO cria a sua conta antes de qualquer outra. |
+| T8 | Permissão ADM | Coluna `profiles.is_adm` (D24). |
+| T9 | Testes da base de dados | `npm run test:db` cria um Postgres temporário, aplica todas as migrações e testa as regras de segurança (o que o Vendedor vê e não vê). |
 | T4 | Páginas | As páginas são geradas como estáticas e os dados são lidos no aparelho (IndexedDB + Supabase), para a app abrir mesmo sem rede. |
