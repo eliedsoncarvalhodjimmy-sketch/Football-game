@@ -1,0 +1,4 @@
+id;name;short_name;country;league;city;reputation;stadium_capacity;transfer_budget;wage_budget;facilities;youth_facilities;crest;rivals;color_primary;color_secondary
+C1;Clube Exemplo Norte;CEN;POR;POR1;Vila Norte;70;30000;10000000;20000000;14;13;exemplo.png;C2;#c8102e;#ffffff
+C2;"Clube ""Sul"" Exemplo";CES;POR;POR1;Vila Sul;65;25000;8000000;15000000;12;12;;C1|C9;#003399;#ffffff
+C3;Clube Fora;CFX;ESP;XXX9;Nenhures;50;;;;;;;;;

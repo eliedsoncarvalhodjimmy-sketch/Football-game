@@ -1,0 +1,8 @@
+id;first_name;last_name;club;nationality;birth_date;position;other_positions;ovr;foot;height_cm
+P1;Ana;Teste;C1;POR;2000-03-15;ST;AM|RW;75;L;178
+P2;Bruno;Exemplo;C1;POR;1990-11-01;GK;;70;R;190
+P3;Carla;Ficticia;C2;;2007-01-20;MC;;62;B;170
+P4;Duarte;Livre;;BRA;1995-06-30;DC;;66;R;186
+P5;Erro;Posicao;C1;POR;2000-01-01;XX;;60;R;180
+P6;Erro;Ovr;C1;POR;2000-01-01;ST;;150;R;180
+P7;Clube;Inexistente;C99;POR;2000-01-01;ST;;60;R;180
