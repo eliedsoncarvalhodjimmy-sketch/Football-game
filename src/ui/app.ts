@@ -27,7 +27,7 @@ export function startApp(root: HTMLElement, client: WorkerClient): void {
     { id: 'scouting', label: 'Scouting', phase: 6 },
     { id: 'market', label: 'Mercado', phase: 5 },
     { id: 'finance', label: 'Finanças', phase: 4 },
-    { id: 'board', label: 'Clube', phase: 4 },
+    { id: 'board', label: 'Federação', phase: 4 },
     { id: 'world', label: 'Mundo', render: () => (summary ? worldView(client) : noWorld()) },
     { id: 'data', label: 'Dados', render: () => dataToolsView(client, onWorldChanged) },
   ];
@@ -39,7 +39,7 @@ export function startApp(root: HTMLElement, client: WorkerClient): void {
   function onWorldChanged(s: WorldSummary | null) {
     summary = s;
     clear(status);
-    if (s) status.append(`${s.clubs} clubes · ${s.players} jogadores `, s.isTestData ? h('span', { class: 'badge test' }, 'DADOS DE TESTE') : '');
+    if (s) status.append(`${s.countries} países · ${s.players} jogadores `, s.isTestData ? h('span', { class: 'badge test' }, 'DADOS DE TESTE') : '');
     else status.textContent = 'Sem mundo carregado';
   }
 

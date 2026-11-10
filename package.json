@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "bench": "node --expose-gc --import tsx scripts/bench.ts",
     "generate-world": "tsx scripts/generate-world.ts",
-    "export-attributes": "tsx scripts/export-attributes.ts"
+    "export-attributes": "tsx scripts/export-attributes.ts",
+    "counts": "tsx scripts/counts.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

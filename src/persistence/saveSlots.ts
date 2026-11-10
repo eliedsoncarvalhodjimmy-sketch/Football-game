@@ -4,12 +4,12 @@
 
 import { WorldStore, type WorldSnapshot } from '../engine/store/worldStore';
 import type { PlayerStoreSnapshot } from '../engine/store/playerStore';
-import type { ChunkRecord, Database, SlotMeta } from './db';
+import { SAVE_FORMAT, type ChunkRecord, type Database, type SlotMeta } from './db';
 
 type Chunks = Record<string, unknown>;
 
 const PLAYER_ARRAY_KEYS = [
-  'clubIndex', 'nationality', 'birthDate', 'position', 'foot', 'heightCm', 'ovrInput', 'potential',
+  'teamIndex', 'squadLevel', 'valueEur', 'generated', 'nationality', 'birthDate', 'position', 'foot', 'heightCm', 'ovrInput', 'potential',
   'seed', 'attrs', 'hidden', 'familiarity',
 ] as const satisfies readonly (keyof PlayerStoreSnapshot)[];
 
@@ -17,8 +17,8 @@ const PLAYER_ARRAY_KEYS = [
 export function snapshotToChunks(s: WorldSnapshot): Chunks {
   const c: Chunks = {
     meta: { version: s.version, meta: s.meta },
+    confederations: s.confederations,
     countries: s.countries,
-    clubs: s.clubs,
     'players:strings': {
       count: s.players.count, ids: s.players.ids, firstNames: s.players.firstNames,
       lastNames: s.players.lastNames, nationalityCodes: s.players.nationalityCodes,
@@ -31,15 +31,15 @@ export function snapshotToChunks(s: WorldSnapshot): Chunks {
 }
 
 export function chunksToSnapshot(c: Chunks): WorldSnapshot {
-  const m = c.meta as { version: 1; meta: WorldSnapshot['meta'] };
+  const m = c.meta as { version: 2; meta: WorldSnapshot['meta'] };
   const strings = c['players:strings'] as Pick<PlayerStoreSnapshot, 'count' | 'ids' | 'firstNames' | 'lastNames' | 'nationalityCodes'>;
   const players = { ...strings } as PlayerStoreSnapshot;
   for (const k of PLAYER_ARRAY_KEYS) (players as unknown as Record<string, unknown>)[k] = c[`players:${k}`];
   return {
     version: m.version,
     meta: m.meta,
+    confederations: c.confederations as WorldSnapshot['confederations'],
     countries: c.countries as WorldSnapshot['countries'],
-    clubs: c.clubs as WorldSnapshot['clubs'],
     players,
     otherPositions: c.otherPositions as WorldSnapshot['otherPositions'],
     overrides: c.overrides as WorldSnapshot['overrides'],
@@ -109,7 +109,7 @@ export class SaveManager {
       worldName: world.meta.name,
       isTestData: world.meta.isTestData,
       seed: world.meta.seed,
-      clubs: world.clubs.length,
+      countries: world.countries.length,
       players: world.players.count,
       chunkKeys: Object.keys(chunks),
       bytes,
@@ -131,6 +131,8 @@ export class SaveManager {
       hashes.set(r.key, chunkHash(r.data));
     }
     this.hashes.set(slotId, hashes);
+    const version = (chunks.meta as { version?: number } | undefined)?.version;
+    if (version !== SAVE_FORMAT) throw new Error(`Gravação antiga (formato ${version ?? '?'}) incompatível com o mundo de países-clube`);
     return WorldStore.fromSnapshot(chunksToSnapshot(chunks));
   }
 

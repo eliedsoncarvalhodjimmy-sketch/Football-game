@@ -1,3 +1,1 @@
-{ "name": "Exemplo pequeno", "seed": 42, "referenceDate": "2026-08-01",
-  "leagues": { "POR1": { "relegationSlots": 3 } },
-  "countries": { "USA": { "promotionRelegation": false } } }
+{ "name": "Exemplo pequeno", "seed": 42, "referenceDate": "2026-02-05" }

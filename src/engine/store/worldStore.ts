@@ -1,24 +1,26 @@
-// In-memory world: configuration, clubs and the compact player store.
+// In-memory world: confederations, the 213 country-clubs and the compact player store.
 
 import { HIDDEN_INDEX, N_HIDDEN, N_POSITIONS, N_VISIBLE, POSITIONS, POSITION_INDEX, VISIBLE_INDEX } from '../../config/attributes.config';
 import { generateAttributes, type AttributeGenInput, type AttributeGenOutput } from '../generator/attributeGenerator';
 import { ageAt } from '../ids';
 import { hashString } from '../rng';
-import type { ClubRecord, CountryConfig, LeagueConfig, PlayerRecord, RawWorld, WorldMeta } from '../types';
+import {
+  SQUAD_LEVELS, type ConfederationConfig, type CountryRecord, type DivisionConfig, type PlayerRecord,
+  type RawWorld, type SquadLevel, type WorldMeta,
+} from '../types';
 import { type AttributeOverrides } from './overrides';
 import { FOOT_CODES, PlayerStore, dateToInt, intToDate, type PlayerStoreSnapshot } from './playerStore';
 
-/** Reputation assumed for free agents when generating attributes. */
+/** Context assumed for free agents when generating attributes. */
 const FREE_AGENT_REPUTATION = 30;
-const FREE_AGENT_LEAGUE_QUALITY = 60;
+const FREE_AGENT_QUALITY = 60;
 
 export class WorldStore {
   meta: WorldMeta;
-  countries: CountryConfig[];
-  leagues: LeagueConfig[];
-  leagueIndexById = new Map<string, number>();
-  clubs: ClubRecord[];
-  clubIndexById = new Map<string, number>();
+  confederations: ConfederationConfig[];
+  divisions: DivisionConfig[];
+  countries: CountryRecord[];
+  countryIndexById = new Map<string, number>();
   players: PlayerStore;
   playerIndexById = new Map<string, number>();
   overrides: AttributeOverrides = new Map();
@@ -26,40 +28,43 @@ export class WorldStore {
   otherPositions = new Map<number, string[]>();
   private squadIndex: number[][] | null = null;
 
-  constructor(meta: WorldMeta, countries: CountryConfig[], clubs: ClubRecord[], players: PlayerStore) {
+  constructor(meta: WorldMeta, confederations: ConfederationConfig[], countries: CountryRecord[], players: PlayerStore) {
     this.meta = meta;
+    this.confederations = confederations;
+    this.divisions = confederations.flatMap((c) => c.divisions);
     this.countries = countries;
-    this.leagues = countries.flatMap((c) => c.leagues);
-    this.leagues.forEach((l, i) => this.leagueIndexById.set(l.id, i));
-    this.clubs = clubs;
-    clubs.forEach((c, i) => this.clubIndexById.set(c.id, i));
+    countries.forEach((c, i) => this.countryIndexById.set(c.id, i));
     this.players = players;
     for (let i = 0; i < players.count; i++) this.playerIndexById.set(players.ids[i], i);
   }
 
-  league(id: string): LeagueConfig | undefined {
-    const i = this.leagueIndexById.get(id);
-    return i === undefined ? undefined : this.leagues[i];
+  divisionOf(country: CountryRecord): DivisionConfig | undefined {
+    return this.divisions.find((d) => d.confederation === country.gameConfederation && d.tier === country.division);
   }
 
-  clubsInLeague(leagueId: string): ClubRecord[] {
-    return this.clubs.filter((c) => c.leagueId === leagueId);
+  countriesInDivision(divisionId: string): CountryRecord[] {
+    const d = this.divisions.find((x) => x.id === divisionId);
+    if (!d) return [];
+    return this.countries.filter((c) => c.gameConfederation === d.confederation && c.division === d.tier);
   }
 
-  /** Player indices of a club's senior squad (lazy index, rebuilt after transfers via invalidate()). */
-  squad(clubIndex: number): number[] {
+  /** Player indices playing for a country (optionally one squad level). Lazy index; invalidate after moves. */
+  squad(countryIndex: number, level?: SquadLevel): number[] {
     if (!this.squadIndex) {
-      const idx: number[][] = this.clubs.map(() => []);
-      const ci = this.players.clubIndex;
-      for (let i = 0; i < this.players.count; i++) if (ci[i] >= 0) idx[ci[i]].push(i);
+      const idx: number[][] = this.countries.map(() => []);
+      const ti = this.players.teamIndex;
+      for (let i = 0; i < this.players.count; i++) if (ti[i] >= 0) idx[ti[i]].push(i);
       this.squadIndex = idx;
     }
-    return this.squadIndex[clubIndex] ?? [];
+    const all = this.squadIndex[countryIndex] ?? [];
+    if (level === undefined) return all;
+    const l = SQUAD_LEVELS.indexOf(level);
+    return all.filter((i) => this.players.squadLevel[i] === l);
   }
 
   freeAgents(): number[] {
     const out: number[] = [];
-    for (let i = 0; i < this.players.count; i++) if (this.players.clubIndex[i] < 0) out.push(i);
+    for (let i = 0; i < this.players.count; i++) if (this.players.teamIndex[i] < 0) out.push(i);
     return out;
   }
 
@@ -74,17 +79,18 @@ export class WorldStore {
   /** Inputs of the deterministic generator for one player. */
   genInput(i: number): AttributeGenInput {
     const p = this.players;
-    const ci = p.clubIndex[i];
-    const club = ci >= 0 ? this.clubs[ci] : undefined;
-    const league = club ? this.league(club.leagueId) : undefined;
+    const ti = p.teamIndex[i];
+    const team = ti >= 0 ? this.countries[ti] : undefined;
+    const division = team ? this.divisionOf(team) : undefined;
     return {
       seed: p.seed[i],
       ovr: p.ovrInput[i],
       position: POSITIONS[p.position[i]],
       otherPositions: this.otherPositions.get(i),
       age: this.ageOf(i),
-      leagueQuality: league?.quality ?? FREE_AGENT_LEAGUE_QUALITY,
-      clubReputation: club?.reputation ?? FREE_AGENT_REPUTATION,
+      leagueQuality: division?.quality ?? FREE_AGENT_QUALITY,
+      teamReputation: team?.reputation ?? FREE_AGENT_REPUTATION,
+      valueEur: p.valueEur[i] || null,
     };
   }
 
@@ -125,28 +131,31 @@ export class WorldStore {
   /** Convert a player back to a PlayerRecord (used by exports). */
   playerRecord(i: number): PlayerRecord {
     const p = this.players;
-    const ci = p.clubIndex[i];
+    const ti = p.teamIndex[i];
     return {
       id: p.ids[i],
       firstName: p.firstNames[i],
       lastName: p.lastNames[i],
-      clubId: ci >= 0 ? this.clubs[ci].id : '',
       nationality: p.nationalityCodes[p.nationality[i]],
+      team: ti >= 0 ? this.countries[ti].id : '',
+      squad: SQUAD_LEVELS[p.squadLevel[i]],
       birthDate: intToDate(p.birthDate[i]),
       position: POSITIONS[p.position[i]],
       otherPositions: this.otherPositions.get(i) ?? [],
       ovr: p.ovrInput[i],
+      valueEur: p.valueEur[i] || null,
       foot: FOOT_CODES[p.foot[i]],
       heightCm: p.heightCm[i],
+      generated: p.generated[i] === 1,
     };
   }
 
   toSnapshot(): WorldSnapshot {
     return {
-      version: 1,
+      version: 2,
       meta: this.meta,
+      confederations: this.confederations,
       countries: this.countries,
-      clubs: this.clubs,
       players: this.players.toSnapshot(),
       otherPositions: [...this.otherPositions.entries()],
       overrides: [...this.overrides.entries()].map(([k, v]) => [k, [...v.entries()]]),
@@ -154,7 +163,7 @@ export class WorldStore {
   }
 
   static fromSnapshot(s: WorldSnapshot): WorldStore {
-    const w = new WorldStore(s.meta, s.countries, s.clubs, PlayerStore.fromSnapshot(s.players));
+    const w = new WorldStore(s.meta, s.confederations, s.countries, PlayerStore.fromSnapshot(s.players));
     w.otherPositions = new Map(s.otherPositions);
     w.overrides = new Map(s.overrides.map(([k, v]) => [k, new Map(v)]));
     return w;
@@ -162,10 +171,10 @@ export class WorldStore {
 }
 
 export interface WorldSnapshot {
-  version: 1;
+  version: 2;
   meta: WorldMeta;
-  countries: CountryConfig[];
-  clubs: ClubRecord[];
+  confederations: ConfederationConfig[];
+  countries: CountryRecord[];
   players: PlayerStoreSnapshot;
   otherPositions: [number, string[]][];
   overrides: [string, [string, number][]][];
@@ -174,11 +183,14 @@ export interface WorldSnapshot {
 /** Build the in-memory world from raw records and run the deterministic attribute generator. */
 export function buildWorld(raw: RawWorld, overrides?: AttributeOverrides): WorldStore {
   const store = new PlayerStore(raw.players.length);
-  const clubIndexById = new Map(raw.clubs.map((c, i) => [c.id, i]));
+  const countryIndexById = new Map(raw.countries.map((c, i) => [c.id, i]));
   const otherPositions = new Map<number, string[]>();
   for (const r of raw.players) {
     const i = store.add(r.id, r.firstName, r.lastName);
-    store.clubIndex[i] = r.clubId ? (clubIndexById.get(r.clubId) ?? -1) : -1;
+    store.teamIndex[i] = r.team ? (countryIndexById.get(r.team) ?? -1) : -1;
+    store.squadLevel[i] = Math.max(0, SQUAD_LEVELS.indexOf(r.squad));
+    store.valueEur[i] = r.valueEur ?? 0;
+    store.generated[i] = r.generated ? 1 : 0;
     store.nationality[i] = store.nationalityIndex(r.nationality);
     store.birthDate[i] = dateToInt(r.birthDate);
     store.position[i] = POSITION_INDEX[r.position];
@@ -188,7 +200,7 @@ export function buildWorld(raw: RawWorld, overrides?: AttributeOverrides): World
     store.seed[i] = hashString(r.id, raw.meta.seed);
     if (r.otherPositions.length) otherPositions.set(i, r.otherPositions.slice());
   }
-  const world = new WorldStore(raw.meta, raw.countries, raw.clubs, store);
+  const world = new WorldStore(raw.meta, raw.confederations, raw.countries, store);
   world.otherPositions = otherPositions;
   if (overrides) world.overrides = overrides;
   world.regenerateAll();

@@ -7,13 +7,14 @@
 
 import { ATTR_MAX, ATTR_MIN, HIDDEN_ATTRIBUTES, N_HIDDEN, N_VISIBLE, POSITIONS, VISIBLE_ATTRIBUTES } from '../config/attributes.config';
 import { EDITABLE_COLUMNS } from '../engine/store/overrides';
+import { SQUAD_LEVELS } from '../engine/types';
 import type { WorldStore } from '../engine/store/worldStore';
 import { parseCsv, toCsv } from './csv';
 import type { DataIssue } from './DataSource';
 import { FILES } from './schema';
 
 /** Read-only context columns (ignored on import, except player_id). */
-export const CONTEXT_COLUMNS = ['player_id', 'name', 'club', 'position', 'age', 'ovr'] as const;
+export const CONTEXT_COLUMNS = ['player_id', 'name', 'nationality', 'team', 'squad', 'position', 'age', 'ovr'] as const;
 export const MANUAL_COLUMN = 'manual_cells';
 
 export function attributeCsvHeaders(): string[] {
@@ -31,11 +32,13 @@ export function exportAttributesCsv(world: WorldStore, opts: ExportOptions = {})
   const idx = opts.players ?? Array.from({ length: p.count }, (_, i) => i);
   const rows: (string | number)[][] = [];
   for (const i of idx) {
-    const ci = p.clubIndex[i];
+    const ti = p.teamIndex[i];
     const row: (string | number)[] = [
       p.ids[i],
       `${p.firstNames[i]} ${p.lastNames[i]}`.trim(),
-      ci >= 0 ? world.clubs[ci].id : '',
+      p.nationalityCodes[p.nationality[i]],
+      ti >= 0 ? world.countries[ti].id : '',
+      SQUAD_LEVELS[p.squadLevel[i]],
       POSITIONS[p.position[i]],
       world.ageOf(i),
       p.ovrInput[i],

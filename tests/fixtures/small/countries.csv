@@ -1,0 +1,6 @@
+id;name;confederation;population;gdp_usd;reputation;football_culture;youth_strength;division;flag;rivals;color_primary;color_secondary
+POR;Portugal;UEFA;1000000;50000000000;85;18;19;;por.svg;ESP;#006600;#ff0000
+ESP;;UEFA;2000000;90000000000;90;19;19;;;;#aa151b;#f1bf00
+XXX;Nenhures;UEFA;1000;1;10;;;;;;;
+BRA;Brasil;CONCACAF;3000000;80000000000;95;20;20;;;ARG|ZZZ;#009c3b;#ffdf00
+SMR;San Marino;UEFA;1500;;5;;;;;;;

@@ -42,12 +42,22 @@ export async function readFiles(list: FileList | null): Promise<Record<string, s
   return out;
 }
 
-export function crestEl(crest: string, short: string, c1: string, c2: string): HTMLElement {
-  const el = h('div', { class: 'crest', style: { background: c1, color: c2, border: `2px solid ${c2}` } });
-  if (crest) {
-    const img = h('img', { src: `crests/${encodeURIComponent(crest)}`, alt: short });
-    img.onerror = () => { img.remove(); el.textContent = short; };
+/** Black or white, whichever reads better on a background colour. */
+export function contrastText(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const lum = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
+  return lum > 150 ? '#000000' : '#ffffff';
+}
+
+export function flagEl(flag: string, code: string, c1: string, c2: string): HTMLElement {
+  const el = h('div', { class: 'crest', style: { background: c1, color: contrastText(c1), border: `2px solid ${c2}` } });
+  if (flag) {
+    const img = h('img', { src: `assets/flags/${encodeURIComponent(flag)}`, alt: code });
+    img.onerror = () => { img.remove(); el.textContent = code; };
     el.append(img);
-  } else el.textContent = short;
+  } else el.textContent = code;
   return el;
 }
+
+export const eur = (v: number): string =>
+  v >= 1e6 ? `${(v / 1e6).toFixed(1).replace('.', ',')} M€` : v >= 1e3 ? `${Math.round(v / 1e3)} mil €` : `${Math.round(v)} €`;

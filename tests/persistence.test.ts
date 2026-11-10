@@ -15,7 +15,9 @@ describe('save slots (IndexedDB)', () => {
     expect(loaded.players.count).toBe(world.players.count);
     expect(loaded.players.attrs).toEqual(world.players.attrs);
     expect(loaded.players.ids).toEqual(world.players.ids);
-    expect(loaded.clubs).toEqual(world.clubs);
+    expect(loaded.countries).toEqual(world.countries);
+    expect(loaded.players.teamIndex).toEqual(world.players.teamIndex);
+    expect(loaded.players.valueEur).toEqual(world.players.valueEur);
     expect((await sm.listSlots()).map((s) => s.slotId)).toEqual(['slot-a']);
   });
 
@@ -47,10 +49,17 @@ describe('WorldService (worker logic, run in Node)', () => {
   it('generates, queries and never exposes hidden attributes to the UI', async () => {
     const svc = new WorldService(() => openDatabase('test-svc'));
     const s = await svc.handle({ type: 'generateWorld', seed: 7 });
-    expect(s.leagues).toBe(64);
-    const countries = await svc.handle({ type: 'countries' });
-    const clubs = await svc.handle({ type: 'leagueClubs', leagueId: countries[0].leagues[0].id });
-    const squad = await svc.handle({ type: 'clubSquad', clubId: clubs[0].id });
+    expect(s.countries).toBe(213);
+    expect(s.divisions).toBe(13);
+    const confs = await svc.handle({ type: 'confederations' });
+    const countries = await svc.handle({ type: 'divisionCountries', divisionId: confs[0].divisions[0].id });
+    expect(countries).toHaveLength(16);
+    expect(countries.every((c) => c.homeGrown >= 12)).toBe(true);
+    const squad = await svc.handle({ type: 'countrySquad', countryId: countries[0].id, level: 'u17' });
+    expect(squad).toHaveLength(18);
+    const counts = (await svc.handle({ type: 'counts' }))!;
+    expect(counts.total).toBe(213);
+    expect(counts.basedOnTestData).toBe(true);
     const d = (await svc.handle({ type: 'playerDetail', playerId: squad[0].id }))!;
     expect(d.attributes).toHaveLength(30);
     const json = JSON.stringify(d);

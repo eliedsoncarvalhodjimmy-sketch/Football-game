@@ -2,39 +2,56 @@
 
 import type { DataIssue } from '../data/DataSource';
 import type { ImportSummary } from '../data/attributesIO';
+import type { ConfederationCountRow, WeakestCandidate } from '../engine/world/confederations';
+import type { ConfederationTransfer, SquadLevel } from '../engine/types';
 import type { SlotMeta } from '../persistence/db';
 
 export interface WorldSummary {
   name: string;
   isTestData: boolean;
   seed: number;
+  confederations: number;
+  divisions: number;
   countries: number;
-  leagues: number;
-  clubs: number;
   players: number;
   freeAgents: number;
+  generatedPlayers: number;
   overrideCells: number;
   buildMs: number;
+  transfers: ConfederationTransfer[];
+  economyMissing: number;
+}
+
+export interface CountsReport {
+  table: ConfederationCountRow[];
+  ranking: Record<string, WeakestCandidate[]>;
+  transfers: ConfederationTransfer[];
+  total: number;
+  /** True when the ranking uses the test world's invented population/reputation. */
+  basedOnTestData: boolean;
+}
+
+export interface ConfederationRow {
+  id: string;
+  name: string;
+  cup: string;
+  divisions: { id: string; name: string; tier: number; teams: number }[];
 }
 
 export interface CountryRow {
   id: string;
   name: string;
-  leagues: { id: string; name: string; tier: number; clubs: number }[];
-}
-
-export interface ClubRow {
-  id: string;
-  name: string;
-  shortName: string;
-  city: string;
   reputation: number;
   avgOvr: number;
   squadSize: number;
+  homeGrown: number;
+  populationGame: number | null;
+  economyStatus: string;
   colorPrimary: string;
   colorSecondary: string;
-  crest: string;
+  flag: string;
   rivals: string[];
+  transferredFrom?: string;
 }
 
 export interface PlayerRow {
@@ -44,12 +61,15 @@ export interface PlayerRow {
   age: number;
   ovr: number;
   nationality: string;
+  squad: SquadLevel;
+  valueEur: number;
 }
 
 export interface PlayerDetail extends PlayerRow {
-  club: string;
+  team: string;
   foot: string;
   heightCm: number;
+  generated: boolean;
   attributes: { key: string; label: string; group: string; value: number; manual: boolean }[];
   familiarity: { position: string; level: number }[];
 }
@@ -58,11 +78,12 @@ export type Request =
   | { type: 'generateWorld'; seed?: number }
   | { type: 'importFiles'; files: Record<string, string> }
   | { type: 'summary' }
-  | { type: 'countries' }
-  | { type: 'leagueClubs'; leagueId: string }
-  | { type: 'clubSquad'; clubId: string }
+  | { type: 'counts' }
+  | { type: 'confederations' }
+  | { type: 'divisionCountries'; divisionId: string }
+  | { type: 'countrySquad'; countryId: string; level: SquadLevel }
   | { type: 'playerDetail'; playerId: string }
-  | { type: 'exportAttributes'; delimiter?: ',' | ';'; clubId?: string }
+  | { type: 'exportAttributes'; delimiter?: ',' | ';'; countryId?: string }
   | { type: 'importAttributes'; csv: string }
   | { type: 'listSlots' }
   | { type: 'saveSlot'; slotId: string; name: string }
@@ -73,9 +94,10 @@ export interface ResponseMap {
   generateWorld: WorldSummary;
   importFiles: { summary: WorldSummary | null; issues: DataIssue[]; attributes?: ImportSummary };
   summary: WorldSummary | null;
-  countries: CountryRow[];
-  leagueClubs: ClubRow[];
-  clubSquad: PlayerRow[];
+  counts: CountsReport | null;
+  confederations: ConfederationRow[];
+  divisionCountries: CountryRow[];
+  countrySquad: PlayerRow[];
   playerDetail: PlayerDetail | null;
   exportAttributes: string;
   importAttributes: ImportSummary;

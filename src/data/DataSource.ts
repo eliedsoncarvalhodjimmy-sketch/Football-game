@@ -1,16 +1,10 @@
 // DataSource: where the world comes from. v1 has a local-files adapter and the fictional generator.
 // Future adapters (APIs) only need to implement this interface.
 
-import type { RawWorld } from '../engine/types';
+import type { RawWorld, WorldIssue } from '../engine/types';
 import type { AttributeOverrides } from '../engine/store/overrides';
 
-export interface DataIssue {
-  level: 'error' | 'warning';
-  file: string;
-  line?: number;
-  column?: string;
-  message: string;
-}
+export type DataIssue = WorldIssue;
 
 export interface LoadResult {
   world: RawWorld;

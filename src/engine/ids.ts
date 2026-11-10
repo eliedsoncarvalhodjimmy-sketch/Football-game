@@ -1,10 +1,4 @@
-// Stable id helpers for generated entities. Imported data keeps the ids from the files.
-
-export const clubIdFor = (leagueId: string, index: number): string =>
-  `T-${leagueId}-${String(index + 1).padStart(2, '0')}`;
-
-export const playerIdFor = (clubId: string, index: number): string =>
-  `${clubId}-P${String(index + 1).padStart(2, '0')}`;
+// Date helpers. (Generated ids are built in engine/world/squads.ts; imported data keeps its own ids.)
 
 /** Age in whole years at a reference date (both YYYY-MM-DD). */
 export function ageAt(birthDate: string, referenceDate: string): number {

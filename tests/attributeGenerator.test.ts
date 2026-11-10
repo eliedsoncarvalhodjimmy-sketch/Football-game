@@ -3,7 +3,7 @@ import { FAMILIARITY, N_HIDDEN, N_POSITIONS, N_VISIBLE, POSITION_INDEX, VISIBLE_
 import { generateAttributes, weightedOvr } from '../src/engine/generator/attributeGenerator';
 import { fullWorld } from './helpers';
 
-const base = { seed: 1, ovr: 75, position: 'ST' as const, age: 25, leagueQuality: 70, clubReputation: 60 };
+const base = { seed: 1, ovr: 75, position: 'ST' as const, age: 25, leagueQuality: 70, teamReputation: 60 };
 
 describe('attribute generator', () => {
   it('is deterministic', () => {
@@ -58,5 +58,20 @@ describe('attribute generator', () => {
     expect(f[POSITION_INDEX.AM]).toBe(FAMILIARITY.COMPETENT);
     expect(f[POSITION_INDEX.RW]).toBe(FAMILIARITY.COMPETENT);
     expect(f[POSITION_INDEX.GK]).toBe(FAMILIARITY.UNCOMFORTABLE);
+  });
+});
+
+describe('market value as an input signal', () => {
+  it('a young player valued far above his OVR reference gets a higher ceiling on average', () => {
+    const avg = (mult: number) => {
+      let s = 0;
+      for (let k = 0; k < 300; k++) {
+        const ref = 2_000_000;
+        s += generateAttributes({ ...base, seed: k, ovr: 65, age: 18, valueEur: ref * mult }).potential;
+      }
+      return s / 300;
+    };
+    expect(avg(8)).toBeGreaterThan(avg(1) + 2);
+    expect(avg(0.125)).toBeLessThan(avg(1));
   });
 });

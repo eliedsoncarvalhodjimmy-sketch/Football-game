@@ -1,5 +1,6 @@
 // Deterministic attribute generator.
-// Input: what free data sources provide (OVR, position, age) + context (league quality, club reputation).
+// Input: what free data sources provide (OVR, position, age, market value) + context
+// (division quality, country reputation).
 // Output: 30 visible attributes, 6 hidden attributes, hidden potential and position familiarity.
 // Same inputs + same seed ⇒ exactly the same output.
 
@@ -10,6 +11,7 @@ import {
 } from '../../config/attributes.config';
 import { ATTRIBUTE_GEN as G } from '../../config/generator.config';
 import { Rng, clamp } from '../rng';
+import { interpolate, referenceValue } from './value';
 
 export interface AttributeGenInput {
   seed: number;
@@ -18,10 +20,12 @@ export interface AttributeGenInput {
   /** Explicit secondary positions (from files). If given, they are used instead of random ones. */
   otherPositions?: readonly string[];
   age: number;
-  /** Mean OVR of the league (LeagueConfig.quality). */
+  /** Mean OVR of the team's division (DivisionConfig.quality). */
   leagueQuality: number;
-  /** Club reputation 1–100 (free agents: use ~30). */
-  clubReputation: number;
+  /** Reputation 1–100 of the country-club the player plays for (free agents: ~30). */
+  teamReputation: number;
+  /** Market value in EUR, if known (null = no signal). */
+  valueEur?: number | null;
 }
 
 export interface AttributeGenOutput {
@@ -59,18 +63,6 @@ export function weightedOvr(attrs: ArrayLike<number>, positionIndex: number, off
 }
 
 const GROUP = VISIBLE_ATTRIBUTES.map((a) => a.group);
-
-function interpolate(table: readonly (readonly [number, number])[], x: number): number {
-  if (x <= table[0][0]) return table[0][1];
-  for (let i = 1; i < table.length; i++) {
-    const [x1, y1] = table[i];
-    if (x <= x1) {
-      const [x0, y0] = table[i - 1];
-      return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0);
-    }
-  }
-  return table[table.length - 1][1];
-}
 
 export function generateAttributes(input: AttributeGenInput, out?: AttributeGenOutput): AttributeGenOutput {
   const rng = new Rng(input.seed);
@@ -153,8 +145,12 @@ export function generateAttributes(input: AttributeGenInput, out?: AttributeGenO
   const growth = interpolate(P.growthByAge, age);
   let potential = input.ovr;
   if (growth > 0) {
-    const repFactor = clamp(input.clubReputation / 100, 0, 1) * 0.6 + clamp((input.leagueQuality - 55) / 25, 0, 1) * 0.4;
-    const bonus = P.reputationBonusMax * repFactor * Math.min(1, growth / 10);
+    const repFactor = clamp(input.teamReputation / 100, 0, 1) * 0.6 + clamp((input.leagueQuality - 55) / 25, 0, 1) * 0.4;
+    let bonus = P.reputationBonusMax * repFactor * Math.min(1, growth / 10);
+    if (input.valueEur && input.valueEur > 0) {
+      const ratio = input.valueEur / referenceValue(input.ovr, age);
+      bonus += clamp(P.valueBonusPerDoubling * Math.log2(ratio), -P.valueBonusMax, P.valueBonusMax) * Math.min(1, growth / 10);
+    }
     const noise = rng.normal(0, P.sd * Math.min(1, growth / 12 + 0.25));
     potential = input.ovr + Math.max(0, growth + bonus + noise);
   } else {

@@ -1,8 +1,37 @@
 # Decisões (registo)
 
-Decisões tomadas perante ambiguidade, sempre pela opção mais simples. Corrige o que não te servir.
+> **Prompt v2.4 (países-clube)** substitui o v1. A secção "Fase 1 (v1)" fica como histórico; o estado
+> anterior está no ramo `backup/v1-clubes-fase1`.
 
-## Fase 1
+## Fase 1 (v2.4 — países-clube)
+
+| # | Decisão | Porquê / alternativa |
+|---|---------|----------------------|
+| 1 | **Lista dos 213 países** (211 membros FIFA + Catalunya + País Basco) escrita em `src/config/countries.base.ts`, com confederação original e região de nomes. Estado: **por verificar** contra a lista oficial da FIFA (sem acesso à rede neste ambiente). Contagens: UEFA 55+2, CAF 54, AFC 46, CONCACAF 35, CONMEBOL 10, OFC 11. | É estrutura do jogo; os teus ficheiros não podem acrescentar países. |
+| 2 | **Redistribuição**: confederação com mais países do que vagas envia os mais fracos para `overflowTo` (UEFA→AFC, CONCACAF→OFC). Mais fraco = menor `0,5 × percentil(população) + 0,5 × percentil(reputação)` dentro da confederação original (decidido por ti). Catalunya e País Basco nunca saem. | |
+| 3 | Enquanto não confirmares (`CONFIRMED_TRANSFERS` em `confederations.config.ts`), o jogo usa o candidato calculado e marca-o **"pendente de confirmação"** em todo o lado. Com o mundo de teste o candidato não tem significado (população e reputação inventadas). | Pendência 1. |
+| 4 | País transferido mantém a **confederação original** (campo `confederation`, identidade e nacionalidade dos jogadores) e as rivalidades; joga na `gameConfederation`. | §4.1. |
+| 5 | **Divisões iniciais**: coluna `division` de countries.csv se estiver completa e com as contagens certas; senão, por reputação. Mudará quando enviares o histórico. | Simples. |
+| 6 | **Primeira qualificação para as Ligas dos Campeões**: vem do teu ficheiro de histórico (a enviar). Até lá nada é implementado (fase 8); o mundo de teste não precisa dela. | Recusaste a decisão 1 do plano. |
+| 7 | **Cascata de vagas**: se uma equipa já tem vaga, todos os seguintes sobem uma rota. | Aprovado. |
+| 8 | **Copas continentais**: todos os países da confederação; isentos da 1.ª ronda os melhores quando o número não é potência de 2 (implementação: fase 3). | Aprovado. |
+| 9 | **Jogadores reais fora das convocatórias** ficam fora do jogo na v1; os plantéis completam-se com jogadores **gerados** do próprio país (marcados "gerado"). | Aprovado. |
+| 10 | **Regra dos 12** conta no plantel principal inscrito. O mundo de teste garante ≥ 12; com dados reais, violações são **avisos** (não movo jogadores). | Aprovado. |
+| 11 | **Plantéis**: principal 25, sub-23 20, sub-19 18, sub-17 18 → 81 por país, 17 253 + 300 livres = **17 553 jogadores**. Tamanhos em `squads.config.ts`. | ≈ 17 000 do §12. |
+| 12 | **Formato compacto para jovens da IA** (§7): a esta escala todos os jogadores já estão em arrays tipados (~75 B/jogador, 1,3 MB no total), por isso não há formato separado. Revejo na fase 6, se o intake fizer crescer muito o número. | Mais simples. |
+| 13 | **Mundo de teste**: países reais, mas população, PIB, reputação, cultura e cores **inventados** (`economyStatus = "test"`), jogadores com nomes inventados. Nunca escrevo valores reais de população/PIB: ficam "a preencher" até chegar o teu documento. | Regra "nunca inventar dados reais". |
+| 14 | **Ficheiros**: `countries.csv`, `players.csv` (convocatórias; `nationality` = país de formação, `team` = onde joga), `initial_country.csv` (excepções, prioridade máxima), `world.json`, `attributes.csv`. Coluna `team` ausente ⇒ joga no país de formação; presente e vazia ⇒ livre. | §2. |
+| 15 | **Valor de mercado** entra no gerador: um jovem com valor acima do de referência para o seu OVR/idade recebe mais potencial (±6 no máximo). Fórmula de referência em `generator.config.ts` (provisória até à fase 5). | §2. |
+| 16 | **Bandeiras** em `public/assets/flags/` (coluna `flag`); sem bandeira, escudo com as cores e o código. | §2 pede assets/; dentro de public para ficar offline. |
+| 17 | **Países próximos** (academia, ≤ 10%): mesma confederação de jogo e mesma região de nomes; se não houver, qualquer país da confederação. Substitui o mapa manual do v1. | §7. |
+| 18 | **Rivalidades iniciais**: lista curta de rivalidades conhecidas em `rivals.config.ts`; a coluna `rivals` de countries.csv substitui-as. | Editável. |
+| 19 | Os valores de **TV, qualidade e divisões/subidas** (2 entre 1.ª–2.ª, 3 entre 2.ª–3.ª; CONCACAF 3) são afinação, em `confederations.config.ts`. | |
+| 20 | **Gravações do v1** não carregam (formato 2); aparece uma mensagem clara. | |
+| 21 | O envio de **tags** git é bloqueado neste ambiente; a segurança é o ramo `backup/v1-clubes-fase1`. | |
+
+## Fase 1 (v1 — histórico)
+
+Decisões tomadas perante ambiguidade, sempre pela opção mais simples. Corrige o que não te servir.
 
 | # | Decisão | Porquê / alternativa |
 |---|---------|----------------------|

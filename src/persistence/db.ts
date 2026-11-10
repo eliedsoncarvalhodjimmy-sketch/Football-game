@@ -8,6 +8,8 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 
 export const DB_NAME = 'futceo';
 export const DB_VERSION = 1;
+/** Save format version (v1 = club world, v2 = country-clubs). v1 saves are not loadable. */
+export const SAVE_FORMAT = 2;
 
 export interface SlotMeta {
   slotId: string;
@@ -17,7 +19,7 @@ export interface SlotMeta {
   worldName: string;
   isTestData: boolean;
   seed: number;
-  clubs: number;
+  countries: number;
   players: number;
   /** Chunk keys that make up this save. */
   chunkKeys: string[];

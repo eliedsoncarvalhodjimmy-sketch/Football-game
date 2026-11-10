@@ -1,5 +1,6 @@
 // "Dados" tab: generate the test world, import your files, export/import attributes, save slots.
 
+import { GENERATOR } from '../../config/generator.config';
 import type { DataIssue } from '../../data/DataSource';
 import type { WorkerClient } from '../../worker/client';
 import type { WorldSummary } from '../../worker/protocol';
@@ -24,29 +25,54 @@ export function dataToolsView(client: WorkerClient, onWorldChanged: (s: WorldSum
     try { return await fn(); } catch (e) { log(`Erro: ${(e as Error).message}`); return undefined; }
   };
   const summaryLines = (s: WorldSummary) => [
-    `${s.name}${s.isTestData ? ' (dados de teste)' : ''}`,
-    `${s.countries} países · ${s.leagues} ligas · ${s.clubs} clubes · ${s.players} jogadores (${s.freeAgents} livres)`,
-    `Semente ${s.seed} · ${s.overrideCells} valores editados à mão · ${s.buildMs} ms`,
+    `${s.name}${s.isTestData ? ' (contém dados de teste)' : ''}`,
+    `${s.confederations} confederações · ${s.divisions} divisões · ${s.countries} países-clube · ${s.players} jogadores (${s.generatedPlayers} gerados, ${s.freeAgents} livres)`,
+    `Transferências: ${s.transfers.map((t) => `${t.country} ${t.from}→${t.to}${t.confirmed ? '' : ' (pendente)'}`).join(', ') || 'nenhuma'}`,
+    `Semente ${s.seed} · ${s.overrideCells} valores editados à mão · ${s.economyMissing} países sem população/PIB · ${s.buildMs} ms`,
   ];
 
+  // --- confederation counts report
+  const countsBox = h('div', { class: 'dim' }, 'Gera ou importa um mundo para ver as contagens.');
+  async function refreshCounts() {
+    const r = await client.request({ type: 'counts' });
+    clear(countsBox);
+    if (!r) return countsBox.append('Gera ou importa um mundo para ver as contagens.');
+    const td = (v: string | number, cls = '') => h('td', { class: cls }, v);
+    countsBox.append(
+      r.basedOnTestData ? h('p', { class: 'warning' }, '⚠ Ranking calculado com população e reputação INVENTADAS (mundo de teste). Só vale com os teus dados.') : '',
+      h('table', { class: 'kv' },
+        h('tr', {}, ...['Confederação', 'Próprios', 'Vagas', 'Sobra', 'Saem', 'Entram', 'Final', ''].map((x) => h('th', { class: 'dim', style: { textAlign: 'left' } }, x))),
+        ...r.table.map((row) => h('tr', {}, td(row.confederation), td(row.own), td(row.slots), td(row.surplus), td(row.outgoing.join(', ')),
+          td(row.incoming.join(', ')), td(row.final), td(row.ok ? '✓' : '✗', row.ok ? 'a-hi' : 'a-lo'))),
+        h('tr', {}, td('Total'), td(r.table.reduce((s, x) => s + x.own, 0)), td(r.table.reduce((s, x) => s + x.slots, 0)), td(''), td(''), td(''), td(r.total))),
+      ...Object.entries(r.ranking).map(([conf, list]) => h('div', { style: { marginTop: '8px' } },
+        h('b', {}, `${conf} — mais fracos (50% população a 10% + 50% reputação): `),
+        list.map((c, k) => `${k + 1}. ${c.name} (${c.score.toFixed(2)}${c.populationPct === null ? ', sem população' : ''})`).join(' · '))),
+      h('p', { class: 'dim' }, `Transferências ${r.transfers.every((t) => t.confirmed) ? 'confirmadas' : 'PENDENTES de confirmação'}: `,
+        r.transfers.map((t) => `${t.country} ${t.from} → ${t.to}`).join(', '),
+        '. Para confirmar: CONFIRMED_TRANSFERS em src/config/confederations.config.ts.'),
+    );
+  }
+  const worldChanged = (s: WorldSummary | null) => { onWorldChanged(s); void refreshCounts(); };
+
   // --- generate
-  const seedInput = h('input', { type: 'number', value: '20260801', style: { width: '140px' } });
+  const seedInput = h('input', { type: 'number', value: String(GENERATOR.defaultSeed), style: { width: '140px' } });
   const genBtn = h('button', { class: 'btn primary', onclick: async () => {
     const s = await busy('A gerar mundo fictício', () => client.request({ type: 'generateWorld', seed: Number(seedInput.value) || undefined }));
-    if (s) { log('Mundo de teste gerado', summaryLines(s)); onWorldChanged(s); }
+    if (s) { log('Mundo de teste gerado', summaryLines(s)); worldChanged(s); }
   } }, 'Gerar mundo de teste');
 
   // --- import files
   const filesInput = h('input', { type: 'file', multiple: true, accept: '.csv,.json' });
   const importBtn = h('button', { class: 'btn', onclick: async () => {
     const files = await readFiles(filesInput.files);
-    if (!Object.keys(files).length) return log('Escolhe os ficheiros (clubs.csv, players.csv e opcionalmente world.json e attributes.csv).');
+    if (!Object.keys(files).length) return log('Escolhe os ficheiros (countries.csv, players.csv e opcionalmente initial_country.csv, world.json e attributes.csv).');
     const r = await busy('A importar ficheiros', () => client.request({ type: 'importFiles', files }));
     if (!r) return;
     if (!r.summary) return log('Importação falhou', [], r.issues);
     const extra = r.attributes ? [`attributes.csv: ${r.attributes.overridesSet} valores manuais aplicados`] : [];
     log('Ficheiros importados', [...summaryLines(r.summary), ...extra], [...r.issues, ...(r.attributes?.issues ?? [])]);
-    onWorldChanged(r.summary);
+    worldChanged(r.summary);
   } }, 'Importar');
 
   // --- attributes export / import
@@ -78,10 +104,10 @@ export function dataToolsView(client: WorkerClient, onWorldChanged: (s: WorldSum
     for (const s of slots) {
       slotsBox.append(h('div', { class: 'row', style: { padding: '6px 0', borderBottom: '1px solid var(--border)' } },
         h('span', { class: 'grow', style: { flex: '1' } }, h('b', {}, s.name), h('span', { class: 'dim' },
-          ` — ${s.worldName}${s.isTestData ? ' (teste)' : ''} · ${s.clubs} clubes · ${(s.bytes / 1e6).toFixed(1)} MB · ${new Date(s.updatedAt).toLocaleString('pt-PT')}`)),
+          ` — ${s.worldName}${s.isTestData ? ' (teste)' : ''} · ${s.countries} países · ${(s.bytes / 1e6).toFixed(1)} MB · ${new Date(s.updatedAt).toLocaleString('pt-PT')}`)),
         h('button', { class: 'btn', onclick: async () => {
           const sum = await busy('A carregar', () => client.request({ type: 'loadSlot', slotId: s.slotId }));
-          if (sum) { log('Gravação carregada', summaryLines(sum)); onWorldChanged(sum); slotName.value = s.name; }
+          if (sum) { log('Gravação carregada', summaryLines(sum)); worldChanged(sum); slotName.value = s.name; }
         } }, 'Carregar'),
         h('button', { class: 'btn', onclick: async () => {
           if (!confirm(`Apagar "${s.name}"?`)) return;
@@ -97,16 +123,18 @@ export function dataToolsView(client: WorkerClient, onWorldChanged: (s: WorldSum
     if (r) { log('Gravado', [`${r.written} blocos escritos, ${r.skipped} sem alterações · ${r.ms} ms`]); void refreshSlots(); }
   } }, 'Gravar');
 
+  void refreshCounts().catch(() => undefined);
   void refreshSlots().catch(() => slotsBox.append(h('div', { class: 'dim' }, 'IndexedDB indisponível.')));
 
   return h('div', { class: 'view' },
     h('h2', {}, 'Dados'),
     h('div', { class: 'card' }, h('h3', {}, 'Mundo de teste (fictício)'),
-      h('p', { class: 'dim' }, '29 países, 64 ligas, nomes inventados. Mesma semente ⇒ mesmo mundo.'),
+      h('p', { class: 'dim' }, '213 países-clube reais em 6 confederações; jogadores, população, PIB e reputação INVENTADOS. Mesma semente ⇒ mesmo mundo.'),
       h('div', { class: 'row' }, h('label', { class: 'dim' }, 'Semente'), seedInput, genBtn)),
     h('div', { class: 'card' }, h('h3', {}, 'Os teus ficheiros'),
-      h('p', { class: 'dim' }, 'clubs.csv e players.csv (obrigatórios); world.json e attributes.csv (opcionais). Emblemas em public/crests/.'),
+      h('p', { class: 'dim' }, 'countries.csv (população, PIB, reputação), players.csv (convocatórias), initial_country.csv (excepções), world.json e attributes.csv — todos opcionais; o que faltar é gerado. Bandeiras em public/assets/flags/.'),
       h('div', { class: 'row' }, filesInput, importBtn)),
+    h('div', { class: 'card' }, h('h3', {}, 'Contagens por confederação'), countsBox),
     h('div', { class: 'card' }, h('h3', {}, 'Atributos gerados'),
       h('p', { class: 'dim' }, 'Exporta, edita numa folha de cálculo e reimporta. Valores diferentes do gerado ficam como edição manual e têm prioridade; uma célula vazia volta ao valor gerado.'),
       h('div', { class: 'row' }, delimSel, exportBtn),

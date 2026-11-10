@@ -1,5 +1,5 @@
-id;first_name;last_name;club;nationality;birth_date;position;other_positions;ovr;foot;height_cm
-P1;Ana;Teste;C1;POR;2000-03-15;ST;AM|RW;75;L;178
-P2;Bruno;Exemplo;C1;POR;1990-11-01;GK;;70;R;190
-P3;Carla;Ficticia;C2;;2007-01-20;MC;;62;B;170
-P4;Duarte;Livre;;BRA;1995-06-30;DC;;66;R;186
+id;first_name;last_name;nationality;team;squad;birth_date;position;other_positions;ovr;value_eur;foot;height_cm
+P1;Ana;Teste;POR;POR;senior;2000-03-15;ST;AM|RW;80;45000000;L;178
+P2;Bruno;Exemplo;POR;POR;senior;1990-11-01;GK;;76;;R;190
+P3;Carla;Ficticia;POR;;u19;2008-01-20;MC;;62;;B;170
+P4;Duarte;Exemplo;BRA;POR;senior;1995-06-30;DC;;77;20000000;R;186

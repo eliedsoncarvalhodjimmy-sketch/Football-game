@@ -1,4 +1,4 @@
-// Benchmark with the full fictional world (64 leagues). Run: npm run bench
+// Benchmark with the full fictional world (213 country-clubs, ~17k players). Run: npm run bench
 // Prints timings and memory, and writes out/bench-latest.json.
 
 import 'fake-indexeddb/auto';
@@ -42,11 +42,11 @@ const [, importMs] = await time(() => importAttributesCsv(world, csv));
 
 const determinism = chunkHash(world.players.attrs) === chunkHash(buildWorld(generateWorld()).players.attrs);
 
-const leagues = world.leagues.length;
+const divisions = world.divisions.length;
 const result = {
   date: new Date().toISOString(),
   node: process.version,
-  world: { countries: world.countries.length, leagues, clubs: world.clubs.length, players: world.players.count },
+  world: { confederations: world.confederations.length, divisions, countries: world.countries.length, players: world.players.count },
   ms: {
     generateRecords: Math.round(genMs),
     buildWorldWithAttributes: Math.round(buildMs),
@@ -75,7 +75,7 @@ mkdirSync('out', { recursive: true });
 writeFileSync('out/bench-latest.json', JSON.stringify(result, null, 2));
 
 const line = (k: string, v: string | number) => console.log(`  ${k.padEnd(34)} ${v}`);
-console.log(`\nFutCEO benchmark — ${result.world.countries} países, ${leagues} ligas, ${result.world.clubs} clubes, ${result.world.players} jogadores${gc ? '' : ' (sem --expose-gc: memória aproximada)'}`);
+console.log(`\nFutCEO benchmark — ${result.world.confederations} confederações, ${divisions} divisões, ${result.world.countries} países-clube, ${result.world.players} jogadores${gc ? '' : ' (sem --expose-gc: memória aproximada)'}`);
 console.log('Tempos (ms)');
 for (const [k, v] of Object.entries(result.ms)) line(k, v);
 console.log('Memória');

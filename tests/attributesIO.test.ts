@@ -7,12 +7,9 @@ import { buildWorld } from '../src/engine/store/worldStore';
 
 function smallWorld() {
   const raw = generateWorld({ seed: 5 });
-  // keep two leagues only, to make the test fast
-  const keep = new Set(['POR1', 'POR2']);
-  raw.clubs = raw.clubs.filter((c) => keep.has(c.leagueId));
-  const ids = new Set(raw.clubs.map((c) => c.id));
-  raw.players = raw.players.filter((p) => ids.has(p.clubId));
-  for (const c of raw.clubs) c.rivals = c.rivals.filter((r) => ids.has(r));
+  // keep the players of a few countries only, to make the test fast
+  const keep = new Set(['POR', 'ESP', 'BRA']);
+  raw.players = raw.players.filter((p) => keep.has(p.team));
   return { raw, world: buildWorld(raw) };
 }
 

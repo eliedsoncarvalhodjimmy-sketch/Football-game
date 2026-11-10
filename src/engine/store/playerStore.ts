@@ -1,5 +1,5 @@
 // Compact structure-of-arrays storage for players.
-// ~30k senior players × ~90 bytes of typed data ≈ 2.7 MB, plus name strings.
+// ~17k players (seniors + U23/U19/U17) × ~75 bytes of typed data ≈ 1.3 MB, plus name strings.
 
 import { N_HIDDEN, N_POSITIONS, N_VISIBLE } from '../../config/attributes.config';
 
@@ -18,8 +18,11 @@ export class PlayerStore {
   nationalityCodes: string[] = [];
   private nationalityLookup = new Map<string, number>();
 
-  clubIndex: Int32Array; // -1 = free agent
-  nationality: Uint16Array;
+  teamIndex: Int32Array; // country-club where the player plays; -1 = free agent
+  squadLevel: Uint8Array; // index into SQUAD_LEVELS
+  valueEur: Float32Array; // market value (0 = unknown)
+  generated: Uint8Array; // 1 = created by the generator
+  nationality: Uint16Array; // country of formation (dictionary index)
   birthDate: Int32Array; // YYYYMMDD
   position: Uint8Array; // natural (primary) position index
   foot: Uint8Array; // index into FOOT_CODES
@@ -33,7 +36,10 @@ export class PlayerStore {
 
   constructor(capacity: number) {
     this.capacity = Math.max(1, capacity);
-    this.clubIndex = new Int32Array(this.capacity);
+    this.teamIndex = new Int32Array(this.capacity);
+    this.squadLevel = new Uint8Array(this.capacity);
+    this.valueEur = new Float32Array(this.capacity);
+    this.generated = new Uint8Array(this.capacity);
     this.nationality = new Uint16Array(this.capacity);
     this.birthDate = new Int32Array(this.capacity);
     this.position = new Uint8Array(this.capacity);
@@ -68,12 +74,15 @@ export class PlayerStore {
   }
 
   grow(newCapacity: number): void {
-    const g = <T extends Uint8Array | Uint16Array | Int32Array | Uint32Array>(a: T, per = 1): T => {
+    const g = <T extends Uint8Array | Uint16Array | Int32Array | Uint32Array | Float32Array>(a: T, per = 1): T => {
       const n = new (a.constructor as new (len: number) => T)(newCapacity * per);
       n.set(a);
       return n;
     };
-    this.clubIndex = g(this.clubIndex);
+    this.teamIndex = g(this.teamIndex);
+    this.squadLevel = g(this.squadLevel);
+    this.valueEur = g(this.valueEur);
+    this.generated = g(this.generated);
     this.nationality = g(this.nationality);
     this.birthDate = g(this.birthDate);
     this.position = g(this.position);
@@ -95,7 +104,7 @@ export class PlayerStore {
   /** Bytes used by typed arrays (for the memory budget). */
   typedBytes(): number {
     return [
-      this.clubIndex, this.nationality, this.birthDate, this.position, this.foot, this.heightCm,
+      this.teamIndex, this.squadLevel, this.valueEur, this.generated, this.nationality, this.birthDate, this.position, this.foot, this.heightCm,
       this.ovrInput, this.potential, this.seed, this.attrs, this.hidden, this.familiarity,
     ].reduce((s, a) => s + a.byteLength, 0);
   }
@@ -109,7 +118,10 @@ export class PlayerStore {
       firstNames: this.firstNames.slice(0, n),
       lastNames: this.lastNames.slice(0, n),
       nationalityCodes: this.nationalityCodes.slice(),
-      clubIndex: this.clubIndex.slice(0, n),
+      teamIndex: this.teamIndex.slice(0, n),
+      squadLevel: this.squadLevel.slice(0, n),
+      valueEur: this.valueEur.slice(0, n),
+      generated: this.generated.slice(0, n),
       nationality: this.nationality.slice(0, n),
       birthDate: this.birthDate.slice(0, n),
       position: this.position.slice(0, n),
@@ -131,7 +143,10 @@ export class PlayerStore {
     p.firstNames = s.firstNames.slice();
     p.lastNames = s.lastNames.slice();
     for (const c of s.nationalityCodes) p.nationalityIndex(c);
-    p.clubIndex.set(s.clubIndex);
+    p.teamIndex.set(s.teamIndex);
+    p.squadLevel.set(s.squadLevel);
+    p.valueEur.set(s.valueEur);
+    p.generated.set(s.generated);
     p.nationality.set(s.nationality);
     p.birthDate.set(s.birthDate);
     p.position.set(s.position);
@@ -153,7 +168,10 @@ export interface PlayerStoreSnapshot {
   firstNames: string[];
   lastNames: string[];
   nationalityCodes: string[];
-  clubIndex: Int32Array;
+  teamIndex: Int32Array;
+  squadLevel: Uint8Array;
+  valueEur: Float32Array;
+  generated: Uint8Array;
   nationality: Uint16Array;
   birthDate: Int32Array;
   position: Uint8Array;
