@@ -1,0 +1,9 @@
+id;first_name;last_name;nationality;team;squad;birth_date;position;other_positions;ovr;value_eur;foot;height_cm
+P1;Ana;Teste;POR;POR;senior;2000-03-15;ST;AM|RW;80;45000000;L;178
+P2;Bruno;Exemplo;POR;POR;senior;1990-11-01;GK;;76;;R;190
+P3;Carla;Ficticia;POR;;u19;2008-01-20;MC;;62;;B;170
+P4;Duarte;Exemplo;BRA;POR;senior;1995-06-30;DC;;77;20000000;R;186
+P5;Erro;Posicao;POR;POR;senior;2000-01-01;XX;;60;;R;180
+P6;Erro;Ovr;POR;POR;senior;2000-01-01;ST;;150;;R;180
+P7;Erro;Pais;QQQ;POR;senior;2000-01-01;ST;;60;;R;180
+P8;Eva;Escalao;ESP;ESP;sub21;2004-01-01;DL;;70;;L;172

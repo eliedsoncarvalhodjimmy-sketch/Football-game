@@ -1,0 +1,31 @@
+{
+  "name": "futceo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "FutCEO — jogo de gestão de futebol (PWA, uso pessoal)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "bench": "node --expose-gc --import tsx scripts/bench.ts",
+    "generate-world": "tsx scripts/generate-world.ts",
+    "export-attributes": "tsx scripts/export-attributes.ts",
+    "counts": "tsx scripts/counts.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "fake-indexeddb": "^6.2.7",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "idb": "^8.0.4"
+  }
+}
