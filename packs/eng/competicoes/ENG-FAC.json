@@ -1,0 +1,107 @@
+{
+  "id": "ENG-FAC",
+  "nome": "FA Cup",
+  "tipo": "taca",
+  "pais": "ENG",
+  "participantes": [
+    "ENG1",
+    "ENG2",
+    "ENG3",
+    "ENG4"
+  ],
+  "entrada_por_liga": {
+    "ENG1": 3,
+    "ENG2": 3,
+    "ENG3": 1,
+    "ENG4": 1
+  },
+  "maos": {
+    "rondas": 1,
+    "meias": 1,
+    "final": 1
+  },
+  "final_neutra": true,
+  "vaga_vencedor": "UEL",
+  "secundaria": false,
+  "premios": [
+    {
+      "fase": "1.ª ronda (ENG3 e ENG4 entram)",
+      "por_equipa_eur": 100000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "por equipa que joga a ronda; cumulativo"
+    },
+    {
+      "fase": "2.ª ronda",
+      "por_equipa_eur": 150000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "3.ª ronda (ENG1 e ENG2 entram)",
+      "por_equipa_eur": 300000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "4.ª ronda",
+      "por_equipa_eur": 450000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "5.ª ronda",
+      "por_equipa_eur": 700000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Quartos-de-final",
+      "por_equipa_eur": 1200000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Meias-finais",
+      "por_equipa_eur": 2500000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Finalista",
+      "por_equipa_eur": 5000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Campeão",
+      "por_equipa_eur": 5000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "adicional ao de finalista"
+    }
+  ],
+  "premio_total_eur": 90000000,
+  "fonte": null,
+  "notas": "Preenchido de memória: confirmar",
+  "origem_campos": {
+    "maos": "folha (\"jogo único, sem repetição de jogo\")",
+    "entrada": "folha Prémios (1.ª ronda: ENG3 e ENG4; 3.ª ronda: ENG1 e ENG2)"
+  }
+}

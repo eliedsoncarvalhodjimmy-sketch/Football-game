@@ -1,0 +1,79 @@
+{
+  "id": "BRA-CDB",
+  "nome": "Copa do Brasil",
+  "tipo": "taca",
+  "pais": "BRA",
+  "participantes": [
+    "BRA1",
+    "BRA2"
+  ],
+  "entrada_por_liga": {
+    "BRA1": 2,
+    "BRA2": 1
+  },
+  "maos": {
+    "rondas": 2,
+    "meias": 2,
+    "final": 2
+  },
+  "final_neutra": false,
+  "vaga_vencedor": null,
+  "secundaria": false,
+  "premios": [
+    {
+      "fase": "Participação / rondas iniciais",
+      "por_equipa_eur": 40000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Oitavos-de-final",
+      "por_equipa_eur": 70000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Quartos-de-final",
+      "por_equipa_eur": 150000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Meias-finais",
+      "por_equipa_eur": 350000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Finalista",
+      "por_equipa_eur": 980000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Campeão",
+      "por_equipa_eur": 1000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "adicional ao de finalista"
+    }
+  ],
+  "premio_total_eur": 8000000,
+  "fonte": null,
+  "notas": "Preenchido de memória: confirmar",
+  "origem_campos": {
+    "maos": "folha (\"ida e volta em todas as rondas; final ida e volta\")",
+    "entrada": "gerado: a 1.ª divisão entra na 2.ª ronda e as restantes na 1.ª (a folha não indica a ronda)"
+  }
+}

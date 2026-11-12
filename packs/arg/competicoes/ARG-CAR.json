@@ -1,0 +1,77 @@
+{
+  "id": "ARG-CAR",
+  "nome": "Copa Argentina",
+  "tipo": "taca",
+  "pais": "ARG",
+  "participantes": [
+    "ARG1"
+  ],
+  "entrada_por_liga": {
+    "ARG1": 1
+  },
+  "maos": {
+    "rondas": 1,
+    "meias": 1,
+    "final": 1
+  },
+  "final_neutra": true,
+  "vaga_vencedor": null,
+  "secundaria": false,
+  "premios": [
+    {
+      "fase": "Participação / rondas iniciais",
+      "por_equipa_eur": 10000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Oitavos-de-final",
+      "por_equipa_eur": 15000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Quartos-de-final",
+      "por_equipa_eur": 35000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Meias-finais",
+      "por_equipa_eur": 85000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Finalista",
+      "por_equipa_eur": 240000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Campeão",
+      "por_equipa_eur": 300000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "adicional ao de finalista"
+    }
+  ],
+  "premio_total_eur": 2000000,
+  "fonte": null,
+  "notas": "Preenchido de memória: confirmar",
+  "origem_campos": {
+    "maos": "folha (\"jogo único\")",
+    "entrada": "folha (uma só liga: todos na 1.ª ronda)"
+  }
+}

@@ -13,6 +13,8 @@ export interface ModeloCalendario {
   paragens_selecoes: number[];
   /** Semanas de meio da semana reservadas às competições continentais. */
   continentais: {
+    /** Play-offs de acesso UEFA (ida e volta), antes da fase de liga. */
+    acesso: number[];
     fase_liga: number[];
     playoff: number[];
     oitavos: number[];
@@ -24,9 +26,7 @@ export interface ModeloCalendario {
     quartos_grupos: number[];
     meias_grupos: number[];
   };
-  /** Semanas de meio da semana disponíveis para as rondas da taça. */
-  taca: number[];
-  /** Fim-de-semana da final da taça. */
+  /** Fim-de-semana da final da taça principal (jogo único). As outras rondas usam as semanas de meio da semana livres. */
   final_taca: number;
   /** Fins-de-semana para play-offs de subida, barragens e play-off de campeão. */
   playoffs: number[];
@@ -39,7 +39,7 @@ export const CALENDARIO = {
   dias: {
     fds: [5, 6], // sábado, domingo (0 = segunda)
     meio: [1, 2], // terça, quarta (liga e taça)
-    continental: { uefa_cl: [1, 2], uefa_el: [3], uefa_ecl: [3], libertadores: [1, 2], afc_cl: [1, 2] } as Record<string, number[]>,
+    continental: { UCL: [1, 2], UCL_PO: [1, 2], UEL: [3], UEL_PO: [3], UECL: [3], CLI: [1, 2], ACLE: [1, 2] } as Record<string, number[]>,
   },
   modelos: {
     ago_mai: {
@@ -47,6 +47,7 @@ export const CALENDARIO = {
       ultima_semana: 46, // sábado 22 Mai 2027
       paragens_selecoes: [10, 14, 19, 38],
       continentais: {
+        acesso: [7, 8],
         fase_liga: [11, 13, 16, 18, 21, 23, 29, 30],
         playoff: [33, 34],
         oitavos: [36, 37],
@@ -57,7 +58,6 @@ export const CALENDARIO = {
         quartos_grupos: [33, 34],
         meias_grupos: [40, 41],
       },
-      taca: [7, 9, 12, 17, 20, 25, 27, 31, 35, 39, 42],
       final_taca: 47,
       // Play-offs (subida, barragem, campeão) depois de todas as finais, para não haver choques.
       playoffs: [49, 50, 51],

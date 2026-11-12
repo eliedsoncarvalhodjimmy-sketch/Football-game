@@ -1,0 +1,138 @@
+{
+  "id": "UCL",
+  "nome": "UEFA Champions League",
+  "confederacao": "UEFA",
+  "equipas": 36,
+  "formato_folha": "fase de liga única de 36 equipas (8 jogos por equipa, adversários sorteados); 1.º–8.º direto aos oitavos; 9.º–24.º play-off de eliminatórias; 25.º–36.º eliminados",
+  "premios": [
+    {
+      "fase": "Play-off de acesso (pré-fase de liga): chegar ao play-off",
+      "por_equipa_eur": null,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": null,
+      "notas": "preencher prémio_por_equipa_eur; cumulativo (soma-se aos anteriores)"
+    },
+    {
+      "fase": "Participação na fase de liga",
+      "por_equipa_eur": 18620000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "todas as equipas da fase de liga; cumulativo"
+    },
+    {
+      "fase": "Fase de liga: bónus por jogo (só vitória e empate)",
+      "por_equipa_eur": null,
+      "por_vitoria_eur": 2100000,
+      "por_empate_eur": 700000,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "preencher só prémio_por_vitória_eur e prémio_por_empate_eur; 8 jogos por equipa"
+    },
+    {
+      "fase": "Fase de liga: posição final 1.º",
+      "por_equipa_eur": 9900000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "linear entre o 1.º e o último: o jogo interpola as posições intermédias"
+    },
+    {
+      "fase": "Fase de liga: posição final 36.º (último)",
+      "por_equipa_eur": 275000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "linear entre o 1.º e o último"
+    },
+    {
+      "fase": "Fase de liga: bónus top 8 (1.º–8.º)",
+      "por_equipa_eur": 2000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "valor adicional; cumulativo"
+    },
+    {
+      "fase": "Fase de liga: bónus 9.º–16.º",
+      "por_equipa_eur": 1000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "valor adicional; cumulativo"
+    },
+    {
+      "fase": "Entrada direta nos oitavos-de-final (1.º–8.º)",
+      "por_equipa_eur": 11000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "só quem fica em 1.º–8.º; cumulativo"
+    },
+    {
+      "fase": "Play-off de eliminatórias (9.º–24.º): chegar ao play-off",
+      "por_equipa_eur": 1000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "só quem fica em 9.º–24.º; ida e volta"
+    },
+    {
+      "fase": "Passar o play-off e chegar aos oitavos",
+      "por_equipa_eur": 11000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "só quem passa o play-off; cumulativo"
+    },
+    {
+      "fase": "Quartos-de-final",
+      "por_equipa_eur": 12500000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Meias-finais",
+      "por_equipa_eur": 15000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Finalista",
+      "por_equipa_eur": 18500000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "finalista vencido; cumulativo"
+    },
+    {
+      "fase": "Campeão",
+      "por_equipa_eur": 6500000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "dados do utilizador (UEFA 2026/27)",
+      "notas": "vencedor da final; cumulativo"
+    }
+  ],
+  "eliminatorias_maos": 2,
+  "final": "neutra",
+  "notas": "36 equipas (decisão tua)",
+  "tipo": "fase_liga",
+  "jogos_por_equipa": 8,
+  "potes": 4,
+  "jogos_mesmo_pote": true,
+  "mesmo_pais_proibido": true,
+  "max_mesmo_pais_por_adversarios": 2,
+  "directos_oitavos": [
+    1,
+    8
+  ],
+  "playoff": [
+    9,
+    24
+  ]
+}

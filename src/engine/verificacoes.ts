@@ -21,22 +21,27 @@ export function verificarIntegridade(w: World): string[] {
   return out;
 }
 
-/** Vagas continentais: todas preenchidas, sem duplicados, só países com direito. */
+/** Vagas continentais: tamanhos certos (contando os play-offs de acesso), sem duplicados, só ligas com direito. */
 export function verificarVagas(w: World): string[] {
   const out: string[] = [];
   const c = w.continental;
   if (!c) return ['sem dados continentais'];
   const todos = new Set<number>();
-  for (const comp of c.competicoes) {
-    const q = w.qualificados.get(comp.id) ?? [];
-    if (q.length !== comp.equipas) out.push(`${comp.id}: ${q.length} qualificados para ${comp.equipas} vagas`);
+  const n = (id: string) => (w.qualificados.get(id) ?? []).length;
+  for (const [comp, q] of w.qualificados) {
     for (const x of q) {
       if (todos.has(x.clube)) out.push(`${w.clubes[x.clube].id} qualificado duas vezes`);
       todos.add(x.clube);
       if (w.clubes[x.clube].pais !== x.pais) out.push(`${w.clubes[x.clube].id}: país incoerente`);
-      if (!c.vagas.vagas[x.pais]?.[comp.id]) out.push(`${x.pais} sem direito a ${comp.id}`);
+      const temDireito = !!c.vagas.vagas[x.liga]?.[comp] || x.via.includes('campeão em título') || x.via.includes('vaga extra');
+      if (!temDireito) out.push(`${x.liga} sem direito a ${comp} (${w.clubes[x.clube].id})`);
       if (w.liga[x.clube] < 0) out.push(`${w.clubes[x.clube].id} qualificado mas fora do jogo`);
     }
+  }
+  for (const comp of c.competicoes) {
+    let total = n(comp.id) + n(`${comp.id}_PO`) / 2;
+    for (const pp of c.vagas.especiais?.perdedores_po ?? []) if (pp.para === comp.id) total += n(pp.de) / 2;
+    if (total !== comp.equipas) out.push(`${comp.id}: ${total} vagas para ${comp.equipas} equipas`);
   }
   return out;
 }
@@ -44,7 +49,8 @@ export function verificarVagas(w: World): string[] {
 /** Calendário de todas as competições de uma época jogada. */
 export function verificarCalendarioEpoca(t: Temporada): ProblemaCalendario[] {
   const cont = new Set<string>();
-  for (const id of t.continentais.keys()) cont.add(id).add(`${id}_po`).add(`${id}_ko`);
+  for (const id of t.continentais.keys()) cont.add(id).add(`${id}_pe`).add(`${id}_ko`);
+  for (const id of t.acesso.keys()) cont.add(id);
   return verificarCalendario(t.jogos, cont, new Set(t.ligas.keys()));
 }
 

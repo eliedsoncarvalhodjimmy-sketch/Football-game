@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "GRE",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "gre_1"
+    "GRE1"
   ],
-  "taca": "gre_taca",
+  "tacas": [
+    "GRE-GRC"
+  ],
   "perfil_nomes": "el",
   "activo": true
 }

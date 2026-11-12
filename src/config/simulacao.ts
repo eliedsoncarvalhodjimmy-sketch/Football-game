@@ -5,7 +5,7 @@
 // 0-0 7–8%; 5+ golos 10–12%; 7+ golos < 1,5%.
 export const SIMULACAO = {
   /** Golos esperados de cada equipa entre forças iguais em campo neutro. */
-  base: 1.265,
+  base: 1.24,
   /** Multiplicador dos golos esperados da equipa da casa (e divisor da visitante). */
   casa: 1.17,
   /** Efeito de cada ponto de diferença (ataque - defesa adversária) nos golos esperados:
@@ -15,7 +15,7 @@ export const SIMULACAO = {
   /** Parâmetro de Dixon-Coles (negativo aumenta 0-0 e 1-1). */
   rho: -0.05,
   /** Peso extra dos empates com golos (1-1, 2-2, ...): o Poisson independente dá poucos empates. */
-  empate_fator: 1.13,
+  empate_fator: 1.25,
   /** Amortecimento de goleadas: um resultado com T > limiar golos é aceite com probabilidade fator^(T - limiar). */
   goleada_limiar: 5,
   goleada_fator: 0.6,

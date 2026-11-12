@@ -88,16 +88,42 @@ describe('10 épocas do mundo fictício', async () => {
     expect(impressaoDigital(s3.historico)).not.toBe(impressaoDigital(H.slice(0, 1)));
   });
 
-  it('a vaga da taça desce ao classificado seguinte quando o vencedor já tem vaga', () => {
-    const ordemEng = [...w.ligaPorId('eng_1').clubes];
-    const entradas = new Map(w.pacotes.filter((p) => p.manifest.pais).map((p) => {
-      const ordem = [...w.ligas[p.ligas[0]].clubes];
-      return [p.manifest.pais!, { pais: p.manifest.pais!, ordem, vencedorTaca: p.manifest.pais === 'ENG' ? ordem[0] : null }];
+  it('vagas: a vaga da taça e a do campeão em título descem em cascata na liga', () => {
+    const ordemEng = [...w.ligaPorId('ENG1').clubes];
+    const entradas = new Map(w.pacotes.map((p) => {
+      const l1 = w.ligas[p.ligas[0]];
+      const ordem = [...l1.clubes];
+      return [l1.regras.id, { liga: l1.regras.id, ordem, pos: new Map(ordem.map((x, i) => [x, i + 1])), campeao: ordem[0],
+        vencedoresTaca: new Map(l1.regras.id === 'ENG1' ? [['UEL', ordem[0]]] : []) }];
     }));
-    const v = atribuirVagas(w, entradas);
-    const eng = [...v.values()].flat().filter((q) => q.pais === 'ENG').map((q) => q.clube);
-    expect([...eng].sort((a, b) => a - b)).toEqual(ordemEng.slice(0, 7).sort((a, b) => a - b)); // o campeão também venceu a taça: a vaga desce até ao 7.º
-    expect(v.get('uefa_el')!.find((q) => q.pais === 'ENG')!.via).toContain('vaga da taça');
+    // O campeão inglês é também campeão em título da UCL e vencedor da taça.
+    const v = atribuirVagas(w, entradas, { detentores: new Map([['UCL', ordemEng[0]]]), bonus: [] });
+    const eng = [...v.values()].flat().filter((q) => q.liga === 'ENG1').map((q) => q.clube);
+    // Campeão em título + 4 UCL + 2 UEL (taça desce) + 1 UECL = 8 clubes ingleses, os 8 primeiros.
+    expect([...eng].sort((a, b) => a - b)).toEqual(ordemEng.slice(0, 8).sort((a, b) => a - b));
+    expect(v.get('UCL')!.find((q) => q.clube === ordemEng[0])!.via).toContain('campeão em título');
+    expect(v.get('UEL')!.some((q) => q.liga === 'ENG1' && q.via.includes('vaga da taça'))).toBe(true);
+    // Totais: UCL 28+1 (detentor) + 0 bónus; o detentor da UEL não existe aqui.
+    expect(v.get('UCL')!.length).toBe(29);
+  });
+
+  it('play-offs de acesso: vencedores e perdedores entram na competição certa', () => {
+    const r = H[H.length - 1];
+    for (const [id, a] of Object.entries(r.acesso)) {
+      expect(a.vencedores.length * 2).toBe(a.participantes.length);
+      const destinoVenc = id.replace('_PO', '');
+      const destinoPerd = id === 'UCL_PO' ? 'UEL' : 'UECL';
+      for (const x of a.vencedores) expect(r.continentais[destinoVenc].fases[x]).toBeDefined();
+      for (const x of a.participantes.filter((y) => !a.vencedores.includes(y))) expect(r.continentais[destinoPerd].fases[x]).toBeDefined();
+    }
+  });
+
+  it('coeficiente UEFA e bónus do ranking para as 2 melhores associações', () => {
+    for (const r of H) {
+      const melhores = Object.entries(r.coeficientes).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([l]) => l);
+      expect(r.bonusProxima).toEqual(melhores);
+      expect(Object.keys(r.detentoresProxima).sort()).toEqual(['UCL', 'UECL', 'UEL']);
+    }
   });
 
   it('a gravação de uma época faz ida e volta', () => {

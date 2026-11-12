@@ -4,13 +4,15 @@
   "tipo": "pais",
   "pais": "POR",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "por_1",
-    "por_2",
-    "por_3"
+    "POR1",
+    "POR2"
   ],
-  "taca": "por_taca",
+  "tacas": [
+    "POR-TDP",
+    "POR-TDL"
+  ],
   "perfil_nomes": "pt",
   "activo": true
 }

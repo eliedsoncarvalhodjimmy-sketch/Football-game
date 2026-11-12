@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "POL",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "pol_1"
+    "POL1"
   ],
-  "taca": "pol_taca",
+  "tacas": [
+    "POL-POC"
+  ],
   "perfil_nomes": "pl",
   "activo": true
 }

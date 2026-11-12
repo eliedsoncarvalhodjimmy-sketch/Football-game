@@ -4,13 +4,15 @@
   "tipo": "pais",
   "pais": "FRA",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "fra_1",
-    "fra_2",
-    "fra_3"
+    "FRA1",
+    "FRA2",
+    "FRA3"
   ],
-  "taca": "fra_taca",
+  "tacas": [
+    "FRA-CDF"
+  ],
   "perfil_nomes": "fr",
   "activo": true
 }

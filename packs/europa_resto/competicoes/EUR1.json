@@ -1,0 +1,95 @@
+{
+  "id": "EUR1",
+  "nome": "Liga Resto da Europa",
+  "tipo": "liga",
+  "pais": null,
+  "nivel": 1,
+  "forca_desportiva": 46,
+  "jogam_nas_paragens": false,
+  "descida_media_epocas": null,
+  "calendario_folha": "ago-mai",
+  "vagas_continentais_folha": 4,
+  "tecto_salarial": "não",
+  "fonte": null,
+  "notas": "Clubes de UKR, HUN, CYP, ISR, SWE, ROU, AZE (a definir)",
+  "origem_campos": {
+    "nº_equipas": "folha",
+    "voltas": "folha (formato: \"20 equipas, ida e volta (38 jogos)\")",
+    "sobem": "folha",
+    "descem": "folha",
+    "forca_desportiva": "proposta Claude (ranking UEFA): a validar",
+    "geracao": "proposta Claude: bandas de reputação provisórias",
+    "max_plantel": "gerado: 25"
+  },
+  "a_obter": [
+    "tv_total_eur",
+    "min_nacionais_plantel",
+    "max_plantel",
+    "fonte"
+  ],
+  "formato": {
+    "equipas": 20,
+    "voltas": 2,
+    "playoff_campeao": null
+  },
+  "subidas": {
+    "directas": 0,
+    "playoff": null
+  },
+  "descidas": {
+    "directas": 0,
+    "barragem": null,
+    "exterior": false
+  },
+  "desempates": [
+    "pontos",
+    "dg",
+    "gm",
+    "confronto_directo",
+    "sorteio"
+  ],
+  "epoca": {
+    "calendario": "ago_mai"
+  },
+  "indice_riqueza": 8,
+  "geracao": {
+    "rep_tecto": 70,
+    "rep_piso": 38
+  },
+  "janelas_transferencias": [
+    {
+      "abre": "07-01",
+      "fecha": "09-01"
+    },
+    {
+      "abre": "01-01",
+      "fecha": "02-01"
+    }
+  ],
+  "plantel": {
+    "max": 25,
+    "minimo_nacionais": null,
+    "maximo_estrangeiros": null,
+    "minimo_formados_no_clube": null,
+    "por_validar": true
+  },
+  "tv": {
+    "total_eur": null,
+    "pct_igual": null,
+    "pct_desempenho": null,
+    "pct_comercial": null,
+    "regra_desempenho": null,
+    "paraquedas": [],
+    "por_validar": true
+  },
+  "premios": [],
+  "fair_play": {
+    "massa_salarial_max_receita": 0.8,
+    "sancoes": [
+      "aviso",
+      "multa",
+      "proibicao_inscricoes"
+    ]
+  },
+  "licenciamento": null
+}

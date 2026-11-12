@@ -13,8 +13,19 @@ export interface CompContinental {
 }
 
 export interface Vagas {
+  /** Ordem de atribuição por confederação (ex.: UCL, UCL_PO, UEL, UEL_PO, UECL). "X_PO" = play-off de acesso a X. */
   ordem_competicoes: Record<string, string[]>;
+  /** Por liga de origem (ex.: "ENG1") e competição: vagas pela liga e pela taça. */
   vagas: Record<string, Record<string, { liga?: number; taca?: number }>>;
+  especiais: {
+    /** Campeões em título: o vencedor de `de` entra em `para`. */
+    detentores: { de: string; para: string }[];
+    /** Bónus do ranking UEFA: +1 vaga em `para` para as `paises` melhores associações da época anterior. */
+    bonus_ranking: { para: string; paises: number } | null;
+    /** Perdedores do play-off de acesso `de` entram em `para`. */
+    perdedores_po: { de: string; para: string }[];
+  };
+  primeira_epoca?: { detentores: string; bonus_ranking: { valor: string[]; origem: string } };
 }
 
 export interface Continental {
@@ -77,12 +88,12 @@ export async function carregarDados(ds: DataSource): Promise<Dados> {
     const manifest = json<Manifest>(await ds.lerTexto(id, 'manifest.json'), `${id}/manifest.json`, erros);
     if (!manifest) continue;
     const ligas: RegrasLiga[] = [];
-    let taca: RegrasTaca | null = null;
+    const tacas: RegrasTaca[] = [];
     for (const f of await ds.listarFicheiros(id, 'competicoes')) {
       const c = json<RegrasLiga | RegrasTaca>(await ds.lerTexto(id, `competicoes/${f}`), `${id}/competicoes/${f}`, erros);
       if (!c) continue;
       if (c.tipo === 'liga') ligas.push(c);
-      else if (c.tipo === 'taca') taca = c;
+      else if (c.tipo === 'taca') tacas.push(c);
       else erros.push(`${id}/competicoes/${f}: tipo desconhecido`);
     }
     ligas.sort((a, b) => a.nivel - b.nivel);
@@ -95,7 +106,8 @@ export async function carregarDados(ds: DataSource): Promise<Dados> {
       if (f === 'clubes') clubes = linhas.map((l) => clubeDeCsv(l, manifest.pais ?? ''));
     }
     const overrides = json<Record<string, Partial<Clube>>>(await ds.lerTexto(id, 'overrides.json') ?? '{}', `${id}/overrides.json`, erros) ?? {};
-    pacotes.push({ manifest, ligas, taca, clubes, overrides });
+    tacas.sort((a, b) => manifest.tacas.indexOf(a.id) - manifest.tacas.indexOf(b.id));
+    pacotes.push({ manifest, ligas, tacas, clubes, overrides });
   }
   return { pacotes, continental, erros, contagens };
 }

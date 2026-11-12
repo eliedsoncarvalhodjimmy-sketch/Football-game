@@ -1,0 +1,23 @@
+{
+  "id": "europa_resto",
+  "nome": "Europa (resto)",
+  "tipo": "regional",
+  "pais": null,
+  "confederacao": "UEFA",
+  "versao": "0.2.0",
+  "piramide": [
+    "EUR1"
+  ],
+  "tacas": [],
+  "perfil_nomes": "regional",
+  "activo": true,
+  "quotas_paises": {
+    "UKR": 3,
+    "ISR": 3,
+    "CYP": 3,
+    "SWE": 3,
+    "ROU": 3,
+    "HUN": 3,
+    "AZE": 2
+  }
+}

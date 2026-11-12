@@ -4,12 +4,15 @@
   "tipo": "pais",
   "pais": "JPN",
   "confederacao": "AFC",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "jpn_1",
-    "jpn_2"
+    "JPN1",
+    "JPN2"
   ],
-  "taca": "jpn_taca",
+  "tacas": [
+    "JPN-EMP",
+    "JPN-JLC"
+  ],
   "perfil_nomes": "ja",
   "activo": true
 }

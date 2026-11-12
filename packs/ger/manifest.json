@@ -4,13 +4,15 @@
   "tipo": "pais",
   "pais": "GER",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "ger_1",
-    "ger_2",
-    "ger_3"
+    "GER1",
+    "GER2",
+    "GER3"
   ],
-  "taca": "ger_taca",
+  "tacas": [
+    "GER-DFB"
+  ],
   "perfil_nomes": "de",
   "activo": true
 }

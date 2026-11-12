@@ -26,12 +26,13 @@ function validarLiga(p: string, l: RegrasLiga, out: Problema[]) {
   const pc = l.formato?.playoff_campeao;
   if (pc && (pc.equipas < 2 || pc.equipas > n || (pc.equipas & (pc.equipas - 1)) !== 0)) e('playoff_campeao.equipas deve ser potência de 2 e ≤ equipas');
   if (typeof l.indice_riqueza !== 'number' || l.indice_riqueza < 0 || l.indice_riqueza > 100) e('indice_riqueza deve estar entre 0 e 100');
+  if (typeof l.forca_desportiva !== 'number' || l.forca_desportiva < 0 || l.forca_desportiva > 100) e('forca_desportiva deve estar entre 0 e 100');
 }
 
 export function validar(d: Dados): Problema[] {
   const out: Problema[] = d.erros.map((msg) => ({ pacote: msg.split('/')[0], nivel: 'erro' as const, msg }));
   const idsClube = new Set<string>();
-  const paises = new Map<string, string>(); // pais -> confederação
+  const ligaConf = new Map<string, string>(); // liga -> confederação
 
   for (const pk of d.pacotes) {
     const p = pk.manifest.id;
@@ -41,8 +42,7 @@ export function validar(d: Dados): Problema[] {
     for (const campo of ['id', 'nome', 'tipo', 'confederacao', 'versao', 'piramide', 'perfil_nomes'] as const) {
       if (m[campo] == null) e(`manifest: campo "${campo}" em falta`);
     }
-    if (m.pais) paises.set(m.pais, m.confederacao);
-    if (m.quotas_paises) for (const c of Object.keys(m.quotas_paises)) paises.set(c, m.confederacao);
+    for (const id of m.piramide) ligaConf.set(id, m.confederacao);
     const porId = new Map(pk.ligas.map((l) => [l.id, l]));
     m.piramide.forEach((id, i) => {
       const l = porId.get(id);
@@ -74,11 +74,13 @@ export function validar(d: Dados): Problema[] {
       if (poBar && b?.adversario !== 'playoff') e(`${baixo.id}: play-off com destino "barragem" sem barragem correspondente em ${l.id}`);
       if (typeof b?.adversario === 'number' && b.adversario <= baixo.subidas.directas) e(`${l.id}: adversário da barragem (${b.adversario}.º) já sobe directamente`);
     });
-    if (pk.taca) {
-      for (const nivel of Object.keys(pk.taca.entrada_por_nivel)) {
-        if (Number(nivel) > ligas.length) e(`${pk.taca.id}: nível ${nivel} não existe`);
-      }
+    for (const t of pk.tacas) {
+      if (!m.tacas.includes(t.id)) e(`${t.id}: taça não listada no manifest`);
+      if (!t.participantes.length) e(`${t.id}: sem ligas participantes`);
+      for (const l of t.participantes) if (!porId.has(l)) e(`${t.id}: liga participante "${l}" não existe no pacote`);
+      for (const [l, r] of Object.entries(t.entrada_por_liga)) if (!Number.isInteger(r) || r < 1) e(`${t.id}: ronda de entrada inválida para ${l}`);
     }
+    for (const id of m.tacas) if (!pk.tacas.some((t) => t.id === id)) e(`manifest: taça "${id}" sem ficheiro em competicoes/`);
     // Clubes fornecidos.
     const porLiga = new Map<string, number>();
     for (const c of pk.clubes) {
@@ -99,22 +101,31 @@ export function validar(d: Dados): Problema[] {
 
   // Continentais.
   const c = d.continental;
-  if (!c) out.push({ pacote: '_continental', nivel: 'erro', msg: 'pacote continental em falta' });
+  const ce = (msg: string) => out.push({ pacote: '_continental', nivel: 'erro', msg });
+  if (!c) ce('pacote continental em falta');
   else {
     const comps = new Map(c.competicoes.map((x) => [x.id, x]));
-    const soma = new Map<string, number>();
-    for (const [pais, porComp] of Object.entries(c.vagas.vagas)) {
-      const conf = paises.get(pais);
-      if (!conf) { out.push({ pacote: '_continental', nivel: 'erro', msg: `vagas: país ${pais} sem pacote activo` }); continue; }
+    const n = new Map<string, number>();
+    const add = (k: string, v: number) => n.set(k, (n.get(k) ?? 0) + v);
+    for (const [liga, porComp] of Object.entries(c.vagas.vagas)) {
+      const conf = ligaConf.get(liga);
+      if (!conf) { ce(`vagas: liga ${liga} sem pacote activo`); continue; }
       for (const [comp, v] of Object.entries(porComp)) {
-        const cc = comps.get(comp);
-        if (!cc) { out.push({ pacote: '_continental', nivel: 'erro', msg: `vagas: competição ${comp} desconhecida` }); continue; }
-        if (cc.confederacao !== conf) out.push({ pacote: '_continental', nivel: 'erro', msg: `vagas: ${pais} (${conf}) não pode ter vagas em ${comp}` });
-        soma.set(comp, (soma.get(comp) ?? 0) + (v.liga ?? 0) + (v.taca ?? 0));
+        const cc = comps.get(comp.replace(/_PO$/, ''));
+        if (!cc) { ce(`vagas: competição ${comp} desconhecida`); continue; }
+        if (cc.confederacao !== conf) ce(`vagas: ${liga} (${conf}) não pode ter vagas em ${comp}`);
+        add(comp, (v.liga ?? 0) + (v.taca ?? 0));
       }
     }
+    const esp = c.vagas.especiais;
+    for (const dt of esp?.detentores ?? []) add(dt.para, 1);
+    if (esp?.bonus_ranking) add(esp.bonus_ranking.para, esp.bonus_ranking.paises);
     for (const cc of c.competicoes) {
-      if ((soma.get(cc.id) ?? 0) !== cc.equipas) out.push({ pacote: '_continental', nivel: 'erro', msg: `${cc.id}: ${soma.get(cc.id) ?? 0} vagas para ${cc.equipas} equipas` });
+      const po = n.get(`${cc.id}_PO`) ?? 0;
+      if (po % 2) ce(`${cc.id}_PO: nº ímpar de clubes no play-off de acesso (${po})`);
+      let total = (n.get(cc.id) ?? 0) + po / 2;
+      for (const pp of esp?.perdedores_po ?? []) if (pp.para === cc.id) total += (n.get(pp.de) ?? 0) / 2;
+      if (total !== cc.equipas) ce(`${cc.id}: ${total} vagas para ${cc.equipas} equipas`);
     }
   }
   return out;

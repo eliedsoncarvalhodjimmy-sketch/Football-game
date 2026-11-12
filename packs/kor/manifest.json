@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "KOR",
   "confederacao": "AFC",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "kor_1"
+    "KOR1"
   ],
-  "taca": "kor_taca",
+  "tacas": [
+    "KOR-KFC"
+  ],
   "perfil_nomes": "ko",
   "activo": true
 }

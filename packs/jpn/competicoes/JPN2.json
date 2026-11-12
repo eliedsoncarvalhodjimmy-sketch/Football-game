@@ -1,0 +1,94 @@
+{
+  "id": "JPN2",
+  "nome": "J2 League",
+  "tipo": "liga",
+  "pais": "JPN",
+  "nivel": 2,
+  "forca_desportiva": 36,
+  "jogam_nas_paragens": true,
+  "descida_media_epocas": null,
+  "calendario_folha": "ago-mai",
+  "vagas_continentais_folha": null,
+  "tecto_salarial": "não",
+  "fonte": null,
+  "notas": null,
+  "origem_campos": {
+    "nº_equipas": "folha",
+    "voltas": "folha (formato: \"20 equipas, ida e volta (38 jogos)\")",
+    "sobem": "folha",
+    "descem": "folha",
+    "forca_desportiva": "proposta Claude (ranking UEFA): a validar",
+    "geracao": "proposta Claude: bandas de reputação provisórias"
+  },
+  "a_obter": [
+    "fonte"
+  ],
+  "formato": {
+    "equipas": 20,
+    "voltas": 2,
+    "playoff_campeao": null
+  },
+  "subidas": {
+    "directas": 3,
+    "playoff": null
+  },
+  "descidas": {
+    "directas": 3,
+    "barragem": null,
+    "exterior": true
+  },
+  "desempates": [
+    "pontos",
+    "dg",
+    "gm",
+    "confronto_directo",
+    "sorteio"
+  ],
+  "epoca": {
+    "calendario": "ago_mai"
+  },
+  "indice_riqueza": 2,
+  "geracao": {
+    "rep_tecto": 50,
+    "rep_piso": 34
+  },
+  "janelas_transferencias": [
+    {
+      "abre": "07-01",
+      "fecha": "09-01"
+    },
+    {
+      "abre": "01-01",
+      "fecha": "02-01"
+    }
+  ],
+  "plantel": {
+    "max": 29,
+    "minimo_nacionais": 22,
+    "maximo_estrangeiros": null,
+    "minimo_formados_no_clube": null,
+    "por_validar": true
+  },
+  "tv": {
+    "total_eur": 10000000,
+    "pct_igual": 0.7,
+    "pct_desempenho": 0.3,
+    "pct_comercial": null,
+    "regra_desempenho": "linear: 1º recebe 2x o último",
+    "paraquedas": [],
+    "por_validar": true
+  },
+  "premios": [],
+  "fair_play": {
+    "massa_salarial_max_receita": 0.8,
+    "sancoes": [
+      "aviso",
+      "multa",
+      "proibicao_inscricoes"
+    ]
+  },
+  "licenciamento": {
+    "exigido": true,
+    "notas": "por definir"
+  }
+}

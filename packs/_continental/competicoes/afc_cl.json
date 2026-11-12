@@ -1,3 +1,0 @@
-{ "id": "afc_cl", "nome": "Liga dos Campeões Asiática", "tipo": "grupos", "confederacao": "AFC",
-  "equipas": 16, "grupos": 4, "por_grupo": 4, "voltas": 2, "apuram_por_grupo": 2, "mesmo_pais_no_grupo": false,
-  "eliminatorias_maos": 2, "final": "neutra", "nivel_prestigio": 3 }

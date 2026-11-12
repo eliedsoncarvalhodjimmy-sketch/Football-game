@@ -1,3 +1,0 @@
-{ "id": "uefa_cl", "nome": "Liga dos Campeões", "tipo": "fase_liga", "confederacao": "UEFA",
-  "equipas": 36, "jogos_por_equipa": 8, "potes": 4, "mesmo_pais_proibido": true, "max_mesmo_pais_por_adversarios": 2,
-  "directos_oitavos": [1, 8], "playoff": [9, 24], "eliminatorias_maos": 2, "final": "neutra", "nivel_prestigio": 3 }

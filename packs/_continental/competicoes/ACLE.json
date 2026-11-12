@@ -1,0 +1,82 @@
+{
+  "id": "ACLE",
+  "nome": "AFC Champions League",
+  "confederacao": "AFC",
+  "equipas": 16,
+  "formato_folha": "4 grupos de 4 (ida e volta, 6 jogos); os 2 primeiros avançam; eliminatórias a partir dos quartos",
+  "premios": [
+    {
+      "fase": "Participação na fase de grupos",
+      "por_equipa_eur": 400000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "valores do utilizador, tratados como EUR"
+    },
+    {
+      "fase": "Fase de grupos: bónus por jogo (só vitória e empate)",
+      "por_equipa_eur": null,
+      "por_vitoria_eur": 50000,
+      "por_empate_eur": 25000,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "6 jogos por equipa"
+    },
+    {
+      "fase": "1.º do grupo",
+      "por_equipa_eur": 100000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "valor de oitavos usado como passagem de grupo (não há oitavos)"
+    },
+    {
+      "fase": "2.º do grupo",
+      "por_equipa_eur": 100000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "igual ao 1.º do grupo"
+    },
+    {
+      "fase": "Quartos-de-final",
+      "por_equipa_eur": 200000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Meias-finais",
+      "por_equipa_eur": 300000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Finalista",
+      "por_equipa_eur": 2000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "valor do vice-campeão; confirmar se cumulativo"
+    },
+    {
+      "fase": "Campeão",
+      "por_equipa_eur": 5000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "estimativa proporcional do utilizador (50% do oficial)",
+      "notas": "confirmar se cumulativo"
+    }
+  ],
+  "eliminatorias_maos": 2,
+  "final": "neutra",
+  "notas": "16 equipas: grupos de 4, 2 avançam, mata-mata (decisão tua)",
+  "tipo": "grupos",
+  "grupos": 4,
+  "por_grupo": 4,
+  "voltas": 2,
+  "apuram_por_grupo": 2,
+  "mesmo_pais_no_grupo": false
+}

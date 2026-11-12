@@ -14,7 +14,8 @@ export interface Manifest {
   versao: string;
   /** Ids das ligas, do nível 1 para baixo. */
   piramide: string[];
-  taca: string | null;
+  /** Taças nacionais do pacote (a principal primeiro). */
+  tacas: string[];
   /** Perfil de nomes usado pelo gerador (por país). */
   perfil_nomes: string;
   /** Só pacotes regionais: quantos clubes de cada país. */
@@ -46,12 +47,30 @@ export interface Barragem {
   maos: 1 | 2;
 }
 
+/** Notas de origem por campo: "folha", "gerado: ...", "a obter", "decisão do utilizador ...". */
+export type OrigemCampos = Record<string, string>;
+
 export interface RegrasLiga {
   id: string;
   nome: string;
   tipo: 'liga';
   pais: string | null;
   nivel: number;
+  /** Força desportiva da liga (0–100), calibrada pelo ranking UEFA. Separada do índice de riqueza. */
+  forca_desportiva: number;
+  /** A liga joga nos fins-de-semana das paragens de selecções (divisões inferiores). */
+  jogam_nas_paragens?: boolean;
+  /** Descida pela média de pontos das últimas N épocas (ex.: Colômbia). */
+  descida_media_epocas?: number | null;
+  /** Calendário indicado na folha ("ago-mai" ou "ano civil"); o jogo usa epoca.calendario. */
+  calendario_folha?: string | null;
+  vagas_continentais_folha?: number | null;
+  tecto_salarial?: string | number | null;
+  fonte?: string | null;
+  notas?: string | null;
+  origem_campos?: OrigemCampos;
+  /** Campos vazios na folha (a obter). */
+  a_obter?: string[];
   formato: {
     equipas: number;
     voltas: number;
@@ -74,10 +93,27 @@ export interface RegrasLiga {
     minimo_formados_no_clube: number | null;
     por_validar: boolean;
   };
-  tv: { total_milhoes_eur: number | null; por_posicao: number[]; paraquedas: number[]; por_validar: boolean };
+  tv: {
+    total_eur: number | null;
+    pct_igual: number | null;
+    pct_desempenho: number | null;
+    pct_comercial: number | null;
+    regra_desempenho: string | null;
+    paraquedas: number[];
+    por_validar: boolean;
+  };
   premios: { posicao: number; valor_eur: number }[];
   fair_play: { massa_salarial_max_receita: number; sancoes: string[] };
   licenciamento: { exigido: boolean; notas: string } | null;
+}
+
+export interface Premio {
+  fase: string;
+  por_equipa_eur: number | null;
+  por_vitoria_eur?: number | null;
+  por_empate_eur?: number | null;
+  fonte?: string | null;
+  notas?: string | null;
 }
 
 export interface RegrasTaca {
@@ -85,10 +121,22 @@ export interface RegrasTaca {
   nome: string;
   tipo: 'taca';
   pais: string;
-  /** Ronda (1 = primeira) em que cada nível da pirâmide entra. */
-  entrada_por_nivel: Record<string, number>;
-  jogo_unico: true;
+  /** Ligas que participam (todos os seus clubes). */
+  participantes: string[];
+  /** Ronda (1 = primeira) em que os clubes de cada liga entram. */
+  entrada_por_liga: Record<string, number>;
+  /** Mãos por ronda: rondas normais, meias-finais e final. */
+  maos: { rondas: 1 | 2; meias: 1 | 2; final: 1 | 2 };
   final_neutra: boolean;
+  /** Competição continental do vencedor (ex.: "UEL"), ou null. */
+  vaga_vencedor: string | null;
+  /** Taça secundária (ex.: taça da liga): joga nas semanas que a principal deixa livres. */
+  secundaria: boolean;
+  premios: Premio[];
+  premio_total_eur?: number | null;
+  fonte?: string | null;
+  notas?: string | null;
+  origem_campos?: OrigemCampos;
 }
 
 export interface Clube {
@@ -110,7 +158,7 @@ export interface Clube {
 export interface Pacote {
   manifest: Manifest;
   ligas: RegrasLiga[];
-  taca: RegrasTaca | null;
+  tacas: RegrasTaca[];
   clubes: Clube[];
   overrides: Record<string, Partial<Clube>>;
 }

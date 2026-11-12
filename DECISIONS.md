@@ -46,3 +46,23 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
 26. **Clubes do exterior**: reputação = piso da liga − 4 (± 2). Quando as combinações simples de nomes se esgotam (ao fim de muitas épocas), acrescenta-se um qualificativo ("do Norte", "Al Jadida") ou uma sílaba extra.
 27. **Histórico**: guarda-se para sempre classificações, campeões, movimentos, taças, continentais, estatísticas e reputações. O detalhe dos jogos fica completo nas últimas 3 épocas; nas anteriores só nas 8 ligas principais (1.ª divisão de ENG, ESP, GER, ITA, FRA, POR, NED, BEL) e nas continentais. Gravação binária (JSON + Int32) com gzip, uma entrada por época no IndexedDB.
 28. **Domínio em Espanha e Itália** (o mesmo clube ganha quase sempre): resulta das bandas de reputação provisórias (Espanha 95→55; o 1.º fica muito acima do 2.º). A corrigir com o documento de reputações do utilizador.
+
+## Folhas do utilizador (Prompt 1, revisão de 12/11/2026)
+
+29. **Fonte de verdade**: `data/fontes/FutCEO_Ligas_central.xlsx` e `FutCEO_Vagas_europeias.xlsx`. O script `scripts/importar-fontes.ts` gera os pacotes a partir delas. Os valores que não vêm das folhas estão em `data/fontes/complementos.json`, cada um com a origem ("gerado", "proposta", "decisão do utilizador"). Cada liga guarda `origem_campos` e `a_obter`.
+30. **Ids das ligas e competições** passam a ser os das folhas (ENG1, POR2, ENG-FAC, UCL, CLI, ACLE...).
+31. **Calendário**: a folha marca 8 ligas como "ano civil"; mantém-se Agosto–Maio para todas (decisão U7) até nova indicação.
+32. **Argentina e MLS**: mantêm 1 volta + play-off de campeão de 8 (decisão U2), apesar de a folha da ARG1 dizer "play-offs: não". **MEX1**: liguilla = play-off de campeão de 8 (gerado).
+33. **Força desportiva** (0–100) por liga, separada do índice de riqueza (que passa a ser só económico). `força = reputação × (0,7 + 0,3 × fd/100) + choque de forma`.
+34. **Choque de forma por época** (σ = 7, igual no ataque e na defesa) e **reversão à média** na reputação (40% do alvo puxa para a média da banda da liga): ajuste (a).
+35. **ENG1 com força desportiva 90** (em vez de 100): ajuste (b). Com 6 sementes × 10 épocas, a Inglaterra fica com 34–35% dos títulos europeus.
+36. **Divisões inferiores jogam nas paragens de selecções** (como na realidade). Assim cabem no calendário as segundas taças e as ligas de 46 jornadas.
+37. **Taças**: rondas nas semanas de meio da semana livres do país (sem continentais, selecções nem jornadas de liga desse país); a principal escolhe primeiro e a secundária usa as restantes. A final de jogo único da principal é no sábado da semana 47; as finais a duas mãos e as das taças secundárias jogam-se a meio da semana.
+38. **Play-offs de acesso UEFA**: uma eliminatória a duas mãos nas semanas 7 e 8, emparelhada por força (o melhor contra o pior); as fases de liga são sorteadas depois (semana 9).
+39. **UECL com 6 jogos**: 4 potes de 8, 2 adversários de cada um dos outros 3 potes (1 em casa, 1 fora), nenhum do próprio pote.
+40. **Sorteio das fases de liga**: procura com retrocesso; os potes são equilibrados para nenhum país ter mais de metade de um pote; se o limite de 2 adversários do mesmo país não for possível, alarga-se para 3 (aconteceu em 3 de 42 sorteios nas 10 épocas).
+41. **Coeficiente UEFA no jogo**: vitória 2, empate 1 (metade no play-off de acesso), bónus por fase (oitavos 1 … vencedor 5), UECL a metade; coeficiente = pontos ÷ clubes da associação. Os 2 melhores ganham +1 vaga directa na UCL na época seguinte (`config/coeficiente.ts`).
+42. **Campeões em título**: entram primeiro; se o clube já tinha vaga pela liga, a liga dele ganha uma vaga a mais na mesma competição e o resto desce em cascata. Na 1.ª época são gerados: os 3 clubes de maior reputação da Europa (UCL, UEL, UECL); o bónus do ranking vai para ENG1 e ITA1 (gerado).
+43. **Colômbia**: desce pela média de pontos das últimas 3 épocas na liga.
+44. **Splits e fases finais** (SCO1, AUT1, DEN1, SUI1, CZE1, GRE1, BEL1, KOR1) não estão implementados: as ligas jogam o número de voltas que a folha indica ("33 jogos" → 3 voltas; "4 voltas" → 4).
+45. **Liga 3 portuguesa**, **SWE1**, **HUN1** e **UKR1** saem do jogo (não estão nas folhas). A EUR1 tem clubes desses e de outros países, com quotas geradas.

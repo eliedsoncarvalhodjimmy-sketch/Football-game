@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "URU",
   "confederacao": "CONMEBOL",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "uru_1"
+    "URU1"
   ],
-  "taca": "uru_taca",
+  "tacas": [
+    "URU-COU"
+  ],
   "perfil_nomes": "es_am",
   "activo": true
 }

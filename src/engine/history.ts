@@ -38,6 +38,14 @@ export interface RegistoEpoca {
   movimentos: Movimento[];
   tacas: Record<string, ResultadoMataMata>;
   continentais: Record<string, RegistoContinental>;
+  /** Play-offs de acesso UEFA (UCL_PO, UEL_PO). */
+  acesso: Record<string, { participantes: number[]; vencedores: number[] }>;
+  /** Coeficiente UEFA da época por associação (liga que deu a vaga). */
+  coeficientes: Record<string, number>;
+  /** Ligas com o bónus do ranking UEFA na época seguinte. */
+  bonusProxima: string[];
+  /** Campeões em título para a época seguinte (UCL, UEL, UECL). */
+  detentoresProxima: Record<string, number>;
   qualificadosProxima: Record<string, Qualificado[]>;
   /** Reputação no fim da época (antes da actualização) e depois. */
   repAntes: number[];

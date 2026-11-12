@@ -4,12 +4,14 @@
   "tipo": "pais",
   "pais": "TUR",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "tur_1",
-    "tur_2"
+    "TUR1",
+    "TUR2"
   ],
-  "taca": "tur_taca",
+  "tacas": [
+    "TUR-TKC"
+  ],
   "perfil_nomes": "tr",
   "activo": true
 }

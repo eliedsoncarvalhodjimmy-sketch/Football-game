@@ -18,6 +18,8 @@ export interface LigaInfo {
 export interface Qualificado {
   clube: number;
   pais: string;
+  /** Liga que deu a vaga (ex.: "ENG1"). */
+  liga: string;
   /** Como se qualificou: "campeão", "2.º", "taça", "reputação (1.ª época)"... */
   via: string;
 }
@@ -25,7 +27,7 @@ export interface Qualificado {
 export interface PacoteInfo {
   manifest: Manifest;
   ligas: number[]; // índices em World.ligas, por nível
-  taca: RegrasTaca | null;
+  tacas: RegrasTaca[];
 }
 
 export class World {
@@ -93,17 +95,18 @@ export class World {
     this.recalcularForca(n0);
   }
 
-  /** Força derivada da reputação e do índice da liga (Fase 1, sem jogadores). */
+  /** Força derivada da reputação e da força desportiva da liga (Fase 1, sem jogadores). */
   recalcularForca(desde = 0) {
     for (let i = desde; i < this.clubes.length; i++) {
       const l = this.liga[i];
       if (l < 0) continue;
-      const indice = this.ligas[l].regras.indice_riqueza;
-      const f = this.reputacao[i] * (FORCA.base + (FORCA.peso_indice_liga * indice) / 100);
-      // Ruído por época: representa as mudanças de plantel de ano para ano.
+      const fd = this.ligas[l].regras.forca_desportiva;
+      const f = this.reputacao[i] * (FORCA.base + (FORCA.peso_forca_desportiva * fd) / 100);
+      // Choque de forma e ruído por época: mudanças de plantel, lesões, treinador.
       const rng = Rng.de(this.semente, 'forca', this.clubes[i].id, this.epoca);
-      this.ataque[i] = clamp(f + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);
-      this.defesa[i] = clamp(f + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);
+      const forma = rng.normal(0, FORCA.choque_forma);
+      this.ataque[i] = clamp(f + forma + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);
+      this.defesa[i] = clamp(f + forma + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);
     }
   }
 
@@ -127,7 +130,7 @@ export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World
       idxs.push(w.ligas.length);
       w.ligas.push({ idx: w.ligas.length, regras, pacote: pk.manifest.id, clubes: [] });
     }
-    w.pacotes.push({ manifest: pk.manifest, ligas: idxs, taca: pk.taca });
+    w.pacotes.push({ manifest: pk.manifest, ligas: idxs, tacas: pk.tacas });
   }
   for (const pk of pacotes) w.adicionarClubes(completarPacote(pk, ctx, op));
   w.recalcularForca();

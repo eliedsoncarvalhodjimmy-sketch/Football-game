@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "ARG",
   "confederacao": "CONMEBOL",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "arg_1"
+    "ARG1"
   ],
-  "taca": "arg_taca",
+  "tacas": [
+    "ARG-CAR"
+  ],
   "perfil_nomes": "ar",
   "activo": true
 }

@@ -4,12 +4,14 @@
   "tipo": "pais",
   "pais": "BRA",
   "confederacao": "CONMEBOL",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "bra_1",
-    "bra_2"
+    "BRA1",
+    "BRA2"
   ],
-  "taca": "bra_taca",
+  "tacas": [
+    "BRA-CDB"
+  ],
   "perfil_nomes": "br",
   "activo": true
 }

@@ -25,7 +25,7 @@ export class Simulador {
   }
 
   private fechar(): RegistoEpoca {
-    const reg = fecharEpoca(this.w, this.temporada, this.guardarJogos);
+    const reg = fecharEpoca(this.w, this.temporada, this.guardarJogos, this.historico);
     this.historico.push(reg);
     podar(this.historico, this.w.epoca);
     this.temporada = new Temporada(this.w);

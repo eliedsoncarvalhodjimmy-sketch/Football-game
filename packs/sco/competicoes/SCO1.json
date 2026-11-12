@@ -1,0 +1,96 @@
+{
+  "id": "SCO1",
+  "nome": "Premiership",
+  "tipo": "liga",
+  "pais": "SCO",
+  "nivel": 1,
+  "forca_desportiva": 50,
+  "jogam_nas_paragens": false,
+  "descida_media_epocas": null,
+  "calendario_folha": "ago-mai",
+  "vagas_continentais_folha": 5,
+  "tecto_salarial": "não",
+  "fonte": null,
+  "notas": null,
+  "origem_campos": {
+    "nº_equipas": "folha",
+    "voltas": "folha (formato: \"12 equipas, 3 voltas + split 6/6 (confirmar)\")",
+    "sobem": "folha",
+    "descem": "folha",
+    "barragem": "folha (play-offs: \"play-off comum: 11.º vs 3.º da SCO2 (ida e volta)\")",
+    "forca_desportiva": "proposta Claude (ranking UEFA): a validar",
+    "geracao": "proposta Claude: bandas de reputação provisórias"
+  },
+  "a_obter": [
+    "fonte"
+  ],
+  "formato": {
+    "equipas": 12,
+    "voltas": 3,
+    "playoff_campeao": null
+  },
+  "subidas": {
+    "directas": 0,
+    "playoff": null
+  },
+  "descidas": {
+    "directas": 1,
+    "barragem": {
+      "posicao": 11,
+      "adversario": 3,
+      "maos": 2
+    },
+    "exterior": false
+  },
+  "desempates": [
+    "pontos",
+    "dg",
+    "gm",
+    "confronto_directo",
+    "sorteio"
+  ],
+  "epoca": {
+    "calendario": "ago_mai"
+  },
+  "indice_riqueza": 7,
+  "geracao": {
+    "rep_tecto": 78,
+    "rep_piso": 34
+  },
+  "janelas_transferencias": [
+    {
+      "abre": "07-01",
+      "fecha": "09-01"
+    },
+    {
+      "abre": "01-01",
+      "fecha": "02-01"
+    }
+  ],
+  "plantel": {
+    "max": 29,
+    "minimo_nacionais": 14,
+    "maximo_estrangeiros": null,
+    "minimo_formados_no_clube": null,
+    "por_validar": true
+  },
+  "tv": {
+    "total_eur": 50000000,
+    "pct_igual": 0.5,
+    "pct_desempenho": 0.3,
+    "pct_comercial": 0.2,
+    "regra_desempenho": "linear: 1º recebe 6x o último",
+    "paraquedas": [],
+    "por_validar": true
+  },
+  "premios": [],
+  "fair_play": {
+    "massa_salarial_max_receita": 0.8,
+    "sancoes": [
+      "aviso",
+      "multa",
+      "proibicao_inscricoes"
+    ]
+  },
+  "licenciamento": null
+}

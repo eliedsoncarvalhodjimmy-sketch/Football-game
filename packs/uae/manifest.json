@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "UAE",
   "confederacao": "AFC",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "uae_1"
+    "UAE1"
   ],
-  "taca": "uae_taca",
+  "tacas": [
+    "UAE-PRC"
+  ],
   "perfil_nomes": "ar_g",
   "activo": true
 }

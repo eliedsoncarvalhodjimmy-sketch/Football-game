@@ -87,7 +87,7 @@ export function relatorioMundo(w: World, cal: Map<string, Jogo[]>, problemas: Pr
     if (c.quartos_grupos.includes(s)) u.push('Lib./Ásia quartos');
     if (c.meias_grupos.includes(s)) u.push('Lib./Ásia meias');
     if (c.final === s) u.push('finais continentais');
-    if (m.taca.includes(s)) u.push('taça (ronda)');
+    if (c.acesso.includes(s)) u.push('UEFA play-off de acesso');
     if (m.final_taca === s) u.push('final da taça (fds)');
     if (m.playoffs.includes(s)) u.push('play-offs/barragens (fds)');
     return u.join(', ');
@@ -128,7 +128,7 @@ export function relatorioClubes(w: World): string {
 }
 
 /** Calendário completo de duas ligas de exemplo, para verificação à mão. */
-export function relatorioCalendario(w: World, cal: Map<string, Jogo[]>, ligas = ['por_1', 'eng_2']): string {
+export function relatorioCalendario(w: World, cal: Map<string, Jogo[]>, ligas = ['POR1', 'ENG2']): string {
   const L: string[] = ['# Calendários de exemplo', '', '> DADOS DE TESTE. Ligas com calendário completo: ' + ligas.join(', ') + '.', ''];
   for (const id of ligas) {
     const l = w.ligaPorId(id);

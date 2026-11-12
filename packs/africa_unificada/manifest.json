@@ -4,12 +4,12 @@
   "tipo": "regional",
   "pais": null,
   "confederacao": "CAF",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "africa_unificada_1"
+    "AFR1"
   ],
-  "taca": null,
-  "perfil_nomes": "af",
+  "tacas": [],
+  "perfil_nomes": "regional",
   "activo": true,
   "quotas_paises": {
     "EGY": 4,

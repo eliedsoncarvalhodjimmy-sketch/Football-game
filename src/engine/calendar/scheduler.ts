@@ -10,19 +10,22 @@ export function modelo(id: string): ModeloCalendario {
   return m;
 }
 
-export function semanasFds(m: ModeloCalendario): number[] {
+/** Fins-de-semana com jornadas de liga. As divisões inferiores podem jogar nas paragens de selecções. */
+export function semanasFds(m: ModeloCalendario, jogamNasParagens = false): number[] {
   const out: number[] = [];
-  for (let s = m.primeira_semana; s <= m.ultima_semana; s++) if (!m.paragens_selecoes.includes(s)) out.push(s);
+  for (let s = m.primeira_semana; s <= m.ultima_semana; s++) if (jogamNasParagens || !m.paragens_selecoes.includes(s)) out.push(s);
   return out;
 }
 
-/** Semanas de meio da semana livres para jornadas de liga (sem continentais, taça nem selecções). */
-export function semanasMeioLiga(m: ModeloCalendario): number[] {
+/** Semanas reservadas às competições continentais (meio da semana). */
+export function semanasContinentais(m: ModeloCalendario): Set<number> {
   const c = m.continentais;
-  const ocupadas = new Set([
-    ...m.paragens_selecoes, ...m.taca, ...c.fase_liga, ...c.playoff, ...c.oitavos, ...c.quartos, ...c.meias,
-    ...c.grupos, ...c.quartos_grupos, ...c.meias_grupos,
-  ]);
+  return new Set([...c.acesso, ...c.fase_liga, ...c.playoff, ...c.oitavos, ...c.quartos, ...c.meias, ...c.grupos, ...c.quartos_grupos, ...c.meias_grupos]);
+}
+
+/** Semanas de meio da semana livres para ligas e taças (sem continentais nem selecções). */
+export function semanasMeioLiga(m: ModeloCalendario): number[] {
+  const ocupadas = new Set([...m.paragens_selecoes, ...semanasContinentais(m)]);
   const out: number[] = [];
   for (let s = m.primeira_semana; s <= m.ultima_semana; s++) if (!ocupadas.has(s)) out.push(s);
   return out;
@@ -44,8 +47,8 @@ export interface Slot {
 }
 
 /** Slots (semana, ranhura) para R jornadas de liga, por ordem cronológica. */
-export function slotsLiga(m: ModeloCalendario, R: number): Slot[] {
-  const fds = semanasFds(m);
+export function slotsLiga(m: ModeloCalendario, R: number, jogamNasParagens = false): Slot[] {
+  const fds = semanasFds(m, jogamNasParagens);
   let slots: Slot[];
   if (R <= fds.length) slots = espacar(fds, R).map((semana) => ({ semana, ranhura: 'fds' as const }));
   else {
@@ -62,11 +65,11 @@ export function slotsLiga(m: ModeloCalendario, R: number): Slot[] {
 }
 
 /** Calendário completo de uma liga. `clubes` são índices globais. */
-export function agendarLiga(compId: string, clubes: number[], voltas: number, modeloId: string, rng: Rng): Jogo[] {
+export function agendarLiga(compId: string, clubes: number[], voltas: number, modeloId: string, rng: Rng, jogamNasParagens = false): Jogo[] {
   const m = modelo(modeloId);
   const ordem = rng.shuffle([...clubes]);
   const rondas = rondasBerger(ordem.length, voltas);
-  const slots = slotsLiga(m, rondas.length);
+  const slots = slotsLiga(m, rondas.length, jogamNasParagens);
   const jogos: Jogo[] = [];
   rondas.forEach((rd, r) => {
     const { semana, ranhura } = slots[r];

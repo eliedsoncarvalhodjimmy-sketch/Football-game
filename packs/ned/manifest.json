@@ -4,12 +4,14 @@
   "tipo": "pais",
   "pais": "NED",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "ned_1",
-    "ned_2"
+    "NED1",
+    "NED2"
   ],
-  "taca": "ned_taca",
+  "tacas": [
+    "NED-KNV"
+  ],
   "perfil_nomes": "nl",
   "activo": true
 }

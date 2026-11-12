@@ -19,7 +19,7 @@ export class CompLiga implements Competicao {
     this.id = regras.id;
     this.nome = regras.nome;
     this.tabela = new Tabela(clubes);
-    this.jogos = agendarLiga(regras.id, clubes, regras.formato.voltas, regras.epoca.calendario, rng);
+    this.jogos = agendarLiga(regras.id, clubes, regras.formato.voltas, regras.epoca.calendario, rng, !!regras.jogam_nas_paragens);
     for (const j of this.jogos) {
       if (!this.porSemana.has(j.semana)) this.porSemana.set(j.semana, []);
       this.porSemana.get(j.semana)!.push(j);

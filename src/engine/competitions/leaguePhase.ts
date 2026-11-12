@@ -18,66 +18,118 @@ export interface Equipa {
 
 type Aresta = [number, number]; // [casa, fora] em índices locais
 
-/** Permutação aleatória de b em a que respeita `ok(i, j)`; null se falhar. */
-function emparelhar(a: number[], b: number[], ok: (i: number, j: number) => boolean, rng: Rng, proibidos?: Map<number, number>): Map<number, number> | null {
-  for (let t = 0; t < 400; t++) {
-    const livres = rng.shuffle([...b]);
-    const m = new Map<number, number>();
-    let falhou = false;
-    for (const i of rng.shuffle([...a])) {
-      const k = livres.findIndex((j) => j !== i && ok(i, j) && proibidos?.get(i) !== j && m.get(j) !== i);
-      if (k < 0) { falhou = true; break; }
-      m.set(i, livres[k]);
-      livres.splice(k, 1);
+/** Nenhum país pode ter mais de metade de um pote (senão não há adversários de outro país suficientes
+ *  dentro do pote nem entre potes). Troca o clube mais fraco do país em excesso pelo mais forte do pote
+ *  vizinho que seja de outro país. */
+export function equilibrarPotes(eq: Equipa[], potes: number[][]) {
+  const lim = Math.floor(potes[0].length / 2);
+  const conta = (pote: number[], pais: string) => pote.filter((i) => eq[i].pais === pais).length;
+  for (let iter = 0; iter < 200; iter++) {
+    let mudou = false;
+    for (let p = 0; p < potes.length; p++) {
+      const excesso = [...new Set(potes[p].map((i) => eq[i].pais))].find((pa) => conta(potes[p], pa) > lim);
+      if (!excesso) continue;
+      const q = p + 1 < potes.length ? p + 1 : p - 1;
+      const sai = potes[p].filter((i) => eq[i].pais === excesso).sort((a, b) => eq[a].forca - eq[b].forca)[0];
+      const entra = potes[q].filter((i) => eq[i].pais !== excesso && conta(potes[p], eq[i].pais) < lim && conta(potes[q], excesso) < lim)
+        .sort((a, b) => eq[b].forca - eq[a].forca)[0];
+      if (entra === undefined) continue;
+      potes[p][potes[p].indexOf(sai)] = entra;
+      potes[q][potes[q].indexOf(entra)] = sai;
+      mudou = true;
     }
-    if (!falhou) return m;
+    if (!mudou) return;
   }
-  return null;
 }
 
-/** Sorteio dos 8 adversários. Devolve as arestas [casa, fora] (índices locais). */
-export function sortearFaseLiga(eq: Equipa[], potes: number, rng: Rng, maxMesmoPais = 2): Aresta[] {
+/** Emparelha cada i de `a` com um j de `b` (bijecção) por procura com retrocesso; `pôr`/`tirar` mantêm
+ *  as restrições actualizadas a cada passo. Devolve false se não encontrar dentro do limite de passos. */
+function emparelhar(a: number[], b: number[], ok: (i: number, j: number) => boolean, por: (i: number, j: number) => void, tirar: (i: number, j: number) => void, rng: Rng): boolean {
+  const porAtribuir = new Set(rng.shuffle([...a]));
+  const livres = new Set(rng.shuffle([...b]));
+  let passos = 0;
+  const dfs = (): boolean => {
+    if (porAtribuir.size === 0) return true;
+    if (++passos > 600) return false;
+    // Escolhe o clube com menos opções (o mais restringido primeiro).
+    let melhor = -1;
+    let opcoes: number[] = [];
+    for (const i of porAtribuir) {
+      const op = [...livres].filter((j) => j !== i && ok(i, j));
+      if (melhor < 0 || op.length < opcoes.length) { melhor = i; opcoes = op; }
+      if (op.length === 0) return false;
+    }
+    porAtribuir.delete(melhor);
+    for (const j of rng.shuffle(opcoes)) {
+      livres.delete(j);
+      por(melhor, j);
+      if (dfs()) return true;
+      tirar(melhor, j);
+      livres.add(j);
+    }
+    porAtribuir.add(melhor);
+    return false;
+  };
+  return dfs();
+}
+
+/** Estatística dos sorteios: quantos precisaram de alargar o limite de adversários do mesmo país. */
+export const ESTAT_SORTEIO = { total: 0, alargados: 0, potesRefeitos: 0 };
+
+/** Sorteio dos adversários: 2 de cada pote (1 em casa, 1 fora); com `mesmoPote` false, só dos outros potes
+ *  (ex.: 4 potes → 6 jogos). Devolve as arestas [casa, fora] (índices locais). Se não conseguir com o
+ *  limite de adversários do mesmo país, alarga-o (+1) e tenta de novo. */
+export function sortearFaseLiga(eq: Equipa[], potes: number, rng: Rng, maxMesmoPais = 2, mesmoPote = true): Aresta[] {
   const porPote: number[][] = [];
   const ordem = eq.map((_, i) => i).sort((x, y) => eq[y].forca - eq[x].forca);
   const tam = eq.length / potes;
   for (let p = 0; p < potes; p++) porPote.push(ordem.slice(p * tam, (p + 1) * tam));
-  for (let tentativa = 0; tentativa < 300; tentativa++) {
-    const arestas: Aresta[] = [];
-    const jogou = new Set<string>();
-    const contaPais = new Map<string, number>(); // "i|pais"
-    const ok = (i: number, j: number) => {
-      if (eq[i].pais === eq[j].pais) return false;
-      if (jogou.has(`${i}|${j}`)) return false;
-      return (contaPais.get(`${i}|${eq[j].pais}`) ?? 0) < maxMesmoPais && (contaPais.get(`${j}|${eq[i].pais}`) ?? 0) < maxMesmoPais;
-    };
-    const juntar = (c: number, f: number) => {
-      arestas.push([c, f]);
-      jogou.add(`${c}|${f}`); jogou.add(`${f}|${c}`);
-      contaPais.set(`${c}|${eq[f].pais}`, (contaPais.get(`${c}|${eq[f].pais}`) ?? 0) + 1);
-      contaPais.set(`${f}|${eq[c].pais}`, (contaPais.get(`${f}|${eq[c].pais}`) ?? 0) + 1);
-    };
-    let falhou = false;
-    for (let p = 0; p < potes && !falhou; p++) {
-      for (let q = p; q < potes && !falhou; q++) {
-        const A = porPote[p], B = porPote[q];
-        // Recebe em casa um de B e visita outro de B.
-        const casa = emparelhar(A, B, ok, rng);
-        if (!casa) { falhou = true; break; }
-        // Dentro do mesmo pote, "i recebe casa(i)" já dá a cada um 1 jogo em casa e 1 fora.
-        if (p === q) { for (const [i, j] of casa) juntar(i, j); continue; }
-        for (const [i, j] of casa) juntar(i, j);
-        const fora = emparelhar(A, B, ok, rng);
-        if (!fora) { falhou = true; break; }
-        for (const [i, j] of fora) juntar(j, i);
+  equilibrarPotes(eq, porPote);
+  for (let limite = maxMesmoPais; limite <= maxMesmoPais + 3; limite++) {
+    // Último recurso: potes refeitos ao acaso (mantendo o equilíbrio de países).
+    if (limite === maxMesmoPais + 3) {
+      const todos = rng.shuffle(porPote.flat());
+      for (let p = 0; p < potes; p++) porPote[p] = todos.slice(p * tam, (p + 1) * tam);
+      equilibrarPotes(eq, porPote);
+    }
+    for (let tentativa = 0; tentativa < 12; tentativa++) {
+      const arestas: Aresta[] = [];
+      const jogou = new Set<string>();
+      const contaPais = new Map<string, number>(); // "i|pais"
+      const ok = (i: number, j: number) => {
+        if (eq[i].pais === eq[j].pais) return false;
+        if (jogou.has(`${i}|${j}`)) return false;
+        return (contaPais.get(`${i}|${eq[j].pais}`) ?? 0) < limite && (contaPais.get(`${j}|${eq[i].pais}`) ?? 0) < limite;
+      };
+      const inc = (k: string, d: number) => contaPais.set(k, (contaPais.get(k) ?? 0) + d);
+      const por = (c: number, f: number) => {
+        arestas.push([c, f]);
+        jogou.add(`${c}|${f}`); jogou.add(`${f}|${c}`);
+        inc(`${c}|${eq[f].pais}`, 1); inc(`${f}|${eq[c].pais}`, 1);
+      };
+      const tirar = (c: number, f: number) => {
+        arestas.pop();
+        jogou.delete(`${c}|${f}`); jogou.delete(`${f}|${c}`);
+        inc(`${c}|${eq[f].pais}`, -1); inc(`${f}|${eq[c].pais}`, -1);
+      };
+      let falhou = false;
+      for (let p = 0; p < potes && !falhou; p++) {
+        for (let q = mesmoPote ? p : p + 1; q < potes && !falhou; q++) {
+          const A = porPote[p], B = porPote[q];
+          // i recebe em casa um clube de B; dentro do mesmo pote isso já dá 1 jogo em casa e 1 fora a cada um.
+          if (!emparelhar(A, B, ok, por, tirar, rng)) { falhou = true; break; }
+          if (p === q) continue;
+          // e visita outro clube de B.
+          if (!emparelhar(A, B, ok, (i, j) => por(j, i), (i, j) => tirar(j, i), rng)) { falhou = true; break; }
+        }
+      }
+      if (!falhou) {
+        ESTAT_SORTEIO.total++;
+        if (limite > maxMesmoPais) ESTAT_SORTEIO.alargados++;
+        if (limite === maxMesmoPais + 3) ESTAT_SORTEIO.potesRefeitos++;
+        return arestas;
       }
     }
-    if (falhou) continue;
-    // Confirma o limite de adversários do mesmo país (as permutações não o actualizam a meio).
-    const contagem = new Map<string, number>();
-    for (const [c, f] of arestas) {
-      for (const [x, y] of [[c, f], [f, c]]) contagem.set(`${x}|${eq[y].pais}`, (contagem.get(`${x}|${eq[y].pais}`) ?? 0) + 1);
-    }
-    if ([...contagem.values()].every((v) => v <= maxMesmoPais)) return arestas;
   }
   throw new Error('não foi possível sortear a fase de liga');
 }
@@ -145,11 +197,12 @@ export class FaseLigaUEFA implements Competicao {
     let arestas: Aresta[] = [];
     let cor: number[] | null = null;
     for (let t = 0; t < 50 && !cor; t++) {
-      arestas = sortearFaseLiga(equipas, Number(cfg.potes), rng, Number(cfg.max_mesmo_pais_por_adversarios ?? 2));
+      arestas = sortearFaseLiga(equipas, Number(cfg.potes), rng, Number(cfg.max_mesmo_pais_por_adversarios ?? 2), cfg.jogos_mesmo_pote !== false);
       try { cor = distribuirJornadas(n, arestas, jornadas, rng); } catch { cor = null; }
     }
     if (!cor) throw new Error(`${cfg.id}: não foi possível montar o calendário da fase de liga`);
     const dias = CALENDARIO.dias.continental[cfg.id] ?? [2];
+    if (jornadas > m.continentais.fase_liga.length) throw new Error(`${cfg.id}: ${jornadas} jornadas para ${m.continentais.fase_liga.length} semanas`);
     const cores = cor;
     arestas.forEach(([c, f], e) => {
       this.jogos.push({ comp: this.id, ronda: cores[e] + 1, semana: m.continentais.fase_liga[cores[e]], ranhura: 'meio', dia: rng.pick(dias), casa: equipas[c].clube, fora: equipas[f].clube });
@@ -158,11 +211,11 @@ export class FaseLigaUEFA implements Competicao {
     const c = m.continentais;
     const meio = (s: number) => ({ semana: s, ranhura: 'meio' as const, dias });
     const [d1, d2] = cfg.playoff as number[];
-    this.playoff = new MataMata(`${this.id}_po`, `${this.nome} (play-off)`, 'continental',
+    this.playoff = new MataMata(`${this.id}_pe`, `${this.nome} (play-off de eliminatórias)`, 'continental',
       () => (this.terminouFase() ? this.classificacao().slice(d1 - 1, d2).map((l) => l.clube) : null),
       () => [{ maos: 2, slots: [meio(c.playoff[0]), meio(c.playoff[1])] }], rng);
     const [o1, o2] = cfg.directos_oitavos as number[];
-    const diaFinal = this.id === 'uefa_cl' ? { semana: c.final, ranhura: 'fds' as const, dias: [5] } : { semana: c.final, ranhura: 'meio' as const, dias };
+    const diaFinal = this.id === 'UCL' ? { semana: c.final, ranhura: 'fds' as const, dias: [5] } : { semana: c.final, ranhura: 'meio' as const, dias };
     this.final = new MataMata(`${this.id}_ko`, this.nome, 'continental',
       () => {
         if (!this.playoff.terminada() || !this.terminouFase()) return null;

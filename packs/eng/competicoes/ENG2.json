@@ -1,0 +1,99 @@
+{
+  "id": "ENG2",
+  "nome": "Championship",
+  "tipo": "liga",
+  "pais": "ENG",
+  "nivel": 2,
+  "forca_desportiva": 72,
+  "jogam_nas_paragens": true,
+  "descida_media_epocas": null,
+  "calendario_folha": "ago-mai",
+  "vagas_continentais_folha": null,
+  "tecto_salarial": "70% da receita",
+  "fonte": null,
+  "notas": null,
+  "origem_campos": {
+    "nº_equipas": "folha",
+    "voltas": "folha (formato: \"24 equipas, ida e volta (46 jogos)\")",
+    "sobem": "folha",
+    "descem": "folha",
+    "playoff_subida": "folha (play-offs: \"3.º–6.º disputam 1 vaga\")",
+    "forca_desportiva": "proposta Claude (ranking UEFA): a validar",
+    "geracao": "proposta Claude: bandas de reputação provisórias"
+  },
+  "a_obter": [
+    "fonte"
+  ],
+  "formato": {
+    "equipas": 24,
+    "voltas": 2,
+    "playoff_campeao": null
+  },
+  "subidas": {
+    "directas": 2,
+    "playoff": {
+      "de": 3,
+      "ate": 6,
+      "destino": "subida"
+    }
+  },
+  "descidas": {
+    "directas": 3,
+    "barragem": null,
+    "exterior": false
+  },
+  "desempates": [
+    "pontos",
+    "dg",
+    "gm",
+    "confronto_directo",
+    "sorteio"
+  ],
+  "epoca": {
+    "calendario": "ago_mai"
+  },
+  "indice_riqueza": 12,
+  "geracao": {
+    "rep_tecto": 66,
+    "rep_piso": 44
+  },
+  "janelas_transferencias": [
+    {
+      "abre": "07-01",
+      "fecha": "09-01"
+    },
+    {
+      "abre": "01-01",
+      "fecha": "02-01"
+    }
+  ],
+  "plantel": {
+    "max": 35,
+    "minimo_nacionais": 16,
+    "maximo_estrangeiros": null,
+    "minimo_formados_no_clube": null,
+    "por_validar": true
+  },
+  "tv": {
+    "total_eur": 150000000,
+    "pct_igual": 0.6,
+    "pct_desempenho": 0.2,
+    "pct_comercial": 0.2,
+    "regra_desempenho": "linear: 1º recebe 2x o último",
+    "paraquedas": [],
+    "por_validar": true
+  },
+  "premios": [],
+  "fair_play": {
+    "massa_salarial_max_receita": 0.8,
+    "sancoes": [
+      "aviso",
+      "multa",
+      "proibicao_inscricoes"
+    ]
+  },
+  "licenciamento": {
+    "exigido": true,
+    "notas": "por definir"
+  }
+}

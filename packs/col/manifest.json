@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "COL",
   "confederacao": "CONMEBOL",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "col_1"
+    "COL1"
   ],
-  "taca": "col_taca",
+  "tacas": [
+    "COL-COC"
+  ],
   "perfil_nomes": "es_am",
   "activo": true
 }

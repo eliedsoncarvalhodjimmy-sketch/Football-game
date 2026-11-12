@@ -1,6 +1,6 @@
 # Simulação de 10 épocas — semente 2026
 
-> **DADOS DE TESTE.** Mundo fictício (51 ligas, 33 pacotes). Épocas 2026/27 a 2035/36. Uma página por época em [epocas/](epocas/), com todas as classificações finais.
+> **DADOS DE TESTE.** Mundo fictício (48 ligas, 31 pacotes). Épocas 2026/27 a 2035/36. Uma página por época em [epocas/](epocas/), com todas as classificações finais.
 
 ## 1. Testes da secção 11
 
@@ -8,83 +8,81 @@
 |---|:---:|---|---|
 | Integridade: cada clube numa só divisão; nº de clubes por divisão igual todas as épocas | ✅ | 0 problemas em 10 passagens de época | 0 |
 | Vagas continentais preenchidas, sem duplicados, só países com direito | ✅ | 0 problemas em 11 sorteios de vagas | 0 |
-| Calendário: mesmo dia, > 2 jogos/semana, > 3 seguidos casa/fora (ligas), continentais a meio da semana | ✅ | 0 problemas em 174 340 jogos | 0 |
-| Calibração, primeiros 10.000 jogos de liga | ✅ | 2.57 golos; casa 45.5%, empate 25.7%, fora 28.8%; 0-0 8.0%; 5+ 11.1%; 7+ 0.9% | 2,6; 45/26/29; 7–8%; 10–12%; < 1,5% |
-| Calibração, todos os jogos de liga (158 300) | ✅ | 2.59 golos; casa 45.1%, empate 26.0%, fora 29.0%; 0-0 7.7%; 5+ 11.7%; 7+ 0.8% | idem |
-| Pontos do campeão (pontos por jogo) | ✅ | média 2.27; 92.5% dentro da faixa | 1,9–2,85 por jogo (≈ 72–108 pts em 38 jogos) |
-| Pontos do último (pontos por jogo) | ✅ | média 0.64; 98.6% dentro da faixa | 0,25–1,15 por jogo (≈ 10–44 pts em 38 jogos) |
-| Campeões diferentes por liga em 10 épocas | ✅ | média 4.6; 4 ligas com sempre o mesmo; 2 com sempre diferente | média 2,5–7; poucas nos extremos |
-| Os mais fortes ganham mais, mas não sempre | ✅ | favorito (maior reputação no início) campeão em 58.2%; um dos 3 favoritos em 84.7% | 20–70%; top 3 ≥ 50% |
-| Mobilidade entre divisões | ✅ | 488 subidas, 488 descidas, 670 saídas para o exterior, 670 entradas; 44.7% dos que sobem descem logo; 145 clubes subiram 2+ vezes | movimento em todos os sentidos |
-| Determinismo (mesma semente → mesmos resultados; outra semente → diferentes) | ✅ | impressão digital ac01ab46 | iguais / diferentes |
+| Calendário: mesmo dia, > 2 jogos/semana, > 3 seguidos casa/fora (ligas), continentais a meio da semana | ✅ | 0 problemas em 172 080 jogos | 0 |
+| Calibração, primeiros 10.000 jogos de liga | ✅ | 2.62 golos; casa 44.7%, empate 25.9%, fora 29.4%; 0-0 7.3%; 5+ 12.1%; 7+ 0.9% | 2,6; 45/26/29; 7–8%; 10–12%; < 1,5% |
+| Calibração, todos os jogos de liga (155 000) | ✅ | 2.62 golos; casa 44.5%, empate 26.3%, fora 29.2%; 0-0 7.3%; 5+ 11.9%; 7+ 0.8% | idem |
+| Pontos do campeão (pontos por jogo) | ✅ | média 2.29; 96.5% dentro da faixa | 1,9–2,85 por jogo (≈ 72–108 pts em 38 jogos) |
+| Pontos do último (pontos por jogo) | ✅ | média 0.51; 91.5% dentro da faixa | 0,25–1,15 por jogo (≈ 10–44 pts em 38 jogos) |
+| Campeões diferentes por liga em 10 épocas | ✅ | média 6.2; 0 ligas com sempre o mesmo; 2 com sempre diferente | média 2,5–7; poucas nos extremos |
+| Os mais fortes ganham mais, mas não sempre | ✅ | favorito (maior reputação no início) campeão em 34.4%; um dos 3 favoritos em 64.0% | 20–70%; top 3 ≥ 50% |
+| Mobilidade entre divisões | ✅ | 461 subidas, 461 descidas, 580 saídas para o exterior, 580 entradas; 46.2% dos que sobem descem logo; 126 clubes subiram 2+ vezes | movimento em todos os sentidos |
+| Determinismo (mesma semente → mesmos resultados; outra semente → diferentes) | ✅ | impressão digital 887c95f4 | iguais / diferentes |
 
 ### Desempenho (Node, esta máquina)
 
 | Medida | Valor |
 |---|---|
-| Época completa do mundo (média / máx.) | 56 ms / 95 ms |
-| Uma semana de calendário (média / p95 / máx.) | 1.1 ms / 1.8 ms / 42.5 ms |
-| Memória (heap) no fim | 92 MB |
-| Gravação por época (todos os jogos, gzip) | 139 KB (alvo ≤ 20 MB) |
-| Jogos por época (todas as competições) | 17 434 |
+| Época completa do mundo (média / máx.) | 65 ms / 114 ms |
+| Uma semana de calendário (média / p95 / máx.) | 1.3 ms / 2.5 ms / 45.3 ms |
+| Memória (heap) no fim | 49 MB |
+| Gravação por época (todos os jogos, gzip) | 137 KB (alvo ≤ 20 MB) |
+| Jogos por época (todas as competições) | 17 208 |
+| Sorteios das fases de liga UEFA que alargaram o limite de 2 adversários do mesmo país | 3 de 42 (potes refeitos: 0) |
 
-Parâmetros do modo rápido: base 1.265, casa 1.17, gama 0.03, rho -0.05, empates ×1.13, goleadas ×0.6 acima de 5 golos.
+Parâmetros do modo rápido: base 1.24, casa 1.17, gama 0.03, rho -0.05, empates ×1.25, goleadas ×0.6 acima de 5 golos.
 
 ## 2. Campeões por liga
 
 | Liga | 2026/27 | 2027/28 | 2028/29 | 2029/30 | 2030/31 | 2031/32 | 2032/33 | 2033/34 | 2034/35 | 2035/36 | Diferentes |
 |---|---|---|---|---|---|---|---|---|---|---|---:|
-| Liga Africana Unificada — Liga Africana | ADE | NGO | IKE | IKE | ADE | IKE | IKE | IKE | ADE | IKE | 3 |
-| Argentina — Liga Profesional | CEI | CEI | CHA | CEI | CEI | CEI | CEI | CIB | MOR | ALA | 5 |
-| Áustria — Bundesliga | KIR | KIR | KIR | KIR | KIR | KIR | KIR | KIR | KRC | KIR | 2 |
-| Bélgica — Pro League | BER | BER | BER | BER | MOL | MOL | BER | BER | BER | BER | 2 |
-| Bélgica — Challenger Pro League | HRE | VRD | TRV | OOK | HRE | OOK | BRG | HOE | BRG | VRD | 6 |
-| Brasil — Série A | PED | CAS | PDR | PDR | ANG | PED | PDR | PDR | CAS | ANG | 4 |
-| Brasil — Série B | ANO | PAL | CSC | VNT | VES | PAL | CAO | PAL | BUR | PAL | 7 |
-| Colômbia — Primera A | QUE | TAB | TAB | QUE | TAB | TAB | QUE | TAB | TAB | TAB | 2 |
-| Croácia — HNL | ZAZ | ZAZ | ZAZ | ZAZ | ZAZ | ZAZ | ZAZ | ZAZ | ZAZ | ZAZ | 1 |
-| Chéquia — 1. liga | LHN | POD | LHN | LUH | POD | POD | OST | OST | OST | POD | 4 |
-| Dinamarca — Superliga | BRO | BRO | BRO | VES | BRO | BRO | BRO | BRO | BRO | BRO | 2 |
-| Equador — LigaPro Serie A | ROS | TAB | TAB | TAB | TAB | TAB | ROS | TAB | TAB | TAB | 2 |
-| Inglaterra — Premier League | BRA | CAR | CAR | BRA | CAR | BRA | QUE | CAR | CAR | CAR | 3 |
-| Inglaterra — Championship | FAL | STM | MAR | DNC | TER | RAD | YAR | GRI | TER | NET | 9 |
-| Inglaterra — League One | DUY | GIM | TOR | LAN | KEL | STT | DUY | LAN | THR | WIT | 8 |
-| Inglaterra — League Two | MOR | DUE | MAK | CAE | NED | LNG | AHH | CAK | SEL | MRL | 10 |
-| Espanha — Primera División | OLM | OLM | OLM | OLM | OLM | OLM | OLM | OLM | OLM | OLM | 1 |
-| Espanha — Segunda División | HIA | SLA | HNO | MNM | TRR | HNO | GUA | PRA | TAR | ACO | 9 |
-| França — Ligue 1 | FNT | FON | FON | FNT | FON | FON | FON | FON | FON | FON | 2 |
-| França — Ligue 2 | PES | PIS | MRF | PES | FDE | BAU | PES | FUN | MRF | BAU | 6 |
-| França — Ligue 3 | MOE | SAT | PLA | SRT | VAL | VID | VIS | SRT | PLB | PIS | 9 |
-| Alemanha — Bundesliga | MUH | STE | STE | STE | MUH | MHL | MUH | STE | STE | MHL | 3 |
-| Alemanha — 2. Bundesliga | MUD | NEU | MUD | HAS | HHE | ALT | ZLL | GAL | HHE | EIC | 8 |
-| Alemanha — 3. Liga | BUK | STN | RHE | ZED | HAG | NUB | GRG | WEN | ZED | BUK | 8 |
-| Grécia — Super League | KAL | ORI | ORI | ORI | ORI | ORI | ORI | ORI | ORI | ORI | 2 |
-| Hungria — NB I | HEG | SZE | SZE | SZE | SZE | SZE | HEG | TIS | HEG | SZE | 3 |
-| Itália — Serie A | CAS | CAS | CAS | TOR | CAS | CAS | CAS | CAS | TOR | CAS | 2 |
-| Itália — Serie B | PGG | FOO | VLC | FCO | PON | BOR | TOO | BOR | VEC | TOA | 9 |
-| Japão — J1 League | HOS | HOS | SAK | HOS | MAT | MAT | MAT | MAT | MAT | MAT | 3 |
-| Japão — J2 League | TKA | HAN | NAO | HAA | HAI | KII | YNO | NAG | NGA | KNI | 10 |
-| Coreia do Sul — K League 1 | DAE | DEC | JIN | GYE | JIN | DAE | DAE | NAM | DAE | DAE | 5 |
-| Arábia Saudita — Pro League | SID | SID | SID | SID | THU | SID | SID | SID | SID | SID | 2 |
-| Arábia Saudita — First Division | SHI | MAN | SAR | FAI | MAN | BRQ | DAF | MAN | BAA | RYY | 8 |
-| México — Liga MX | POR | POR | PRT | POR | POR | SOL | POR | POR | POR | POR | 3 |
-| Países Baixos — Eredivisie | GRO | GRO | GRO | GRO | GRO | GRO | GRO | GRO | GRO | GRO | 1 |
-| Países Baixos — Eerste Divisie | LDE | RJS | GRN | GOD | GRN | EEM | EMD | OUD | GRN | ALK | 8 |
-| Noruega — Eliteserien | ASV | LIE | LIE | ASV | ASV | LIE | ASV | ASV | ASV | LIE | 2 |
-| Polónia — Ekstraklasa | GRO | MIS | MIS | SAW | MIS | STA | GRO | PIA | GRO | RAK | 6 |
-| Portugal — 1.ª Liga | CAR | CAR | CAR | ALV | CAR | CAR | CAR | CAR | CAR | CAR | 2 |
-| Portugal — 2.ª Liga | VAE | LES | VLE | PEN | MAA | FRO | AVA | OTE | MRV | FRO | 9 |
-| Portugal — Liga 3 | RLO | COR | COA | REO | FNT | LOA | COA | LOA | CAA | LGO | 8 |
-| Escócia — Premiership | ARD | ARD | ARD | ARD | ARD | ARD | ARD | ARD | ARD | ARD | 1 |
-| Escócia — Championship | DAN | BLM | DLN | GLE | DAN | DLA | TOR | BAL | DLA | INV | 8 |
-| Suíça — Super League | KIR | KIR | BER | KIR | KIR | KIR | KIR | KIR | BER | KIR | 2 |
-| Suécia — Allsvenskan | HOL | LIN | HOL | LIN | LIN | LIN | LIN | ALS | ALS | AKE | 4 |
-| Turquia — Süper Lig | CAM | CAM | CAM | CAM | TAS | TAS | TAS | TAS | CAM | CAM | 2 |
-| Turquia — 1. Lig | APN | SDE | KLY | GKB | GLH | KLY | TSD | YLR | APN | TSB | 8 |
-| Emirados Árabes Unidos — Pro League | DHA | DHA | DHA | THU | DHA | DHA | DHA | DHA | DHA | DHA | 2 |
-| Ucrânia — Premier Liha | KAM | KAM | KRA | LYS | KAM | KRA | KRA | KRA | LYS | LYS | 3 |
-| Uruguai — Primera División | ROS | ROS | ROS | ROS | ROS | PAL | ROS | PAL | PAL | PAL | 2 |
-| MLS (EUA/Canadá) — MLS | SIL | FAL | SIL | MAP | SIL | BAY | FAL | CED | BAY | BAY | 5 |
+| Liga Africana Unificada — Liga Africana | LUM | IKE | IKE | IKE | ADE | NGO | IKE | ADE | ADE | LAH | 5 |
+| Argentina — Liga Profesional | ARR | ARR | ARR | CEI | ARR | ARR | MOR | ARR | PIN | TOS | 5 |
+| Áustria — Bundesliga | HAS | FAL | DOR | BUC | DOR | KIR | DOR | DOR | BER | KIR | 6 |
+| Bélgica — Pro League | OOS | LIE | VER | OOS | VER | BEA | BEA | LER | ROM | VER | 6 |
+| Bélgica — Challenger Pro League | HRE | MAA | HRE | ROT | ROK | ROT | ZAN | WES | MLM | HRE | 7 |
+| Brasil — Brasileirão Série A | PED | CAS | SER | JAT | PED | ANG | CAJ | CAJ | CAS | CAS | 6 |
+| Brasil — Brasileirão Série B | VOS | PLM | SEO | CAA | CAO | PEQ | SEO | SER | GAR | AGI | 9 |
+| Colômbia — Categoría Primera A | ROS | LUC | TBL | LUC | ARE | SOL | RSA | ESP | LUC | ROS | 7 |
+| Croácia — HNL (SuperSport Hrvatska nogometna liga) | VIK | ZAZ | BRE | BRE | ZAZ | ZAZ | ZAZ | ZAZ | ZAZ | BRE | 3 |
+| Chéquia — Chance Liga | POD | POD | KOS | LUH | POD | POD | OST | KOS | LUH | RYC | 5 |
+| Dinamarca — Superliga | BRO | SER | SER | SOL | SOL | VES | FJN | BRO | VES | NRL | 6 |
+| Equador — LigaPro Serie A | TAB | TAB | ROS | TAB | LUC | COR | ROS | COR | MRA | COR | 5 |
+| Inglaterra — Premier League | BRA | BRA | CAR | BRA | BRA | BRA | BRA | BRA | GRI | BRA | 3 |
+| Inglaterra — Championship | ASH | DNW | NTH | CRN | THO | DUN | BRO | DUN | SOU | STY | 9 |
+| Inglaterra — League One | MRL | WHI | THR | CAE | KEL | STT | DUE | WIT | STT | WIT | 8 |
+| Inglaterra — League Two | MOR | MAK | ASR | THM | BOM | ELT | AHH | MOR | THR | MRL | 9 |
+| Espanha — La Liga | OLM | ALC | OLM | OME | ALC | OLM | OLM | OLM | OLM | OLM | 3 |
+| Espanha — Segunda División | ACO | LOR | MIA | SLA | TRR | HIA | TAR | SAN | TON | LOR | 9 |
+| Europa (resto) — Liga Resto da Europa | FEH | FEH | FEH | AGB | AKE | VAL | FEH | AKE | TUR | KFA | 6 |
+| França — Ligue 1 | FON | FON | FON | FON | FON | FON | FON | FUN | CLA | FNT | 4 |
+| França — Ligue 2 | ROC | FDE | BAU | MRC | FDE | CHA | ROC | CHA | VIS | ROC | 6 |
+| França — Ligue 3 | PLC | VLG | VIS | SAT | VAL | SNT | LIE | VLL | SNT | VLL | 8 |
+| Alemanha — Bundesliga | MUH | STE | MHL | ZEL | STE | MHL | MHL | STE | STE | MHL | 4 |
+| Alemanha — 2. Bundesliga | MUD | GAL | SEI | WES | GAL | MUD | EIC | SEI | HOH | TNN | 7 |
+| Alemanha — 3. Liga | STN | BUK | ZED | WEA | WST | STL | ZEN | KIR | ZED | ZEU | 9 |
+| Grécia — Super League 1 | ORI | ORI | ORI | ORI | KAL | ORI | ORI | ORI | ORI | KAL | 2 |
+| Itália — Serie A | CAS | CAS | CAS | VAL | FON | CAS | CAS | TRR | TOR | CAS | 5 |
+| Itália — Serie B | TCO | PNT | TGO | VLC | POO | VLC | BDE | VIL | CRO | POO | 8 |
+| Japão — J1 League | HOS | HOS | SAK | KII | HAI | HOS | MAT | YAO | SAK | FUJ | 7 |
+| Japão — J2 League | YAA | TAA | KIR | HAA | YNO | HNA | TAI | HAI | YMA | HOA | 10 |
+| Coreia do Sul — K League 1 | NMC | HWA | DAE | HWA | DAE | HND | NAM | MNC | JIN | HAD | 8 |
+| Arábia Saudita — Saudi Pro League | THU | THU | THU | THU | THU | THU | SAQ | SID | QAR | DHA | 5 |
+| Arábia Saudita — First Division League | RIM | FAI | ZAH | QAR | BRQ | MNA | THA | QAM | SHI | QAM | 9 |
+| México — Liga MX | POR | ESP | ESP | POO | TAB | CEI | AGU | ESP | AGU | CEI | 6 |
+| Países Baixos — Eredivisie | RIJ | GRO | ALD | GRO | ALD | RIJ | RIJ | ALD | GRO | ALD | 3 |
+| Países Baixos — Eerste Divisie | BLK | BEE | MER | VEL | BEE | LDE | ARK | BEE | OUD | LET | 8 |
+| Noruega — Eliteserien | ELV | LIE | LIE | ASV | ASV | LIE | LIS | BJR | ASV | NOR | 6 |
+| Polónia — Ekstraklasa | SAW | ZIE | PIA | PIA | MIS | RAK | RAK | PIA | DEB | RAK | 6 |
+| Portugal — Liga Portugal | CAR | ALV | ALV | CAR | CAR | ALV | ALV | FEI | CAR | FEI | 3 |
+| Portugal — Liga Portugal 2 | LGO | LJE | FRO | LGO | MRV | MAA | MAR | LES | MAA | AVA | 8 |
+| Escócia — Premiership | ARD | KIL | ARD | ARD | ARD | BAL | ARD | ARD | ARD | ARD | 3 |
+| Escócia — Championship | BLM | DAN | DLN | GLE | DAN | INV | DLA | DLN | DLA | DLI | 7 |
+| Suíça — Super League | KIR | KIR | KIR | KIR | BRN | NEU | KIR | KIR | BER | DOR | 5 |
+| Turquia — Süper Lig | DEM | SUT | KLC | YLD | DMI | YLD | KZL | KZL | DMI | AYA | 7 |
+| Turquia — 1. Lig | YES | YOY | AKY | TAS | DGT | CAM | KAR | YLG | DGY | AKP | 10 |
+| Emirados Árabes Unidos — UAE Pro League | DAF | BST | WAH | THU | DHA | DHA | DHA | DHA | WHA | DHA | 6 |
+| Uruguai — Primera División | PAL | ROS | ROS | ROS | ROS | PAL | COL | PAL | PAL | PAL | 3 |
+| EUA (MLS) — MLS | BAY | SMM | CPP | SUM | STO | RDV | RDV | IRO | FAL | SLV | 9 |
 
 Siglas: ver as classificações em cada página de época. Ligas com play-off de campeão (Argentina, MLS): campeão = vencedor do play-off.
 
@@ -92,165 +90,176 @@ Siglas: ver as classificações em cada página de época. Ligas com play-off de
 
 | Liga | Jogos | Campeão (méd. / mín. / máx.) | Último (méd. / mín. / máx.) |
 |---|---:|---|---|
-| Liga Africana Unificada — Liga Africana | 46 | 108.0 / 97 / 119 | 30.0 / 15 / 43 |
-| Argentina — Liga Profesional | 29 | 73.7 / 67 / 84 | 14.5 / 4 / 22 |
-| Áustria — Bundesliga | 22 | 52.9 / 46 / 58 | 13.5 / 7 / 21 |
-| Bélgica — Pro League | 34 | 82.2 / 73 / 92 | 22.6 / 18 / 30 |
-| Bélgica — Challenger Pro League | 30 | 63.3 / 55 / 72 | 20.4 / 12 / 29 |
-| Brasil — Série A | 38 | 85.9 / 79 / 99 | 20.5 / 6 / 32 |
-| Brasil — Série B | 38 | 85.1 / 72 / 93 | 27.0 / 23 / 33 |
-| Colômbia — Primera A | 38 | 85.4 / 81 / 94 | 25.8 / 21 / 31 |
-| Croácia — HNL | 18 | 45.0 / 41 / 52 | 7.7 / 3 / 12 |
-| Chéquia — 1. liga | 30 | 63.0 / 56 / 70 | 15.8 / 9 / 22 |
-| Dinamarca — Superliga | 22 | 50.6 / 41 / 57 | 14.0 / 6 / 19 |
-| Equador — LigaPro Serie A | 30 | 68.3 / 62 / 75 | 19.8 / 15 / 25 |
-| Inglaterra — Premier League | 38 | 93.0 / 79 / 106 | 18.9 / 10 / 29 |
-| Inglaterra — Championship | 46 | 96.0 / 84 / 101 | 33.2 / 21 / 40 |
-| Inglaterra — League One | 46 | 92.8 / 80 / 106 | 35.4 / 28 / 41 |
-| Inglaterra — League Two | 46 | 88.5 / 84 / 98 | 35.1 / 20 / 46 |
-| Espanha — Primera División | 38 | 96.2 / 88 / 108 | 23.5 / 15 / 27 |
-| Espanha — Segunda División | 42 | 91.0 / 77 / 104 | 30.8 / 24 / 40 |
-| França — Ligue 1 | 34 | 87.2 / 82 / 95 | 17.7 / 5 / 27 |
-| França — Ligue 2 | 34 | 69.8 / 65 / 74 | 23.2 / 17 / 31 |
-| França — Ligue 3 | 34 | 67.7 / 63 / 73 | 25.4 / 14 / 34 |
-| Alemanha — Bundesliga | 34 | 80.4 / 71 / 93 | 19.6 / 11 / 28 |
-| Alemanha — 2. Bundesliga | 34 | 72.2 / 65 / 84 | 24.7 / 18 / 31 |
-| Alemanha — 3. Liga | 38 | 77.1 / 73 / 87 | 27.8 / 22 / 33 |
-| Grécia — Super League | 26 | 64.1 / 61 / 69 | 15.8 / 8 / 25 |
-| Hungria — NB I | 22 | 51.7 / 44 / 57 | 12.6 / 9 / 17 |
-| Itália — Serie A | 38 | 98.9 / 89 / 107 | 19.8 / 11 / 27 |
-| Itália — Serie B | 38 | 84.9 / 72 / 97 | 25.7 / 19 / 33 |
-| Japão — J1 League | 38 | 79.6 / 68 / 86 | 28.3 / 17 / 33 |
-| Japão — J2 League | 38 | 79.2 / 65 / 92 | 26.8 / 20 / 33 |
-| Coreia do Sul — K League 1 | 26 | 55.0 / 47 / 61 | 17.3 / 11 / 26 |
-| Arábia Saudita — Pro League | 34 | 88.1 / 78 / 94 | 19.7 / 8 / 27 |
-| Arábia Saudita — First Division | 34 | 75.4 / 57 / 89 | 24.9 / 18 / 34 |
-| México — Liga MX | 34 | 78.7 / 64 / 86 | 24.3 / 18 / 33 |
-| Países Baixos — Eredivisie | 34 | 86.7 / 78 / 96 | 21.1 / 16 / 26 |
-| Países Baixos — Eerste Divisie | 38 | 77.7 / 70 / 85 | 30.0 / 25 / 37 |
-| Noruega — Eliteserien | 30 | 69.6 / 61 / 81 | 19.7 / 16 / 24 |
-| Polónia — Ekstraklasa | 34 | 70.1 / 61 / 78 | 20.2 / 14 / 28 |
-| Portugal — 1.ª Liga | 34 | 87.6 / 79 / 96 | 21.9 / 16 / 27 |
-| Portugal — 2.ª Liga | 34 | 68.2 / 60 / 77 | 27.0 / 23 / 32 |
-| Portugal — Liga 3 | 38 | 79.4 / 75 / 85 | 26.8 / 19 / 33 |
-| Escócia — Premiership | 22 | 55.9 / 50 / 63 | 12.2 / 9 / 17 |
-| Escócia — Championship | 18 | 36.9 / 29 / 44 | 12.9 / 8 / 18 |
-| Suíça — Super League | 22 | 51.8 / 45 / 61 | 15.9 / 11 / 21 |
-| Suécia — Allsvenskan | 30 | 66.3 / 58 / 78 | 16.7 / 11 / 27 |
-| Turquia — Süper Lig | 34 | 84.6 / 80 / 94 | 21.9 / 15 / 26 |
-| Turquia — 1. Lig | 38 | 80.4 / 71 / 90 | 24.7 / 16 / 31 |
-| Emirados Árabes Unidos — Pro League | 26 | 57.4 / 48 / 65 | 15.2 / 10 / 23 |
-| Ucrânia — Premier Liha | 30 | 71.7 / 63 / 82 | 15.7 / 8 / 26 |
-| Uruguai — Primera División | 30 | 74.1 / 68 / 83 | 16.8 / 7 / 23 |
-| MLS (EUA/Canadá) — MLS | 29 | 63.5 / 55 / 73 | 19.2 / 13 / 23 |
+| Liga Africana Unificada — Liga Africana | 46 | 105.8 / 92 / 117 | 25.5 / 17 / 30 |
+| Argentina — Liga Profesional | 29 | 72.5 / 62 / 79 | 11.0 / 7 / 16 |
+| Áustria — Bundesliga | 22 | 49.1 / 42 / 58 | 12.3 / 3 / 21 |
+| Bélgica — Pro League | 30 | 71.1 / 64 / 79 | 12.8 / 5 / 20 |
+| Bélgica — Challenger Pro League | 28 | 57.5 / 48 / 68 | 18.1 / 12 / 28 |
+| Brasil — Brasileirão Série A | 38 | 84.8 / 70 / 94 | 16.7 / 4 / 30 |
+| Brasil — Brasileirão Série B | 38 | 89.0 / 82 / 97 | 18.6 / 11 / 25 |
+| Colômbia — Categoría Primera A | 38 | 84.3 / 68 / 101 | 19.4 / 4 / 30 |
+| Croácia — HNL (SuperSport Hrvatska nogometna liga) | 36 | 79.7 / 71 / 94 | 21.3 / 8 / 33 |
+| Chéquia — Chance Liga | 30 | 71.2 / 62 / 84 | 13.6 / 4 / 21 |
+| Dinamarca — Superliga | 22 | 50.8 / 44 / 59 | 10.5 / 6 / 16 |
+| Equador — LigaPro Serie A | 30 | 68.8 / 55 / 83 | 14.1 / 4 / 24 |
+| Inglaterra — Premier League | 38 | 89.3 / 81 / 98 | 18.0 / 4 / 27 |
+| Inglaterra — Championship | 46 | 108.0 / 93 / 122 | 22.1 / 12 / 34 |
+| Inglaterra — League One | 46 | 100.9 / 91 / 112 | 26.7 / 20 / 34 |
+| Inglaterra — League Two | 46 | 101.7 / 89 / 111 | 27.5 / 17 / 37 |
+| Espanha — La Liga | 38 | 91.7 / 78 / 105 | 12.9 / 6 / 22 |
+| Espanha — Segunda División | 42 | 98.8 / 91 / 111 | 22.0 / 14 / 32 |
+| Europa (resto) — Liga Resto da Europa | 38 | 86.0 / 72 / 98 | 21.7 / 18 / 31 |
+| França — Ligue 1 | 34 | 84.5 / 71 / 91 | 11.7 / 3 / 22 |
+| França — Ligue 2 | 34 | 78.6 / 71 / 87 | 18.8 / 13 / 27 |
+| França — Ligue 3 | 38 | 86.1 / 80 / 92 | 21.9 / 14 / 29 |
+| Alemanha — Bundesliga | 34 | 82.0 / 74 / 91 | 13.0 / 2 / 24 |
+| Alemanha — 2. Bundesliga | 34 | 75.3 / 67 / 97 | 16.5 / 8 / 23 |
+| Alemanha — 3. Liga | 38 | 84.9 / 73 / 95 | 24.5 / 12 / 36 |
+| Grécia — Super League 1 | 26 | 62.3 / 51 / 71 | 13.1 / 9 / 18 |
+| Itália — Serie A | 38 | 93.2 / 82 / 102 | 13.8 / 4 / 27 |
+| Itália — Serie B | 38 | 88.7 / 76 / 98 | 18.8 / 7 / 28 |
+| Japão — J1 League | 38 | 85.1 / 75 / 103 | 21.5 / 10 / 34 |
+| Japão — J2 League | 38 | 82.0 / 72 / 95 | 24.8 / 20 / 29 |
+| Coreia do Sul — K League 1 | 33 | 69.0 / 62 / 83 | 21.0 / 8 / 29 |
+| Arábia Saudita — Saudi Pro League | 34 | 84.5 / 73 / 95 | 12.9 / 6 / 22 |
+| Arábia Saudita — First Division League | 34 | 73.1 / 66 / 79 | 19.7 / 10 / 30 |
+| México — Liga MX | 34 | 74.1 / 65 / 90 | 16.5 / 6 / 25 |
+| Países Baixos — Eredivisie | 34 | 83.1 / 70 / 93 | 12.9 / 6 / 19 |
+| Países Baixos — Eerste Divisie | 38 | 79.5 / 73 / 93 | 26.3 / 18 / 29 |
+| Noruega — Eliteserien | 30 | 65.0 / 56 / 76 | 17.0 / 8 / 23 |
+| Polónia — Ekstraklasa | 34 | 76.2 / 62 / 91 | 18.1 / 9 / 28 |
+| Portugal — Liga Portugal | 34 | 83.9 / 72 / 95 | 14.0 / 6 / 20 |
+| Portugal — Liga Portugal 2 | 34 | 76.5 / 69 / 87 | 17.4 / 11 / 23 |
+| Escócia — Premiership | 33 | 79.5 / 69 / 90 | 14.6 / 6 / 24 |
+| Escócia — Championship | 36 | 75.0 / 65 / 84 | 21.6 / 13 / 28 |
+| Suíça — Super League | 33 | 74.7 / 65 / 92 | 17.7 / 7 / 27 |
+| Turquia — Süper Lig | 38 | 88.1 / 85 / 93 | 18.4 / 6 / 28 |
+| Turquia — 1. Lig | 38 | 85.5 / 71 / 96 | 18.9 / 3 / 28 |
+| Emirados Árabes Unidos — UAE Pro League | 26 | 58.2 / 55 / 63 | 13.9 / 7 / 19 |
+| Uruguai — Primera División | 30 | 72.1 / 67 / 80 | 13.6 / 8 / 18 |
+| EUA (MLS) — MLS | 29 | 66.4 / 59 / 77 | 16.1 / 11 / 21 |
 
 ## 4. Competições continentais
 
 | Época | Competição | Vencedor | Finalista | Final |
 |---|---|---|---|---|
-| 2026/27 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Ain Thuraya Club (KSA) | 5-0 |
-| 2026/27 | Libertadores | Atlético Pouso das Pedras (BRA) | Club Atlético Coronel Arroyito (ARG) | 3-2 |
-| 2026/27 | Liga dos Campeões | AS Fonteville (FRA) | FC Casteldorato (ITA) | 1-0 |
-| 2026/27 | Liga Conferência | Fontemarino Calcio (ITA) | Caldale Albion (ENG) | 1-0 |
-| 2026/27 | Liga Europa | Brombury United (ENG) | Poggiovecchio Calcio (ITA) | 1-0 |
-| 2027/28 | Liga dos Campeões Asiática | Daecheon Hawks (KOR) | Al Sidra Club (KSA) | 2-1 |
-| 2027/28 | Libertadores | Rio do Angico Futebol Clube (BRA) | Unión de Puerto Ceibos (ARG) | 1-0 |
-| 2027/28 | Liga dos Campeões | FC Casteldorato (ITA) | Brackcombe Town (ENG) | 2-0 |
-| 2027/28 | Liga Conferência | Virtus Casteldorato (ITA) | FC Tannfeld (GER) | 1-0 |
-| 2027/28 | Liga Europa | TSV Tannau (GER) | Olmevega CF (ESP) | 2-1 |
-| 2028/29 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 2-1 |
-| 2028/29 | Libertadores | Deportivo Río Rosario Alto (URU) | Esporte Clube Ribeirão da Cascata (BRA) | 2-1 |
-| 2028/29 | Liga dos Campeões | Carnley Albion (ENG) | Brackcombe Town (ENG) | 3-2 |
-| 2028/29 | Liga Conferência | Grupo Desportivo de Azenha de Rebordelo (POR) | Brombury United (ENG) | 1-0 |
-| 2028/29 | Liga Europa | Hathercombe United (ENG) | SC Zelltal (GER) | 1-0 |
-| 2029/30 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Ain Thuraya FC (KSA) | 4-0 |
-| 2029/30 | Libertadores | Unión de Colonia Alamos (ARG) | Atlético Pouso das Pedras (BRA) | 3-1 (a.p.) |
-| 2029/30 | Liga dos Campeões | Carnley Albion (ENG) | Brackcombe Town (ENG) | 2-0 (a.p.) |
-| 2029/30 | Liga Conferência | Brombury United (ENG) | Alderdrecht Boys (NED) | 4-1 |
-| 2029/30 | Liga Europa | Quendale Athletic (ENG) | SC Zelltal (GER) | 1-0 |
-| 2030/31 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Matsuno FC (JPN) | 4-2 |
-| 2030/31 | Libertadores | Esporte Clube Ribeirão da Cascata (BRA) | Unión de Puerto Ceibos (ARG) | 1-1 (a.p.) 4-2 g.p. |
-| 2030/31 | Liga dos Campeões | CF Alcormonte (ESP) | Brackcombe Town (ENG) | 3-2 (a.p.) |
-| 2030/31 | Liga Conferência | Alderdrecht Boys (NED) | AC Fontebello (ITA) | 2-0 |
-| 2030/31 | Liga Europa | SV Mühlwangen (GER) | Brombury United (ENG) | 2-1 |
-| 2031/32 | Liga dos Campeões Asiática | Daesan Dragons (KOR) | Ras Rayyan Sharq FC (KSA) | 1-0 |
-| 2031/32 | Libertadores | Clube Atlético Pouso das Pedras (BRA) | Grêmio Campo do Cajueiro (BRA) | 2-1 |
-| 2031/32 | Liga dos Campeões | Brackcombe Town (ENG) | AS Fonteville (FRA) | 5-1 |
-| 2031/32 | Liga Conferência | Eintracht Grüntal (GER) | Monvega CF (ESP) | 2-1 |
-| 2031/32 | Liga Europa | FC Bergville (BEL) | AC Valfiore (ITA) | 2-0 |
-| 2032/33 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Matsuno FC (JPN) | 3-0 |
-| 2032/33 | Libertadores | Clube Atlético Pouso das Pedras (BRA) | Club Atlético Coronel Arroyito (ARG) | 1-0 |
-| 2032/33 | Liga dos Campeões | Brackcombe Town (ENG) | Carnley Albion (ENG) | 2-1 |
-| 2032/33 | Liga Conferência | Hathercombe United (ENG) | Fontemarino Calcio (ITA) | 1-0 |
-| 2032/33 | Liga Europa | CF Alcormonte (ESP) | FC Bergville (BEL) | 2-1 |
-| 2033/34 | Liga dos Campeões Asiática | Matsuno FC (JPN) | Al Sidra Club (KSA) | 2-1 (a.p.) |
-| 2033/34 | Libertadores | Clube Atlético Pouso das Pedras (BRA) | Grêmio Campo do Cajueiro (BRA) | 2-0 |
-| 2033/34 | Liga dos Campeões | Carnley Albion (ENG) | Quendale Athletic (ENG) | 2-0 |
-| 2033/34 | Liga Conferência | Netherenwick Athletic (ENG) | Alderdrecht Boys (NED) | 2-0 |
-| 2033/34 | Liga Europa | Torrefranco Calcio (ITA) | Real Riberrada (ESP) | 2-2 (a.p.) 5-4 g.p. |
-| 2034/35 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 2-0 |
-| 2034/35 | Libertadores | Ferro Paso Moreira (ARG) | Juventud Cerro Tablada (COL) | 1-0 |
-| 2034/35 | Liga dos Campeões | Quendale Athletic (ENG) | FC Casteldorato (ITA) | 3-2 |
-| 2034/35 | Liga Conferência | Stourmercombe City (ENG) | Atlético Hinovega (ESP) | 2-0 |
-| 2034/35 | Liga Europa | Brombury United (ENG) | AC Valfiore (ITA) | 5-2 (a.p.) |
-| 2035/36 | Liga dos Campeões Asiática | Wadi Dhafra Club (KSA) | Daepyeong FC (KOR) | 4-0 |
-| 2035/36 | Libertadores | Rio do Angico Futebol Clube (BRA) | Serra do Sertão Futebol Clube (BRA) | 2-1 |
-| 2035/36 | Liga dos Campeões | Carnley Albion (ENG) | Olmedosa CF (ESP) | 1-0 (a.p.) |
-| 2035/36 | Liga Conferência | Hathercombe United (ENG) | Eintracht Altenhausen (GER) | 1-0 (a.p.) |
-| 2035/36 | Liga Europa | Clube Desportivo de Serra do Freixo (POR) | Dunbury Wanderers (ENG) | 2-0 |
+| 2026/27 | Liga dos Campeões Asiática | Stella Hoshigawa (JPN) | Al Sidra Club (KSA) | 1-0 |
+| 2026/27 | Libertadores | Atlético Pouso das Pedras (BRA) | Rio do Angico Futebol Clube (BRA) | 3-0 |
+| 2026/27 | Liga dos Campeões | FC Casteldorato (ITA) | AS Fonteville (FRA) | 1-0 (a.p.) |
+| 2026/27 | Liga Conferência | Ironi Kfar Shaked (ISR) | Dunbury Wanderers (ENG) | 3-2 (a.p.) |
+| 2026/27 | Liga Europa | SC Zelltal (GER) | Fontemarino Calcio (ITA) | 2-1 (a.p.) |
+| 2027/28 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Stella Yamasaki (JPN) | 2-0 |
+| 2027/28 | Libertadores | Rio do Angico Futebol Clube (BRA) | Sportivo Villa Chañares (ARG) | 1-1 (a.p.) 5-3 g.p. |
+| 2027/28 | Liga dos Campeões | SV Mühlwangen (GER) | FC Casteldorato (ITA) | 0-0 (a.p.) 4-2 g.p. |
+| 2027/28 | Liga Conferência | Monvega CF (ESP) | Alderdrecht Boys (NED) | 2-1 (a.p.) |
+| 2027/28 | Liga Europa | SC Fonteville (FRA) | Atlético Hinovega (ESP) | 3-1 |
+| 2028/29 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 2-0 |
+| 2028/29 | Libertadores | Club Atlético Coronel Arroyito (ARG) | Grêmio Campo do Cajueiro (BRA) | 2-0 |
+| 2028/29 | Liga dos Campeões | Stourmercombe City (ENG) | AS Fonteville (FRA) | 2-0 |
+| 2028/29 | Liga Conferência | IK Åkerby (SWE) | Eintracht Grüntal (GER) | 1-1 (a.p.) 5-3 g.p. |
+| 2028/29 | Liga Europa | Demiryurtspor (TUR) | Clube Desportivo de Serra do Freixo (POR) | 1-0 |
+| 2029/30 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 3-0 |
+| 2029/30 | Libertadores | Club Atlético Coronel Arroyito (ARG) | Atlético Pouso das Pedras (BRA) | 3-0 |
+| 2029/30 | Liga dos Campeões | Carnley Albion (ENG) | Asteras Oristathmos (GRE) | 2-1 |
+| 2029/30 | Liga Conferência | FC Grüntal (GER) | FC Clairmont (FRA) | 2-1 |
+| 2029/30 | Liga Europa | CD Mirallosa (ESP) | Achilles Rijszand (NED) | 2-1 |
+| 2030/31 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 1-0 |
+| 2030/31 | Libertadores | Club Atlético Coronel Arroyito (ARG) | Atlético Pouso das Pedras (BRA) | 3-1 (a.p.) |
+| 2030/31 | Liga dos Campeões | Atlético de Torre de Carvide (POR) | Brackcombe Town (ENG) | 3-1 (a.p.) |
+| 2030/31 | Liga Conferência | Atlético Hinovega (ESP) | SC Fonteville (FRA) | 2-1 |
+| 2030/31 | Liga Europa | Demiryurtspor (TUR) | Achilles Rijszand (NED) | 3-2 |
+| 2031/32 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Jabal Dhafra FC (UAE) | 3-3 (a.p.) 5-4 g.p. |
+| 2031/32 | Libertadores | Atlético Pouso das Pedras (BRA) | Club Atlético Coronel Arroyito (ARG) | 3-2 (a.p.) |
+| 2031/32 | Liga dos Campeões | FC Casteldorato (ITA) | Brackcombe Town (ENG) | 3-2 |
+| 2031/32 | Liga Conferência | AC Fontebello (ITA) | Asteras Oristathmos (GRE) | 3-1 |
+| 2031/32 | Liga Europa | SC Zelltal (GER) | UD Mirallosa (ESP) | 2-1 |
+| 2032/33 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Ain Thuraya FC (KSA) | 3-1 |
+| 2032/33 | Libertadores | Rio do Angico Futebol Clube (BRA) | Campo dos Ventos Futebol Clube (BRA) | 3-0 |
+| 2032/33 | Liga dos Campeões | AS Fonteville (FRA) | Olmedosa CF (ESP) | 2-0 |
+| 2032/33 | Liga Conferência | CD Mirallosa (ESP) | Dunworth City (ENG) | 3-0 |
+| 2032/33 | Liga Europa | FC Grüntal (GER) | CD Salatejo (ESP) | 4-1 |
+| 2033/34 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Jabal Dhafra FC (UAE) | 2-1 |
+| 2033/34 | Libertadores | Club Atlético Coronel Arroyito (ARG) | Grêmio Campo do Cajueiro (BRA) | 4-1 |
+| 2033/34 | Liga dos Campeões | Brackcombe Town (ENG) | TSV Tannau (GER) | 3-1 |
+| 2033/34 | Liga Conferência | Real Riberrada (ESP) | Yıldızderespor (TUR) | 1-0 |
+| 2033/34 | Liga Europa | Alderdrecht Boys (NED) | Quendale Athletic (ENG) | 1-0 (a.p.) |
+| 2034/35 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Daeju Hawks (KOR) | 2-1 |
+| 2034/35 | Libertadores | Atlético Pouso das Pedras (BRA) | Unión de Villa Bellavista (ARG) | 1-1 (a.p.) 3-2 g.p. |
+| 2034/35 | Liga dos Campeões | Eintracht Steiningen (GER) | Brackcombe Town (ENG) | 2-1 |
+| 2034/35 | Liga Conferência | FC Grüntal (GER) | Caldale Albion (ENG) | 1-0 (a.p.) |
+| 2034/35 | Liga Europa | AS Torrefranco (ITA) | Eintracht Grüntal (GER) | 3-1 |
+| 2035/36 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Takamine FC (JPN) | 1-1 (a.p.) 3-2 g.p. |
+| 2035/36 | Libertadores | Real Cerro Corral (ECU) | Atlético Pouso das Pedras (BRA) | 2-1 (a.p.) |
+| 2035/36 | Liga dos Campeões | Brackcombe Town (ENG) | Eintracht Steiningen (GER) | 3-2 |
+| 2035/36 | Liga Conferência | Dunbury Wanderers (ENG) | Fontemarino Calcio (ITA) | 2-2 (a.p.) 5-4 g.p. |
+| 2035/36 | Liga Europa | Eintracht Grünheim (GER) | CF Alcormonte (ESP) | 2-1 |
 
-Títulos por país: Liga dos Campeões Asiática — KSA: 7; Libertadores — BRA: 7; Liga dos Campeões — ENG: 7; Liga Conferência — ENG: 5; Liga Europa — ENG: 4; Liga Conferência — ITA: 2; Liga dos Campeões Asiática — KOR: 2; Liga Europa — GER: 2; Libertadores — ARG: 2; Liga dos Campeões — FRA: 1; Liga dos Campeões — ITA: 1; Libertadores — URU: 1; Liga Conferência — POR: 1; Liga dos Campeões — ESP: 1; Liga Conferência — NED: 1; Liga Conferência — GER: 1; Liga Europa — BEL: 1; Liga Europa — ESP: 1; Liga dos Campeões Asiática — JPN: 1; Liga Europa — ITA: 1; Liga Europa — POR: 1.
+Títulos por país: Liga dos Campeões Asiática — KSA: 9; Libertadores — BRA: 5; Liga Europa — GER: 4; Liga Conferência — ESP: 4; Libertadores — ARG: 4; Liga dos Campeões — ENG: 4; Liga dos Campeões — ITA: 2; Liga dos Campeões — GER: 2; Liga Europa — TUR: 2; Liga Conferência — GER: 2; Liga dos Campeões Asiática — JPN: 1; Liga Conferência — ISR: 1; Liga Europa — FRA: 1; Liga Conferência — SWE: 1; Liga Europa — ESP: 1; Liga dos Campeões — POR: 1; Liga Conferência — ITA: 1; Liga dos Campeões — FRA: 1; Liga Europa — NED: 1; Liga Europa — ITA: 1; Libertadores — ECU: 1; Liga Conferência — ENG: 1.
+
+## 4b. Coeficiente UEFA da época, bónus do ranking e campeões em título
+
+| Época | 3 melhores associações (coeficiente) | Bónus na época seguinte | Campeões em título na época seguinte (UCL / UEL / UECL) |
+|---|---|---|---|
+| 2026/27 | ITA1 17.06, ENG1 15.00, GER1 14.36 | ITA1, ENG1 | FC Casteldorato (ITA) / SC Zelltal (GER) / Ironi Kfar Shaked (ISR) |
+| 2027/28 | FRA1 18.14, ESP1 14.50, ITA1 13.61 | FRA1, ESP1 | SV Mühlwangen (GER) / SC Fonteville (FRA) / Monvega CF (ESP) |
+| 2028/29 | ENG1 16.36, FRA1 14.78, GER1 13.56 | ENG1, FRA1 | Stourmercombe City (ENG) / Demiryurtspor (TUR) / IK Åkerby (SWE) |
+| 2029/30 | ESP1 16.79, ENG1 15.39, FRA1 12.88 | ESP1, ENG1 | Carnley Albion (ENG) / CD Mirallosa (ESP) / FC Grüntal (GER) |
+| 2030/31 | ENG1 16.50, ESP1 13.28, NED1 13.20 | ENG1, ESP1 | Atlético de Torre de Carvide (POR) / Demiryurtspor (TUR) / Atlético Hinovega (ESP) |
+| 2031/32 | ENG1 16.44, ESP1 15.89, ITA1 14.07 | ENG1, ESP1 | FC Casteldorato (ITA) / SC Zelltal (GER) / AC Fontebello (ITA) |
+| 2032/33 | ESP1 16.19, FRA1 15.50, ENG1 14.38 | ESP1, FRA1 | AS Fonteville (FRA) / FC Grüntal (GER) / CD Mirallosa (ESP) |
+| 2033/34 | ENG1 18.86, ESP1 16.22, GER1 12.75 | ENG1, ESP1 | Brackcombe Town (ENG) / Alderdrecht Boys (NED) / Real Riberrada (ESP) |
+| 2034/35 | GER1 18.71, ENG1 16.67, ITA1 16.00 | GER1, ENG1 | Eintracht Steiningen (GER) / AS Torrefranco (ITA) / FC Grüntal (GER) |
+| 2035/36 | GER1 15.75, ENG1 15.06, ESP1 14.86 | GER1, ENG1 | Brackcombe Town (ENG) / Eintracht Grünheim (GER) / Dunbury Wanderers (ENG) |
 
 ## 5. Taças nacionais (vencedores)
 
 | País | 2026/27 | 2027/28 | 2028/29 | 2029/30 | 2030/31 | 2031/32 | 2032/33 | 2033/34 | 2034/35 | 2035/36 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Argentina | CHA | CEI | CEI | BEL | CAN | ALA | QUI | MOR | CEI | MRE |
-| Áustria | KIR | KIR | KIR | HAS | DOR | DOR | HAS | KRC | KIR | KIR |
-| Bélgica | BER | OOE | BER | BER | MOL | WES | BER | BER | HER | BER |
-| Brasil | ANG | PED | ANG | VEN | PED | ANG | ANG | CAS | ANG | PDR |
-| Colômbia | TAB | QUE | TAB | LUC | QUE | TAB | QUE | QUE | ESP | TAB |
-| Croácia | ZAZ | SLA | VIK | SLA | ZAZ | BRE | BEP | VIK | ZAZ | VIK |
-| Chéquia | LUH | LUH | POD | LHN | SLA | LUH | LHN | RYC | STR | PDS |
-| Dinamarca | VES | HED | BRO | BRO | LUN | BRO | VES | BRO | LUN | BRO |
-| Equador | TAB | TAB | COR | ROS | ROS | TAB | ROS | TAB | MIB | CUM |
-| Inglaterra | HAT | BRA | BRA | DUN | BRA | CAR | BRA | STY | STO | CAR |
-| Espanha | RIB | MIR | OLM | OLM | OLM | OLM | MIR | OME | OLM | ALC |
-| França | FNT | FNT | MON | FON | FNT | FNT | FON | FON | FON | FNT |
-| Alemanha | MUH | MUH | MHL | MUH | MUH | GRU | MHL | MHL | MHL | STE |
-| Grécia | THA | KAS | ORI | KAL | ORI | ORI | KAL | KAL | KAL | KAL |
-| Hungria | HEG | SZE | HEG | SZE | BAL | SZE | SZE | HEG | HEG | HGY |
-| Itália | CAS | CAS | TOR | CAS | CAS | CAS | FON | CAS | TOR | TOR |
-| Japão | ISH | MAT | SAK | HAI | KII | ISH | MAT | KII | MAT | SAK |
-| Coreia do Sul | DAE | JNW | JIN | DAE | GEO | GYE | NAM | DAE | DAE | GEO |
-| Arábia Saudita | RAY | THU | THU | SID | SID | SID | THU | SID | RAY | TUR |
-| México | AGU | POR | ALA | POR | TAB | SOL | POR | ALA | PRT | FLO |
-| Países Baixos | GRO | GRO | GRO | ADE | GRO | RIJ | GRO | GRO | ADE | GRO |
-| Noruega | STR | ASV | NOR | FJE | LIE | LIE | ASV | LIE | STD | LIE |
-| Polónia | PIA | PIA | STA | STA | GRO | RAK | MIS | RKO | PAR | MIS |
-| Portugal | CAR | ALV | CAR | ALV | CAR | ALV | ALV | CAR | CAR | ALV |
-| Escócia | CRA | ARD | ARD | ARD | ARD | ARD | ARD | DAL | ARD | DAL |
-| Suíça | KIR | KIR | BED | DOR | KIR | BRN | KIR | KIR | BER | NEU |
-| Suécia | AKE | LIN | GRA | LIN | ASU | AKE | BJO | LIN | LIN | BJO |
-| Turquia | CAM | CAM | DEM | TAS | GOL | YDZ | TAS | TAS | TAS | GOL |
-| Emirados Árabes Unidos | QAM | DHA | THU | THU | THU | RIM | DHA | RIM | WHA | DHA |
-| Ucrânia | KRA | LSY | KAM | LYL | KAM | KRA | KAM | KAM | KRA | LYS |
-| Uruguai | ROS | ROS | ROS | ROS | CMB | ROS | COL | PAL | ROS | PAL |
-| MLS (EUA/Canadá) | BAY | FAL | BAY | COP | CED | FAL | PIN | FAN | FLC | FAN |
+| Copa Argentina (Argentina) | CAN | ARR | CES | ARR | ARR | QUI | QUI | TSC | PIN | ALA |
+| ÖFB-Cup (Áustria) | KRC | BUC | KIR | BUC | EIC | FAL | KIR | FAL | RHE | KIR |
+| Taça da Bélgica (Bélgica) | OOS | BEA | ROK | OOS | VER | LIE | BEA | BEA | RON | HER |
+| Copa do Brasil (Brasil) | ANG | CAJ | JAT | CED | JAT | PED | CAJ | CAJ | SER | ANG |
+| Copa Colombia (Colômbia) | TAB | TBL | CMB | LUC | QUE | SOL | QUE | TAB | ESP | TAB |
+| Taça da Croácia (Croácia) | BRE | ZAZ | ZAN | BRE | VIK | ZAZ | BRE | SLA | ZAZ | BRE |
+| Taça da Chéquia (Chéquia) | LHN | SLA | LUH | POD | POD | OST | KOS | LHN | POD | RYC |
+| Taça da Dinamarca (Dinamarca) | BRO | BRO | BRO | VEG | SOV | VES | VES | BRO | BRO | BRO |
+| Copa Equador (Equador) | COR | COR | TAB | CUM | COR | ROS | SOL | SOL | PAL | COR |
+| FA Cup (Inglaterra) | CAR | STO | CAR | CAR | BRA | CAR | BRA | YAR | BRA | BRO |
+| EFL Cup (Carabao Cup) (Inglaterra) | BRA | BRA | QUE | YAR | CAR | BRA | HAT | BRA | HAT | BRA |
+| Copa del Rey (Espanha) | OLM | RIB | OLM | SAL | RIB | SAL | OLM | OME | ALC | MRA |
+| Coupe de France (França) | FNT | FON | COU | FON | FON | COU | FON | MON | FON | MAR |
+| DFB-Pokal (Alemanha) | MUH | STE | MHL | ZEL | GRU | ALT | STE | GUN | STE | STE |
+| Taça da Grécia (Grécia) | CHO | THA | TAL | ORI | KAL | ORI | KAL | ORI | ORI | CHO |
+| Coppa Italia (Itália) | FON | CAS | CAS | FON | CST | CST | CAO | TRR | TOR | CAS |
+| Emperor's Cup (Japão) | YAM | FUJ | SAK | FUJ | KRI | ISH | TAA | YAO | HNA | SAK |
+| J.League Cup (Japão) | HOS | HOS | SAK | MAT | KII | ISH | MAT | MAT | SAK | FUJ |
+| Korean FA Cup (Coreia do Sul) | HAN | NAM | HWA | HWA | HAN | NMC | NAM | HND | NAM | HAD |
+| King's Cup (Arábia Saudita) | THU | THU | DHA | TUR | SID | SID | SAQ | SID | DHA | DHA |
+| KNVB Beker (Países Baixos) | RIJ | MEE | ADE | RIJ | BOE | RIJ | ALD | ALD | BLO | ALD |
+| Taça da Noruega (Noruega) | LIE | SOG | LIE | STR | LIE | LIE | ASV | BJR | ELV | LIS |
+| Taça da Polónia (Polónia) | MIS | GOS | RAK | RAK | SAW | MIS | RAK | ZIE | DEB | MIS |
+| Taça de Portugal (Portugal) | ALV | CAR | VAL | CAR | ALV | VAL | FEI | FEI | FEI | FEI |
+| Taça da Liga (Portugal) | CAR | VAE | FEI | REB | CAR | ALV | FEI | ALV | FEI | ALV |
+| Scottish Cup (Escócia) | KIL | KIL | KNL | CRA | ARD | KIL | ARD | CRA | KIN | DAL |
+| Scottish League Cup (Escócia) | KIL | ARD | KNL | CRA | KIN | BAL | CRA | ARD | CRA | ARD |
+| Taça da Suíça (Suíça) | KIR | KIR | LIN | LIN | BRN | BER | BED | KIR | BER | DOR |
+| Taça da Turquia (Turquia) | DMI | SUT | DEM | DEM | DEM | YLD | KLC | KZL | DMI | AYA |
+| UAE President's Cup (Emirados Árabes Unidos) | DAF | DHA | DHA | DAF | WHA | DAF | WHA | DAF | WHA | DHA |
+| Copa Uruguai (Uruguai) | ARE | PLM | COR | SOL | ROS | ROS | COL | ROS | ROS | PAL |
 
 ## 6. Subidas, descidas e exterior por época
 
 | Época | Subidas | Descidas | Barragens ganhas pela divisão de baixo | Saídas para o exterior | Entradas do exterior |
 |---|---:|---:|---:|---:|---:|
-| 2026/27 | 47 | 47 | 1 | 67 | 67 |
-| 2027/28 | 48 | 48 | 2 | 67 | 67 |
-| 2028/29 | 51 | 51 | 5 | 67 | 67 |
-| 2029/30 | 49 | 49 | 3 | 67 | 67 |
-| 2030/31 | 49 | 49 | 3 | 67 | 67 |
-| 2031/32 | 47 | 47 | 1 | 67 | 67 |
-| 2032/33 | 49 | 49 | 3 | 67 | 67 |
-| 2033/34 | 49 | 49 | 3 | 67 | 67 |
-| 2034/35 | 49 | 49 | 3 | 67 | 67 |
-| 2035/36 | 50 | 50 | 4 | 67 | 67 |
+| 2026/27 | 47 | 47 | 4 | 58 | 58 |
+| 2027/28 | 45 | 45 | 2 | 58 | 58 |
+| 2028/29 | 45 | 45 | 2 | 58 | 58 |
+| 2029/30 | 47 | 47 | 4 | 58 | 58 |
+| 2030/31 | 46 | 46 | 3 | 58 | 58 |
+| 2031/32 | 48 | 48 | 5 | 58 | 58 |
+| 2032/33 | 43 | 43 | 0 | 58 | 58 |
+| 2033/34 | 47 | 47 | 4 | 58 | 58 |
+| 2034/35 | 45 | 45 | 2 | 58 | 58 |
+| 2035/36 | 48 | 48 | 5 | 58 | 58 |
 
 Detalhe (clube a clube) em cada página de época.

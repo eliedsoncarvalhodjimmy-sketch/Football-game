@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "SUI",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "sui_1"
+    "SUI1"
   ],
-  "taca": "sui_taca",
+  "tacas": [
+    "SUI-SWC"
+  ],
   "perfil_nomes": "de",
   "activo": true
 }

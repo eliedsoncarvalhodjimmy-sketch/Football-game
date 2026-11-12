@@ -78,8 +78,10 @@ export class MataMata implements Competicao {
 
   private criarRonda(cfg: RondaCfg) {
     const ordem = [...this.emProva].sort((a, b) => this.seed(a) - this.seed(b));
-    const P = 1 << Math.ceil(Math.log2(ordem.length));
-    const isentos = this.ronda === 0 ? P - ordem.length : 0;
+    // Na 1.ª ronda: depois dela devem ficar 2^(rondas-1) clubes (ou metade, numa eliminatória de ronda única).
+    const n = ordem.length;
+    const alvo = Math.max(Math.ceil(n / 2), 1 << (this.rondas.length - 1));
+    const isentos = this.ronda === 0 ? n - 2 * (n - alvo) : 0;
     const jogam = ordem.slice(isentos);
     this.abertos = [];
     for (let i = 0; i < jogam.length / 2; i++) {

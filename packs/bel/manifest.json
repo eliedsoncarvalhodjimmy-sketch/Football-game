@@ -4,12 +4,14 @@
   "tipo": "pais",
   "pais": "BEL",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "bel_1",
-    "bel_2"
+    "BEL1",
+    "BEL2"
   ],
-  "taca": "bel_taca",
+  "tacas": [
+    "BEL-BEC"
+  ],
   "perfil_nomes": "be",
   "activo": true
 }

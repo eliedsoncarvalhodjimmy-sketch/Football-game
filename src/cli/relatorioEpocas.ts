@@ -4,6 +4,7 @@ import type { RegistoEpoca } from '../engine/history.ts';
 import type { Estatisticas } from '../engine/season/temporada.ts';
 import type { LinhaTabela } from '../engine/competitions/table.ts';
 import { SIMULACAO } from '../config/simulacao.ts';
+import { ESTAT_SORTEIO } from '../engine/competitions/leaguePhase.ts';
 
 export interface DadosRelatorio {
   semente: number;
@@ -24,7 +25,7 @@ export interface DadosRelatorio {
 }
 
 const NOMES_COMP: Record<string, string> = {
-  uefa_cl: 'Liga dos Campeões', uefa_el: 'Liga Europa', uefa_ecl: 'Liga Conferência', libertadores: 'Libertadores', afc_cl: 'Liga dos Campeões Asiática',
+  UCL: 'Liga dos Campeões', UEL: 'Liga Europa', UECL: 'Liga Conferência', CLI: 'Libertadores', ACLE: 'Liga dos Campeões Asiática', UCL_PO: 'Play-off de acesso à Liga dos Campeões', UEL_PO: 'Play-off de acesso à Liga Europa',
 };
 const pct = (x: number, n: number) => (n ? ((100 * x) / n).toFixed(1) + '%' : '—');
 const media = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -158,6 +159,7 @@ export function relatorioResumo(d: DadosRelatorio): string {
   p(`| Memória (heap) no fim | ${d.memoriaMB.toFixed(0)} MB |`);
   p(`| Gravação por época (todos os jogos, gzip) | ${media(d.saveKB).toFixed(0)} KB (alvo ≤ 20 MB) |`);
   p(`| Jogos por época (todas as competições) | ${Math.round(totJogos / d.epocas).toLocaleString('pt-PT')} |`);
+  p(`| Sorteios das fases de liga UEFA que alargaram o limite de 2 adversários do mesmo país | ${ESTAT_SORTEIO.alargados} de ${ESTAT_SORTEIO.total} (potes refeitos: ${ESTAT_SORTEIO.potesRefeitos}) |`);
   p();
   p(`Parâmetros do modo rápido: base ${SIMULACAO.base}, casa ${SIMULACAO.casa}, gama ${SIMULACAO.gama}, rho ${SIMULACAO.rho}, empates ×${SIMULACAO.empate_fator}, goleadas ×${SIMULACAO.goleada_fator} acima de ${SIMULACAO.goleada_limiar} golos.`);
   p();
@@ -201,14 +203,25 @@ export function relatorioResumo(d: DadosRelatorio): string {
   p('Títulos por país: ' + [...titulos].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k.replace('|', ' — ')}: ${n}`).join('; ') + '.');
   p();
 
+  // ---------- Ranking UEFA ----------
+  p('## 4b. Coeficiente UEFA da época, bónus do ranking e campeões em título');
+  p();
+  p('| Época | 3 melhores associações (coeficiente) | Bónus na época seguinte | Campeões em título na época seguinte (UCL / UEL / UECL) |');
+  p('|---|---|---|---|');
+  for (const r of H) {
+    const top = Object.entries(r.coeficientes).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([l, v]) => `${l} ${v.toFixed(2)}`).join(', ');
+    const det = ['UCL', 'UEL', 'UECL'].map((k) => (r.detentoresProxima[k] !== undefined ? nome(w, r.detentoresProxima[k], true) : '—')).join(' / ');
+    p(`| ${ep(r.epoca)} | ${top} | ${r.bonusProxima.join(', ')} | ${det} |`);
+  }
+  p();
+
   // ---------- Taças ----------
   p('## 5. Taças nacionais (vencedores)');
   p();
   p(`| País | ${H.map((r) => ep(r.epoca)).join(' | ')} |`);
   p(`|---|${H.map(() => '---').join('|')}|`);
   for (const pk of w.pacotes) {
-    if (!pk.taca) continue;
-    p(`| ${pk.manifest.nome} | ${H.map((r) => (r.tacas[pk.manifest.id] ? w.clubes[r.tacas[pk.manifest.id].vencedor].nome_curto : '')).join(' | ')} |`);
+    for (const tc of pk.tacas) p(`| ${tc.nome} (${pk.manifest.nome}) | ${H.map((r) => (r.tacas[tc.id] ? w.clubes[r.tacas[tc.id].vencedor].nome_curto : '')).join(' | ')} |`);
   }
   p();
 
@@ -246,9 +259,9 @@ export function relatorioEpoca(d: DadosRelatorio, r: RegistoEpoca): string {
   const p = (s = '') => L.push(s);
   p(`# Época ${ep(r.epoca)} — semente ${d.semente}`);
   p();
-  p('> DADOS DE TESTE. Notas: **C** campeão; **↑** sobe; **↓** desce; **↓ ext.** sai para o exterior; **PO** play-off; **Barr.** barragem; siglas das competições para a época seguinte: **LC** Liga dos Campeões, **LE** Liga Europa, **LConf** Liga Conferência, **Lib** Libertadores, **LCA** Liga dos Campeões Asiática. Rep. = reputação no fim da época, antes da actualização.');
+  p('> DADOS DE TESTE. Notas: **C** campeão; **↑** sobe; **↓** desce; **↓ ext.** sai para o exterior; **PO** play-off; **Barr.** barragem; siglas das competições para a época seguinte: **LC** Liga dos Campeões, **PO-LC** play-off de acesso à LC, **LE** Liga Europa, **PO-LE** play-off de acesso à LE, **LConf** Liga Conferência, **Lib** Libertadores, **LCA** Liga dos Campeões Asiática. Rep. = reputação no fim da época, antes da actualização.');
   p();
-  const SIG: Record<string, string> = { uefa_cl: 'LC', uefa_el: 'LE', uefa_ecl: 'LConf', libertadores: 'Lib', afc_cl: 'LCA' };
+  const SIG: Record<string, string> = { UCL: 'LC', UEL: 'LE', UECL: 'LConf', CLI: 'Lib', ACLE: 'LCA', UCL_PO: 'PO-LC', UEL_PO: 'PO-LE' };
   const qual = new Map<number, string>();
   for (const [comp, q] of Object.entries(r.qualificadosProxima)) for (const x of q) qual.set(x.clube, `${SIG[comp]} (${x.via})`);
 
@@ -291,8 +304,10 @@ export function relatorioEpoca(d: DadosRelatorio, r: RegistoEpoca): string {
       if (ent.length) extras.push(`Entram do exterior para a próxima época: ${ent.map((m) => `${nome(w, m.clube)} (rep. ${r.repDepois[m.clube] ?? w.reputacao[m.clube]})`).join(', ')}.`);
       if (extras.length) { p(); for (const x of extras) p(`- ${x}`); }
     }
-    const tc = r.tacas[pk.manifest.id];
-    if (tc) { p(); p(`**${pk.taca!.nome}:** ${nome(w, tc.vencedor)} venceu ${nome(w, tc.finalista)} na final (${tc.final}).`); }
+    for (const t of pk.tacas) {
+      const tc = r.tacas[t.id];
+      if (tc) { p(); p(`**${t.nome}:** ${nome(w, tc.vencedor)} venceu ${nome(w, tc.finalista)} na final (${tc.final}).`); }
+    }
   }
   p();
   p('## Competições continentais');
@@ -322,6 +337,14 @@ export function relatorioEpoca(d: DadosRelatorio, r: RegistoEpoca): string {
         p(`Grupo ${String.fromCharCode(65 + gi)}: ` + g.map((l) => `${nome(w, l.clube)} (${w.clubes[l.clube].pais}) ${l.pts}`).join(', '));
         p();
       });
+    }
+  }
+  if (Object.keys(r.acesso).length) {
+    p();
+    p('## Play-offs de acesso UEFA');
+    for (const [id, a] of Object.entries(r.acesso)) {
+      p();
+      p(`**${NOMES_COMP[id] ?? id}:** vencedores ${a.vencedores.map((x) => nome(w, x, true)).join(', ')}; perdedores ${a.participantes.filter((x) => !a.vencedores.includes(x)).map((x) => nome(w, x, true)).join(', ')}.`);
     }
   }
   p();

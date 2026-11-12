@@ -9,19 +9,27 @@ describe('pacotes de dados', () => {
     expect(erros).toEqual([]);
   });
 
-  it('a tabela aprovada soma 924 clubes', async () => {
+  it('as folhas do utilizador somam 872 clubes (848 + AFR1 gerada com 24)', async () => {
     const d = await dados();
     const total = d.pacotes.reduce((s, p) => s + p.ligas.reduce((t, l) => t + l.formato.equipas, 0), 0);
-    expect(total).toBe(924);
+    expect(total).toBe(872);
   });
 
-  it('vagas continentais: 36 + 36 + 32 = 104 na UEFA, 16 na Libertadores e 16 na Ásia', async () => {
+  it('vagas da folha: directas, play-offs de acesso, campeões em título e bónus fecham 36/36/32/16/16', async () => {
     const d = await dados();
     const soma: Record<string, number> = {};
     for (const porComp of Object.values(d.continental!.vagas.vagas)) {
       for (const [c, v] of Object.entries(porComp)) soma[c] = (soma[c] ?? 0) + (v.liga ?? 0) + (v.taca ?? 0);
     }
-    expect(soma).toEqual({ uefa_cl: 36, uefa_el: 36, uefa_ecl: 32, libertadores: 16, afc_cl: 16 });
+    // Só pelas ligas e taças (sem campeões em título e bónus do ranking):
+    expect(soma).toEqual({ UCL: 28, UCL_PO: 8, UEL: 21, UEL_PO: 20, UECL: 22, CLI: 16, ACLE: 16 });
+    const esp = d.continental!.vagas.especiais;
+    expect(esp.detentores).toEqual([{ de: 'UCL', para: 'UCL' }, { de: 'UEL', para: 'UCL' }, { de: 'UECL', para: 'UEL' }]);
+    expect(esp.bonus_ranking).toEqual({ para: 'UCL', paises: 2 });
+    // UCL = 28 + 2 + 2 + 8/2; UEL = 21 + 1 + 20/2 + 8/2; UECL = 22 + 20/2
+    expect(28 + 2 + 2 + 4).toBe(36);
+    expect(21 + 1 + 10 + 4).toBe(36);
+    expect(22 + 10).toBe(32);
   });
 
   it('detecta erros de coerência entre divisões', async () => {
@@ -34,7 +42,7 @@ describe('pacotes de dados', () => {
 
   it('detecta vagas de país sem pacote', async () => {
     const d = structuredClone(await dados());
-    d.continental!.vagas.vagas['XYZ'] = { uefa_cl: { liga: 1 } };
+    d.continental!.vagas.vagas['XYZ1'] = { UCL: { liga: 1 } };
     expect(validar(d).some((e) => e.msg.includes('XYZ'))).toBe(true);
   });
 

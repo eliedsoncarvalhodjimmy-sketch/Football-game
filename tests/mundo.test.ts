@@ -35,7 +35,7 @@ describe('mundo fictício', async () => {
   });
 
   it('liga africana respeita as quotas por país', () => {
-    const l = w.ligaPorId('africa_unificada_1');
+    const l = w.ligaPorId('AFR1');
     const n: Record<string, number> = {};
     for (const c of l.clubes) n[w.clubes[c].pais] = (n[w.clubes[c].pais] ?? 0) + 1;
     expect(n).toEqual({ EGY: 4, MAR: 3, RSA: 3, TUN: 2, ALG: 2, NGA: 2, COD: 2, SEN: 2, GHA: 2, CIV: 2 });

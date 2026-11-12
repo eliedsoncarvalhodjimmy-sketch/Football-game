@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "CZE",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "cze_1"
+    "CZE1"
   ],
-  "taca": "cze_taca",
+  "tacas": [
+    "CZE-CZC"
+  ],
   "perfil_nomes": "cs",
   "activo": true
 }

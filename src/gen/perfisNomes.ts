@@ -231,13 +231,38 @@ const P: Record<string, PerfilNomes> = {
     estadio: ['Stade de {C}', 'Stade Municipal de {C}'],
     bloqueio: ['Bamako', 'Kinshasa', 'Yopougon', 'Kindia', 'Bamba', 'Ngoundé'],
   },
+  ro: {
+    ini: ['Vale', 'Pia', 'Cri', 'Mun', 'Bra', 'Sla', 'Tur', 'Dră', 'Luc', 'Rov', 'Ste', 'Mol'],
+    fim: ['nești', 'ița', 'eni', 'ova', 'iu', 'ani', 'ești', 'uța', 'ăuți', 'ina'],
+    padroes: [['FC {C}', 3], ['CS {C}', 2], ['Unirea {C}', 1], ['Sportul {C}', 1], ['ACS {C}', 1], ['Viitorul {C}', 1], ['Gloria {C}', 1]],
+    estadio: ['Stadionul {C}', 'Stadionul Municipal {C}'],
+    bloqueio: ['Slatina', 'Moldova Nouă', 'Craiova', 'Pitești', 'Brașov', 'Turda', 'Luceni', 'Stefănești', 'Munteni', 'Valeni', 'Rovinari'],
+  },
+  he: {
+    ini: ['Givat ', 'Kfar ', 'Ramat ', 'Neve ', 'Ein ', 'Beit ', 'Kiryat ', 'Tel '],
+    fim: ['Oren', 'Shaked', 'Tamar', 'Dekel', 'Arava', 'Gilad', 'Hadas', 'Yarden Tzafon', 'Rimon', 'Zayit', 'Alon', 'Nitzan', 'Ofer', 'Shezaf'],
+    padroes: [['Hapoel {C}', 3], ['Maccabi {C}', 3], ['Beitar {C}', 1], ['Bnei {C}', 1], ['Ironi {C}', 2], ['Sektzia {C}', 1]],
+    estadio: ['{C} Stadium', 'Itztadion {C}'],
+    bloqueio: ['Ramat Gan', 'Kiryat Shmona', 'Givat Shmuel', 'Kfar Saba', 'Tel Aviv', 'Beit Shemesh', 'Ein Gedi', 'Kfar Tavor', 'Ramat Hasharon'],
+    extra: ['Hadasha', 'Tzafon', 'Darom', 'Ilit'],
+  },
+  az: {
+    ini: ['Qara', 'Ağ', 'Göy', 'Şirin', 'Daş', 'Yeni', 'Qız', 'Gül', 'Ulu', 'Bulaq', 'Sarı', 'Tala'],
+    fim: ['kənd', 'çay', 'abad', 'lı', 'dağ', 'bulaq', 'qala', 'yurd', 'tala', 'göl'],
+    padroes: [['{C} FK', 4], ['{C} PFK', 2], ['Neftçi {C}', 1], ['Turan {C}', 1], ['{C} İK', 1]],
+    estadio: ['{C} Stadionu', '{C} Şəhər Stadionu'],
+    bloqueio: ['Qarabağ', 'Ağdam', 'Göygöl', 'Qaraçay', 'Ağdaş', 'Yenikənd', 'Gülabad', 'Sarıqala', 'Qızılkənd', 'Daşkənd', 'Qaradağ', 'Ağçay'],
+  },
 };
 
-// Pacotes regionais: perfil por país.
-export const PERFIL_POR_PAIS_AFRICA: Record<string, string> = {
+// Pacotes regionais: perfil de nomes por país.
+export const PERFIL_POR_PAIS_REGIONAL: Record<string, string> = {
+  // Liga africana
   EGY: 'af_ar', MAR: 'af_ar', TUN: 'af_ar', ALG: 'af_ar',
   RSA: 'af_en', NGA: 'af_en', GHA: 'af_en',
   SEN: 'af_fr', CIV: 'af_fr', COD: 'af_fr',
+  // Liga Resto da Europa (EUR1)
+  UKR: 'uk', HUN: 'hu', SWE: 'sv', CYP: 'el', ISR: 'he', ROU: 'ro', AZE: 'az',
 };
 
 export function perfil(id: string): PerfilNomes {

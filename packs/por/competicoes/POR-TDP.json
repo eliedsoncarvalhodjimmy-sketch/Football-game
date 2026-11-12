@@ -1,0 +1,71 @@
+{
+  "id": "POR-TDP",
+  "nome": "Taça de Portugal",
+  "tipo": "taca",
+  "pais": "POR",
+  "participantes": [
+    "POR1",
+    "POR2"
+  ],
+  "entrada_por_liga": {
+    "POR1": 2,
+    "POR2": 1
+  },
+  "maos": {
+    "rondas": 1,
+    "meias": 1,
+    "final": 1
+  },
+  "final_neutra": true,
+  "vaga_vencedor": "UEL",
+  "secundaria": false,
+  "premios": [
+    {
+      "fase": "Participação / rondas iniciais",
+      "por_equipa_eur": 50000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Quartos-de-final",
+      "por_equipa_eur": 170000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Meias-finais",
+      "por_equipa_eur": 410000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Finalista",
+      "por_equipa_eur": 1150000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "cumulativo"
+    },
+    {
+      "fase": "Campeão",
+      "por_equipa_eur": 1000000,
+      "por_vitoria_eur": null,
+      "por_empate_eur": null,
+      "fonte": "proposta Claude 11/2026",
+      "notas": "adicional ao de finalista"
+    }
+  ],
+  "premio_total_eur": 8000000,
+  "fonte": null,
+  "notas": "Preenchido de memória: confirmar",
+  "origem_campos": {
+    "maos": "folha (\"jogo único\")",
+    "entrada": "gerado: a 1.ª divisão entra na 2.ª ronda e as restantes na 1.ª (a folha não indica a ronda)"
+  }
+}

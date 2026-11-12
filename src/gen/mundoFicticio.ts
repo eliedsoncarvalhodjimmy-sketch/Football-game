@@ -4,7 +4,7 @@ import { Rng } from '../core/rng.ts';
 import type { Clube, Origem, Pacote, RegrasLiga } from '../data/types.ts';
 import { GERACAO } from '../config/geracao.ts';
 import { GeradorNomes, nomeCurto } from './nomes.ts';
-import { PERFIL_POR_PAIS_AFRICA } from './perfisNomes.ts';
+import { PERFIL_POR_PAIS_REGIONAL } from './perfisNomes.ts';
 
 export interface OpcoesGeracao {
   semente: number;
@@ -107,7 +107,7 @@ export function completarPacote(pk: Pacote, ctx: ContextoGeracao, op: OpcoesGera
     }
     for (const rep of reps) {
       const pais = filaPaises.length ? filaPaises.shift()! : m.pais!;
-      const perfilId = m.quotas_paises ? PERFIL_POR_PAIS_AFRICA[pais] : m.perfil_nomes;
+      const perfilId = m.quotas_paises ? PERFIL_POR_PAIS_REGIONAL[pais] : m.perfil_nomes;
       out.push(gerarClube(ctx, rng, perfilId, pais, l.id, novoId(), rep, op.modo));
     }
   }

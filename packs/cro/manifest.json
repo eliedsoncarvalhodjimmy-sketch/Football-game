@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "CRO",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "cro_1"
+    "CRO1"
   ],
-  "taca": "cro_taca",
+  "tacas": [
+    "CRO-CRC"
+  ],
   "perfil_nomes": "hr",
   "activo": true
 }

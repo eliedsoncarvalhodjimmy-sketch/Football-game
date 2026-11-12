@@ -50,17 +50,18 @@ describe('calendário das ligas', async () => {
     expect(verificarCalendario(todos)).toEqual([]);
   });
 
-  it('jornadas dentro da época e fora das paragens de selecções', () => {
+  it('jornadas dentro da época; só as divisões inferiores jogam nas paragens de selecções', () => {
+    const nasParagens = new Set(w.ligas.filter((l) => l.regras.jogam_nas_paragens).map((l) => l.regras.id));
     for (const j of todos) {
       expect(j.semana).toBeGreaterThanOrEqual(m.primeira_semana);
       expect(j.semana).toBeLessThanOrEqual(m.ultima_semana);
-      expect(m.paragens_selecoes).not.toContain(j.semana);
+      if (!nasParagens.has(j.comp)) expect(m.paragens_selecoes).not.toContain(j.semana);
     }
   });
 
-  it('jornadas a meio da semana não usam semanas continentais nem da taça', () => {
+  it('jornadas a meio da semana não usam semanas continentais', () => {
     const c = m.continentais;
-    const reservadas = new Set([...c.fase_liga, ...c.playoff, ...c.oitavos, ...c.quartos, ...c.meias, ...c.grupos, ...c.quartos_grupos, ...c.meias_grupos, ...m.taca]);
+    const reservadas = new Set([...c.fase_liga, ...c.playoff, ...c.oitavos, ...c.quartos, ...c.meias, ...c.grupos, ...c.quartos_grupos, ...c.meias_grupos, ...c.acesso]);
     for (const j of todos) if (j.ranhura === 'meio') expect(reservadas.has(j.semana)).toBe(false);
   });
 

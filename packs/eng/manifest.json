@@ -4,14 +4,17 @@
   "tipo": "pais",
   "pais": "ENG",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "eng_1",
-    "eng_2",
-    "eng_3",
-    "eng_4"
+    "ENG1",
+    "ENG2",
+    "ENG3",
+    "ENG4"
   ],
-  "taca": "eng_taca",
+  "tacas": [
+    "ENG-FAC",
+    "ENG-EFL"
+  ],
   "perfil_nomes": "en",
   "activo": true
 }

@@ -4,12 +4,14 @@
   "tipo": "pais",
   "pais": "KSA",
   "confederacao": "AFC",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "ksa_1",
-    "ksa_2"
+    "KSA1",
+    "KSA2"
   ],
-  "taca": "ksa_taca",
+  "tacas": [
+    "KSA-KGC"
+  ],
   "perfil_nomes": "ar_g",
   "activo": true
 }

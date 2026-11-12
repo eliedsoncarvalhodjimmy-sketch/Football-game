@@ -4,11 +4,13 @@
   "tipo": "pais",
   "pais": "AUT",
   "confederacao": "UEFA",
-  "versao": "0.1.0",
+  "versao": "0.2.0",
   "piramide": [
-    "aut_1"
+    "AUT1"
   ],
-  "taca": "aut_taca",
+  "tacas": [
+    "AUT-OFB"
+  ],
   "perfil_nomes": "de",
   "activo": true
 }

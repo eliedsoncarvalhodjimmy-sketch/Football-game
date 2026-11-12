@@ -1,13 +1,42 @@
-// Taça nacional: eliminatórias a jogo único com sorteio livre e entrada
-// escalonada por nível. Enquanto ainda entram clubes, um nº ímpar dá uma
-// isenção ao clube mais bem cotado; depois da última entrada, se o nº não for
-// potência de 2, jogam só os clubes mais fracos (pré-eliminatória). Final neutra.
+// Taça nacional: eliminatórias com sorteio livre e entrada escalonada por liga.
+// Enquanto ainda entram clubes, um nº ímpar dá uma isenção ao clube mais bem
+// cotado; depois da última entrada, se o nº não for potência de 2, jogam só os
+// clubes mais fracos (pré-eliminatória). Cada ronda pode ser a jogo único ou a
+// duas mãos (rondas normais, meias e final configuráveis). As semanas de cada
+// ronda vêm do planeador de taças do país (season/tacas.ts).
 import type { RegrasTaca } from '../../data/types.ts';
-import type { ModeloCalendario } from '../../config/calendario.ts';
-import { CALENDARIO } from '../../config/calendario.ts';
 import type { Rng } from '../../core/rng.ts';
-import { espacar } from '../calendar/scheduler.ts';
 import { vencedor, type Competicao, type JogoR } from './base.ts';
+import type { Slot } from './matamata.ts';
+
+/** Nº de rondas (a última é a final), dadas as entradas por ronda. */
+export function contarRondas(entrantes: number[]): number {
+  let n = 0;
+  let r = 0;
+  const ultimaEntrada = entrantes.length - 1;
+  for (;;) {
+    n += entrantes[r] ?? 0;
+    if (n <= 1 && r >= ultimaEntrada) return r;
+    if (r < ultimaEntrada) n = Math.floor(n / 2) + (n % 2);
+    else if (n === 2) return r + 1;
+    else n = (n & (n - 1)) === 0 ? n / 2 : 1 << Math.floor(Math.log2(n));
+    r++;
+  }
+}
+
+/** Mãos de cada ronda (0-based) numa taça com nR rondas. */
+export function maosRonda(regras: RegrasTaca, r: number, nR: number): 1 | 2 {
+  if (r === nR - 1) return regras.maos.final;
+  if (r === nR - 2) return regras.maos.meias;
+  return regras.maos.rondas;
+}
+
+export function entrantesPorRonda(regras: RegrasTaca, porLiga: Map<string, number[]>): number[][] {
+  const maxRonda = Math.max(1, ...regras.participantes.map((l) => regras.entrada_por_liga[l] ?? 1));
+  const out: number[][] = Array.from({ length: maxRonda }, () => []);
+  for (const l of regras.participantes) out[(regras.entrada_por_liga[l] ?? 1) - 1].push(...(porLiga.get(l) ?? []));
+  return out;
+}
 
 export class Taca implements Competicao {
   tipo = 'taca' as const;
@@ -19,59 +48,37 @@ export class Taca implements Competicao {
   /** Ronda (1..) em que cada clube foi eliminado; o vencedor fica com nRondas + 1. */
   fase = new Map<number, number>();
   nRondas = 0;
-  private entrantes: number[][] = []; // por ronda (0-based)
-  private semanas: number[] = [];
+  private entrantes: number[][];
   private emProva: number[] = [];
   private ronda = 0;
   private abertos: JogoR[] = [];
   private criada = -1;
+  private isentos: number[] = [];
 
   constructor(
     public regras: RegrasTaca,
-    /** Clubes por nível (índice 0 = nível 1). */
-    porNivel: number[][],
+    porLiga: Map<string, number[]>,
     /** Ordem de força para isenções (menor = mais forte). */
     private forca: (c: number) => number,
-    private modelo: ModeloCalendario,
+    /** Slots de cada ronda: 1 (jogo único) ou 2 (ida e volta). */
+    private slots: Slot[][],
     private rng: Rng,
   ) {
     this.id = regras.id;
     this.nome = regras.nome;
-    const maxRonda = Math.max(...Object.values(regras.entrada_por_nivel));
-    for (let r = 0; r < maxRonda; r++) this.entrantes.push([]);
-    porNivel.forEach((cl, i) => {
-      const r = (regras.entrada_por_nivel[String(i + 1)] ?? 1) - 1;
-      this.entrantes[r].push(...cl);
-    });
-    this.nRondas = this.contarRondas();
-    // Rondas antes da final em semanas de meio da semana; final no fim-de-semana.
-    this.semanas = [...espacar(modelo.taca, this.nRondas - 1), modelo.final_taca];
-  }
-
-  private contarRondas(): number {
-    let n = 0;
-    let r = 0;
-    const ultimaEntrada = this.entrantes.length - 1;
-    for (;;) {
-      n += this.entrantes[r]?.length ?? 0;
-      if (n <= 1 && r >= ultimaEntrada) return r;
-      if (r < ultimaEntrada) n = Math.floor(n / 2) + (n % 2);
-      else if (n === 2) return r + 1;
-      else n = (n & (n - 1)) === 0 ? n / 2 : 1 << Math.floor(Math.log2(n));
-      r++;
-    }
+    this.entrantes = entrantesPorRonda(regras, porLiga);
+    this.nRondas = contarRondas(this.entrantes.map((e) => e.length));
+    if (slots.length !== this.nRondas) throw new Error(`${this.id}: ${slots.length} slots para ${this.nRondas} rondas`);
   }
 
   jogosDaSemana(s: number): JogoR[] {
     if (this.vencedorFinal !== null || this.ronda >= this.nRondas) return [];
-    if (this.semanas[this.ronda] === s && this.criada !== this.ronda) {
+    if (this.slots[this.ronda][0].semana === s && this.criada !== this.ronda) {
       this.criada = this.ronda;
       this.criarRonda();
     }
     return this.abertos.filter((j) => j.semana === s && !j.r);
   }
-
-  private isentos: number[] = [];
 
   private criarRonda() {
     const r = this.ronda;
@@ -93,19 +100,23 @@ export class Taca implements Competicao {
     }
     this.rng.shuffle(jogam);
     const final = r === this.nRondas - 1;
-    const s = this.semanas[r];
-    const dias = final ? [5] : CALENDARIO.dias.meio;
+    const sl = this.slots[r];
+    const neutra = final && sl.length === 1 && this.regras.final_neutra;
     this.abertos = [];
     for (let i = 0; i + 1 < jogam.length; i += 2) {
-      this.abertos.push({
-        comp: this.id, ronda: r + 1, semana: s, ranhura: final ? 'fds' : 'meio', dia: this.rng.pick(dias),
-        casa: jogam[i], fora: jogam[i + 1], decisivo: true, neutro: final,
-      });
+      const [a, b] = [jogam[i], jogam[i + 1]];
+      if (sl.length === 1) {
+        this.abertos.push({ comp: this.id, ronda: r + 1, semana: sl[0].semana, ranhura: sl[0].ranhura, dia: this.rng.pick(sl[0].dias), casa: a, fora: b, decisivo: true, neutro: neutra });
+      } else {
+        const ida: JogoR = { comp: this.id, ronda: r + 1, semana: sl[0].semana, ranhura: sl[0].ranhura, dia: this.rng.pick(sl[0].dias), casa: a, fora: b };
+        this.abertos.push(ida, { comp: this.id, ronda: r + 1, semana: sl[1].semana, ranhura: sl[1].ranhura, dia: this.rng.pick(sl[1].dias), casa: b, fora: a, decisivo: true, ida });
+      }
     }
     if (this.abertos.length === 0) this.avancar();
   }
 
   registar(j: JogoR) {
+    if (!j.decisivo) return;
     const v = vencedor(j);
     const p = v === j.casa ? j.fora : j.casa;
     this.fase.set(p, this.ronda + 1);
@@ -119,7 +130,7 @@ export class Taca implements Competicao {
   }
 
   private avancar() {
-    this.emProva = [...this.isentos, ...this.abertos.map((x) => vencedor(x))];
+    this.emProva = [...this.isentos, ...this.abertos.filter((x) => x.decisivo).map((x) => vencedor(x))];
     this.isentos = [];
     this.ronda++;
   }
