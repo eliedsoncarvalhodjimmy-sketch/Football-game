@@ -1,0 +1,15 @@
+{
+  "id": "ned",
+  "nome": "Países Baixos",
+  "tipo": "pais",
+  "pais": "NED",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "ned_1",
+    "ned_2"
+  ],
+  "taca": "ned_taca",
+  "perfil_nomes": "nl",
+  "activo": true
+}

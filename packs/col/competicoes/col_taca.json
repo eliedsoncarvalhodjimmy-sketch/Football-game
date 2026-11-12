@@ -1,0 +1,11 @@
+{
+  "id": "col_taca",
+  "nome": "Copa Colombia",
+  "tipo": "taca",
+  "pais": "COL",
+  "entrada_por_nivel": {
+    "1": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

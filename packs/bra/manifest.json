@@ -1,0 +1,15 @@
+{
+  "id": "bra",
+  "nome": "Brasil",
+  "tipo": "pais",
+  "pais": "BRA",
+  "confederacao": "CONMEBOL",
+  "versao": "0.1.0",
+  "piramide": [
+    "bra_1",
+    "bra_2"
+  ],
+  "taca": "bra_taca",
+  "perfil_nomes": "br",
+  "activo": true
+}

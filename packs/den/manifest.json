@@ -1,0 +1,14 @@
+{
+  "id": "den",
+  "nome": "Dinamarca",
+  "tipo": "pais",
+  "pais": "DEN",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "den_1"
+  ],
+  "taca": "den_taca",
+  "perfil_nomes": "da",
+  "activo": true
+}

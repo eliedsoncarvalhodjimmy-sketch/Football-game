@@ -1,0 +1,14 @@
+{
+  "id": "col",
+  "nome": "Colômbia",
+  "tipo": "pais",
+  "pais": "COL",
+  "confederacao": "CONMEBOL",
+  "versao": "0.1.0",
+  "piramide": [
+    "col_1"
+  ],
+  "taca": "col_taca",
+  "perfil_nomes": "es_am",
+  "activo": true
+}

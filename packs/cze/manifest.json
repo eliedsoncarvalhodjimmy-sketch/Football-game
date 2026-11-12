@@ -1,0 +1,14 @@
+{
+  "id": "cze",
+  "nome": "Chéquia",
+  "tipo": "pais",
+  "pais": "CZE",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "cze_1"
+  ],
+  "taca": "cze_taca",
+  "perfil_nomes": "cs",
+  "activo": true
+}

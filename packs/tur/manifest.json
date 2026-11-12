@@ -1,0 +1,15 @@
+{
+  "id": "tur",
+  "nome": "Turquia",
+  "tipo": "pais",
+  "pais": "TUR",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "tur_1",
+    "tur_2"
+  ],
+  "taca": "tur_taca",
+  "perfil_nomes": "tr",
+  "activo": true
+}

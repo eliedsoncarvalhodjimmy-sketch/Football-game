@@ -1,0 +1,14 @@
+{
+  "id": "kor",
+  "nome": "Coreia do Sul",
+  "tipo": "pais",
+  "pais": "KOR",
+  "confederacao": "AFC",
+  "versao": "0.1.0",
+  "piramide": [
+    "kor_1"
+  ],
+  "taca": "kor_taca",
+  "perfil_nomes": "ko",
+  "activo": true
+}

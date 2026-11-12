@@ -1,0 +1,13 @@
+{
+  "id": "ger_taca",
+  "nome": "Taça da Alemanha",
+  "tipo": "taca",
+  "pais": "GER",
+  "entrada_por_nivel": {
+    "1": 2,
+    "2": 1,
+    "3": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

@@ -1,0 +1,8 @@
+{
+  "id": "_continental",
+  "nome": "Competições continentais",
+  "tipo": "continental",
+  "versao": "0.1.0",
+  "competicoes": ["uefa_cl", "uefa_el", "uefa_ecl", "libertadores", "afc_cl"],
+  "activo": true
+}

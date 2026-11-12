@@ -1,0 +1,11 @@
+{
+  "id": "usa_mls_taca",
+  "nome": "Taça MLS",
+  "tipo": "taca",
+  "pais": "USA",
+  "entrada_por_nivel": {
+    "1": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

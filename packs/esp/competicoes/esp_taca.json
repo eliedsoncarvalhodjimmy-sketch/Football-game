@@ -1,0 +1,12 @@
+{
+  "id": "esp_taca",
+  "nome": "Taça do Rei",
+  "tipo": "taca",
+  "pais": "ESP",
+  "entrada_por_nivel": {
+    "1": 2,
+    "2": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

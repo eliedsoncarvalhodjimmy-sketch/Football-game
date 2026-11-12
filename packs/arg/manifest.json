@@ -1,0 +1,14 @@
+{
+  "id": "arg",
+  "nome": "Argentina",
+  "tipo": "pais",
+  "pais": "ARG",
+  "confederacao": "CONMEBOL",
+  "versao": "0.1.0",
+  "piramide": [
+    "arg_1"
+  ],
+  "taca": "arg_taca",
+  "perfil_nomes": "ar",
+  "activo": true
+}

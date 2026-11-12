@@ -1,0 +1,12 @@
+{
+  "id": "jpn_taca",
+  "nome": "Taça do Imperador",
+  "tipo": "taca",
+  "pais": "JPN",
+  "entrada_por_nivel": {
+    "1": 2,
+    "2": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

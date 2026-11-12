@@ -1,0 +1,14 @@
+{
+  "id": "gre",
+  "nome": "Grécia",
+  "tipo": "pais",
+  "pais": "GRE",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "gre_1"
+  ],
+  "taca": "gre_taca",
+  "perfil_nomes": "el",
+  "activo": true
+}

@@ -1,0 +1,14 @@
+{
+  "id": "mex",
+  "nome": "México",
+  "tipo": "pais",
+  "pais": "MEX",
+  "confederacao": "CONCACAF",
+  "versao": "0.1.0",
+  "piramide": [
+    "mex_1"
+  ],
+  "taca": "mex_taca",
+  "perfil_nomes": "es_am",
+  "activo": true
+}

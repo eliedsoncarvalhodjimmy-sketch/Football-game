@@ -1,0 +1,14 @@
+{
+  "id": "pol",
+  "nome": "Polónia",
+  "tipo": "pais",
+  "pais": "POL",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "pol_1"
+  ],
+  "taca": "pol_taca",
+  "perfil_nomes": "pl",
+  "activo": true
+}

@@ -1,0 +1,16 @@
+{
+  "id": "ger",
+  "nome": "Alemanha",
+  "tipo": "pais",
+  "pais": "GER",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "ger_1",
+    "ger_2",
+    "ger_3"
+  ],
+  "taca": "ger_taca",
+  "perfil_nomes": "de",
+  "activo": true
+}

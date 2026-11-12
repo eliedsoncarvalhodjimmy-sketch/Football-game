@@ -1,0 +1,14 @@
+{
+  "id": "usa_mls",
+  "nome": "MLS (EUA/Canadá)",
+  "tipo": "pais",
+  "pais": "USA",
+  "confederacao": "CONCACAF",
+  "versao": "0.1.0",
+  "piramide": [
+    "usa_mls_1"
+  ],
+  "taca": "usa_mls_taca",
+  "perfil_nomes": "us",
+  "activo": true
+}

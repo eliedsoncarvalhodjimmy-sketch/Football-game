@@ -1,0 +1,14 @@
+{
+  "id": "uru",
+  "nome": "Uruguai",
+  "tipo": "pais",
+  "pais": "URU",
+  "confederacao": "CONMEBOL",
+  "versao": "0.1.0",
+  "piramide": [
+    "uru_1"
+  ],
+  "taca": "uru_taca",
+  "perfil_nomes": "es_am",
+  "activo": true
+}

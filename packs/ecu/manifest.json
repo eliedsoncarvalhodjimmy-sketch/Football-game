@@ -1,0 +1,14 @@
+{
+  "id": "ecu",
+  "nome": "Equador",
+  "tipo": "pais",
+  "pais": "ECU",
+  "confederacao": "CONMEBOL",
+  "versao": "0.1.0",
+  "piramide": [
+    "ecu_1"
+  ],
+  "taca": "ecu_taca",
+  "perfil_nomes": "es_am",
+  "activo": true
+}

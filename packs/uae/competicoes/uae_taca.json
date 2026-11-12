@@ -1,0 +1,11 @@
+{
+  "id": "uae_taca",
+  "nome": "Taça dos Emirados",
+  "tipo": "taca",
+  "pais": "UAE",
+  "entrada_por_nivel": {
+    "1": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

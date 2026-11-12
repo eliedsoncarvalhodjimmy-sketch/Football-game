@@ -1,0 +1,15 @@
+{
+  "id": "esp",
+  "nome": "Espanha",
+  "tipo": "pais",
+  "pais": "ESP",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "esp_1",
+    "esp_2"
+  ],
+  "taca": "esp_taca",
+  "perfil_nomes": "es",
+  "activo": true
+}

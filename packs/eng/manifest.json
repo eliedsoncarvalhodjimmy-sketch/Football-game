@@ -1,0 +1,17 @@
+{
+  "id": "eng",
+  "nome": "Inglaterra",
+  "tipo": "pais",
+  "pais": "ENG",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "eng_1",
+    "eng_2",
+    "eng_3",
+    "eng_4"
+  ],
+  "taca": "eng_taca",
+  "perfil_nomes": "en",
+  "activo": true
+}

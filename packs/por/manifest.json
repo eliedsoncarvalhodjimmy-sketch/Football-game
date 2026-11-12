@@ -1,0 +1,16 @@
+{
+  "id": "por",
+  "nome": "Portugal",
+  "tipo": "pais",
+  "pais": "POR",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "por_1",
+    "por_2",
+    "por_3"
+  ],
+  "taca": "por_taca",
+  "perfil_nomes": "pt",
+  "activo": true
+}

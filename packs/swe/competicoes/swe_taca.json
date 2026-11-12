@@ -1,0 +1,11 @@
+{
+  "id": "swe_taca",
+  "nome": "Taça da Suécia",
+  "tipo": "taca",
+  "pais": "SWE",
+  "entrada_por_nivel": {
+    "1": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

@@ -1,0 +1,15 @@
+{
+  "id": "bel",
+  "nome": "Bélgica",
+  "tipo": "pais",
+  "pais": "BEL",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "bel_1",
+    "bel_2"
+  ],
+  "taca": "bel_taca",
+  "perfil_nomes": "be",
+  "activo": true
+}

@@ -1,0 +1,15 @@
+{
+  "id": "ksa",
+  "nome": "Arábia Saudita",
+  "tipo": "pais",
+  "pais": "KSA",
+  "confederacao": "AFC",
+  "versao": "0.1.0",
+  "piramide": [
+    "ksa_1",
+    "ksa_2"
+  ],
+  "taca": "ksa_taca",
+  "perfil_nomes": "ar_g",
+  "activo": true
+}

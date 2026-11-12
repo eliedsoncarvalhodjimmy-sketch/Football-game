@@ -1,0 +1,40 @@
+{
+  "_notas": "Provisório (Paragem 1, aprovado até chegarem os documentos de vagas). Ordem de atribuição: Champions (liga), depois para cada competição seguinte 'taca' antes de 'liga'. Cada vaga 'liga' vai ao melhor classificado ainda sem vaga; a vaga 'taca' vai ao vencedor da taça, ou, se já tiver vaga, ao melhor classificado sem vaga. Em ligas com play-off de campeão, o campeão do play-off é o 1.º da ordem.",
+  "ordem_competicoes": {
+    "UEFA": ["uefa_cl", "uefa_el", "uefa_ecl"],
+    "CONMEBOL": ["libertadores"],
+    "AFC": ["afc_cl"]
+  },
+  "vagas": {
+    "ENG": { "uefa_cl": { "liga": 4 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 1 } },
+    "ITA": { "uefa_cl": { "liga": 4 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 1 } },
+    "ESP": { "uefa_cl": { "liga": 4 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 1 } },
+    "GER": { "uefa_cl": { "liga": 4 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 1 } },
+    "FRA": { "uefa_cl": { "liga": 3 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 2 } },
+    "NED": { "uefa_cl": { "liga": 2 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 2 } },
+    "POR": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1, "liga": 2 }, "uefa_ecl": { "liga": 1 } },
+    "BEL": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1, "liga": 2 }, "uefa_ecl": { "liga": 1 } },
+    "TUR": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 2 } },
+    "CZE": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 2 } },
+    "GRE": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 2 } },
+    "POL": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 2 } },
+    "NOR": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1, "liga": 1 }, "uefa_ecl": { "liga": 2 } },
+    "DEN": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 2 } },
+    "SUI": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 2 } },
+    "AUT": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 2 } },
+    "SCO": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 2 } },
+    "SWE": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 1 } },
+    "CRO": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 1 } },
+    "HUN": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 1 } },
+    "UKR": { "uefa_cl": { "liga": 1 }, "uefa_el": { "taca": 1 }, "uefa_ecl": { "liga": 1 } },
+    "BRA": { "libertadores": { "liga": 5 } },
+    "ARG": { "libertadores": { "liga": 4 } },
+    "COL": { "libertadores": { "liga": 3 } },
+    "URU": { "libertadores": { "liga": 2 } },
+    "ECU": { "libertadores": { "liga": 2 } },
+    "KSA": { "afc_cl": { "liga": 4 } },
+    "JPN": { "afc_cl": { "liga": 4 } },
+    "KOR": { "afc_cl": { "liga": 4 } },
+    "UAE": { "afc_cl": { "liga": 4 } }
+  }
+}

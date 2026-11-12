@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d3b2e" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <title>FutCEO</title>
+    <link rel="stylesheet" href="./src/ui/estilo.css" />
+  </head>
+  <body>
+    <header>
+      <h1>FutCEO <small>Mundo (dados de teste)</small></h1>
+      <div class="controlos">
+        <label>Semente <input id="semente" type="number" value="2026" /></label>
+        <button id="gerar">Gerar</button>
+        <select id="liga"></select>
+      </div>
+    </header>
+    <main>
+      <p id="estado">A preparar…</p>
+      <section id="resumo"></section>
+      <section id="tabela"></section>
+    </main>
+    <script type="module" src="./src/ui/main.ts"></script>
+  </body>
+</html>

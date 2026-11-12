@@ -1,0 +1,15 @@
+{
+  "id": "jpn",
+  "nome": "Japão",
+  "tipo": "pais",
+  "pais": "JPN",
+  "confederacao": "AFC",
+  "versao": "0.1.0",
+  "piramide": [
+    "jpn_1",
+    "jpn_2"
+  ],
+  "taca": "jpn_taca",
+  "perfil_nomes": "ja",
+  "activo": true
+}

@@ -1,0 +1,14 @@
+{
+  "id": "uae",
+  "nome": "Emirados Árabes Unidos",
+  "tipo": "pais",
+  "pais": "UAE",
+  "confederacao": "AFC",
+  "versao": "0.1.0",
+  "piramide": [
+    "uae_1"
+  ],
+  "taca": "uae_taca",
+  "perfil_nomes": "ar_g",
+  "activo": true
+}

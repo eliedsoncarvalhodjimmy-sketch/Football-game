@@ -1,0 +1,14 @@
+{
+  "id": "cro",
+  "nome": "Croácia",
+  "tipo": "pais",
+  "pais": "CRO",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "cro_1"
+  ],
+  "taca": "cro_taca",
+  "perfil_nomes": "hr",
+  "activo": true
+}

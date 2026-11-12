@@ -1,0 +1,16 @@
+{
+  "id": "fra",
+  "nome": "França",
+  "tipo": "pais",
+  "pais": "FRA",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "fra_1",
+    "fra_2",
+    "fra_3"
+  ],
+  "taca": "fra_taca",
+  "perfil_nomes": "fr",
+  "activo": true
+}

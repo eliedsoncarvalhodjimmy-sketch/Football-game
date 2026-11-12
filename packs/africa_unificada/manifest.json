@@ -1,0 +1,26 @@
+{
+  "id": "africa_unificada",
+  "nome": "Liga Africana Unificada",
+  "tipo": "regional",
+  "pais": null,
+  "confederacao": "CAF",
+  "versao": "0.1.0",
+  "piramide": [
+    "africa_unificada_1"
+  ],
+  "taca": null,
+  "perfil_nomes": "af",
+  "activo": true,
+  "quotas_paises": {
+    "EGY": 4,
+    "MAR": 3,
+    "RSA": 3,
+    "TUN": 2,
+    "ALG": 2,
+    "NGA": 2,
+    "COD": 2,
+    "SEN": 2,
+    "GHA": 2,
+    "CIV": 2
+  }
+}

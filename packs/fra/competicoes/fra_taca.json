@@ -1,0 +1,13 @@
+{
+  "id": "fra_taca",
+  "nome": "Taça de França",
+  "tipo": "taca",
+  "pais": "FRA",
+  "entrada_por_nivel": {
+    "1": 2,
+    "2": 1,
+    "3": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

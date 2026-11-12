@@ -1,0 +1,14 @@
+{
+  "id": "swe",
+  "nome": "Suécia",
+  "tipo": "pais",
+  "pais": "SWE",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "swe_1"
+  ],
+  "taca": "swe_taca",
+  "perfil_nomes": "sv",
+  "activo": true
+}

@@ -1,0 +1,14 @@
+{
+  "id": "nor",
+  "nome": "Noruega",
+  "tipo": "pais",
+  "pais": "NOR",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "nor_1"
+  ],
+  "taca": "nor_taca",
+  "perfil_nomes": "no",
+  "activo": true
+}

@@ -1,0 +1,15 @@
+{
+  "id": "sco",
+  "nome": "Escócia",
+  "tipo": "pais",
+  "pais": "SCO",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "sco_1",
+    "sco_2"
+  ],
+  "taca": "sco_taca",
+  "perfil_nomes": "sc",
+  "activo": true
+}

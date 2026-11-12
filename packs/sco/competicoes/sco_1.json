@@ -1,0 +1,73 @@
+{
+  "id": "sco_1",
+  "nome": "Premiership",
+  "tipo": "liga",
+  "pais": "SCO",
+  "nivel": 1,
+  "formato": {
+    "equipas": 12,
+    "voltas": 2,
+    "playoff_campeao": null
+  },
+  "subidas": {
+    "directas": 0,
+    "playoff": null
+  },
+  "descidas": {
+    "directas": 1,
+    "barragem": {
+      "posicao": 11,
+      "adversario": "playoff",
+      "maos": 2
+    },
+    "exterior": false
+  },
+  "desempates": [
+    "pontos",
+    "dg",
+    "gm",
+    "confronto_directo",
+    "sorteio"
+  ],
+  "epoca": {
+    "calendario": "ago_mai"
+  },
+  "indice_riqueza": 18,
+  "geracao": {
+    "rep_tecto": 78,
+    "rep_piso": 34
+  },
+  "janelas_transferencias": [
+    {
+      "abre": "07-01",
+      "fecha": "09-01"
+    },
+    {
+      "abre": "01-01",
+      "fecha": "02-01"
+    }
+  ],
+  "plantel": {
+    "max": 25,
+    "minimo_nacionais": null,
+    "maximo_estrangeiros": null,
+    "minimo_formados_no_clube": null,
+    "por_validar": true
+  },
+  "tv": {
+    "total_milhoes_eur": null,
+    "por_posicao": [],
+    "paraquedas": [],
+    "por_validar": true
+  },
+  "premios": [],
+  "fair_play": {
+    "massa_salarial_max_receita": 0.8,
+    "sancoes": [
+      "aviso",
+      "multa",
+      "proibicao_inscricoes"
+    ]
+  },
+  "licenciamento": null
+}

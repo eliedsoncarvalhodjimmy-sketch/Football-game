@@ -1,0 +1,11 @@
+{
+  "id": "uru_taca",
+  "nome": "Copa AUF Uruguay",
+  "tipo": "taca",
+  "pais": "URU",
+  "entrada_por_nivel": {
+    "1": 1
+  },
+  "jogo_unico": true,
+  "final_neutra": true
+}

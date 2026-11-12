@@ -1,0 +1,14 @@
+{
+  "id": "aut",
+  "nome": "Áustria",
+  "tipo": "pais",
+  "pais": "AUT",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "aut_1"
+  ],
+  "taca": "aut_taca",
+  "perfil_nomes": "de",
+  "activo": true
+}

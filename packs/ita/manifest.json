@@ -1,0 +1,15 @@
+{
+  "id": "ita",
+  "nome": "Itália",
+  "tipo": "pais",
+  "pais": "ITA",
+  "confederacao": "UEFA",
+  "versao": "0.1.0",
+  "piramide": [
+    "ita_1",
+    "ita_2"
+  ],
+  "taca": "ita_taca",
+  "perfil_nomes": "it",
+  "activo": true
+}
