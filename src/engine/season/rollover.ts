@@ -21,7 +21,7 @@ function alvoPosicao(regras: RegrasLiga, pos: number, n: number): number {
   return piso + (tecto - piso) * ((1 - a) * (1 - u) + a * Math.pow(1 - u, p));
 }
 
-const resMM = (m: MataMata) => ({ vencedor: m.vencedorFinal!, finalista: m.finalista!, final: textoResultado(m.jogoFinal) });
+const resMM = (m: MataMata) => ({ vencedor: m.vencedorFinal!, finalista: m.finalista!, final: textoResultado(m.jogoFinal, m.jogoFinal?.neutro === true) });
 
 export function fecharEpoca(w: World, t: Temporada, guardarJogos = true): RegistoEpoca {
   if (t.comps.some((c) => !c.terminada())) throw new Error('passagem de época com competições por terminar');
@@ -50,7 +50,7 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true): Regist
   for (const [id, m] of t.playoffsSubida) reg.playoffsSubida[id] = { ...resMM(m), participantes: m.participantes! };
   for (const [id, m] of t.barragens) reg.barragens[id] = { ...resMM(m), participantes: m.participantes! };
   for (const [id, tc] of t.tacas) {
-    reg.tacas[id] = { vencedor: tc.vencedorFinal!, finalista: tc.finalista!, final: textoResultado(tc.jogoFinal) };
+    reg.tacas[id] = { vencedor: tc.vencedorFinal!, finalista: tc.finalista!, final: textoResultado(tc.jogoFinal, true) };
     somar(tc.vencedorFinal!, REPUTACAO.bonus.taca_vencedor);
     somar(tc.finalista!, REPUTACAO.bonus.taca_finalista);
   }

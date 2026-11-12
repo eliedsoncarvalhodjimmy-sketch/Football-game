@@ -4,7 +4,7 @@
 import type { LinhaTabela } from './competitions/table.ts';
 import type { Estatisticas } from './season/temporada.ts';
 import type { Qualificado } from './world.ts';
-import type { JogoR } from './competitions/base.ts';
+import { vencedor, type JogoR } from './competitions/base.ts';
 import { RETENCAO } from '../config/retencao.ts';
 
 export interface Movimento {
@@ -78,8 +78,12 @@ export function podar(historico: RegistoEpoca[], epocaActual: number, principais
   }
 }
 
-export function textoResultado(j: JogoR | null): string {
+/** Resultado em texto. Com `doVencedor`, um jogo único (ex.: final neutra) é escrito do lado do vencedor. */
+export function textoResultado(j: JogoR | null, doVencedor = false): string {
   if (!j?.r) return '';
+  if (doVencedor && !j.ida && j.decisivo && vencedor(j) === j.fora) {
+    return textoResultado({ ...j, casa: j.fora, fora: j.casa, r: { ...j.r, gc: j.r.gf, gf: j.r.gc, pen: j.r.pen ? [j.r.pen[1], j.r.pen[0]] : undefined } });
+  }
   let t = `${j.r.gc}-${j.r.gf}`;
   if (j.ida) t = `1.ª mão ${j.ida.r!.gc}-${j.ida.r!.gf}, 2.ª mão ${t}`;
   if (j.r.prol) t += ' (a.p.)';

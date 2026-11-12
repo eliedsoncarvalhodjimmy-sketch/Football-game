@@ -22,9 +22,9 @@
 
 | Medida | Valor |
 |---|---|
-| Época completa do mundo (média / máx.) | 60 ms / 102 ms |
-| Uma semana de calendário (média / p95 / máx.) | 1.2 ms / 2.0 ms / 42.3 ms |
-| Memória (heap) no fim | 43 MB |
+| Época completa do mundo (média / máx.) | 56 ms / 95 ms |
+| Uma semana de calendário (média / p95 / máx.) | 1.1 ms / 1.8 ms / 42.5 ms |
+| Memória (heap) no fim | 92 MB |
 | Gravação por época (todos os jogos, gzip) | 139 KB (alvo ≤ 20 MB) |
 | Jogos por época (todas as competições) | 17 434 |
 
@@ -150,44 +150,44 @@ Siglas: ver as classificações em cada página de época. Ligas com play-off de
 |---|---|---|---|---|
 | 2026/27 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Ain Thuraya Club (KSA) | 5-0 |
 | 2026/27 | Libertadores | Atlético Pouso das Pedras (BRA) | Club Atlético Coronel Arroyito (ARG) | 3-2 |
-| 2026/27 | Liga dos Campeões | AS Fonteville (FRA) | FC Casteldorato (ITA) | 0-1 |
+| 2026/27 | Liga dos Campeões | AS Fonteville (FRA) | FC Casteldorato (ITA) | 1-0 |
 | 2026/27 | Liga Conferência | Fontemarino Calcio (ITA) | Caldale Albion (ENG) | 1-0 |
 | 2026/27 | Liga Europa | Brombury United (ENG) | Poggiovecchio Calcio (ITA) | 1-0 |
-| 2027/28 | Liga dos Campeões Asiática | Daecheon Hawks (KOR) | Al Sidra Club (KSA) | 1-2 |
-| 2027/28 | Libertadores | Rio do Angico Futebol Clube (BRA) | Unión de Puerto Ceibos (ARG) | 0-1 |
-| 2027/28 | Liga dos Campeões | FC Casteldorato (ITA) | Brackcombe Town (ENG) | 0-2 |
-| 2027/28 | Liga Conferência | Virtus Casteldorato (ITA) | FC Tannfeld (GER) | 0-1 |
-| 2027/28 | Liga Europa | TSV Tannau (GER) | Olmevega CF (ESP) | 1-2 |
-| 2028/29 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 1-2 |
-| 2028/29 | Libertadores | Deportivo Río Rosario Alto (URU) | Esporte Clube Ribeirão da Cascata (BRA) | 1-2 |
+| 2027/28 | Liga dos Campeões Asiática | Daecheon Hawks (KOR) | Al Sidra Club (KSA) | 2-1 |
+| 2027/28 | Libertadores | Rio do Angico Futebol Clube (BRA) | Unión de Puerto Ceibos (ARG) | 1-0 |
+| 2027/28 | Liga dos Campeões | FC Casteldorato (ITA) | Brackcombe Town (ENG) | 2-0 |
+| 2027/28 | Liga Conferência | Virtus Casteldorato (ITA) | FC Tannfeld (GER) | 1-0 |
+| 2027/28 | Liga Europa | TSV Tannau (GER) | Olmevega CF (ESP) | 2-1 |
+| 2028/29 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 2-1 |
+| 2028/29 | Libertadores | Deportivo Río Rosario Alto (URU) | Esporte Clube Ribeirão da Cascata (BRA) | 2-1 |
 | 2028/29 | Liga dos Campeões | Carnley Albion (ENG) | Brackcombe Town (ENG) | 3-2 |
-| 2028/29 | Liga Conferência | Grupo Desportivo de Azenha de Rebordelo (POR) | Brombury United (ENG) | 0-1 |
-| 2028/29 | Liga Europa | Hathercombe United (ENG) | SC Zelltal (GER) | 0-1 |
+| 2028/29 | Liga Conferência | Grupo Desportivo de Azenha de Rebordelo (POR) | Brombury United (ENG) | 1-0 |
+| 2028/29 | Liga Europa | Hathercombe United (ENG) | SC Zelltal (GER) | 1-0 |
 | 2029/30 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Ain Thuraya FC (KSA) | 4-0 |
-| 2029/30 | Libertadores | Unión de Colonia Alamos (ARG) | Atlético Pouso das Pedras (BRA) | 1-3 (a.p.) |
+| 2029/30 | Libertadores | Unión de Colonia Alamos (ARG) | Atlético Pouso das Pedras (BRA) | 3-1 (a.p.) |
 | 2029/30 | Liga dos Campeões | Carnley Albion (ENG) | Brackcombe Town (ENG) | 2-0 (a.p.) |
 | 2029/30 | Liga Conferência | Brombury United (ENG) | Alderdrecht Boys (NED) | 4-1 |
-| 2029/30 | Liga Europa | Quendale Athletic (ENG) | SC Zelltal (GER) | 0-1 |
+| 2029/30 | Liga Europa | Quendale Athletic (ENG) | SC Zelltal (GER) | 1-0 |
 | 2030/31 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Matsuno FC (JPN) | 4-2 |
 | 2030/31 | Libertadores | Esporte Clube Ribeirão da Cascata (BRA) | Unión de Puerto Ceibos (ARG) | 1-1 (a.p.) 4-2 g.p. |
-| 2030/31 | Liga dos Campeões | CF Alcormonte (ESP) | Brackcombe Town (ENG) | 2-3 (a.p.) |
+| 2030/31 | Liga dos Campeões | CF Alcormonte (ESP) | Brackcombe Town (ENG) | 3-2 (a.p.) |
 | 2030/31 | Liga Conferência | Alderdrecht Boys (NED) | AC Fontebello (ITA) | 2-0 |
 | 2030/31 | Liga Europa | SV Mühlwangen (GER) | Brombury United (ENG) | 2-1 |
-| 2031/32 | Liga dos Campeões Asiática | Daesan Dragons (KOR) | Ras Rayyan Sharq FC (KSA) | 0-1 |
+| 2031/32 | Liga dos Campeões Asiática | Daesan Dragons (KOR) | Ras Rayyan Sharq FC (KSA) | 1-0 |
 | 2031/32 | Libertadores | Clube Atlético Pouso das Pedras (BRA) | Grêmio Campo do Cajueiro (BRA) | 2-1 |
-| 2031/32 | Liga dos Campeões | Brackcombe Town (ENG) | AS Fonteville (FRA) | 1-5 |
+| 2031/32 | Liga dos Campeões | Brackcombe Town (ENG) | AS Fonteville (FRA) | 5-1 |
 | 2031/32 | Liga Conferência | Eintracht Grüntal (GER) | Monvega CF (ESP) | 2-1 |
-| 2031/32 | Liga Europa | FC Bergville (BEL) | AC Valfiore (ITA) | 0-2 |
+| 2031/32 | Liga Europa | FC Bergville (BEL) | AC Valfiore (ITA) | 2-0 |
 | 2032/33 | Liga dos Campeões Asiática | Al Sidra Club (KSA) | Matsuno FC (JPN) | 3-0 |
 | 2032/33 | Libertadores | Clube Atlético Pouso das Pedras (BRA) | Club Atlético Coronel Arroyito (ARG) | 1-0 |
-| 2032/33 | Liga dos Campeões | Brackcombe Town (ENG) | Carnley Albion (ENG) | 1-2 |
+| 2032/33 | Liga dos Campeões | Brackcombe Town (ENG) | Carnley Albion (ENG) | 2-1 |
 | 2032/33 | Liga Conferência | Hathercombe United (ENG) | Fontemarino Calcio (ITA) | 1-0 |
 | 2032/33 | Liga Europa | CF Alcormonte (ESP) | FC Bergville (BEL) | 2-1 |
-| 2033/34 | Liga dos Campeões Asiática | Matsuno FC (JPN) | Al Sidra Club (KSA) | 1-2 (a.p.) |
-| 2033/34 | Libertadores | Clube Atlético Pouso das Pedras (BRA) | Grêmio Campo do Cajueiro (BRA) | 0-2 |
+| 2033/34 | Liga dos Campeões Asiática | Matsuno FC (JPN) | Al Sidra Club (KSA) | 2-1 (a.p.) |
+| 2033/34 | Libertadores | Clube Atlético Pouso das Pedras (BRA) | Grêmio Campo do Cajueiro (BRA) | 2-0 |
 | 2033/34 | Liga dos Campeões | Carnley Albion (ENG) | Quendale Athletic (ENG) | 2-0 |
-| 2033/34 | Liga Conferência | Netherenwick Athletic (ENG) | Alderdrecht Boys (NED) | 0-2 |
-| 2033/34 | Liga Europa | Torrefranco Calcio (ITA) | Real Riberrada (ESP) | 2-2 (a.p.) 4-5 g.p. |
+| 2033/34 | Liga Conferência | Netherenwick Athletic (ENG) | Alderdrecht Boys (NED) | 2-0 |
+| 2033/34 | Liga Europa | Torrefranco Calcio (ITA) | Real Riberrada (ESP) | 2-2 (a.p.) 5-4 g.p. |
 | 2034/35 | Liga dos Campeões Asiática | Ain Thuraya Club (KSA) | Al Sidra Club (KSA) | 2-0 |
 | 2034/35 | Libertadores | Ferro Paso Moreira (ARG) | Juventud Cerro Tablada (COL) | 1-0 |
 | 2034/35 | Liga dos Campeões | Quendale Athletic (ENG) | FC Casteldorato (ITA) | 3-2 |
@@ -196,8 +196,8 @@ Siglas: ver as classificações em cada página de época. Ligas com play-off de
 | 2035/36 | Liga dos Campeões Asiática | Wadi Dhafra Club (KSA) | Daepyeong FC (KOR) | 4-0 |
 | 2035/36 | Libertadores | Rio do Angico Futebol Clube (BRA) | Serra do Sertão Futebol Clube (BRA) | 2-1 |
 | 2035/36 | Liga dos Campeões | Carnley Albion (ENG) | Olmedosa CF (ESP) | 1-0 (a.p.) |
-| 2035/36 | Liga Conferência | Hathercombe United (ENG) | Eintracht Altenhausen (GER) | 0-1 (a.p.) |
-| 2035/36 | Liga Europa | Clube Desportivo de Serra do Freixo (POR) | Dunbury Wanderers (ENG) | 0-2 |
+| 2035/36 | Liga Conferência | Hathercombe United (ENG) | Eintracht Altenhausen (GER) | 1-0 (a.p.) |
+| 2035/36 | Liga Europa | Clube Desportivo de Serra do Freixo (POR) | Dunbury Wanderers (ENG) | 2-0 |
 
 Títulos por país: Liga dos Campeões Asiática — KSA: 7; Libertadores — BRA: 7; Liga dos Campeões — ENG: 7; Liga Conferência — ENG: 5; Liga Europa — ENG: 4; Liga Conferência — ITA: 2; Liga dos Campeões Asiática — KOR: 2; Liga Europa — GER: 2; Libertadores — ARG: 2; Liga dos Campeões — FRA: 1; Liga dos Campeões — ITA: 1; Libertadores — URU: 1; Liga Conferência — POR: 1; Liga dos Campeões — ESP: 1; Liga Conferência — NED: 1; Liga Conferência — GER: 1; Liga Europa — BEL: 1; Liga Europa — ESP: 1; Liga dos Campeões Asiática — JPN: 1; Liga Europa — ITA: 1; Liga Europa — POR: 1.
 
