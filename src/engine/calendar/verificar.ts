@@ -13,7 +13,8 @@ export const LIMITES_CALENDARIO = {
   max_sequencia: 3,
 };
 
-export function verificarCalendario(jogos: Jogo[], continentais: Set<string> = new Set()): ProblemaCalendario[] {
+/** `ligas`: competições onde se verificam as sequências casa/fora (por defeito, todas as não continentais). */
+export function verificarCalendario(jogos: Jogo[], continentais: Set<string> = new Set(), ligas?: Set<string>): ProblemaCalendario[] {
   const out: ProblemaCalendario[] = [];
   const dias = new Map<string, number>();
   const semanas = new Map<string, number>();
@@ -32,7 +33,7 @@ export function verificarCalendario(jogos: Jogo[], continentais: Set<string> = n
   for (const [k, v] of semanas) if (v > LIMITES_CALENDARIO.max_jogos_semana) out.push({ tipo: 'mais_de_2_por_semana', msg: `clube ${k.split('|')[0]} joga ${v} vezes na semana ${k.split('|')[1]}` });
   // Sequências casa/fora por competição de liga.
   const porComp = new Map<string, Jogo[]>();
-  for (const j of jogos) if (!continentais.has(j.comp)) porComp.set(j.comp, [...(porComp.get(j.comp) ?? []), j]);
+  for (const j of jogos) if (ligas ? ligas.has(j.comp) : !continentais.has(j.comp)) porComp.set(j.comp, [...(porComp.get(j.comp) ?? []), j]);
   for (const [comp, js] of porComp) {
     const seq = new Map<number, { ultimo: number; run: number }>();
     for (const j of [...js].sort((a, b) => a.ronda - b.ronda)) {

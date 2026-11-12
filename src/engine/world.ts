@@ -2,9 +2,10 @@
 // inteiro (0..N-1); os atributos usados na simulação vivem em arrays tipados.
 import type { Dados, Continental } from '../data/load.ts';
 import type { Clube, Manifest, RegrasLiga, RegrasTaca } from '../data/types.ts';
-import { completarPacote, novoContexto, clamp, type OpcoesGeracao } from '../gen/mundoFicticio.ts';
+import { completarPacote, novoContexto, clamp, type OpcoesGeracao, type ContextoGeracao } from '../gen/mundoFicticio.ts';
 import { FORCA } from '../config/forca.ts';
 import { Rng } from '../core/rng.ts';
+import { vagasIniciais } from './season/qualify.ts';
 
 export interface LigaInfo {
   idx: number;
@@ -12,6 +13,13 @@ export interface LigaInfo {
   pacote: string;
   /** Índices dos clubes nesta liga, na época actual. */
   clubes: number[];
+}
+
+export interface Qualificado {
+  clube: number;
+  pais: string;
+  /** Como se qualificou: "campeão", "2.º", "taça", "reputação (1.ª época)"... */
+  via: string;
 }
 
 export interface PacoteInfo {
@@ -32,6 +40,11 @@ export class World {
   ataque: Float32Array;
   defesa: Float32Array;
   liga: Int16Array; // -1 = exterior (saiu do jogo)
+  /** Contexto do gerador (nomes já usados), para os clubes que entram do exterior. */
+  ctx: ContextoGeracao = novoContexto();
+  modo: 'teste' | 'gerado' = 'teste';
+  /** Qualificados para as competições continentais da época actual. */
+  qualificados = new Map<string, Qualificado[]>();
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -87,7 +100,8 @@ export class World {
       if (l < 0) continue;
       const indice = this.ligas[l].regras.indice_riqueza;
       const f = this.reputacao[i] * (FORCA.base + (FORCA.peso_indice_liga * indice) / 100);
-      const rng = Rng.de(this.semente, 'forca', this.clubes[i].id);
+      // Ruído por época: representa as mudanças de plantel de ano para ano.
+      const rng = Rng.de(this.semente, 'forca', this.clubes[i].id, this.epoca);
       this.ataque[i] = clamp(f + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);
       this.defesa[i] = clamp(f + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);
     }
@@ -103,7 +117,8 @@ export class World {
 
 export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World {
   const w = new World(op.semente, epoca, d.continental);
-  const ctx = novoContexto();
+  w.modo = op.modo;
+  const ctx = w.ctx;
   const pacotes = d.pacotes.filter((p) => p.manifest.activo).sort((a, b) => a.manifest.id.localeCompare(b.manifest.id));
   for (const pk of pacotes) {
     const idxs: number[] = [];
@@ -115,5 +130,7 @@ export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World
     w.pacotes.push({ manifest: pk.manifest, ligas: idxs, taca: pk.taca });
   }
   for (const pk of pacotes) w.adicionarClubes(completarPacote(pk, ctx, op));
+  w.recalcularForca();
+  w.qualificados = vagasIniciais(w);
   return w;
 }

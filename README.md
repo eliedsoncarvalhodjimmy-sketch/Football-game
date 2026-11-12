@@ -7,6 +7,9 @@ npm install
 npm test                 # testes (Vitest)
 npm run validate-pack    # valida os pacotes de dados em packs/
 npm run gen-world -- --seed 2026   # gera o mundo fictício e os relatórios em docs/relatorios/
+npm run simulate -- --seasons 10 --seed 2026   # simula N épocas e escreve o relatório (testes da secção 11 + uma página por época)
+npm run bench -- --seasons 50      # benchmark (tempo por época e por semana, memória, gravações)
+npx tsx scripts/calibrar.ts        # distribuição de resultados do modo rápido
 npm run dev              # ecrã "Mundo" no browser
 ```
 

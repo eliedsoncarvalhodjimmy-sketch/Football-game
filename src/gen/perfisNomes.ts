@@ -13,6 +13,8 @@ export interface PerfilNomes {
   /** Nome genérico do estádio ({C} = cidade). */
   estadio: string[];
   bloqueio?: string[];
+  /** Qualificativos para quando as combinações simples se esgotam (perfis com nomes compostos). */
+  extra?: string[];
 }
 
 const P: Record<string, PerfilNomes> = {
@@ -32,6 +34,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['Inverness', 'Dunmore', 'Kilmore', 'Dalmuir', 'Glenmore', 'Strathmore', 'Kinross', 'Dunlin', 'Ardmore', 'Balmore'],
   },
   us: {
+    extra: ['North', 'South', 'East', 'West', 'New', 'Upper', 'Lower'],
     ini: ['Cedar', 'Silver', 'Red', 'Iron', 'Lake', 'Prairie', 'Granite', 'Harbor', 'Copper', 'Bay', 'Pine', 'Summit', 'River', 'Sun', 'Maple', 'Stone', 'Falcon', 'Eagle'],
     fim: [' Ridge', ' Falls', ' Point', ' Springs', ' Valley', 'ton', ' Harbor', ' Bluff', ' Creek', ' Heights', 'ville', ' Rock'],
     padroes: [['{C} FC', 4], ['{C} SC', 2], ['{C} United', 2], ['Real {C}', 1], ['{C} City SC', 1], ['Athletic {C}', 1]],
@@ -46,6 +49,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['Albacete', 'Villanueva', 'Torrevega', 'Monterrada', 'Valdemoro', 'Miranda', 'Salamanca', 'Fuenlabrada', 'Valverde', 'Torremolinos', 'Villarreal', 'Montejo'],
   },
   es_am: {
+    extra: ['del Norte', 'del Sur', 'Alto', 'Bajo', 'Nuevo', 'Viejo', 'del Monte', 'del Río'],
     ini: ['Puerto ', 'Villa ', 'Río ', 'Cerro ', 'Valle ', 'Monte ', 'Llano ', 'Paso ', 'Loma '],
     meio: [],
     fim: ['Alameda', 'Esperanza', 'Floresta', 'Quebrada', 'Arenal', 'Cumbre', 'Portillo', 'Lucero', 'Soledad', 'Mirador', 'Corral', 'Tablada', 'Ceibal', 'Palmar', 'Aguada', 'Rosario Alto'],
@@ -54,6 +58,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['San Lorenzo', 'Santa Fe', 'Puerto Montt', 'Villa Nueva', 'Monte Alto', 'Río Cuarto', 'Santa Rosa'],
   },
   ar: {
+    extra: ['del Norte', 'del Sur', 'Alto', 'Bajo', 'Nuevo', 'Viejo', 'del Monte', 'del Río'],
     ini: ['Villa ', 'General ', 'Coronel ', 'Barrio ', 'Puerto ', 'Colonia ', 'Paso '],
     fim: ['Arroyito', 'Pinares', 'Tala', 'Chañares', 'Ombúes', 'Moreira', 'Pradera', 'Quintana', 'Lagunita', 'Alamos', 'Sauces', 'Ceibos', 'Bellavista', 'Toscas'],
     padroes: [['Club Atlético {C}', 3], ['Sportivo {C}', 2], ['Deportivo {C}', 2], ['Juventud {C}', 1], ['Unión de {C}', 2], ['Ferro {C}', 1], ['Social {C}', 1], ['Talleres de {C}', 1]],
@@ -61,6 +66,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['Los Andes', 'San Martín', 'Villa Dálmine', 'General Paz', 'Los Ceibos'],
   },
   pt: {
+    extra: ['do Norte', 'do Sul', 'de Cima', 'de Baixo', 'Nova', 'Velha', 'do Monte', 'da Ponte'],
     ini: ['Vila ', 'Torre ', 'Ponte ', 'Póvoa ', 'Quinta ', 'Serra ', 'Barca ', 'Azenha ', 'Casal ', 'Lugar '],
     fim: ['da Ribeira', 'do Outeiro', 'de Alvarim', 'das Lajes', 'do Souto', 'de Marvila', 'da Lagoa', 'do Vale', 'de Carvide', 'da Fonteira', 'de Rebordelo', 'do Freixo', 'da Corga', 'do Penedo'],
     padroes: [['Sporting Clube de {C}', 2], ['Clube Desportivo de {C}', 3], ['União de {C}', 2], ['Futebol Clube de {C}', 3], ['Atlético de {C}', 1], ['Grupo Desportivo de {C}', 2], ['Académico de {C}', 1]],
@@ -68,6 +74,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['Vila do Conde', 'Póvoa de Varzim', 'Ponte da Barca', 'Torre de Moncorvo', 'São João da Madeira'],
   },
   br: {
+    extra: ['do Norte', 'do Sul', 'de Cima', 'de Baixo', 'Novo', 'Velho', 'da Serra', 'do Campo'],
     ini: ['Barra', 'Campo', 'Rio', 'Porto', 'Serra', 'Lagoa', 'Ribeirão', 'Arraial', 'Vale', 'Morro', 'Vila', 'Pouso'],
     fim: [' do Ipê', ' das Palmeiras', ' do Jatobá', ' do Cajueiro', ' do Buriti', ' das Pedras', ' do Pequi', ' da Aroeira', ' do Sertão', ' dos Ventos', ' das Garças', ' do Cedro', ' da Cascata', ' do Angico', ' das Araras'],
     padroes: [['Esporte Clube {C}', 3], ['{C} Futebol Clube', 3], ['Atlético {C}', 2], ['Sociedade Esportiva {C}', 1], ['Clube Atlético {C}', 2], ['Grêmio {C}', 1], ['Associação {C}', 1], ['América de {C}', 1]],
@@ -138,6 +145,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['Eksjö', 'Lindholm', 'Västerås', 'Österby', 'Granby', 'Alby', 'Björkby', 'Holmsund', 'Ekby', 'Strandby', 'Västervik', 'Lindköping', 'Bergsund'],
   },
   el: {
+    extra: ['Neo', 'Palaio', 'Ano', 'Kato'],
     ini: ['Neo', 'Agia ', 'Kato ', 'Ano ', 'Palaio', 'Kala', 'Mega', 'Ori', 'Thalasso', 'Peri', 'Elio'],
     fim: ['polis', 'chori', 'kastro', 'limni', 'pyrgos', 'kampos', 'vouni', 'nisi', 'potamos', 'stathmos'],
     padroes: [['{C} FC', 2], ['Asteras {C}', 2], ['Atromitos {C}', 1], ['Panathlitikos {C}', 1], ['Iraklis {C}', 1], ['AE {C}', 2], ['Doxa {C}', 1]],
@@ -180,6 +188,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['Bilohorod', 'Novopil', 'Starosk', 'Krasnodar', 'Sokolivka', 'Lysychansk', 'Horodar', 'Dnipro', 'Kamenyne', 'Novomyr', 'Vysopil'],
   },
   ar_g: {
+    extra: ['Al Jadida', 'Al Sharqi', 'Al Gharbi', 'Al Shamali', 'Al Janubi', 'Al Kubra'],
     ini: ['Al ', 'Ras ', 'Wadi ', 'Bab ', 'Ain ', 'Jabal ', 'Umm '],
     fim: ['Rimal', 'Nakheel', 'Saqr', 'Bustan', 'Dhafra', 'Wahat', 'Manar', 'Qamar', 'Sahil', 'Rayyan Sharq', 'Faisaliyah Jadida', 'Zahra', 'Nour', 'Thuraya', 'Barq', 'Sidra', 'Ghazal'],
     padroes: [['{C} Club', 3], ['{C} FC', 3], ['{C} SC', 2]],
@@ -201,6 +210,7 @@ const P: Record<string, PerfilNomes> = {
     bloqueio: ['Daejeon', 'Gyeongju', 'Jinju', 'Namwon', 'Busan', 'Hwaseong', 'Suwon', 'Seosan', 'Cheongju', 'Yeongju', 'Hanam', 'Jincheon', 'Namdo', 'Songdo', 'Mungyeong', 'Seoul', 'Daegu', 'Gangwon', 'Jinpyeong'],
   },
   af_ar: {
+    extra: ['El Jedid', 'Charqi', 'Gharbi', 'El Kebir', 'Sghir'],
     ini: ['Ain ', 'Oued ', 'Bir ', 'Sidi ', 'Ras ', 'Bordj ', 'Dar '],
     fim: ['Zitouna', 'Lahmar', 'Safsaf', 'Kebira', 'Nakhla', 'Mrah', 'Bahri', 'Ghaba', 'Ksar Jdid', 'Rmel', 'Hajar', 'Sahel Nord'],
     padroes: [['Ittihad {C}', 2], ['Chabab {C}', 2], ['Wydad {C}', 1], ['Olympique {C}', 1], ['Nadi {C}', 2], ['Étoile de {C}', 1]],

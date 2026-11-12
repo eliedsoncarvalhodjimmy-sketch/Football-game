@@ -30,14 +30,28 @@ export class GeradorNomes {
   }
 
   cidade(): string {
-    for (let t = 0; t < 200; t++) {
-      const meio = this.p.meio && this.p.meio.length && this.rng.chance(0.15) ? this.rng.pick(this.p.meio) : '';
+    const PART = new Set(['de', 'da', 'do', 'das', 'dos', 'del', 'la', 'el', 'nad']);
+    for (let t = 0; t < 2000; t++) {
+      let meio = this.p.meio && this.p.meio.length && this.rng.chance(0.15) ? this.rng.pick(this.p.meio) : '';
       const ini = this.rng.pick(this.p.ini);
       const fim = this.rng.pick(this.p.fim);
       if (ini.trim().toLowerCase() === fim.trim().toLowerCase()) continue;
-      let c = ini + meio + fim;
-      // As sílabas já trazem as maiúsculas certas ("Vila " + "da Ribeira"); só a 1.ª letra é forçada.
-      c = capitalizar(c).replace(/-([a-zà-ÿ])/g, (_, x: string) => '-' + x.toUpperCase());
+      let c: string;
+      if (t < 100) c = ini + meio + fim;
+      else if (this.p.extra) {
+        // Combinações simples esgotadas: acrescenta um qualificativo ("do Norte", "Al Jadida"...).
+        const q = this.rng.pick(this.p.extra);
+        const base = ini + fim;
+        c = /^(Neo|Palaio|Ano|Kato|North|South|East|West|New|Upper|Lower|Nova|Novo|Nuevo)$/.test(q) ? `${q} ${base}` : `${base} ${q}`;
+      } else {
+        // Perfis de palavra única: uma sílaba extra, diferente da final.
+        meio = this.rng.pick(this.p.fim).trim().toLowerCase();
+        if (meio === fim.trim().toLowerCase() || meio.includes(' ')) continue;
+        c = ini + meio + fim;
+      }
+      // Maiúscula no início de cada palavra, excepto partículas ("Vila do Vale", "Agia Limni").
+      c = c.split(' ').map((w, i) => (i > 0 && PART.has(w) ? w : capitalizar(w))).join(' ');
+      c = c.replace(/-([a-zà-ÿ])/g, (_, x: string) => '-' + x.toUpperCase());
       c = c.replace(/([a-z])\1\1/g, '$1$1');
       if (this.bloqueio.has(c.toLowerCase())) continue;
       if (this.usados.has('cidade:' + c)) continue;

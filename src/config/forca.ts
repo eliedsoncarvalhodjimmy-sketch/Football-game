@@ -4,5 +4,5 @@
 export const FORCA = {
   base: 0.85,
   peso_indice_liga: 0.15,
-  ruido_ataque_defesa: 3,
+  ruido_ataque_defesa: 4,
 };
