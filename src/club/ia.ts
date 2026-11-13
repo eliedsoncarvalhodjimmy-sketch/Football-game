@@ -203,7 +203,8 @@ export class IAClubes {
         this.confianca[c] = clamp(this.confianca[c] + (CF.por_desempenho * (esperada - a[0]) * 10) / a[1] - CF.regresso * (this.confianca[c] - 60), 0, 100);
         // Despedimento por resultados: paciência do dono e do arquétipo; lua de mel do dono = paciência máxima.
         const pac = d ? (dia < d.luaDeMelAte ? 2 : (0.5 + d.atributos.paciencia / 20) * arq.paciencia) : arq.paciencia;
-        if (this.confianca[c] < CF.limiar / pac && rng.chance(CF.prob_despedir)) {
+        // Só despede se estiver abaixo do esperado; o limiar tem um tecto (mesmo o dono mais impaciente não despede quem cumpre).
+        if (a[0] > esperada && this.confianca[c] < Math.min(CF.limiar_maximo, CF.limiar / pac) && rng.chance(CF.prob_despedir)) {
           e.mercadoT.despedir(c, dia, 'resultados', rng, `${a[0]}.º, esperado ${esperada}.º`);
           continue;
         }

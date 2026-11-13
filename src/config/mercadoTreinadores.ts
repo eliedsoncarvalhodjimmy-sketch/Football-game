@@ -46,7 +46,8 @@ export const CONFIANCA = {
   descida: -35,
   /** Abaixo disto (× paciência do dono e do arquétipo) o clube despede por resultados, com probabilidade mensal p, depois de N jornadas. */
   limiar: 28,
-  prob_despedir: 0.35,
+  limiar_maximo: 48,
+  prob_despedir: 0.45,
   jornadas_minimas: 6,
   /** Um treinador novo não é despedido por resultados nos primeiros N dias. */
   carencia_dias: 120,

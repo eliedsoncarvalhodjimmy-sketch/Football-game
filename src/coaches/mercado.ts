@@ -3,11 +3,13 @@ import { Rng } from '../core/rng.ts';
 import { MERCADO_TREINADORES as MT, DESPEDIMENTO as DP } from '../config/mercadoTreinadores.ts';
 import { PARAMETROS } from '../config/arquetipos.ts';
 import { gerarTreinador } from './gerador.ts';
+import { fimDeEpoca } from '../economia/contratos.ts';
 import type { Treinador } from './store.ts';
 import type { World } from '../engine/world.ts';
 import type { Economia } from '../economia/motorEconomico.ts';
 
 const clamp = (x: number, a: number, b: number) => (x < a ? a : x > b ? b : x);
+const euros = (x: number) => (x >= 1e6 ? `${(x / 1e6).toFixed(2)} M€` : `${Math.round(x / 1e3)} mil €`);
 const media = (t: Treinador) => (t.atributos.tactica + t.atributos.motivacao + t.atributos.desenvolvimento + t.atributos.gestao + t.atributos.disciplina) / 5;
 
 export type MotivoSaida = 'resultados' | 'justa_causa' | 'mutuo_acordo' | 'saiu_para_outro' | 'demissao' | 'fim_contrato' | 'reforma';
@@ -45,7 +47,8 @@ export class MercadoTreinadores {
   contrato(t: Treinador, c: number, dia: number, rng: Rng) {
     const anos = rng.int(MT.anos[0], MT.anos[1]);
     t.salario = this.salario(t, c);
-    t.contratoFim = dia + anos * 365;
+    // Acaba no fim de uma época; contratado tarde (a menos de 4 meses do fim), cobre pelo menos a época seguinte.
+    t.contratoFim = fimDeEpoca(this.w, c, dia + 120, anos);
     t.clausula = t.salario * anos * MT.clausula;
     // Pedidos: os treinadores com mais reputação pedem mais (orçamento, reforços, autonomia).
     const r = (t.reputacao ?? 50) / 100;
@@ -93,7 +96,9 @@ export class MercadoTreinadores {
     const amostra = Math.min(this.livres.length, MT.candidatos);
     const passo = Math.max(1, Math.floor(this.livres.length / amostra));
     const inicio = rng.int(0, Math.max(0, passo - 1));
-    for (let k = inicio; k < this.livres.length; k += passo) cand.push({ t: this.livres[k], v: this.pontuar(this.livres[k], c), origem: -1 });
+    // Quem saiu deste clube nos últimos 2 anos não volta já.
+    const saiuHaPouco = (t: Treinador) => !!t.carreira?.some((x) => x.clube === c && x.ate !== undefined && dia - x.ate < 730);
+    for (let k = inicio; k < this.livres.length; k += passo) if (!saiuHaPouco(this.livres[k])) cand.push({ t: this.livres[k], v: this.pontuar(this.livres[k], c), origem: -1 });
     if (w.reputacao[c] >= MT.roubar_reputacao) {
       const ts = w.motor!.treinadores;
       for (let k = 0; k < 40; k++) {
@@ -181,7 +186,7 @@ export class MercadoTreinadores {
     e.ia.imagem[c] = clamp(e.ia.imagem[c], 0, 100);
     if (custo > 0) e.clubes.lancar(c, 'indemnizacoes', custo);
     const nomes = { resultados: 'despedido por resultados', justa_causa: 'despedido por justa causa', mutuo_acordo: 'sai por mútuo acordo' };
-    e.registar(dia, c, 'treinador_despedido', `${t.nome} ${nomes[motivo]}${texto ? ` (${texto})` : ''}: indemnização de ${(custo / 1e6).toFixed(2)} M€${nota}`, custo);
+    e.registar(dia, c, 'treinador_despedido', `${t.nome} ${nomes[motivo]}${texto ? ` (${texto})` : ''}: indemnização de ${euros(custo)}${nota}`, custo);
     this.sair(c, t, dia, motivo);
     this.procurar(c, dia, rng);
   }

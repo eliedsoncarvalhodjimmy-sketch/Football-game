@@ -6,301 +6,305 @@
 
 | Medida | Valor | Faixa |
 |---|---|---|
-| Clubes que mudam de treinador por época (média; mín–máx) | 26% (17–29%) | 20–30% |
-| Vendas de clubes por época (média) | 25.9 | 2–6% dos clubes |
-| Administrações / recuperações judiciais em 20 épocas | 9 / 11 | raras mas existentes |
-| Deduções de pontos por época (média) | 20.9 | 1–6% dos clubes |
-| Clubes em crise no fim | 8 | ≤ 10% |
-| Mudanças de filosofia (arquétipo) por época | 9.3 | poucas (inércia) |
-| Liga com maior queda de receita total (fim ÷ início) | URU1: 0.85 | nenhum colapso (≥ 0,6) |
+| Clubes que mudam de treinador por época (média; mín–máx) | 22% (14–26%) | 20–30% |
+| Vendas de clubes por época (média) | 25.8 | 2–6% dos clubes |
+| Administrações / recuperações judiciais em 20 épocas | 4 / 14 | raras mas existentes |
+| Deduções de pontos por época (média) | 21.7 | 1–6% dos clubes |
+| Clubes em crise no fim | 10 | ≤ 10% |
+| Mudanças de filosofia (arquétipo) por época | 8.1 | poucas (inércia) |
+| Liga com maior queda de receita total (fim ÷ início) | ARG1: 0.85 | nenhum colapso (≥ 0,6) |
 | Clubes com reputação +20 em 3 épocas | 0 | quase nenhum |
 
 ## 2. Mobilidade no topo das 8 maiores ligas
 
 | Liga | Clubes novos no top 4 na 2.ª metade | No top 4 em todas as épocas | Dos 4 maiores do arranque, no top 4 na 2.ª metade |
 |---|---:|---:|---:|
-| ENG1 | 2 | 0 | 2 de 4 |
+| ENG1 | 4 | 0 | 2 de 4 |
 | ESP1 | 0 | 0 | 2 de 4 |
-| ITA1 | 2 | 1 | 2 de 4 |
+| ITA1 | 4 | 0 | 2 de 4 |
 | GER1 | 4 | 0 | 2 de 4 |
-| FRA1 | 1 | 0 | 2 de 4 |
+| FRA1 | 2 | 0 | 2 de 4 |
 | POR1 | 4 | 1 | 2 de 4 |
 | NED1 | 3 | 0 | 2 de 4 |
-| BEL1 | 4 | 0 | 2 de 4 |
+| BEL1 | 5 | 0 | 2 de 4 |
 
 ## 3. Por época
 
 | Época | Mudam de treinador | Despedimentos (resultados / justa causa / mútuo) | Demissões | Saídas (contrato, reforma, outro clube) | Vendas | Adm. | RJ | Deduções | Avisos | Em crise | Filosofia | Staff |
 |---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2026/27 | 152 (17%) | 96 / 21 / 16 | 0 | 40 | 18 | 0 | 0 | 2 | 47 | 10 | 0 | 164 |
-| 2027/28 | 237 (27%) | 118 / 17 / 50 | 0 | 82 | 22 | 0 | 0 | 13 | 135 | 15 | 3 | 201 |
-| 2028/29 | 188 (22%) | 110 / 12 / 6 | 0 | 88 | 23 | 0 | 0 | 38 | 124 | 20 | 11 | 191 |
-| 2029/30 | 222 (25%) | 126 / 17 / 7 | 0 | 108 | 18 | 1 | 3 | 45 | 146 | 18 | 2 | 182 |
-| 2030/31 | 213 (24%) | 106 / 14 / 8 | 0 | 106 | 16 | 1 | 3 | 48 | 151 | 20 | 39 | 144 |
-| 2031/32 | 224 (26%) | 116 / 21 / 6 | 0 | 110 | 30 | 2 | 0 | 42 | 172 | 19 | 3 | 125 |
-| 2032/33 | 243 (28%) | 115 / 23 / 7 | 0 | 129 | 20 | 1 | 2 | 38 | 169 | 15 | 6 | 116 |
-| 2033/34 | 236 (27%) | 120 / 10 / 11 | 0 | 125 | 30 | 1 | 1 | 32 | 166 | 12 | 5 | 116 |
-| 2034/35 | 229 (26%) | 104 / 19 / 11 | 0 | 121 | 22 | 0 | 1 | 23 | 156 | 11 | 1 | 105 |
-| 2035/36 | 234 (27%) | 114 / 11 / 9 | 0 | 129 | 25 | 1 | 0 | 15 | 148 | 11 | 4 | 101 |
-| 2036/37 | 230 (26%) | 122 / 22 / 8 | 0 | 113 | 30 | 0 | 0 | 18 | 159 | 10 | 38 | 85 |
-| 2037/38 | 226 (26%) | 115 / 16 / 10 | 0 | 113 | 28 | 0 | 0 | 16 | 153 | 8 | 10 | 85 |
-| 2038/39 | 228 (26%) | 119 / 12 / 6 | 0 | 117 | 34 | 0 | 0 | 11 | 154 | 9 | 6 | 101 |
-| 2039/40 | 229 (26%) | 122 / 15 / 10 | 0 | 116 | 36 | 0 | 1 | 9 | 150 | 8 | 6 | 98 |
-| 2040/41 | 236 (27%) | 108 / 18 / 10 | 0 | 138 | 30 | 0 | 0 | 9 | 168 | 7 | 8 | 96 |
-| 2041/42 | 254 (29%) | 106 / 21 / 11 | 0 | 141 | 25 | 0 | 0 | 11 | 179 | 8 | 28 | 112 |
-| 2042/43 | 215 (25%) | 109 / 11 / 9 | 0 | 115 | 28 | 1 | 0 | 11 | 167 | 8 | 0 | 75 |
-| 2043/44 | 218 (25%) | 108 / 16 / 7 | 0 | 123 | 28 | 0 | 0 | 18 | 170 | 8 | 7 | 92 |
-| 2044/45 | 220 (25%) | 102 / 11 / 9 | 0 | 119 | 27 | 1 | 0 | 11 | 170 | 8 | 6 | 91 |
-| 2045/46 | 220 (25%) | 87 / 18 / 10 | 0 | 132 | 27 | 0 | 0 | 8 | 179 | 8 | 4 | 87 |
+| 2026/27 | 123 (14%) | 46 / 22 / 17 | 0 | 45 | 18 | 0 | 0 | 2 | 48 | 10 | 0 | 169 |
+| 2027/28 | 192 (22%) | 63 / 16 / 52 | 0 | 65 | 26 | 0 | 0 | 16 | 136 | 16 | 5 | 209 |
+| 2028/29 | 174 (20%) | 71 / 12 / 8 | 0 | 94 | 22 | 0 | 1 | 41 | 122 | 21 | 11 | 186 |
+| 2029/30 | 184 (21%) | 61 / 17 / 8 | 0 | 111 | 15 | 0 | 1 | 38 | 137 | 21 | 3 | 171 |
+| 2030/31 | 180 (21%) | 64 / 15 / 10 | 0 | 100 | 21 | 1 | 1 | 41 | 143 | 20 | 36 | 153 |
+| 2031/32 | 187 (21%) | 65 / 19 / 6 | 0 | 103 | 25 | 0 | 1 | 38 | 160 | 17 | 3 | 130 |
+| 2032/33 | 202 (23%) | 62 / 22 / 6 | 0 | 123 | 19 | 0 | 2 | 43 | 175 | 16 | 2 | 124 |
+| 2033/34 | 189 (22%) | 74 / 10 / 9 | 0 | 104 | 31 | 1 | 2 | 36 | 168 | 13 | 7 | 120 |
+| 2034/35 | 208 (24%) | 75 / 17 / 9 | 0 | 116 | 25 | 0 | 2 | 32 | 170 | 13 | 4 | 107 |
+| 2035/36 | 198 (23%) | 70 / 16 / 13 | 0 | 115 | 25 | 2 | 1 | 21 | 136 | 12 | 4 | 112 |
+| 2036/37 | 215 (25%) | 61 / 23 / 7 | 0 | 137 | 27 | 0 | 0 | 19 | 164 | 13 | 24 | 106 |
+| 2037/38 | 192 (22%) | 72 / 21 / 6 | 0 | 106 | 29 | 0 | 1 | 14 | 150 | 13 | 7 | 89 |
+| 2038/39 | 191 (22%) | 69 / 10 / 12 | 0 | 110 | 34 | 0 | 1 | 11 | 160 | 11 | 5 | 89 |
+| 2039/40 | 193 (22%) | 62 / 15 / 9 | 0 | 114 | 31 | 0 | 1 | 11 | 170 | 13 | 7 | 107 |
+| 2040/41 | 228 (26%) | 70 / 16 / 10 | 0 | 144 | 30 | 0 | 0 | 13 | 188 | 15 | 7 | 97 |
+| 2041/42 | 195 (22%) | 60 / 20 / 10 | 0 | 110 | 25 | 0 | 0 | 19 | 197 | 12 | 18 | 94 |
+| 2042/43 | 224 (26%) | 67 / 12 / 10 | 0 | 149 | 30 | 0 | 0 | 14 | 177 | 9 | 4 | 99 |
+| 2043/44 | 192 (22%) | 54 / 16 / 10 | 0 | 122 | 34 | 0 | 0 | 9 | 165 | 9 | 7 | 93 |
+| 2044/45 | 205 (24%) | 60 / 11 / 10 | 0 | 136 | 25 | 0 | 0 | 11 | 164 | 7 | 4 | 94 |
+| 2045/46 | 197 (23%) | 61 / 17 / 5 | 0 | 121 | 24 | 0 | 0 | 5 | 183 | 10 | 3 | 96 |
 
 ## 4. Histogramas
 
 **Anos do treinador actual no clube** (872)
 
 ```
-       < 0.5 | █████████████████ 78
-       0.5–1 | █████████████████████████████████ 152
-         1–2 | ███████████████████████████████████ 163
-         2–3 | ██████████████████████████ 119
-         3–5 | ████████████████████████████████████████ 185
-         5–8 | █████████████████████ 97
-         ≥ 8 | █████████████████ 78
+       < 0.5 | ███████████████ 63
+       0.5–1 | ████████████████████████████████ 139
+         1–2 | ███████████████████████████████████████ 168
+         2–3 | ███████████████████████████████ 135
+         3–5 | ████████████████████████████████████████ 173
+         5–8 | █████████████████████████ 110
+         ≥ 8 | ███████████████████ 84
 ```
 
 **Treinadores contratados por clube em 20 épocas** (872)
 
 ```
-         < 1 | ██████████████████████ 128
-         1–2 | ███████████ 62
-         2–4 | ████████████████████████ 138
-         4–6 | ████████████████████████████████████████ 228
-         6–9 | ████████████████████████████████████ 204
-        9–13 | ███████████ 63
-        ≥ 13 | █████████ 49
+         < 1 | ███████████████████████ 140
+         1–2 | ████████████ 70
+         2–4 | ███████████████████████████ 162
+         4–6 | █████████████████████████████████ 198
+         6–9 | ████████████████████████████████████████ 239
+        9–13 | █████████ 55
+        ≥ 13 | █ 8
 ```
 
 **Mudanças de dono por clube em 20 épocas** (872)
 
 ```
-         < 1 | ████████████████████████████████████████ 544
-         1–2 | ████████████████ 224
-         2–3 | ██████ 78
-         3–4 | ██ 22
+         < 1 | ████████████████████████████████████████ 542
+         1–2 | █████████████████ 228
+         2–3 | ██████ 83
+         3–4 | █ 15
          ≥ 4 |  4
 ```
 
 **Reputação: variação do arranque ao fim** (872)
 
 ```
-       < -20 |  2
-     -20–-10 | █████ 52
-      -10–-5 | ████████ 80
-       -5–-2 | ███████ 69
-        -2–2 | ████████████████████████████████████████ 380
-         2–5 | █████████████ 126
-        5–10 | ██████████████ 137
-       10–20 | ███ 25
-        ≥ 20 |  1
+       < -20 |  1
+     -20–-10 | █████ 44
+      -10–-5 | ██████████ 91
+       -5–-2 | ██████████ 92
+        -2–2 | ████████████████████████████████████████ 365
+         2–5 | ███████████████ 137
+        5–10 | ████████████ 111
+       10–20 | ███ 31
+        ≥ 20 |  0
 ```
 
 **Massa salarial ÷ receita (última época)** (814)
 
 ```
-       < 30% | █████ 27
-     30%–40% | ██████████ 57
+       < 30% | █████ 30
+     30%–40% | █████████ 50
      40%–50% | ███████████████████████ 133
-     50%–60% | ████████████████████████████████████████ 227
-     60%–70% | ███████████████████████████████████ 198
-     70%–80% | ███████████████ 85
-    80%–100% | ███████████ 61
-      ≥ 100% | █████ 26
+     50%–60% | ████████████████████████████████████████ 228
+     60%–70% | ███████████████████████████████ 178
+     70%–80% | █████████████████ 96
+    80%–100% | ████████████ 69
+      ≥ 100% | █████ 30
 ```
 
 **Reputação dos treinadores empregados** (872)
 
 ```
-        < 20 | ████████████████ 141
-       20–35 | ████████████████████████████████████████ 362
-       35–50 | ██████████████████████████ 239
-       50–65 | ███████████ 102
-       65–80 | ██ 21
-        ≥ 80 | █ 7
+        < 20 | ████████████████ 132
+       20–35 | ████████████████████████████████████████ 335
+       35–50 | ██████████████████████████████ 251
+       50–65 | ███████████████ 124
+       65–80 | ███ 24
+        ≥ 80 | █ 6
 ```
 
-Arquétipos no fim: Tradicional 220, Clube-vendedor 137, Comprador de estrelas 93, Analítico 117, Formador 242, Magnata impaciente 63. Treinadores livres: 1490; reformados em 20 épocas: 1872. Intenções de venda registadas para o Prompt 4: 74.
+Arquétipos no fim: Tradicional 221, Clube-vendedor 128, Comprador de estrelas 92, Analítico 128, Formador 232, Magnata impaciente 71. Treinadores livres: 1496; reformados em 20 épocas: 1850. Intenções de venda registadas para o Prompt 4: 73.
 
 ## 5. Histórias de 5 clubes
 
 ### Brackcombe Town (ENG1) — Comprador de estrelas
 
-Donos: Crestview Partners (Grupo de investimento)
+Donos: Crestview Partners (Grupo de investimento) → 2033-06: Jack Morwood (Família local)
 
-Treinadores: 2029-06 Paolo Galucci → 2034-06 Nicolò Barotti → 2038-06 Facundo Escales → 2040-04 Thomas Dalwell → 2041-04 Miguel Marança → 2041-06 Paolo Ferotti → 2043-06 Michal Horý → 2044-06 James Dalfield (actual: James Dalfield, gestor)
+Treinadores: 2030-06 Niklas Langberg → 2034-06 Tobias Reinner → 2040-05 Luis Ortón → 2041-04 Alessandro Galani → 2043-06 Ruben Mulker (actual: Ruben Mulker, ofensivo)
 
-- 2040-04: Facundo Escales despedido por resultados (9.º, esperado 1.º): indemnização de 0.00 M€
-- 2041-04: Thomas Dalwell despedido por resultados (8.º, esperado 2.º): indemnização de 0.00 M€
+- 2033-06: vendido (maus resultados) por 3274.7 M€: Crestview Partners → Jack Morwood (familia); injecção 7.6 M€
+- 2040-05: Tobias Reinner despedido por resultados (10.º, esperado 1.º): indemnização de 1.94 M€
+- 2041-04: Luis Ortón despedido por resultados (12.º, esperado 1.º): indemnização de 0 mil €
 
 | Época | Liga | Pos. | Receita | Resultado | Caixa | Dívida |
 |---|---|---:|---:|---:|---:|---:|
-| 2036 | ENG1 | 1 | 650.5 M€ | 51.5 M€ | 1581.1 M€ | 0 mil € |
-| 2037 | ENG1 | 2 | 645.6 M€ | 57.4 M€ | 1638.5 M€ | 0 mil € |
-| 2038 | ENG1 | 2 | 557.8 M€ | 25.0 M€ | 1663.5 M€ | 0 mil € |
-| 2039 | ENG1 | 12 | 513.4 M€ | -15.6 M€ | 1647.9 M€ | 0 mil € |
-| 2040 | ENG1 | 10 | 435.7 M€ | -27.2 M€ | 1620.7 M€ | 0 mil € |
-| 2041 | ENG1 | 1 | 476.3 M€ | 42.0 M€ | 1662.7 M€ | 0 mil € |
-| 2042 | ENG1 | 8 | 547.7 M€ | 135.8 M€ | 1798.5 M€ | 0 mil € |
-| 2043 | ENG1 | 1 | 497.0 M€ | 124.8 M€ | 1923.3 M€ | 0 mil € |
-| 2044 | ENG1 | 2 | 526.7 M€ | 178.7 M€ | 2102.0 M€ | 0 mil € |
-| 2045 | ENG1 | 1 | 555.9 M€ | 181.8 M€ | 2283.8 M€ | 0 mil € |
+| 2036 | ENG1 | 1 | 741.8 M€ | 91.3 M€ | 1726.4 M€ | 0 mil € |
+| 2037 | ENG1 | 1 | 718.6 M€ | 78.7 M€ | 1805.1 M€ | 0 mil € |
+| 2038 | ENG1 | 3 | 624.8 M€ | 9.4 M€ | 1814.5 M€ | 0 mil € |
+| 2039 | ENG1 | 10 | 588.4 M€ | -20.4 M€ | 1794.1 M€ | 0 mil € |
+| 2040 | ENG1 | 11 | 487.9 M€ | -32.6 M€ | 1761.5 M€ | 0 mil € |
+| 2041 | ENG1 | 4 | 502.0 M€ | 51.8 M€ | 1813.4 M€ | 0 mil € |
+| 2042 | ENG1 | 3 | 602.2 M€ | 210.9 M€ | 2024.2 M€ | 0 mil € |
+| 2043 | ENG1 | 1 | 603.2 M€ | 229.0 M€ | 2253.2 M€ | 0 mil € |
+| 2044 | ENG1 | 1 | 623.8 M€ | 231.8 M€ | 2485.0 M€ | 0 mil € |
+| 2045 | ENG1 | 1 | 642.0 M€ | 217.5 M€ | 2702.4 M€ | 0 mil € |
 
-### Meerveen Boys (NED2) — Tradicional
+### Meerveen Boys (NED2) — Clube-vendedor
 
 Donos: Sócios do Meerveen Boys (Adeptos (sócios))
 
-Treinadores: 2027-06 Nakazawa Sota → 2029-10 Kyle Bradby → 2031-05 Faisal Ben Qahtani → 2034-06 Ryan Holham (actual: Ryan Holham, formador)
+Treinadores: 2027-06 Ali Al-Amrani → 2030-05 Marco Vitini → 2031-03 Luis Villizo → 2032-04 Nuno Valouro → 2035-06 Fujizawa Ryota → 2039-06 Ahmed BouSayed → 2041-06 Paweł Wojniewski (actual: Paweł Wojniewski, contra_ataque)
 
-- 2027-08: crise: quer vender o melhor jogador (Sem VisDijk) — a venda fica para o mercado do Prompt 4
-- 2028-04: −3 pontos na época em curso (caixa/salários em atraso)
-- 2028-07: −9 pontos na época em curso (caixa/salários em atraso)
+- 2027-07: crise: quer vender o melhor jogador (Sem VisDijk) — a venda fica para o mercado do Prompt 4
+- 2028-02: −3 pontos na época em curso (caixa/salários em atraso)
+- 2028-05: −9 pontos na época em curso (caixa/salários em atraso)
 - 2028-07: crise: quer vender o melhor jogador (Sem VisDijk) — a venda fica para o mercado do Prompt 4
-- 2028-10: −9 pontos na época em curso (caixa/salários em atraso)
-- 2029-04: −3 pontos na época em curso (caixa/salários em atraso)
-- 2029-07: −9 pontos na época em curso (caixa/salários em atraso)
+- 2028-08: −9 pontos na época em curso (caixa/salários em atraso)
+- 2029-02: −3 pontos na época em curso (caixa/salários em atraso)
+- 2029-06: começa a época com −9 pontos
 - 2029-07: crise: quer vender o melhor jogador (Sem VisDijk) — a venda fica para o mercado do Prompt 4
-- 2029-10: −9 pontos na época em curso (caixa/salários em atraso)
-- 2029-10: Nakazawa Sota despedido por resultados (20.º, esperado 9.º): indemnização de 0.02 M€
-- 2030-01: −9 pontos na época em curso (caixa/salários em atraso)
-- 2030-07: −3 pontos na época em curso (caixa/salários em atraso)
+- 2029-09: −9 pontos na época em curso (caixa/salários em atraso)
+- 2030-03: −3 pontos na época em curso (caixa/salários em atraso)
+- 2030-05: Ali Al-Amrani despedido por resultados (20.º, esperado 8.º): indemnização de 5 mil €
+- 2030-07: começa a época com −9 pontos
 - 2030-07: crise: quer vender o melhor jogador (Sem VisDijk) — a venda fica para o mercado do Prompt 4
-- 2030-10: −9 pontos na época em curso (caixa/salários em atraso)
-- 2031-01: −9 pontos na época em curso (caixa/salários em atraso)
-- 2031-04: −9 pontos na época em curso (caixa/salários em atraso)
-- 2031-05: Kyle Bradby despedido por resultados (20.º, esperado 10.º): indemnização de 0.04 M€
-- 2031-06: muda de filosofia: Clube-vendedor → Formador
+- 2030-09: −9 pontos na época em curso (caixa/salários em atraso)
+- 2030-12: −9 pontos na época em curso (caixa/salários em atraso)
+- 2031-03: Marco Vitini despedido por resultados (20.º, esperado 9.º): indemnização de 100 mil €
+- 2031-06: começa a época com −3 pontos
+- 2031-07: crise: quer vender o melhor jogador (Sem VisDijk) — a venda fica para o mercado do Prompt 4
 
 | Época | Liga | Pos. | Receita | Resultado | Caixa | Dívida |
 |---|---|---:|---:|---:|---:|---:|
-| 2036 | NED2 | 20 | 996 mil € | -34 mil € | -2.2 M€ | 302 mil € |
-| 2037 | NED2 | 20 | 990 mil € | 74 mil € | -2.1 M€ | 262 mil € |
-| 2038 | NED2 | 20 | 986 mil € | 83 mil € | -2.1 M€ | 235 mil € |
-| 2039 | NED2 | 20 | 1.0 M€ | 184 mil € | -1.7 M€ | 464 mil € |
-| 2040 | NED2 | 20 | 1.1 M€ | 218 mil € | -1.5 M€ | 403 mil € |
-| 2041 | NED2 | 20 | 996 mil € | 154 mil € | -1.4 M€ | 348 mil € |
-| 2042 | NED2 | 20 | 1.0 M€ | 180 mil € | -1.3 M€ | 301 mil € |
-| 2043 | NED2 | 20 | 974 mil € | 143 mil € | -870 mil € | 550 mil € |
-| 2044 | NED2 | 20 | 983 mil € | 159 mil € | -788 mil € | 470 mil € |
-| 2045 | NED2 | 20 | 983 mil € | 156 mil € | -696 mil € | 403 mil € |
+| 2036 | NED2 | 20 | 1.0 M€ | -46 mil € | -2.3 M€ | 346 mil € |
+| 2037 | NED2 | 20 | 1.0 M€ | 146 mil € | -2.2 M€ | 324 mil € |
+| 2038 | NED2 | 20 | 998 mil € | 142 mil € | -2.1 M€ | 310 mil € |
+| 2039 | NED2 | 20 | 976 mil € | 125 mil € | -2.0 M€ | 295 mil € |
+| 2040 | NED2 | 20 | 1.0 M€ | 142 mil € | -1.8 M€ | 282 mil € |
+| 2041 | NED2 | 20 | 990 mil € | 85 mil € | -1.7 M€ | 264 mil € |
+| 2042 | NED2 | 20 | 989 mil € | 49 mil € | -1.7 M€ | 248 mil € |
+| 2043 | NED2 | 20 | 976 mil € | 13 mil € | -1.7 M€ | 233 mil € |
+| 2044 | NED2 | 20 | 968 mil € | -45 mil € | -1.5 M€ | 441 mil € |
+| 2045 | NED2 | 20 | 992 mil € | -80 mil € | -1.7 M€ | 410 mil € |
 
-### Wadi Barq FC (exterior) — Magnata impaciente
+### FC Clairmont (FRA2) — Tradicional
 
-Donos: Fundo soberano (Norte) (Fundo estatal) → 2030-05: Karim BouSayed (Bilionário)
+Donos: Romain Lamon (Família local) → 2030-07: Florian Dubon (Família local) → 2046-06: Kylian Dubet (Família local)
 
-Treinadores: 2027-06 Milan Petković → 2029-01 Milan Petković → 2029-07 Daniel Ashson → 2030-07 Kevin Mülel → 2031-07 Martin Dvořák → 2031-11 Kevin Mülel → 2032-03 Niklas Kuhner → 2032-07 Pablo Molón → 2033-01 Lewis Bradby → 2033-07 Santiago Moroya → 2033-11 Gustavo Barota → 2034-03 Gustavo Barota (actual: Gustavo Barota, gestor)
+Treinadores: 2028-03 Milan Petković → 2030-01 Tim Baustein → 2030-10 Gustavo Araares → 2035-06 Gustavo Salilho → 2037-11 Agustín Palón → 2043-06 Kyle Kemfield (actual: Kyle Kemfield, pressao_alta)
 
+- 2028-03: Kylian Dubeau despedido por resultados (6.º, esperado 1.º): indemnização de 1.42 M€
+- 2028-06: o dono retira-se; os herdeiros ficam com o clube
+- 2028-08: crise: aguenta, sem mudanças
 - 2028-12: dívida de 1.50× a receita: proibição de contratar até voltar a 1×
-- 2029-01: crise: o dono endivida o clube e despede o treinador
-- 2029-01: Milan Petković despedido por resultados (crise): indemnização de 0.72 M€
+- 2029-01: −3 pontos na época em curso (caixa/salários em atraso)
+- 2029-04: −9 pontos na época em curso (caixa/salários em atraso)
 - 2029-06: multa anual do limite de dívida (2% da receita)
-- 2029-07: crise: o dono endivida o clube e despede o treinador
-- 2029-07: Milan Petković despedido por resultados (crise): indemnização de 0.07 M€
-- 2030-05: −12 pontos na época em curso (administração)
-- 2030-05: entra em administração: −12 pontos, proibição de contratar até regularizar, 3 jogadores saem, dívida de 9.7 para 0.0 M€
-- 2030-05: vendido (administração) por 0.7 M€: Fundo soberano (Norte) → Karim BouSayed (bilionario); injecção 0.0 M€
-- 2030-07: crise: o dono endivida o clube e despede o treinador
-- 2030-07: Daniel Ashson despedido por resultados (crise): indemnização de 0.05 M€
-- 2030-11: −3 pontos na época em curso (caixa/salários em atraso)
-- 2031-02: −9 pontos na época em curso (caixa/salários em atraso)
-- 2031-06: começa a época com −9 pontos
-- 2031-07: crise: o dono endivida o clube e despede o treinador
-- 2031-07: Kevin Mülel despedido por resultados (crise): indemnização de 0.13 M€
-- 2031-11: Martin Dvořák despedido por resultados (12.º, esperado 4.º): indemnização de 0.03 M€
-- 2031-12: −3 pontos na época em curso (caixa/salários em atraso)
+- 2029-07: −9 pontos na época em curso (caixa/salários em atraso)
+- 2029-07: crise: aguenta, sem mudanças
+- 2029-10: −9 pontos na época em curso (caixa/salários em atraso)
+- 2029-12: −6 pontos na época em curso (recuperação judicial)
+- 2029-12: recuperação judicial: −6 pontos, proibição de contratar até 2030-02-01, dívida renegociada (2%, 12 anos)
+- 2030-01: Milan Petković despedido por resultados (18.º, esperado 3.º): indemnização de 191 mil €
+- 2030-04: −3 pontos na época em curso (caixa/salários em atraso)
+- 2030-06: multa anual do limite de dívida (2% da receita)
+- 2030-07: −12 pontos na época em curso (administração)
+- 2030-07: entra em administração: −12 pontos, proibição de contratar até regularizar, 3 jogadores saem, dívida de 26.9 para 3.4 M€
+- 2030-07: vendido (administração) por 1.7 M€: Lamon (herdeiros) → Florian Dubon (familia); injecção 0.7 M€
 
 | Época | Liga | Pos. | Receita | Resultado | Caixa | Dívida |
 |---|---|---:|---:|---:|---:|---:|
-| 2026 | KSA1 | 18 | 16.7 M€ | -2.7 M€ | 4.0 M€ | 0 mil € |
-| 2027 | KSA2 | 3 | 2.7 M€ | -7.5 M€ | 1.0 M€ | 2.1 M€ |
-| 2028 | KSA2 | 7 | 2.8 M€ | -5.9 M€ | 973 mil € | 7.2 M€ |
-| 2029 | KSA2 | 11 | 2.7 M€ | -3.5 M€ | -205 mil € | 0 mil € |
-| 2030 | KSA2 | 4 | 2.8 M€ | -2.5 M€ | -2.7 M€ | 0 mil € |
-| 2031 | KSA2 | 11 | 2.6 M€ | -1.2 M€ | -3.9 M€ | 0 mil € |
-| 2032 | KSA2 | 12 | 2.7 M€ | -786 mil € | -4.7 M€ | 0 mil € |
-| 2033 | KSA2 | 16 | 2.5 M€ | -678 mil € | -5.3 M€ | 0 mil € |
+| 2036 | FRA2 | 14 | 6.9 M€ | -1.2 M€ | 1.5 M€ | 16.1 M€ |
+| 2037 | FRA2 | 10 | 6.8 M€ | 756 mil € | 2.0 M€ | 15.8 M€ |
+| 2038 | FRA2 | 4 | 7.3 M€ | 1.8 M€ | 3.0 M€ | 15.0 M€ |
+| 2039 | FRA2 | 12 | 6.8 M€ | 2.3 M€ | 2.7 M€ | 12.4 M€ |
+| 2040 | FRA2 | 7 | 6.9 M€ | 2.4 M€ | 5.1 M€ | 12.4 M€ |
+| 2041 | FRA2 | 15 | 6.8 M€ | 1.9 M€ | 7.0 M€ | 12.4 M€ |
+| 2042 | FRA2 | 11 | 6.8 M€ | 1.6 M€ | 8.6 M€ | 12.4 M€ |
+| 2043 | FRA2 | 12 | 6.7 M€ | 1.3 M€ | 9.9 M€ | 12.4 M€ |
+| 2044 | FRA2 | 11 | 6.5 M€ | 619 mil € | 10.5 M€ | 12.4 M€ |
+| 2045 | FRA2 | 15 | 6.4 M€ | 160 mil € | 10.7 M€ | 12.4 M€ |
 
-### Nadi Bir Hajar (AFR1) — Analítico
+### FC Alderkerk (NED2) — Magnata impaciente
 
-Donos: Abdullah BouAmrani (Família local) → 2027-06: Bluestone Partners (Grupo de investimento) → 2032-06: Global Football Group (Grupo multi-clube) → 2038-06: Harbour Capital (Grupo de investimento) → 2043-06: Meridian Capital (Grupo de investimento)
+Donos: Joey de sen (Família local) → 2033-06: Harbour Partners (Grupo de investimento) → 2035-06: Crestview Capital (Grupo de investimento) → 2038-06: Joey van Vries (Família local) → 2042-06: Lars BosBerg (Família local) → 2044-06: Tim Visma (Bilionário)
 
-Treinadores: 2029-06 Niklas Sterel → 2033-06 Caio Nasujo → 2035-01 Franco Galega → 2038-06 Mathis Vinault → 2040-04 Lukas Schwarberg → 2041-07 Murilo Gouares → 2044-06 Yanis Marois (actual: Yanis Marois, formador)
+Treinadores: 2036-06 Michal Pokorák → 2037-06 Kevin DekDijk → 2038-06 Lewis Whitstone → 2039-12 Tobias Mülke → 2041-05 Matěj Svobera → 2042-06 Harry Holley → 2043-11 David Horý → 2044-06 Álvaro Casón → 2045-12 Lucas Marelo (actual: Lucas Marelo, ofensivo)
 
-- 2027-06: vendido (venda) por 18.1 M€: Abdullah BouAmrani → Bluestone Partners (investimento); injecção 0.6 M€, paga 1.1 M€ de dívida
-- 2027-06: muda de filosofia: Tradicional → Analítico
-- 2032-06: vendido (venda) por 17.3 M€: Bluestone Partners → Global Football Group (multiclube); injecção 1.1 M€, paga 0.2 M€ de dívida
-- 2035-01: Caio Nasujo despedido por resultados (20.º, esperado 7.º): indemnização de 0.05 M€
-- 2038-06: vendido (venda) por 20.5 M€: Global Football Group → Harbour Capital (investimento); injecção 1.1 M€
-- 2040-04: Mathis Vinault despedido por resultados (16.º, esperado 6.º): indemnização de 0.13 M€
-- 2041-07: Lukas Schwarberg sai por mútuo acordo (choque de filosofia: Analítico contra gestor): indemnização de 0.19 M€
-- 2043-06: vendido (maus resultados) por 25.5 M€: Harbour Capital → Meridian Capital (investimento); injecção 1.0 M€
-- 2044-06: Murilo Gouares despedido por justa causa (indisciplina): indemnização de 0.01 M€ — justa causa fraca: o treinador ganha o litígio
-
-| Época | Liga | Pos. | Receita | Resultado | Caixa | Dívida |
-|---|---|---:|---:|---:|---:|---:|
-| 2036 | AFR1 | 6 | 5.6 M€ | 1.1 M€ | 3.3 M€ | 0 mil € |
-| 2037 | AFR1 | 9 | 5.5 M€ | 1.1 M€ | 4.6 M€ | 0 mil € |
-| 2038 | AFR1 | 5 | 5.7 M€ | 564 mil € | 6.5 M€ | 0 mil € |
-| 2039 | AFR1 | 8 | 5.5 M€ | 844 mil € | 7.7 M€ | 0 mil € |
-| 2040 | AFR1 | 8 | 5.6 M€ | 498 mil € | 8.5 M€ | 0 mil € |
-| 2041 | AFR1 | 7 | 5.7 M€ | -225 mil € | 8.5 M€ | 0 mil € |
-| 2042 | AFR1 | 10 | 5.7 M€ | -71 mil € | 8.7 M€ | 0 mil € |
-| 2043 | AFR1 | 14 | 5.5 M€ | -48 mil € | 9.9 M€ | 0 mil € |
-| 2044 | AFR1 | 3 | 6.0 M€ | 61 mil € | 10.1 M€ | 0 mil € |
-| 2045 | AFR1 | 1 | 6.3 M€ | 359 mil € | 10.6 M€ | 0 mil € |
-
-### Azul Hanazawa (JPN1) — Magnata impaciente
-
-Donos: Kawasaki Shota (Bilionário)
-
-Treinadores: 2027-05 Morida Riku → 2028-01 Clément Lecet → 2028-11 Niklas Sterel → 2029-03 Federico Rinotti → 2029-06 Kostas Nikoakis → 2029-07 Raúl Villández → 2031-04 Federico Belone → 2031-06 Takada Kenta → 2031-11 Matěj Svobák → 2032-04 Felix Hofz → 2032-06 Caio Ribinho → 2033-02 Stefano Dellani → 2034-11 Rodrigo Rosota → 2035-03 Thomas Kemson → 2036-01 Kyle Cartfield → 2036-10 Facundo Benega → 2037-02 Théo Lamand → 2037-10 Santiago Ortales → 2038-02 Santiago Ortales → 2038-10 Erik Strandlund → 2039-04 Erik Strandlund → 2039-10 Fabian Zimmann → 2040-04 Christos Karamiou → 2040-11 Oliver Whitley → 2041-12 Diego Tavedo → 2042-05 Dor Ben kai → 2043-02 Adrián Morados → 2043-06 Michał Dąbalski → 2043-11 Murilo Araares → 2044-04 Matěj Svobák → 2044-10 Luca Belucci → 2045-05 Kevin Bauel → 2045-10 Gustavo Gouujo → 2046-02 Wesley Bareira (actual: Wesley Bareira, contra_ataque)
-
-- 2027-05: Fujimura Yuto despedido por resultados (19.º, esperado 5.º): indemnização de 0.39 M€
-- 2028-01: Morida Riku despedido por resultados (2.º, esperado 1.º): indemnização de 1.16 M€
-- 2028-06: muda de filosofia: Comprador de estrelas → Magnata impaciente
-- 2028-11: Clément Lecet despedido por resultados (2.º, esperado 2.º): indemnização de 0.26 M€
-- 2029-03: Niklas Sterel despedido por resultados (2.º, esperado 2.º): indemnização de 0.10 M€
-- 2029-07: crise: o dono endivida o clube e despede o treinador
-- 2029-07: Kostas Nikoakis despedido por resultados (crise): indemnização de 0.55 M€
-- 2031-04: Raúl Villández despedido por resultados (12.º, esperado 12.º): indemnização de 0.46 M€
-- 2031-11: Takada Kenta despedido por resultados (20.º, esperado 10.º): indemnização de 0.73 M€
-- 2032-04: Matěj Svobák despedido por resultados (19.º, esperado 10.º): indemnização de 0.16 M€
-- 2033-02: Caio Ribinho despedido por resultados (2.º, esperado 1.º): indemnização de 0.42 M€
-- 2034-11: Stefano Dellani despedido por resultados (14.º, esperado 12.º): indemnização de 0.23 M€
-- 2035-03: Rodrigo Rosota despedido por resultados (14.º, esperado 12.º): indemnização de 0.20 M€
-- 2036-01: Thomas Kemson despedido por resultados (2.º, esperado 12.º): indemnização de 0.32 M€
-- 2036-10: Kyle Cartfield despedido por resultados (4.º, esperado 8.º): indemnização de 0.07 M€
-- 2037-02: Facundo Benega despedido por resultados (12.º, esperado 8.º): indemnização de 1.14 M€
-- 2037-10: Théo Lamand despedido por resultados (12.º, esperado 7.º): indemnização de 0.74 M€
-- 2038-02: Santiago Ortales despedido por resultados (5.º, esperado 7.º): indemnização de 0.22 M€
+- 2028-06: muda de filosofia: Formador → Tradicional
+- 2033-06: vendido (escândalo: venda forçada) por 1.8 M€: Joey de sen → Harbour Partners (investimento); injecção 0.2 M€
+- 2034-06: muda de filosofia: Tradicional → Analítico
+- 2035-06: vendido (venda) por 2.9 M€: Harbour Partners → Crestview Capital (investimento); injecção 0.2 M€, paga 0.1 M€ de dívida
+- 2037-06: Michal Pokorák despedido por justa causa (indisciplina): indemnização de 3 mil €
+- 2038-06: Kevin DekDijk despedido por resultados (escolha do dono novo): indemnização de 91 mil €
+- 2038-06: vendido (maus resultados) por 2.4 M€: Crestview Capital → Joey van Vries (familia); injecção 0.3 M€, paga 0.5 M€ de dívida
+- 2038-06: muda de filosofia: Analítico → Formador
+- 2039-12: Lewis Whitstone despedido por resultados (17.º, esperado 3.º): indemnização de 47 mil €
+- 2041-05: Tobias Mülke despedido por resultados (14.º, esperado 3.º): indemnização de 35 mil €
+- 2042-06: vendido (escândalo: venda forçada) por 1.8 M€: Joey van Vries → Lars BosBerg (familia); injecção 0.2 M€, paga 0.1 M€ de dívida
+- 2043-11: Harry Holley despedido por resultados (15.º, esperado 4.º): indemnização de 20 mil €
+- 2044-06: David Horý despedido por resultados (escolha do dono novo): indemnização de 31 mil €
+- 2044-06: vendido (maus resultados) por 3.2 M€: Lars BosBerg → Tim Visma (bilionario); injecção 0.2 M€, paga 0.0 M€ de dívida
+- 2044-06: muda de filosofia: Formador → Magnata impaciente
+- 2045-12: Álvaro Casón despedido por resultados (10.º, esperado 8.º): indemnização de 47 mil €
 
 | Época | Liga | Pos. | Receita | Resultado | Caixa | Dívida |
 |---|---|---:|---:|---:|---:|---:|
-| 2036 | JPN1 | 11 | 21.6 M€ | 2.1 M€ | 15.6 M€ | 0 mil € |
-| 2037 | JPN1 | 8 | 19.3 M€ | 483 mil € | 17.1 M€ | 0 mil € |
-| 2038 | JPN1 | 13 | 17.1 M€ | -265 mil € | 17.7 M€ | 0 mil € |
-| 2039 | JPN1 | 4 | 18.0 M€ | 845 mil € | 19.5 M€ | 0 mil € |
-| 2040 | JPN1 | 5 | 20.4 M€ | 2.5 M€ | 22.8 M€ | 0 mil € |
-| 2041 | JPN1 | 1 | 20.0 M€ | 1.9 M€ | 25.6 M€ | 0 mil € |
-| 2042 | JPN1 | 6 | 21.7 M€ | 3.2 M€ | 29.9 M€ | 0 mil € |
-| 2043 | JPN1 | 6 | 19.2 M€ | -562 mil € | 30.3 M€ | 0 mil € |
-| 2044 | JPN1 | 16 | 17.5 M€ | -3.4 M€ | 27.9 M€ | 0 mil € |
-| 2045 | JPN1 | 6 | 19.0 M€ | -1.9 M€ | 26.9 M€ | 0 mil € |
+| 2036 | NED1 | 18 | 1.5 M€ | -479 mil € | 660 mil € | 1.0 M€ |
+| 2037 | NED2 | 7 | 1.1 M€ | -403 mil € | 331 mil € | 1.1 M€ |
+| 2038 | NED2 | 4 | 1.2 M€ | -498 mil € | 360 mil € | 802 mil € |
+| 2039 | NED2 | 5 | 1.3 M€ | -117 mil € | 374 mil € | 841 mil € |
+| 2040 | NED2 | 14 | 1.0 M€ | -230 mil € | 238 mil € | 843 mil € |
+| 2041 | NED2 | 7 | 1.1 M€ | -109 mil € | 299 mil € | 932 mil € |
+| 2042 | NED2 | 8 | 1.1 M€ | -62 mil € | 438 mil € | 111 mil € |
+| 2043 | NED2 | 14 | 1.0 M€ | -121 mil € | 356 mil € | 93 mil € |
+| 2044 | NED2 | 17 | 973 mil € | -165 mil € | 533 mil € | 0 mil € |
+| 2045 | NED2 | 15 | 1.0 M€ | -150 mil € | 541 mil € | 0 mil € |
+
+### Real Pine Falls (USA1) — Magnata impaciente
+
+Donos: Thomas Ashton (Bilionário)
+
+Treinadores: 2027-01 Jack Lingstone → 2030-06 Javier Serero → 2032-07 Bastien Morand → 2033-12 Martin Pokorný → 2036-11 Jack Whitford → 2037-06 Harry Ashham → 2037-12 Kyle Cartfield → 2038-07 Jordan Dalson → 2039-06 Adrián Escados → 2039-12 Renan Bareira → 2041-08 Florian Kelhardt → 2042-08 Tariq BouAmrani → 2044-05 Matías Molero → 2044-11 Thiago Tavança → 2045-09 Théo Faveau → 2046-10 Brayan Benales (actual: Brayan Benales, pressao_alta)
+
+- 2027-01: Charlie Lingwood despedido por justa causa (escândalo): indemnização de 91 mil €
+- 2032-07: Javier Serero despedido por resultados (22.º, esperado 10.º): indemnização de 223 mil €
+- 2036-11: Martin Pokorný despedido por resultados (18.º, esperado 5.º): indemnização de 60 mil €
+- 2037-06: Jack Whitford despedido por resultados (25.º, esperado 5.º): indemnização de 499 mil €
+- 2038-07: Kyle Cartfield despedido por resultados (18.º, esperado 6.º): indemnização de 834 mil €
+- 2039-06: Jordan Dalson despedido por resultados (28.º, esperado 8.º): indemnização de 577 mil €
+- 2041-08: Renan Bareira despedido por resultados (19.º, esperado 9.º): indemnização de 152 mil €
+- 2042-08: Florian Kelhardt despedido por resultados (18.º, esperado 11.º): indemnização de 516 mil €
+- 2044-05: Tariq BouAmrani despedido por resultados (17.º, esperado 10.º): indemnização de 609 mil €
+- 2044-11: Matías Molero despedido por resultados (23.º, esperado 10.º): indemnização de 721 mil €
+- 2045-09: Thiago Tavança despedido por resultados (27.º, esperado 14.º): indemnização de 489 mil €
+- 2046-10: Théo Faveau despedido por resultados (22.º, esperado 18.º): indemnização de 370 mil €
+
+| Época | Liga | Pos. | Receita | Resultado | Caixa | Dívida |
+|---|---|---:|---:|---:|---:|---:|
+| 2037 | USA1 | 16 | 21.1 M€ | 4.6 M€ | 37.2 M€ | 0 mil € |
+| 2038 | USA1 | 12 | 21.2 M€ | 4.3 M€ | 44.2 M€ | 0 mil € |
+| 2039 | USA1 | 19 | 21.1 M€ | 2.9 M€ | 49.8 M€ | 0 mil € |
+| 2040 | USA1 | 6 | 22.1 M€ | 3.4 M€ | 55.9 M€ | 0 mil € |
+| 2041 | USA1 | 13 | 22.1 M€ | 2.8 M€ | 61.5 M€ | 0 mil € |
+| 2042 | USA1 | 13 | 21.5 M€ | 1.1 M€ | 65.4 M€ | 0 mil € |
+| 2043 | USA1 | 19 | 21.4 M€ | -230 mil € | 67.9 M€ | 0 mil € |
+| 2044 | USA1 | 22 | 21.0 M€ | -3.5 M€ | 67.2 M€ | 0 mil € |
+| 2045 | USA1 | 29 | 20.3 M€ | -3.2 M€ | 66.6 M€ | 0 mil € |
+| 2046 | USA1 | 23 | 20.8 M€ | -1.1 M€ | 68.2 M€ | 0 mil € |
 
 ## 6. Benchmark, memória e save (Node; tablet estimado × 3 a 6)
 
 | Medida | Valor | Alvo |
 |---|---|---|
-| Gerar o mundo | 656 ms | — |
-| Semana mundial (média / p99 / máx.) | 93 / 227 / 288 ms → tablet 280–560 ms, pior 1.73 s | < 2 s |
-| Semanas de janela de transferências (Jul, Ago, Jan; média / máx.) | 82 / 248 ms → tablet pior 1.49 s | < 5 s |
-| 20 épocas | 100 s | — |
-| Memória (heap, depois da recolha de lixo; correr com node --expose-gc): dados → fim | 12.3 → 63.2 MB | — |
-| Save (gzip): jogadores 4714 KB + clubes 235 KB + balanços 1320 KB + eventos 335 KB + treinadores 208 KB + staff 366 KB + donos 53 KB + histórico 1016 KB | 8.1 MB | — |
+| Gerar o mundo | 838 ms | — |
+| Semana mundial (média / p99 / máx.) | 95 / 249 / 297 ms → tablet 286–573 ms, pior 1.78 s | < 2 s |
+| Semanas de janela de transferências (Jul, Ago, Jan; média / máx.) | 84 / 297 ms → tablet pior 1.78 s | < 5 s |
+| 20 épocas | 102 s | — |
+| Memória (heap, depois da recolha de lixo; correr com node --expose-gc): dados → fim | 11.4 → 62.4 MB | — |
+| Save (gzip): jogadores 4705 KB + clubes 236 KB + balanços 1327 KB + eventos 292 KB + treinadores 198 KB + staff 366 KB + donos 53 KB + histórico 1016 KB | 8.0 MB | — |
