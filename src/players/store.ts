@@ -37,6 +37,9 @@ export class PlayerStore {
   nasc!: Int32Array;
   /** Potencial: OVR máximo na posição natural (1–100). */
   pot!: Uint8Array;
+  /** Contrato mínimo (Prompt 3): salário anual (€) e fim (dia absoluto). 0 = sem contrato. */
+  salario!: Int32Array;
+  fimContrato!: Int32Array;
   /** Clube (índice no mundo); −1 sem clube; −2 aposentado. */
   clube!: Int32Array;
   posNat!: Uint8Array;
@@ -123,6 +126,8 @@ export class PlayerStore {
     this.amarelos = g(this.amarelos, Uint8Array);
     this.indisponivelAte = g(this.indisponivelAte, Int32Array);
     this.ultimoJogo = g(this.ultimoJogo, Int32Array);
+    this.salario = g(this.salario, Int32Array);
+    this.fimContrato = g(this.fimContrato, Int32Array);
     for (const k of ['eJogos', 'eTitular', 'eMinutos', 'eGolos', 'eAssist', 'eAmarelos', 'eVermelhos', 'eLesoes', 'eRemates', 'eSofridos'] as const) this[k] = g(this[k], Uint16Array);
     this.eNotas = g(this.eNotas, Int32Array);
     this.minMes = g(this.minMes, Uint16Array);

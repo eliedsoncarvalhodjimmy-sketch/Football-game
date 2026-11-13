@@ -46,6 +46,7 @@ export class Simulador {
   private abrir(grupo: string, ano: number) {
     const t = new Temporada(this.w, grupo, ano);
     this.temporadas.set(grupo, t);
+    this.w.economia?.abrirEpoca(t);
     for (const [id, c] of t.ligas) {
       const fav = [...c.clubes].sort((x, y) => this.w.reputacao[y] - this.w.reputacao[x]);
       this.inicios.push({ grupo, epoca: ano, liga: id, top1: fav[0], top3: fav.slice(0, 3) });
@@ -64,10 +65,11 @@ export class Simulador {
           const comMinutos = m && MOTOR.modo_forca === 'onze';
           evoluirMes(this.w, st, d, {
             parteMinutos: comMinutos ? (i) => Math.min(1, st.minMes[i] / EVOLUCAO.minutos_mes_referencia) : parteMinutosPorOrdem(this.w, st),
-            desenvolvimentoTreinador: m ? (c) => m.treinadores[c]?.atributos.desenvolvimento ?? 10 : () => 10,
+            desenvolvimentoTreinador: m ? (c) => (m.treinadores[c]?.atributos.desenvolvimento ?? 10) + (this.w.economia?.bonusTreino(c) ?? 0) : () => 10,
           });
           st.minMes.fill(0);
           m?.cache.limpar();
+          this.w.economia?.mes(d);
         }
       }
     }
@@ -79,6 +81,7 @@ export class Simulador {
       if (local < 52 && t.semana === local) out.push(...t.simularSemana());
       if (t.semana >= 52) this.fechar(g, t);
     }
+    this.w.economia?.semana(this.segunda, out);
     this.segunda += 7;
     return out;
   }
@@ -100,6 +103,7 @@ export class Simulador {
     const reg = fecharEpoca(this.w, t, this.guardarJogos, this.historico);
     this.historico.push(reg);
     podar(this.historico, this.w.epoca);
+    this.w.economia?.fecharEpoca(t, reg);
     this.aoFechar?.(t, reg);
     this.abrir(grupo, t.ano + 1);
     return reg;

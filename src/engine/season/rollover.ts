@@ -234,6 +234,7 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
         .map((j) => ({ j, nome: st.nomes[j], clube: st.clube[j], golos: st.eGolos[j], assist: st.eAssist[j], jogos: st.eJogos[j], nota: st.eJogos[j] ? st.eNotas[j] / st.eJogos[j] / 10 : 0 }));
       st.zerarEstatisticas(js);
     }
+    w.economia?.renovarContratos(t, dia);
     const rngJ = Rng.de(w.semente, 'renovacao', grupo, ep);
     for (const li of t.pacotes.flatMap((p) => p.ligas)) for (const c of w.ligas[li].clubes) renovarPlantel(w, w.jogadores, c, dia, rngJ, ep);
   }

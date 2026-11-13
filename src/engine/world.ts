@@ -6,6 +6,7 @@ import { completarPacote, novoContexto, clamp, type OpcoesGeracao, type Contexto
 import { FORCA } from '../config/forca.ts';
 import { afinarPlantel } from '../players/afinacao.ts';
 import { registarReferencia } from '../players/evolucao.ts';
+import { Economia } from '../economia/motorEconomico.ts';
 import { Rng } from '../core/rng.ts';
 import { vagasIniciais, type EntradaLiga } from './season/qualify.ts';
 import { PlayerStore } from '../players/store.ts';
@@ -74,6 +75,8 @@ export class World {
   ovrReferencia?: Float32Array;
   /** Motor de jogo (treinadores, cache de ratings). */
   motor: MotorMundo | null = null;
+  /** Economia dos clubes (Prompt 3). */
+  economia: Economia | null = null;
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -171,6 +174,7 @@ export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World
   w.recalcularForca();
   w.qualificados = vagasIniciais(w);
   if (op.jogadores !== false) gerarJogadoresMundo(w, d, op.afinar !== false);
+  if (op.jogadores !== false && op.economia !== false) iniciarEconomia(w, d);
   return w;
 }
 
@@ -184,4 +188,19 @@ export function gerarJogadoresMundo(w: World, d: Dados, afinar = true) {
   w.motor = new MotorMundo(gerarTreinadores(w));
   if (afinar) for (let c = 0; c < w.clubes.length; c++) afinarPlantel(w, c, w.motor.treinadores[c], dia + 40, Rng.de(w.semente, 'afinacao', w.clubes[c].id));
   for (let c = 0; c < w.clubes.length; c++) registarReferencia(w, st, c);
+}
+
+/** Economia (Prompt 3): estádios e rivalidades editáveis (estadios.csv, rivalidades.csv) e finanças iniciais (financas.csv). */
+export function iniciarEconomia(w: World, d: Dados) {
+  for (const p of d.pacotes) {
+    for (const e of p.estadios ?? []) {
+      const i = w.clubes.findIndex((c) => c.id === e.clube);
+      if (i >= 0 && Number(e.capacidade) > 0) { w.clubes[i].capacidade = Number(e.capacidade); if (e.nome) w.clubes[i].estadio = e.nome; }
+    }
+  }
+  w.economia = new Economia(w, d.pacotes.flatMap((p) => p.financas ?? []));
+  for (const p of d.pacotes) for (const r of p.rivalidades ?? []) {
+    const a = w.clubes.findIndex((c) => c.id === r.clube_a), b = w.clubes.findIndex((c) => c.id === r.clube_b);
+    if (a >= 0 && b >= 0) w.economia.rivalidade.set(a < b ? `${a}|${b}` : `${b}|${a}`, Math.max(1, Math.min(3, Number(r.intensidade) || 2)));
+  }
 }

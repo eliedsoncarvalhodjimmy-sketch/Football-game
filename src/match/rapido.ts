@@ -227,7 +227,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
     if (rng.chance(pl)) {
       let u = rng.next();
       const g = E.gravidade.find((x) => (u -= x.p) < 0) ?? E.gravidade[0];
-      st.indisponivelAte[j] = dia + rng.int(g.dias[0], g.dias[1]);
+      st.indisponivelAte[j] = dia + Math.max(1, Math.round(rng.int(g.dias[0], g.dias[1]) * (w.economia?.factorLesao(lado.clube) ?? 1)));
       st.lesaoTipo[j] = E.gravidade.indexOf(g) + 1;
       st.lesaoDias[j] = st.indisponivelAte[j] - dia;
       st.eLesoes[j]++;

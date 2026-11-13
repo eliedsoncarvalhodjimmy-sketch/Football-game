@@ -13,6 +13,8 @@ export interface OpcoesGeracao {
   modo: 'teste' | 'gerado';
   /** Gerar jogadores (Fase 2). Por defeito sim. */
   jogadores?: boolean;
+  /** Economia dos clubes (Prompt 3). Por defeito sim (precisa dos jogadores). */
+  economia?: boolean;
 }
 
 export function bandaReputacao(l: RegrasLiga): [number, number] {

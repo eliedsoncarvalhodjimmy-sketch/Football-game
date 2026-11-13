@@ -102,6 +102,8 @@ export async function carregarDados(ds: DataSource): Promise<Dados> {
     contagens[id] = {};
     let clubes: Clube[] = [];
     let jogadores: Record<string, string>[] = [];
+    const extra: Record<string, Record<string, string>[]> = {};
+    for (const f of ['financas', 'estadios', 'rivalidades']) { const t = await ds.lerTexto(id, `${f}.csv`); extra[f] = t ? parseCsv(t) : []; }
     for (const f of ['clubes', 'players', 'treinadores', 'staff', 'donos']) {
       const t = await ds.lerTexto(id, `${f}.csv`);
       const linhas = t ? parseCsv(t) : [];
@@ -111,7 +113,7 @@ export async function carregarDados(ds: DataSource): Promise<Dados> {
     }
     const overrides = json<Record<string, Partial<Clube>>>(await ds.lerTexto(id, 'overrides.json') ?? '{}', `${id}/overrides.json`, erros) ?? {};
     tacas.sort((a, b) => manifest.tacas.indexOf(a.id) - manifest.tacas.indexOf(b.id));
-    pacotes.push({ manifest, ligas, tacas, clubes, overrides, jogadores });
+    pacotes.push({ manifest, ligas, tacas, clubes, overrides, jogadores, financas: extra.financas, estadios: extra.estadios, rivalidades: extra.rivalidades });
   }
   return { pacotes, continental, erros, contagens };
 }

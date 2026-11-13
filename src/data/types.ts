@@ -167,4 +167,9 @@ export interface Pacote {
   overrides: Record<string, Partial<Clube>>;
   /** Linhas de players.csv (manual > real > gerado). */
   jogadores?: Record<string, string>[];
+  /** Linhas de financas.csv (Prompt 3): valores iniciais editáveis por clube. */
+  financas?: Record<string, string>[];
+  /** Linhas de estadios.csv e rivalidades.csv. */
+  estadios?: Record<string, string>[];
+  rivalidades?: Record<string, string>[];
 }
