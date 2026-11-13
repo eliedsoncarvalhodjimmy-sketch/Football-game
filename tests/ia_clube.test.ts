@@ -158,3 +158,21 @@ describe('duas épocas com a IA do clube ligada', () => {
     }
   }, 180000);
 });
+
+describe('integridade do mercado de treinadores', () => {
+  it('depois de 2 épocas, cada treinador empregado está num só clube e não está na lista de livres', async () => {
+    const v = await mundo();
+    const sim = new Simulador(v);
+    sim.simularEpoca(); sim.simularEpoca();
+    const ts = v.motor!.treinadores;
+    const vistos = new Map<object, number>();
+    for (let c = 0; c < ts.length; c++) {
+      if (v.liga[c] < 0) continue;
+      expect(ts[c].clube).toBe(c);
+      expect(vistos.has(ts[c])).toBe(false);
+      vistos.set(ts[c], c);
+    }
+    const livres = new Set(v.economia!.mercadoT.livres);
+    for (const t of vistos.keys()) expect(livres.has(t as never)).toBe(false);
+  }, 180000);
+});

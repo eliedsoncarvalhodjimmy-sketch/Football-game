@@ -115,7 +115,7 @@ export class MercadoTreinadores {
         const cl = x.t.clausula ?? 0;
         this.e.clubes.lancar(c, 'indemnizacoes', cl);
         this.e.clubes.lancar(x.origem, 'outras', cl);
-        this.sair(x.origem, x.t, dia, 'saiu_para_outro');
+        this.sair(x.origem, x.t, dia, 'saiu_para_outro', false);
         this.contratar(c, x.t, dia, rng);
         this.e.registar(dia, x.origem, 'treinador_sai', `${x.t.nome} sai para o ${w.clubes[c].nome} (cláusula de ${(cl / 1e6).toFixed(1)} M€)`, cl);
         this.e.ia.vaga(x.origem, dia, Rng.de(w.semente, 'vaga', w.clubes[x.origem].id, dia));
@@ -136,6 +136,8 @@ export class MercadoTreinadores {
 
   contratar(c: number, t: Treinador, dia: number, rng: Rng) {
     const w = this.w;
+    const i = this.livres.indexOf(t);
+    if (i >= 0) this.livres.splice(i, 1);
     t.clube = c;
     t.estado = 'empregado';
     t.moral = 70;
@@ -154,7 +156,7 @@ export class MercadoTreinadores {
   }
 
   /** Tira o treinador do clube (vai para os livres ou reforma-se). */
-  sair(c: number, t: Treinador, dia: number, motivo: MotivoSaida) {
+  sair(c: number, t: Treinador, dia: number, motivo: MotivoSaida, paraLivres = true) {
     const ult = t.carreira?.at(-1);
     if (ult && ult.clube === c && ult.ate === undefined) { ult.ate = dia; ult.saida = motivo; }
     t.clube = -1;
@@ -163,7 +165,7 @@ export class MercadoTreinadores {
     t.salario = 0;
     t.moral = 60;
     if (motivo === 'resultados' || motivo === 'justa_causa') t.reputacao = clamp((t.reputacao ?? 50) - 3, 1, 100);
-    this.livres.push(t);
+    if (paraLivres) this.livres.push(t);
   }
 
   /** Despedimento: indemnização pelo motivo, imagem do clube junto dos treinadores, novo treinador. */

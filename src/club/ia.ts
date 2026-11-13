@@ -185,6 +185,8 @@ export class IAClubes {
     const ts = w.motor!.treinadores;
     for (let c = 0; c < this.confianca.length; c++) {
       if (w.liga[c] < 0) continue;
+      // Segurança: um clube sem treinador próprio (ex.: foi-lhe levado) contrata outro.
+      if (ts[c].clube !== c) { e.mercadoT.procurar(c, dia, Rng.de(w.semente, 'vaga-mes', w.clubes[c].id, dia)); continue; }
       const tr = ts[c];
       const rng = Rng.de(w.semente, 'ia-mes', w.clubes[c].id, dia);
       const d = e.donos[c];

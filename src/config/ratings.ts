@@ -101,7 +101,7 @@ export const MODIFICADORES = {
   treinador: { tactica: 0.003, motivacao: 0.002, adequacao: 0.03, limite: 0.05 },
   /** Forma da época do clube (o "choque de forma" da Fase 1, σ em fracção da força). Fica fora do limite total:
    *  é o nível do clube na época, não um modificador do jogo. */
-  forma_epoca: { desvio: 0.1, limite: 0.2 },
+  forma_epoca: { desvio: 0.108, limite: 0.2 },
   /** Rivalidade: mais variância nos golos esperados (sem mudar a média) e mais cartões. */
   rivalidade: { desvio_xg: 0.15, cartoes: 1.3 },
   /** Factor casa extra: estádio cheio (até) e adversário de outra confederação. */
