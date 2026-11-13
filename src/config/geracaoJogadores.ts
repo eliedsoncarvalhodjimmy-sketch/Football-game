@@ -7,6 +7,9 @@
 import type { Posicao } from './papeis.ts';
 
 export const GERACAO_JOGADORES = {
+  /** Reposição ancorada (Bloco C): os novos jogadores compensam a deriva da média do plantel face à da geração
+   *  (relativa ao nível do clube): alvo −= ganho × deriva, deriva limitada a ±maximo. */
+  reposicao_ancora: { ganho: 2, maximo: 8 },
   ovr_base: 35,
   ovr_por_forca: 0.6,
   /** Composição do plantel (25): 3 GR, 8 defesas, 8 médios, 6 avançados. "ED|EE" = um dos dois lados. */

@@ -7,6 +7,7 @@ import { IDX } from '../config/atributos.ts';
 import { IDX_PAPEL, POSICOES } from '../config/papeis.ts';
 import { MODIFICADORES as M } from '../config/ratings.ts';
 import { ESTADO as E } from '../config/estado.ts';
+import { EFEITOS_TREINADOR as ET } from '../config/treinadores.ts';
 import { CANSACO_INSTRUCOES } from '../config/tacticas.ts';
 import { RAPIDO } from '../config/motor.ts';
 import { golosEsperados, sortearGolos } from '../engine/match/quickSim.ts';
@@ -67,7 +68,8 @@ export function modificadores(w: World, st: PlayerStore, c: number, t: Treinador
 export function prepararLado(w: World, c: number, dia: number, rng: Rng): Lado {
   const st = w.jogadores!;
   const t = w.motor!.treinadores[c];
-  const escolha = escolherOnze(st, w.plantel[c], t, dia, rng, undefined, w.motor!.cache);
+  const sug = c === w.motor!.clubeUtilizador ? w.motor!.consumirSugestao(st, w.plantel[c], dia, rng) : null;
+  const escolha = sug ? sug.escolha : escolherOnze(st, w.plantel[c], t, dia, rng, undefined, w.motor!.cache);
   const ratings = w.motor!.cache.obter(c, st, escolha.onze);
   const { total, parcelas } = modificadores(w, st, c, t, escolha, dia);
   const corr = w.motor!.correcao[c] ?? 0;
@@ -197,7 +199,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
     }
   }
   // Cartões (mais com rivalidade e com treinador pouco disciplinador).
-  const fCart = (rival ? M.rivalidade.cartoes : 1) * (1 + (10 - t.atributos.disciplina) * 0.02);
+  const fCart = (rival ? M.rivalidade.cartoes : 1) * (1 + (10 - t.atributos.disciplina) * ET.cartoes_por_disciplina);
   const nAm = rng.poisson(RAPIDO.amarelos_por_equipa * fCart);
   for (let k = 0; k < nAm; k++) {
     const p = escolherPonderado(rng, parts, (x) => pCartao.get(x.j)!);
@@ -216,6 +218,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
   for (const j of w.plantel[lado.clube]) if (st.suspensao[j] > 0 && !jogaram.has(j) && !r.vermelhos.includes(j)) st.suspensao[j]--;
   // Lesões, condição, notas, moral, forma, entrosamento, estatísticas.
   const res = golos > sofridos ? 1 : golos < sofridos ? -1 : 0;
+  const refMoral = E.moral_inicial + (t.atributos.gestao - 10) * ET.moral_por_gestao;
   const fCansaco = 1 + Math.max(0, lado.escolha.onze.instrucoes.pressao) * CANSACO_INSTRUCOES.pressao + Math.max(0, lado.escolha.onze.instrucoes.ritmo) * CANSACO_INSTRUCOES.ritmo;
   for (const p of parts) {
     const j = p.j;
@@ -234,7 +237,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
     st.ultimoJogo[j] = dia;
     st.ritmo[j] = Math.min(100, st.ritmo[j] + 10);
     st.entrosamento[j] = Math.min(100, st.entrosamento[j] + 3);
-    const dm = E.moral_por_resultado * res - E.moral_reversao * (st.moral[j] - E.moral_inicial);
+    const dm = E.moral_por_resultado * res * (res < 0 ? 1 - (t.atributos.gestao - 10) * ET.derrota_por_gestao : 1) - E.moral_reversao * (st.moral[j] - refMoral);
     const base = Math.floor(dm);
     st.moral[j] = clamp(st.moral[j] + base + (rng.next() < dm - base ? 1 : 0), 1, 20);
     // Nota: base + resultado + golos e assistências + golos sofridos (defesas e GR), com variância pela consistência.

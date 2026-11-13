@@ -71,6 +71,7 @@ export class Simulador {
         }
       }
     }
+    this.w.motor?.semana();
     for (const [g, t] of [...this.temporadas]) {
       const local = Math.round((this.segunda - t.base) / 7);
       if (local < 0) continue; // ainda não começou (ex.: ano civil antes de Janeiro de 2027)

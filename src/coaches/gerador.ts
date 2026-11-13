@@ -20,7 +20,7 @@ export function gerarTreinador(w: World, c: number, rng: Rng, id = `${w.clubes[c
   atributos.adaptabilidade = clamp(rng.normal(10.5, 4));
   return {
     id, nome: nomePessoa(w.clubes[c].pais, rng), pais: w.clubes[c].pais, clube: c, perfil: perfil.id, atributos,
-    formacoes: [...perfil.formacoes], instrucoes: { ...perfil.instrucoes }, papeis: {}, origem: 'gerado',
+    formacoes: [...perfil.formacoes], instrucoes: { ...perfil.instrucoes }, papeis: { ...perfil.papeis }, origem: 'gerado',
   };
 }
 

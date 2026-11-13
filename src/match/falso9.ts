@@ -47,6 +47,7 @@ export function prepararPlantel(w: World, c: number, papel: 'pl_f9' | 'pl_fin', 
 export function correrFalso9(w: World, c: number, adversario: number, adaptabilidade: number, n: number, dia: number, formacoes = ['4-3-3F9', '4-3-3', '4-4-2']): ResultadoFalso9 {
   const t = w.motor!.treinadores[c];
   t.formacoes = formacoes;
+  t.papeis = {};
   t.atributos.adaptabilidade = adaptabilidade;
   const soma: EstatEquipa = { golos: 0, remates: 0, aBaliza: 0, xg: 0, posses: 0, ataques: 0, progressoesGanhas: 0, progressoesPerdidas: 0, ocasioesCriadas: 0, grandesOcasioes: 0, rematesInteriores: 0, perdasDoNove: 0, faltas: 0, amarelos: 0, vermelhos: 0, cantos: 0, penaltis: 0 };
   let mudou = 0, xg = 0, plano = '', sofridos = 0;

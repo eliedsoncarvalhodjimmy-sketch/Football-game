@@ -214,6 +214,54 @@ export class PlayerStore {
   }
 
   /** Bytes ocupados pelos arrays tipados (capacidade alocada). */
+  /** Campos gravados (os derivados — adequação, OVR, adeqMaxPos — recalculam-se ao carregar). */
+  private static readonly DERIVADOS = new Set(['adeq', 'ovr', 'adeqMaxPos']);
+
+  /** Gravação binária: cabeçalho JSON (textos e campos) + blocos dos arrays, cortados a n jogadores. */
+  exportar(): Uint8Array {
+    const campos: { nome: string; k: number; bytes: number }[] = [];
+    const blocos: Uint8Array[] = [];
+    for (const [nome, v] of Object.entries(this)) {
+      if (!ArrayBuffer.isView(v) || PlayerStore.DERIVADOS.has(nome)) continue;
+      const a = v as Uint8Array;
+      const k = a.length / this.cap;
+      const fatia = new Uint8Array(a.buffer, a.byteOffset, this.n * k * a.BYTES_PER_ELEMENT);
+      campos.push({ nome, k, bytes: fatia.byteLength });
+      blocos.push(fatia);
+    }
+    const cab = new TextEncoder().encode(JSON.stringify({ n: this.n, ids: this.ids.slice(0, this.n), nomes: this.nomes.slice(0, this.n), paises: this.paises, campos }));
+    let total = 4 + cab.length;
+    total += (8 - (total % 8)) % 8;
+    const inicio = total;
+    for (const b of blocos) total += b.byteLength + ((8 - (b.byteLength % 8)) % 8);
+    const out = new Uint8Array(total);
+    new DataView(out.buffer).setUint32(0, cab.length, true);
+    out.set(cab, 4);
+    let pos = inicio;
+    for (const b of blocos) { out.set(b, pos); pos += b.byteLength + ((8 - (b.byteLength % 8)) % 8); }
+    return out;
+  }
+
+  static importar(buf: Uint8Array): PlayerStore {
+    const nc = new DataView(buf.buffer, buf.byteOffset).getUint32(0, true);
+    const cab = JSON.parse(new TextDecoder().decode(buf.subarray(4, 4 + nc))) as { n: number; ids: string[]; nomes: string[]; paises: string[]; campos: { nome: string; k: number; bytes: number }[] };
+    const st = new PlayerStore(Math.max(16, cab.n));
+    let pos = 4 + nc;
+    pos += (8 - (pos % 8)) % 8;
+    for (const c of cab.campos) {
+      const dest = (st as unknown as Record<string, Uint8Array>)[c.nome];
+      new Uint8Array(dest.buffer, dest.byteOffset, c.bytes).set(buf.subarray(pos, pos + c.bytes));
+      pos += c.bytes + ((8 - (c.bytes % 8)) % 8);
+    }
+    st.n = cab.n;
+    st.ids = cab.ids;
+    st.nomes = cab.nomes;
+    cab.paises.forEach((p) => st.codigoPais(p));
+    cab.ids.forEach((id, i) => st.porId.set(id, i));
+    for (let i = 0; i < st.n; i++) st.recalcular(i);
+    return st;
+  }
+
   bytes(): number {
     let s = 0;
     for (const v of Object.values(this)) if (ArrayBuffer.isView(v)) s += (v as Uint8Array).byteLength;

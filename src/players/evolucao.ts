@@ -107,6 +107,10 @@ export function renovarPlantel(w: World, st: PlayerStore, c: number, dia: number
     falta.set(pos, (falta.get(pos) ?? 0) - 1);
   }
   const L = ovrAlvoClube(w, c);
+  // Âncora: se o plantel derivou face ao que tinha na geração (relativamente ao nível do clube), a reposição compensa.
+  const ref = w.ovrReferencia?.[c];
+  const media = restantes.reduce((s, j) => s + st.ovrNat(j), 0) / Math.max(1, restantes.length);
+  const deriva = ref === undefined || Number.isNaN(ref) || !restantes.length ? 0 : Math.max(-G.reposicao_ancora.maximo, Math.min(G.reposicao_ancora.maximo, media - L - ref));
   const novos: number[] = [];
   let k = 0;
   for (const [pos0, n] of falta) {
@@ -114,7 +118,7 @@ export function renovarPlantel(w: World, st: PlayerStore, c: number, dia: number
       const pos = pos0 === 'ED' && rng.chance(0.5) ? 'EE' : pos0;
       // Reposição: sobretudo jovens (18–23) abaixo do nível do clube, com potencial à volta dele.
       const idade = 18 + rng.next() * 5;
-      const t0 = L - 3 + rng.normal(0, G.ruido_ovr);
+      const t0 = L - 3 - G.reposicao_ancora.ganho * deriva + rng.normal(0, G.ruido_ovr);
       const t = Math.max(15, t0 - G.atraso_jovem(idade));
       const pot = Math.min(99, Math.max(t, t0 + 0.5 * G.margem_potencial(idade) + rng.normal(0, G.ruido_potencial)));
       const pais = w.clubes[c].pais;
@@ -123,4 +127,15 @@ export function renovarPlantel(w: World, st: PlayerStore, c: number, dia: number
   }
   w.plantel[c] = [...restantes, ...novos];
   return { aposentados, novos };
+}
+
+/** Guarda, por clube, a média do OVR do plantel menos o nível do clube (âncora da reposição). */
+export function registarReferencia(w: World, st: PlayerStore, c: number) {
+  if (!w.ovrReferencia || w.ovrReferencia.length < w.clubes.length) {
+    const n = new Float32Array(w.clubes.length).fill(NaN);
+    if (w.ovrReferencia) n.set(w.ovrReferencia);
+    w.ovrReferencia = n;
+  }
+  const js = w.plantel[c] ?? [];
+  w.ovrReferencia[c] = js.length ? js.reduce((s, j) => s + st.ovrNat(j), 0) / js.length - ovrAlvoClube(w, c) : NaN;
 }

@@ -12,7 +12,7 @@ import { coeficientesUEFA } from './coeficiente.ts';
 import { gerarPlantel } from '../../players/gerador.ts';
 import { gerarTreinador } from '../../coaches/gerador.ts';
 import { afinarPlantel, corrigirDeriva } from '../../players/afinacao.ts';
-import { renovarPlantel } from '../../players/evolucao.ts';
+import { renovarPlantel, registarReferencia } from '../../players/evolucao.ts';
 import { bandaReputacao, gerarClube, clamp } from '../../gen/mundoFicticio.ts';
 import { empacotarJogos, textoResultado, type Movimento, type RegistoEpoca, type RegistoContinental } from '../history.ts';
 import { FaseLigaUEFA } from '../competitions/leaguePhase.ts';
@@ -219,7 +219,7 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
     // Plantéis dos clubes que entram do exterior.
     if (w.jogadores) for (let k = 0; k < novos.length; k++) w.plantel[n0 + k] = gerarPlantel(w, w.jogadores, n0 + k, t.base + 51 * 7, Rng.de(w.semente, 'plantel', novos[k].id));
     if (w.motor) for (let k = 0; k < novos.length; k++) w.motor.treinadores[n0 + k] = gerarTreinador(w, n0 + k, Rng.de(w.semente, 'treinador', novos[k].id));
-    if (w.jogadores && w.motor) for (let k = 0; k < novos.length; k++) afinarPlantel(w, n0 + k, w.motor.treinadores[n0 + k], t.base + 51 * 7, Rng.de(w.semente, 'afinacao', novos[k].id));
+    if (w.jogadores && w.motor) for (let k = 0; k < novos.length; k++) { afinarPlantel(w, n0 + k, w.motor.treinadores[n0 + k], t.base + 51 * 7, Rng.de(w.semente, 'afinacao', novos[k].id)); registarReferencia(w, w.jogadores, n0 + k); }
     for (let k = 0; k < novos.length; k++) movs.push({ clube: n0 + k, de: 'exterior', para: l.regras.id, via: 'exterior' });
   }
   reg.repDepois = Array.from(w.reputacao);

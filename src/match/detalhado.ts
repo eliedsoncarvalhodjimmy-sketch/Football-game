@@ -9,6 +9,7 @@
 import { IDX, N_ATR } from '../config/atributos.ts';
 import { IDX_PAPEL } from '../config/papeis.ts';
 import { DETALHADO as D } from '../config/motor.ts';
+import { EFEITOS_TREINADOR as ET } from '../config/treinadores.ts';
 import { CONTRIBUICAO, SINERGIA_FALSO9 } from '../config/ratings.ts';
 import { PAPEIS } from '../config/papeis.ts';
 import type { Rng } from '../core/rng.ts';
@@ -169,6 +170,8 @@ export function jogoDetalhado(w: World, casa: Lado, fora: Lado, neutro: boolean,
   const eq = [actores(st, casa, nivel(casa), !neutro), actores(st, fora, nivel(fora), false)];
   const est: [EstatEquipa, EstatEquipa] = [novoEstat(), novoEstat()];
   const sin = [sinergiaF9(st, casa), sinergiaF9(st, fora)];
+  // Treinador pouco disciplinador: mais cartões.
+  const fCart = lados.map((l) => 1 + (10 - (w.motor!.treinadores[l.clube]?.atributos.disciplina ?? 10)) * ET.cartoes_por_disciplina);
   const ev: Evento[] = [];
   const marcadores: ResultadoDetalhado['marcadores'] = [];
   const emitir = (e: Evento) => { if (comEventos) ev.push(e); };
@@ -228,7 +231,7 @@ export function jogoDetalhado(w: World, casa: Lado, fora: Lado, neutro: boolean,
       if (rng.chance(D.falta_por_duelo * (pres.agr / 10))) {
         est[o].faltas++;
         emitir({ min, tipo: 'falta', equipa: o, jogador: pres.j, outro: port.j, x: X(port.x), y: port.y });
-        if (rng.chance(D.amarelo_por_falta)) { est[o].amarelos++; emitir({ min, tipo: 'cartao', equipa: o, jogador: pres.j, x: X(port.x), y: port.y, info: 'amarelo' }); }
+        if (rng.chance(D.amarelo_por_falta * fCart[o])) { est[o].amarelos++; emitir({ min, tipo: 'cartao', equipa: o, jogador: pres.j, x: X(port.x), y: port.y, info: 'amarelo' }); }
       }
       // Remate de longe apressado.
       if (rng.chance(D.remate_apos_falha)) rematar('longe', escolher(rng, A, (a) => a.rld * (a.wFin + 0.2)), undefined);
@@ -265,7 +268,7 @@ export function jogoDetalhado(w: World, casa: Lado, fora: Lado, neutro: boolean,
           rematar('penalti', [...A].filter((a) => a.ativo && a.slot > 0).sort((a, b) => b.fin - a.fin)[0], undefined);
           continue;
         }
-        if (rng.chance(D.amarelo_por_falta)) { est[o].amarelos++; emitir({ min, tipo: 'cartao', equipa: o, jogador: marcador.j, x: X(75), y: criador.y, info: 'amarelo' }); }
+        if (rng.chance(D.amarelo_por_falta * fCart[o])) { est[o].amarelos++; emitir({ min, tipo: 'cartao', equipa: o, jogador: marcador.j, x: X(75), y: criador.y, info: 'amarelo' }); }
         // Livre perigoso.
         if (rng.chance(0.3)) rematar('livre', [...A].filter((a) => a.ativo && a.slot > 0).sort((a, b) => b.bpa - a.bpa)[0], undefined);
         continue;
