@@ -101,15 +101,17 @@ export async function carregarDados(ds: DataSource): Promise<Dados> {
     ligas.sort((a, b) => a.nivel - b.nivel);
     contagens[id] = {};
     let clubes: Clube[] = [];
-    for (const f of ['clubes', 'jogadores', 'treinadores', 'staff', 'donos']) {
+    let jogadores: Record<string, string>[] = [];
+    for (const f of ['clubes', 'players', 'treinadores', 'staff', 'donos']) {
       const t = await ds.lerTexto(id, `${f}.csv`);
       const linhas = t ? parseCsv(t) : [];
       contagens[id][f] = contar(linhas);
       if (f === 'clubes') clubes = linhas.map((l) => clubeDeCsv(l, manifest.pais ?? ''));
+      if (f === 'players') jogadores = linhas;
     }
     const overrides = json<Record<string, Partial<Clube>>>(await ds.lerTexto(id, 'overrides.json') ?? '{}', `${id}/overrides.json`, erros) ?? {};
     tacas.sort((a, b) => manifest.tacas.indexOf(a.id) - manifest.tacas.indexOf(b.id));
-    pacotes.push({ manifest, ligas, tacas, clubes, overrides });
+    pacotes.push({ manifest, ligas, tacas, clubes, overrides, jogadores });
   }
   return { pacotes, continental, erros, contagens };
 }

@@ -11,6 +11,7 @@
 import ExcelJS from 'exceljs';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { CABECALHO_JOGADORES } from '../src/players/csv.ts';
 import type { Manifest, RegrasLiga, RegrasTaca, Premio, Confederacao, Desempate } from '../src/data/types.ts';
 
 const RAIZ = join(import.meta.dirname, '..');
@@ -251,7 +252,7 @@ for (const e of europaF) {
 // ---------------- Escrita dos pacotes ----------------
 const CABECALHOS: Record<string, string> = {
   'clubes.csv': 'id,nome,nome_curto,cidade,cor1,cor2,reputacao,estadio,capacidade,liga,origem',
-  'jogadores.csv': 'id,nome,data_nascimento,pais_formacao,clube,posicao,origem',
+  'players.csv': CABECALHO_JOGADORES.join(','),
   'treinadores.csv': 'id,nome,data_nascimento,pais,clube,origem',
   'staff.csv': 'id,nome,funcao,clube,origem',
   'donos.csv': 'id,nome,tipo,clube,origem',

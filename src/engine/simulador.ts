@@ -8,6 +8,7 @@ import { fecharEpoca } from './season/rollover.ts';
 import { podar, type RegistoEpoca } from './history.ts';
 import { baseDias } from './calendar/datas.ts';
 import type { JogoR } from './competitions/base.ts';
+import { evoluirMes, parteMinutosPorOrdem } from '../players/evolucao.ts';
 
 export interface InicioEpoca {
   grupo: string;
@@ -52,6 +53,15 @@ export class Simulador {
   /** Simula uma semana do mundo. Devolve os jogos jogados (de todos os calendários). */
   simularSemana(): JogoR[] {
     const out: JogoR[] = [];
+    // Evolução mensal dos jogadores no 1.º dia de cada mês (se calhar nesta semana).
+    const st = this.w.jogadores;
+    if (st) {
+      for (let d = this.segunda; d < this.segunda + 7; d++) {
+        if (new Date(d * 86400000).getUTCDate() === 1) {
+          evoluirMes(this.w, st, d, { parteMinutos: parteMinutosPorOrdem(this.w, st), desenvolvimentoTreinador: () => 10 });
+        }
+      }
+    }
     for (const [g, t] of [...this.temporadas]) {
       const local = Math.round((this.segunda - t.base) / 7);
       if (local < 0) continue; // ainda não começou (ex.: ano civil antes de Janeiro de 2027)

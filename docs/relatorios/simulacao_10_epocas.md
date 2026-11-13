@@ -22,9 +22,9 @@
 
 | Medida | Valor |
 |---|---|
-| Época completa do mundo (média / máx.) | 149 ms / 225 ms |
-| Uma semana de calendário (média / p95 / máx.) | 2.9 ms / 7.2 ms / 143.4 ms |
-| Memória (heap) no fim | 188 MB |
+| Época completa do mundo (média / máx.) | 572 ms / 722 ms |
+| Uma semana de calendário (média / p95 / máx.) | 11.0 ms / 42.0 ms / 145.7 ms |
+| Memória (heap) no fim | 161 MB |
 | Gravação por época (todos os jogos, gzip) | 69 KB (alvo ≤ 20 MB) |
 | Jogos por época (todas as competições) | 17 194 |
 | Sorteios das fases de liga UEFA que alargaram o limite de 2 adversários do mesmo país | 4 de 51 (potes refeitos: 0) |

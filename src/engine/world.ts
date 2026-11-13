@@ -6,6 +6,15 @@ import { completarPacote, novoContexto, clamp, type OpcoesGeracao, type Contexto
 import { FORCA } from '../config/forca.ts';
 import { Rng } from '../core/rng.ts';
 import { vagasIniciais, type EntradaLiga } from './season/qualify.ts';
+import { PlayerStore } from '../players/store.ts';
+import { gerarPlantel } from '../players/gerador.ts';
+import { importarLinhas } from '../players/csv.ts';
+import { MUNDO } from '../config/mundo.ts';
+
+/** Dia absoluto do início do mundo (1 de Julho de 2026). */
+export function diaInicioMundo(): number {
+  return Math.round(new Date(`${MUNDO.inicio}T00:00:00Z`).getTime() / 86400000);
+}
 
 export interface LigaInfo {
   idx: number;
@@ -54,6 +63,9 @@ export class World {
   /** Campeões em título (UCL, UEL, UECL) e ligas com o bónus do ranking, para as próximas vagas. */
   detentores = new Map<string, number>();
   bonusRanking: string[] = [];
+  /** Jogadores (Fase 2) e plantel de cada clube (índices de jogadores). */
+  jogadores: PlayerStore | null = null;
+  plantel: number[][] = [];
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -150,5 +162,15 @@ export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World
   for (const pk of pacotes) w.adicionarClubes(completarPacote(pk, ctx, op));
   w.recalcularForca();
   w.qualificados = vagasIniciais(w);
+  if (op.jogadores !== false) gerarJogadoresMundo(w, d);
   return w;
+}
+
+/** Gera os plantéis de todos os clubes e aplica as edições de players.csv (manual > real > gerado). */
+export function gerarJogadoresMundo(w: World, d: Dados) {
+  const st = new PlayerStore(w.clubes.length * 26);
+  w.jogadores = st;
+  const dia = diaInicioMundo();
+  w.plantel = w.clubes.map((c, i) => gerarPlantel(w, st, i, dia, Rng.de(w.semente, 'plantel', c.id)));
+  for (const p of d.pacotes) if (p.jogadores?.length) importarLinhas(w, st, p.jogadores);
 }

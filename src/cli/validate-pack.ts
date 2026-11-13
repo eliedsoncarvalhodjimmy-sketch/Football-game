@@ -25,7 +25,7 @@ for (const p of dados.pacotes) {
   const pr = problemas.filter((x) => x.pacote === id);
   const ne = pr.filter((x) => x.nivel === 'erro').length;
   totErros += ne;
-  console.log(`| ${id} | ${reais('clubes')} | ${vagas - p.clubes.length} | ${reais('jogadores')} | ${reais('treinadores')} | ${reais('donos')} | ${ne} | ${pr.length - ne} |`);
+  console.log(`| ${id} | ${reais('clubes')} | ${vagas - p.clubes.length} | ${reais('players')} | ${reais('treinadores')} | ${reais('donos')} | ${ne} | ${pr.length - ne} |`);
 }
 console.log(`\nTotal de vagas de clubes: ${totClubes}`);
 const mostrar = problemas.filter((x) => (!filtro || x.pacote === filtro) && (x.nivel === 'erro' || a.avisos));

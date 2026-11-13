@@ -13,7 +13,8 @@
     "validate-pack": "tsx src/cli/validate-pack.ts",
     "gen-world": "tsx src/cli/gen-world.ts",
     "simulate": "tsx src/cli/simulate.ts",
-    "bench": "tsx src/cli/bench.ts"
+    "bench": "tsx src/cli/bench.ts",
+    "players": "tsx src/cli/players.ts"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

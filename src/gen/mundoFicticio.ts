@@ -9,6 +9,8 @@ import { PERFIL_POR_PAIS_REGIONAL } from './perfisNomes.ts';
 export interface OpcoesGeracao {
   semente: number;
   modo: 'teste' | 'gerado';
+  /** Gerar jogadores (Fase 2). Por defeito sim. */
+  jogadores?: boolean;
 }
 
 export function bandaReputacao(l: RegrasLiga): [number, number] {

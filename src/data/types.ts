@@ -165,4 +165,6 @@ export interface Pacote {
   tacas: RegrasTaca[];
   clubes: Clube[];
   overrides: Record<string, Partial<Clube>>;
+  /** Linhas de players.csv (manual > real > gerado). */
+  jogadores?: Record<string, string>[];
 }

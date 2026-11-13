@@ -9,6 +9,8 @@ import type { World } from '../world.ts';
 import type { Temporada } from './temporada.ts';
 import { atribuirVagas, type EntradaLiga } from './qualify.ts';
 import { coeficientesUEFA } from './coeficiente.ts';
+import { gerarPlantel } from '../../players/gerador.ts';
+import { renovarPlantel } from '../../players/evolucao.ts';
 import { bandaReputacao, gerarClube, clamp } from '../../gen/mundoFicticio.ts';
 import { empacotarJogos, textoResultado, type Movimento, type RegistoEpoca, type RegistoContinental } from '../history.ts';
 import { FaseLigaUEFA } from '../competitions/leaguePhase.ts';
@@ -212,9 +214,18 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
     }
     const n0 = w.clubes.length;
     w.adicionarClubes(novos);
+    // Plantéis dos clubes que entram do exterior.
+    if (w.jogadores) for (let k = 0; k < novos.length; k++) w.plantel[n0 + k] = gerarPlantel(w, w.jogadores, n0 + k, t.base + 51 * 7, Rng.de(w.semente, 'plantel', novos[k].id));
     for (let k = 0; k < novos.length; k++) movs.push({ clube: n0 + k, de: 'exterior', para: l.regras.id, via: 'exterior' });
   }
   reg.repDepois = Array.from(w.reputacao);
+
+  // 6b. Jogadores: aposentações e reposição nos clubes deste calendário.
+  if (w.jogadores) {
+    const dia = t.base + 51 * 7;
+    const rngJ = Rng.de(w.semente, 'renovacao', grupo, ep);
+    for (const li of t.pacotes.flatMap((p) => p.ligas)) for (const c of w.ligas[li].clubes) renovarPlantel(w, w.jogadores, c, dia, rngJ, ep);
+  }
 
   // 7. Nova época deste calendário.
   w.epocaPorGrupo[grupo] = ep + 1;
