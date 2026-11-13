@@ -2,6 +2,7 @@
   "id": "CLI",
   "nome": "Copa Libertadores",
   "confederacao": "CONMEBOL",
+  "calendario": "ano_civil",
   "equipas": 16,
   "formato_folha": "4 grupos de 4 (ida e volta, 6 jogos); os 2 primeiros avançam; eliminatórias a partir dos quartos",
   "premios": [

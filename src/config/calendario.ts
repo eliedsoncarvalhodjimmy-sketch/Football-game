@@ -6,6 +6,8 @@
 export type Ranhura = 'fds' | 'meio';
 
 export interface ModeloCalendario {
+  /** Dia (mês-dia) em que a época começa; a semana 0 é a segunda-feira dessa semana. */
+  inicio: string;
   /** 1.ª e última semana com jornadas de liga ao fim-de-semana. */
   primeira_semana: number;
   ultima_semana: number;
@@ -43,6 +45,7 @@ export const CALENDARIO = {
   },
   modelos: {
     ago_mai: {
+      inicio: '07-01',
       primeira_semana: 5, // sábado 8 Ago 2026
       ultima_semana: 46, // sábado 22 Mai 2027
       paragens_selecoes: [10, 14, 19, 38],
@@ -60,6 +63,28 @@ export const CALENDARIO = {
       },
       final_taca: 47,
       // Play-offs (subida, barragem, campeão) depois de todas as finais, para não haver choques.
+      playoffs: [49, 50, 51],
+    } as ModeloCalendario,
+    // Ligas de ano civil (decisão do utilizador, 13/11/2026): Fevereiro–Novembro, play-offs em Dezembro.
+    // Semana 0 = segunda-feira da semana de 1 de Janeiro. Sem competições UEFA; a Libertadores joga aqui.
+    ano_civil: {
+      inicio: '01-01',
+      primeira_semana: 5, // sábado ~6 Fev
+      ultima_semana: 46, // sábado ~20 Nov
+      paragens_selecoes: [12, 23, 36, 41],
+      continentais: {
+        acesso: [],
+        fase_liga: [],
+        playoff: [],
+        oitavos: [],
+        quartos: [],
+        meias: [],
+        final: 48,
+        grupos: [9, 11, 14, 16, 19, 21],
+        quartos_grupos: [31, 32],
+        meias_grupos: [39, 40],
+      },
+      final_taca: 47,
       playoffs: [49, 50, 51],
     } as ModeloCalendario,
   } as Record<string, ModeloCalendario>,

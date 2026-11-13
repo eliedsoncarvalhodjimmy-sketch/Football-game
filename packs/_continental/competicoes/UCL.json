@@ -2,6 +2,7 @@
   "id": "UCL",
   "nome": "UEFA Champions League",
   "confederacao": "UEFA",
+  "calendario": "ago_mai",
   "equipas": 36,
   "formato_folha": "fase de liga única de 36 equipas (8 jogos por equipa, adversários sorteados); 1.º–8.º direto aos oitavos; 9.º–24.º play-off de eliminatórias; 25.º–36.º eliminados",
   "premios": [

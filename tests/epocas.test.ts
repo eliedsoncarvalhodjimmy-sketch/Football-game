@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { mundo } from './helpers.ts';
 import { Simulador } from '../src/engine/simulador.ts';
-import { verificarIntegridade, verificarVagas, verificarCalendarioEpoca, impressaoDigital } from '../src/engine/verificacoes.ts';
+import { verificarIntegridade, verificarVagas, verificarCalendarioEpoca, verificarCalendarioMundo, impressaoDigital } from '../src/engine/verificacoes.ts';
+import type { Temporada } from '../src/engine/season/temporada.ts';
 import { atribuirVagas } from '../src/engine/season/qualify.ts';
 import { serializarHistorico, desserializarHistorico } from '../src/storage/serializar.ts';
 import { metricasRealismo, type DadosRelatorio } from '../src/cli/relatorioEpocas.ts';
@@ -13,21 +14,19 @@ describe('10 épocas do mundo fictício', async () => {
   const integridade: string[] = [];
   const vagas: string[] = [...verificarVagas(w)];
   const calendario: string[] = [];
-  const favoritos: DadosRelatorio['favoritos'] = [];
   const tamanhos = new Map<string, number>(w.ligas.map((l) => [l.regras.id, l.clubes.length]));
   let tamanhosOk = true;
-  for (let e = 0; e < 10; e++) {
-    const t = sim.temporada;
-    for (const [id, c] of t.ligas) {
-      const fav = [...c.clubes].sort((x, y) => w.reputacao[y] - w.reputacao[x]);
-      favoritos.push({ epoca: w.epoca, liga: id, top1: fav[0], top3: fav.slice(0, 3) });
-    }
-    sim.simularEpoca();
+  const fechadas: Temporada[] = [];
+  sim.aoFechar = (t) => {
+    fechadas.push(t);
     calendario.push(...verificarCalendarioEpoca(t).map((p) => p.msg));
     integridade.push(...verificarIntegridade(w));
     vagas.push(...verificarVagas(w));
     for (const l of w.ligas) if (l.clubes.length !== tamanhos.get(l.regras.id)) tamanhosOk = false;
-  }
+  };
+  sim.simularEpocas(10);
+  calendario.push(...verificarCalendarioMundo(fechadas).map((p) => `entre calendários: ${p.msg}`));
+  const favoritos: DadosRelatorio['favoritos'] = sim.inicios;
   const H = sim.historico;
 
   it('integridade: cada clube numa só divisão; nº de clubes por divisão constante', () => {
@@ -37,6 +36,17 @@ describe('10 épocas do mundo fictício', async () => {
 
   it('vagas continentais preenchidas, sem duplicados e só de países com direito', () => {
     expect(vagas).toEqual([]);
+  });
+
+  it('ligas de ano civil começam em 2027 e têm 10 épocas próprias; Libertadores no ano civil', () => {
+    const ac = H.filter((r) => r.grupo === 'ano_civil');
+    expect(ac.map((r) => r.epoca)).toEqual([2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036]);
+    for (const r of ac) {
+      expect(Object.keys(r.continentais)).toEqual(['CLI']);
+      expect(r.tabelas.BRA1).toBeDefined();
+      expect(r.tabelas.ENG1).toBeUndefined();
+    }
+    for (const r of H.filter((h) => h.grupo === 'ago_mai')) expect(r.continentais.CLI).toBeUndefined();
   });
 
   it('calendários sem conflitos (todas as competições)', () => {
@@ -81,7 +91,7 @@ describe('10 épocas do mundo fictício', async () => {
     const w2 = await mundo(2026);
     const s2 = new Simulador(w2);
     for (let e = 0; e < 3; e++) s2.simularEpoca();
-    expect(impressaoDigital(s2.historico)).toBe(impressaoDigital(H.slice(0, 3)));
+    expect(impressaoDigital(s2.historico)).toBe(impressaoDigital(H.slice(0, s2.historico.length)));
     const w3 = await mundo(2027);
     const s3 = new Simulador(w3);
     s3.simularEpoca();
@@ -119,7 +129,7 @@ describe('10 épocas do mundo fictício', async () => {
   });
 
   it('coeficiente UEFA e bónus do ranking para as 2 melhores associações', () => {
-    for (const r of H) {
+    for (const r of H.filter((h) => h.grupo === 'ago_mai')) {
       const melhores = Object.entries(r.coeficientes).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([l]) => l);
       expect(r.bonusProxima).toEqual(melhores);
       expect(Object.keys(r.detentoresProxima).sort()).toEqual(['UCL', 'UECL', 'UEL']);

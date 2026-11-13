@@ -16,6 +16,8 @@ export interface JogoR extends Jogo {
   /** Na 2.ª mão: a 1.ª mão (casa/fora trocados). */
   ida?: JogoR;
   r?: Resultado;
+  /** Dia absoluto (dias desde 1970-01-01), preenchido quando o jogo é simulado. */
+  diaAbs?: number;
 }
 
 export interface Competicao {

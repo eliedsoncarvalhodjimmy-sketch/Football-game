@@ -2,7 +2,8 @@
 // modo de simulação; os jogos são independentes da ordem (RNG por jogo).
 import { Rng } from '../../core/rng.ts';
 import { CALENDARIO } from '../../config/calendario.ts';
-import type { World, Qualificado } from '../world.ts';
+import type { World, Qualificado, PacoteInfo } from '../world.ts';
+import { baseDias } from '../calendar/datas.ts';
 import { planearTacas } from './tacas.ts';
 import type { Competicao, JogoR } from '../competitions/base.ts';
 import { CompLiga } from '../competitions/liga.ts';
@@ -47,14 +48,29 @@ export class Temporada {
   estatLiga = novasEstatisticas();
   semana = 0;
 
-  constructor(public w: World) {
-    const ep = w.epoca;
-    const m = modelo('ago_mai');
+  /** Pacotes deste calendário. */
+  pacotes: PacoteInfo[];
+  /** Dia absoluto da segunda-feira da semana 0. */
+  base: number;
+
+  /**
+   * @param grupo modelo de calendário ("ago_mai" ou "ano_civil"): só entram as ligas, taças e
+   *              continentais desse calendário.
+   * @param ano   ano de início da época (2026 = 2026/27 em ago_mai; 2027 = época de 2027 em ano_civil).
+   */
+  constructor(public w: World, public grupo = 'ago_mai', public ano = w.epoca) {
+    const ep = ano;
+    const m = modelo(grupo);
+    this.base = baseDias(ano, grupo);
     const fds = (s: number) => ({ semana: s, ranhura: 'fds' as const, dias: CALENDARIO.dias.fds });
-    for (const p of w.pacotes) {
+    this.pacotes = w.pacotes.filter((p) => w.ligas[p.ligas[0]].regras.epoca.calendario === grupo);
+    for (const p of this.pacotes) {
+      // Fins-de-semana das finais continentais do outro calendário em que o pacote tem vagas (ex.: final da
+      // Liga dos Campeões Asiática num sábado de Junho, com a K League a decorrer): sem jornadas de liga.
+      const finaisOutro = this.semanasDeOutroCalendario(p, true);
       const ligas = p.ligas.map((li) => {
         const l = w.ligas[li];
-        const c = new CompLiga(l.regras, [...l.clubes], Rng.de(w.semente, 'calendario', l.regras.id, ep), `${w.semente}|${ep}|${l.regras.id}`);
+        const c = new CompLiga(l.regras, [...l.clubes], Rng.de(w.semente, 'calendario', l.regras.id, ep), `${w.semente}|${ep}|${l.regras.id}`, finaisOutro);
         this.ligas.set(l.regras.id, c);
         return c;
       });
@@ -99,6 +115,7 @@ export class Temporada {
         const nivel = new Map<number, number>();
         ligas.forEach((c) => c.clubes.forEach((x) => nivel.set(x, c.regras.nivel)));
         const meioLiga = new Set(ligas.flatMap((c) => c.jogos.filter((j) => j.ranhura === 'meio').map((j) => j.semana)));
+        for (const s of this.semanasDeOutroCalendario(p)) meioLiga.add(s);
         const slots = planearTacas(p.tacas, porLiga, meioLiga, m);
         for (const t of p.tacas) {
           this.tacas.set(t.id, new Taca(t, porLiga, (x) => nivel.get(x)! * 1000 - w.reputacao[x], slots.get(t.id)!, Rng.de(w.semente, 'taca', t.id, ep)));
@@ -106,7 +123,8 @@ export class Temporada {
       }
     }
     // Continentais com grupos (fora da UEFA): criadas já.
-    for (const cfg of w.continental?.competicoes ?? []) {
+    const doGrupo = (w.continental?.competicoes ?? []).filter((c) => (c.calendario ?? 'ago_mai') === grupo);
+    for (const cfg of doGrupo) {
       if (cfg.tipo !== 'grupos') continue;
       const q = w.qualificados.get(cfg.id) ?? [];
       if (q.length !== cfg.equipas) continue;
@@ -115,7 +133,7 @@ export class Temporada {
       this.continentais.set(cfg.id, new GruposEliminatorias(cfg, eq, m, Rng.de(w.semente, 'continental', cfg.id, ep)));
     }
     // Play-offs de acesso UEFA (Agosto, ida e volta); as fases de liga são sorteadas depois.
-    for (const cfg of w.continental?.competicoes ?? []) {
+    for (const cfg of doGrupo) {
       if (cfg.tipo !== 'fase_liga') continue;
       const q = w.qualificados.get(`${cfg.id}_PO`) ?? [];
       if (!q.length) continue;
@@ -128,6 +146,32 @@ export class Temporada {
     this.comps = [...this.ligas.values(), ...this.playoffsCampeao.values(), ...this.playoffsSubida.values(), ...this.barragens.values(), ...this.tacas.values(), ...this.acesso.values(), ...this.continentais.values()];
   }
 
+  /**
+   * Semanas locais (meio da semana) ocupadas por competições continentais de OUTRO calendário em que este
+   * pacote tem vagas (ex.: Noruega, de ano civil, nas competições UEFA). As taças do pacote evitam-nas.
+   */
+  private semanasDeOutroCalendario(p: PacoteInfo, soFinais = false): number[] {
+    const w = this.w;
+    const vagas = w.continental?.vagas.vagas[w.ligas[p.ligas[0]].regras.id] ?? {};
+    const out = new Set<number>();
+    for (const comp of Object.keys(vagas)) {
+      const cfg = w.continental!.competicoes.find((c) => c.id === comp.replace(/_PO$/, ''));
+      const outro = cfg?.calendario ?? 'ago_mai';
+      if (!cfg || outro === this.grupo) continue;
+      const mo = modelo(outro);
+      const c = mo.continentais;
+      const semanas = soFinais ? [c.final] : cfg.tipo === 'grupos' ? [...c.grupos, ...c.quartos_grupos, ...c.meias_grupos, c.final] : [...c.acesso, ...c.fase_liga, ...c.playoff, ...c.oitavos, ...c.quartos, ...c.meias, c.final];
+      for (const ano of [this.ano - 1, this.ano, this.ano + 1]) {
+        const b = baseDias(ano, outro);
+        for (const s of semanas) {
+          const local = Math.round((b + s * 7 - this.base) / 7);
+          if (local >= 0 && local < 52) out.add(local);
+        }
+      }
+    }
+    return [...out];
+  }
+
   /** Força usada nos potes e cabeças-de-série continentais. */
   private forcaContinental(x: number): number {
     return (this.w.ataque[x] + this.w.defesa[x]) / 2;
@@ -136,11 +180,11 @@ export class Temporada {
   /** Depois dos play-offs de acesso: sorteia as fases de liga da UEFA. */
   private criarFasesUEFA() {
     const w = this.w;
-    const m = modelo('ago_mai');
+    const m = modelo(this.grupo);
     const esp = w.continental?.vagas.especiais;
     const marcar = (q: Qualificado[], ids: number[], via: string) => q.filter((x) => ids.includes(x.clube)).map((x) => ({ ...x, via: `${x.via}; ${via}` }));
     for (const cfg of w.continental?.competicoes ?? []) {
-      if (cfg.tipo !== 'fase_liga') continue;
+      if (cfg.tipo !== 'fase_liga' || (cfg.calendario ?? 'ago_mai') !== this.grupo) continue;
       let lista = [...(w.qualificados.get(cfg.id) ?? [])];
       const po = this.acesso.get(`${cfg.id}_PO`);
       if (po) lista.push(...marcar(w.qualificados.get(`${cfg.id}_PO`) ?? [], po.sobreviventes(), 'venceu o play-off de acesso'));
@@ -154,7 +198,7 @@ export class Temporada {
       if (lista.length !== cfg.equipas) throw new Error(`${cfg.id}: ${lista.length} participantes para ${cfg.equipas} vagas`);
       this.participantes.set(cfg.id, lista);
       const eq: Equipa[] = lista.map((x) => ({ clube: x.clube, pais: x.pais, forca: this.forcaContinental(x.clube) }));
-      const c = new FaseLigaUEFA(cfg, eq, m, Rng.de(w.semente, 'continental', cfg.id, w.epoca));
+      const c = new FaseLigaUEFA(cfg, eq, m, Rng.de(w.semente, 'continental', cfg.id, this.ano));
       this.continentais.set(cfg.id, c);
       this.comps.push(c);
     }
@@ -163,7 +207,7 @@ export class Temporada {
 
   private simular(j: JogoR) {
     const w = this.w;
-    const rng = Rng.de(w.semente, 'jogo', w.epoca, j.comp, j.ronda, j.casa, j.fora, j.ida ? 2 : 1);
+    const rng = Rng.de(w.semente, 'jogo', this.ano, j.comp, j.ronda, j.casa, j.fora, j.ida ? 2 : 1);
     const [gc, gf] = jogoRapido(w.ataque[j.casa], w.defesa[j.casa], w.ataque[j.fora], w.defesa[j.fora], !!j.neutro, rng);
     j.r = { gc, gf };
     if (j.decisivo) {
@@ -180,7 +224,8 @@ export class Temporada {
   /** Simula a semana actual de todas as competições. Devolve os jogos jogados. */
   simularSemana(): JogoR[] {
     const s = this.semana;
-    if (!this.fasesUEFACriadas && s > Math.max(...modelo('ago_mai').continentais.acesso)) this.criarFasesUEFA();
+    const acesso = modelo(this.grupo).continentais.acesso;
+    if (!this.fasesUEFACriadas && acesso.length && s > Math.max(...acesso)) this.criarFasesUEFA();
     const jogados: JogoR[] = [];
     // Uma competição pode abrir a ronda seguinte quando a anterior termina na mesma semana
     // (ex.: ida e volta da barragem); repete até não haver jogos novos.
@@ -191,6 +236,7 @@ export class Temporada {
       lote.sort((a, b) => a.j.dia - b.j.dia);
       for (const { c, j } of lote) {
         this.simular(j);
+        j.diaAbs = this.base + j.semana * 7 + j.dia;
         c.registar(j);
         jogados.push(j);
         this.jogos.push(j);

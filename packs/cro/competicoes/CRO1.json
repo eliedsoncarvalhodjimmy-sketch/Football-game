@@ -19,7 +19,10 @@
     "descem": "folha",
     "forca_desportiva": "proposta Claude (ranking UEFA): a validar",
     "geracao": "proposta Claude: bandas de reputação provisórias",
-    "max_plantel": "gerado: 25"
+    "max_plantel": "gerado a partir do índice de riqueza (ajuste às ligas com TV preenchida na folha): tv_total_eur = 9 000 000 × índice; 50% igual, 30% desempenho, 20% comercial; plantel máximo 29",
+    "calendario": "decisão do utilizador (13/11/2026): as ligas marcadas \"ano civil\" na folha jogam Fevereiro–Dezembro e começam na época de 2027 (salta o resto de 2026); a Libertadores acompanha esse calendário (folha: \"ago-mai\")",
+    "min_nacionais_plantel": "decisão do utilizador (13/11/2026): 0 (sem regra) em todas as ligas, excepto Alemanha 12, Inglaterra 8 e Itália 8; nacional = formado no país; os valores da folha ficam guardados mas não se usam",
+    "tv": "gerado a partir do índice de riqueza (ajuste às ligas com TV preenchida na folha): tv_total_eur = 9 000 000 × índice; 50% igual, 30% desempenho, 20% comercial; plantel máximo 29"
   },
   "a_obter": [
     "tv_total_eur",
@@ -50,6 +53,7 @@
   "epoca": {
     "calendario": "ago_mai"
   },
+  "split_folha": null,
   "indice_riqueza": 4,
   "geracao": {
     "rep_tecto": 68,
@@ -66,18 +70,19 @@
     }
   ],
   "plantel": {
-    "max": 25,
-    "minimo_nacionais": null,
+    "max": 29,
+    "minimo_nacionais": 0,
     "maximo_estrangeiros": null,
     "minimo_formados_no_clube": null,
-    "por_validar": true
+    "por_validar": true,
+    "minimo_nacionais_folha": null
   },
   "tv": {
-    "total_eur": null,
-    "pct_igual": null,
-    "pct_desempenho": null,
-    "pct_comercial": null,
-    "regra_desempenho": null,
+    "total_eur": 36000000,
+    "pct_igual": 0.5,
+    "pct_desempenho": 0.3,
+    "pct_comercial": 0.2,
+    "regra_desempenho": "linear: 1º recebe 3x o último",
     "paraquedas": [],
     "por_validar": true
   },

@@ -122,14 +122,15 @@ for (const r of ligasF) {
     descida_media_epocas: c.descida_media_epocas ?? null,
     calendario_folha: txt(r['calendário']),
     vagas_continentais_folha: num(r.vagas_continentais),
-    tecto_salarial: vazio(r.tecto_salarial) ? null : (r.tecto_salarial as string | number),
+    tecto_salarial: c.tecto_salarial ? c.tecto_salarial.valor : vazio(r.tecto_salarial) ? null : (r.tecto_salarial as string | number),
     fonte: txt(r.fonte), notas: txt(r.notas), origem_campos: origem, a_obter: aObter,
     formato: { equipas: n, voltas: nv ?? 2, playoff_campeao: c.playoff_campeao ? { equipas: c.playoff_campeao.valor } : null },
     subidas: { directas: sobemFinal, playoff: c.playoff ? { de: c.playoff.de, ate: c.playoff.ate, destino: c.playoff.destino } : null },
     descidas: { directas: descem, barragem: c.barragem ? { posicao: c.barragem.posicao, adversario: c.barragem.adversario, maos: 2 } : null, exterior: false },
     desempates: DESEMPATES[pais] ?? D_PADRAO,
-    // Decisão do utilizador U7: todas as ligas jogam Agosto–Maio (a folha marca algumas como "ano civil").
-    epoca: { calendario: 'ago_mai' },
+    // Decisão do utilizador (13/11/2026): as ligas marcadas "ano civil" jogam Fevereiro–Dezembro.
+    epoca: { calendario: /ano civil/i.test(String(r['calendário'] ?? '')) ? 'ano_civil' : 'ago_mai' },
+    split_folha: /split|fase final/i.test(formato ?? '') ? formato : null,
     indice_riqueza: num(r['índice_riqueza_1a100']) ?? 0,
     geracao: c.rep ? { rep_tecto: c.rep[0], rep_piso: c.rep[1] } : null,
     janelas_transferencias: [{ abre: '07-01', fecha: '09-01' }, { abre: '01-01', fecha: '02-01' }],
@@ -140,6 +141,22 @@ for (const r of ligasF) {
     licenciamento: Number(r['divisão']) > 1 ? { exigido: true, notas: 'por definir' } : null,
   };
   if (vazio(r.max_plantel)) regras.origem_campos!.max_plantel = 'gerado: 25';
+  if (c.tecto_salarial) origem.tecto_salarial = c.tecto_salarial.origem;
+  origem.calendario = `${COMP.calendario._origem} (folha: "${txt(r['calendário'])}")`;
+  if (regras.split_folha) origem.split = COMP.splits._origem;
+  // Mínimo de nacionais (decisão do utilizador): o valor da folha fica guardado, mas usa-se o da decisão.
+  const mn = COMP.min_nacionais;
+  regras.plantel.minimo_nacionais_folha = num(r.min_nacionais_plantel);
+  regras.plantel.minimo_nacionais = mn.por_pais[pais] ?? mn.padrao;
+  origem.min_nacionais_plantel = mn._origem;
+  // TV, mínimo de nacionais e plantel gerados a partir do índice de riqueza (ligas sem esses dados na folha).
+  if (c.gerar_tv_plantel) {
+    const g = COMP.geracao_tv;
+    regras.tv = { total_eur: g.eur_por_ponto * regras.indice_riqueza, pct_igual: g.pct_igual, pct_desempenho: g.pct_desempenho, pct_comercial: g.pct_comercial, regra_desempenho: g.regra, paraquedas: [], por_validar: true };
+    regras.plantel.max = g.max_plantel;
+    origem.tv = g._origem;
+    origem.max_plantel = g._origem;
+  }
   porPais.set(pais, [...(porPais.get(pais) ?? []), regras]);
 }
 for (const ligas of porPais.values()) {
@@ -187,7 +204,7 @@ for (const r of compF) {
   const f = String(r.formato ?? '');
   const conf = String(r['país_ou_confederação']).trim();
   const jogos = Number(f.match(/\((\d+) jogos por equipa/)?.[1] ?? 6);
-  const base = { id, nome: String(r.nome), confederacao: conf, equipas: Number(r['nº_equipas']), formato_folha: f, premios: premiosPor.get(id) ?? [], eliminatorias_maos: 2, final: 'neutra', notas: txt(r.notas) };
+  const base = { id, nome: String(r.nome), confederacao: conf, calendario: COMP.calendario.continentais[id] ?? 'ago_mai', equipas: Number(r['nº_equipas']), formato_folha: f, premios: premiosPor.get(id) ?? [], eliminatorias_maos: 2, final: 'neutra', notas: txt(r.notas) };
   if (/fase de liga/.test(f)) {
     continentais.push({ ...base, tipo: 'fase_liga', jogos_por_equipa: jogos, potes: 4, jogos_mesmo_pote: jogos === 8, mesmo_pais_proibido: true, max_mesmo_pais_por_adversarios: 2, directos_oitavos: [1, 8], playoff: [9, 24] });
   } else {

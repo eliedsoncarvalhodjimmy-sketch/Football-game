@@ -62,6 +62,8 @@ export interface RegrasLiga {
   jogam_nas_paragens?: boolean;
   /** Descida pela média de pontos das últimas N épocas (ex.: Colômbia). */
   descida_media_epocas?: number | null;
+  /** Texto do formato com split/fase final (não implementado; ver config/formatos.ts). */
+  split_folha?: string | null;
   /** Calendário indicado na folha ("ago-mai" ou "ano civil"); o jogo usa epoca.calendario. */
   calendario_folha?: string | null;
   vagas_continentais_folha?: number | null;
@@ -89,6 +91,8 @@ export interface RegrasLiga {
   plantel: {
     max: number;
     minimo_nacionais: number | null;
+    /** Valor da folha, guardado mas não usado (decisão do utilizador). */
+    minimo_nacionais_folha?: number | null;
     maximo_estrangeiros: number | null;
     minimo_formados_no_clube: number | null;
     por_validar: boolean;

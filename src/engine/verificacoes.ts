@@ -3,6 +3,7 @@ import type { World } from './world.ts';
 import type { Temporada } from './season/temporada.ts';
 import type { RegistoEpoca } from './history.ts';
 import { verificarCalendario, type ProblemaCalendario } from './calendar/verificar.ts';
+import type { Jogo } from './calendar/types.ts';
 import { hash32 } from '../core/rng.ts';
 
 /** Cada clube activo numa só divisão e cada divisão com o nº certo de clubes. */
@@ -35,7 +36,11 @@ export function verificarVagas(w: World): string[] {
       if (w.clubes[x.clube].pais !== x.pais) out.push(`${w.clubes[x.clube].id}: país incoerente`);
       const temDireito = !!c.vagas.vagas[x.liga]?.[comp] || x.via.includes('campeão em título') || x.via.includes('vaga extra');
       if (!temDireito) out.push(`${x.liga} sem direito a ${comp} (${w.clubes[x.clube].id})`);
-      if (w.liga[x.clube] < 0) out.push(`${w.clubes[x.clube].id} qualificado mas fora do jogo`);
+      // Um clube de liga de ano civil pode descer para fora do jogo a meio da campanha europeia (qualificou-se
+      // antes); só é erro se a liga dele for do mesmo calendário da competição.
+      const calComp = c.competicoes.find((cc) => cc.id === comp.replace(/_PO$/, ''))?.calendario ?? 'ago_mai';
+      const calLiga = w.ligas.find((l) => l.regras.id === x.liga)?.regras.epoca.calendario ?? 'ago_mai';
+      if (w.liga[x.clube] < 0 && calComp === calLiga) out.push(`${w.clubes[x.clube].id} qualificado mas fora do jogo`);
     }
   }
   for (const comp of c.competicoes) {
@@ -52,6 +57,26 @@ export function verificarCalendarioEpoca(t: Temporada): ProblemaCalendario[] {
   for (const id of t.continentais.keys()) cont.add(id).add(`${id}_pe`).add(`${id}_ko`);
   for (const id of t.acesso.keys()) cont.add(id);
   return verificarCalendario(t.jogos, cont, new Set(t.ligas.keys()));
+}
+
+/** Calendário de várias épocas, de todos os calendários, por data absoluta: apanha choques entre uma liga
+ *  de ano civil e uma competição de Agosto–Maio (ex.: clubes noruegueses na UEFA). */
+export function verificarCalendarioMundo(ts: Temporada[]): ProblemaCalendario[] {
+  const cont = new Set<string>();
+  const ligas = new Set<string>();
+  const jogos: Jogo[] = [];
+  for (const t of ts) {
+    const suf = `@${t.grupo}${t.ano}`;
+    for (const id of t.continentais.keys()) cont.add(id + suf).add(`${id}_pe${suf}`).add(`${id}_ko${suf}`);
+    for (const id of t.acesso.keys()) cont.add(id + suf);
+    for (const id of t.ligas.keys()) ligas.add(id + suf);
+    for (const j of t.jogos) {
+      const d = j.diaAbs ?? t.base + j.semana * 7 + j.dia;
+      // Semana absoluta a começar à segunda-feira (1970-01-01 foi uma quinta-feira).
+      jogos.push({ ...j, comp: j.comp + suf, semana: Math.floor((d + 3) / 7), dia: (d + 3) % 7 });
+    }
+  }
+  return verificarCalendario(jogos, cont, ligas);
 }
 
 /** Impressão digital de todos os resultados (determinismo). */

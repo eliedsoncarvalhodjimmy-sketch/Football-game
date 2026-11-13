@@ -15,6 +15,8 @@ export interface EntradaLiga {
   campeao: number | null;
   /** Vencedor da taça que dá vaga em cada competição (ex.: "UEL" → clube). */
   vencedoresTaca: Map<string, number>;
+  /** Ainda sem época jogada: ordem pela reputação. */
+  inicial?: boolean;
 }
 
 export interface ContextoVagas {
@@ -22,8 +24,10 @@ export interface ContextoVagas {
   detentores: Map<string, number>;
   /** Ligas com o bónus do ranking UEFA. */
   bonus: string[];
-  /** Prefixo dos rótulos (ex.: "reputação" na 1.ª época). */
+  /** Prefixo dos rótulos. */
   prefixo?: string;
+  /** Prefixo dos rótulos dos campeões em título (ex.: "gerado (1.ª época)"). */
+  prefixoDetentores?: string;
 }
 
 /** Liga principal (nível 1) do pacote de um clube. */
@@ -44,6 +48,7 @@ export function atribuirVagas(w: World, entradas: Map<string, EntradaLiga>, ctx:
   const extra = new Map<string, number>(); // "liga|comp" -> vagas extra pela liga
   const somarExtra = (liga: string, comp: string) => extra.set(`${liga}|${comp}`, (extra.get(`${liga}|${comp}`) ?? 0) + 1);
   const pref = ctx.prefixo ? `${ctx.prefixo}: ` : '';
+  const prefDet = ctx.prefixoDetentores ? `${ctx.prefixoDetentores}: ` : pref;
 
   // 1. Campeões em título.
   for (const d of c.vagas.especiais?.detentores ?? []) {
@@ -52,7 +57,7 @@ export function atribuirVagas(w: World, entradas: Map<string, EntradaLiga>, ctx:
     const liga = ligaPrincipalDe(w, x);
     if (liga && activo(x)) {
       usados.add(x);
-      out.get(d.para)!.push({ clube: x, pais: w.clubes[x].pais, liga, via: `${pref}campeão em título da ${d.de}` });
+      out.get(d.para)!.push({ clube: x, pais: w.clubes[x].pais, liga, via: `${prefDet}campeão em título da ${d.de}` });
     } else if (liga) somarExtra(liga, d.para); // já sem condições: a vaga desce na liga dele
   }
   // 2. Bónus do ranking UEFA.
@@ -64,7 +69,7 @@ export function atribuirVagas(w: World, entradas: Map<string, EntradaLiga>, ctx:
     const e = entradas.get(liga);
     if (!e) throw new Error(`vagas: sem classificação para ${liga}`);
     const conf = Object.values(c.vagas.ordem_competicoes).find((comps) => comps.some((x) => x in porComp)) ?? [];
-    const rotulo = (x: number) => (x === e.campeao ? 'campeão' : `${e.pos.get(x) ?? '?'}.º`);
+    const rotulo = (x: number) => (e.inicial ? `gerado: ${e.pos.get(x) ?? '?'}.º por reputação (liga ainda sem época jogada)` : x === e.campeao ? 'campeão' : `${e.pos.get(x) ?? '?'}.º`);
     const proximo = (): number => {
       const x = e.ordem.find(activo);
       if (x === undefined) throw new Error(`vagas: ${liga} sem clubes suficientes`);
@@ -96,16 +101,18 @@ export function atribuirVagas(w: World, entradas: Map<string, EntradaLiga>, ctx:
 export function vagasIniciais(w: World): Map<string, Qualificado[]> {
   const c = w.continental;
   if (!c) return new Map();
-  const entradas = new Map<string, EntradaLiga>();
+  const entradas = w.entradasVagas;
   for (const p of w.pacotes) {
     const l1 = w.ligas[p.ligas[0]];
     const ordem = [...l1.clubes].sort((a, b) => w.reputacao[b] - w.reputacao[a]);
-    entradas.set(l1.regras.id, { liga: l1.regras.id, ordem, pos: new Map(ordem.map((x, i) => [x, i + 1])), campeao: null, vencedoresTaca: new Map() });
+    entradas.set(l1.regras.id, { liga: l1.regras.id, ordem, pos: new Map(ordem.map((x, i) => [x, i + 1])), campeao: null, vencedoresTaca: new Map(), inicial: true });
   }
   // Detentores (gerado): os 3 clubes de maior reputação das ligas UEFA.
   const uefa = w.pacotes.filter((p) => p.manifest.confederacao === 'UEFA').flatMap((p) => w.ligas[p.ligas[0]].clubes).sort((a, b) => w.reputacao[b] - w.reputacao[a]);
   const detentores = new Map<string, number>();
   (c.vagas.especiais?.detentores ?? []).forEach((d, i) => detentores.set(d.de, uefa[i]));
   const bonus = c.vagas.primeira_epoca?.bonus_ranking.valor ?? [];
-  return atribuirVagas(w, entradas, { detentores, bonus, prefixo: 'gerado (1.ª época, por reputação)' });
+  w.detentores = detentores;
+  w.bonusRanking = bonus;
+  return atribuirVagas(w, entradas, { detentores, bonus, prefixoDetentores: 'gerado (1.ª época)' });
 }

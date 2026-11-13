@@ -11,13 +11,13 @@ export interface DadosRelatorio {
   epocas: number;
   w: World;
   historico: RegistoEpoca[];
-  integridade: { epoca: number; problemas: string[] }[];
-  vagas: { epoca: number; problemas: string[] }[];
-  calendario: { epoca: number; problemas: string[]; jogos: number }[];
+  integridade: { epoca: number | string; problemas: string[] }[];
+  vagas: { epoca: number | string; problemas: string[] }[];
+  calendario: { epoca: number | string; problemas: string[]; jogos: number }[];
   semanasMs: number[];
   epocasMs: number[];
   calib10k: Estatisticas;
-  favoritos: { epoca: number; liga: string; top1: number; top3: number[] }[];
+  favoritos: { grupo?: string; epoca: number; liga: string; top1: number; top3: number[] }[];
   memoriaMB: number;
   saveKB: number[];
   pacotes: number;
@@ -30,6 +30,9 @@ const NOMES_COMP: Record<string, string> = {
 const pct = (x: number, n: number) => (n ? ((100 * x) / n).toFixed(1) + '%' : '—');
 const media = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 const ep = (e: number) => `${e}/${String(e + 1).slice(2)}`;
+/** Rótulo de uma época: "2026/27" (Agosto–Maio) ou "2027" (ano civil). */
+const rot = (r: { grupo: string; epoca: number }) => (r.grupo === 'ano_civil' ? String(r.epoca) : ep(r.epoca));
+const NOME_GRUPO: Record<string, string> = { ago_mai: 'Agosto–Maio', ano_civil: 'ano civil (Fevereiro–Dezembro)' };
 const ok = (b: boolean) => (b ? '✅' : '❌');
 
 function nome(w: World, c: number, pais = false): string {
@@ -77,7 +80,7 @@ export function metricasRealismo(w: World, hist: RegistoEpoca[], favoritos: Dado
   const distintos = [...porLiga.values()].map((x) => x.campeoes.size);
   let fav1 = 0, fav3 = 0, nFav = 0;
   for (const f of favoritos) {
-    const r = hist.find((h) => h.epoca === f.epoca);
+    const r = hist.find((h) => h.epoca === f.epoca && h.grupo === (f.grupo ?? 'ago_mai'));
     if (!r) continue;
     nFav++;
     if (r.campeoes[f.liga] === f.top1) fav1++;
@@ -90,11 +93,12 @@ export function metricasRealismo(w: World, hist: RegistoEpoca[], favoritos: Dado
   const entradas = hist.flatMap((r) => r.movimentos.filter((m) => m.de === 'exterior'));
   // Clubes que subiram e desceram logo a seguir ("ioiô").
   let ioio = 0, subidasComSeguinte = 0;
-  for (let i = 0; i + 1 < hist.length; i++) {
-    for (const m of hist[i].movimentos) {
+  const porGrupo = (g: string) => hist.filter((h) => h.grupo === g);
+  for (const hs of [porGrupo('ago_mai'), porGrupo('ano_civil')]) for (let i = 0; i + 1 < hs.length; i++) {
+    for (const m of hs[i].movimentos) {
       if (m.via === 'exterior' || m.de === 'exterior' || nivel(w, m.para) >= nivel(w, m.de)) continue;
       subidasComSeguinte++;
-      if (hist[i + 1].movimentos.some((x) => x.clube === m.clube && x.de === m.para)) ioio++;
+      if (hs[i + 1].movimentos.some((x) => x.clube === m.clube && x.de === m.para)) ioio++;
     }
   }
   const ganhos = new Map<number, number>();
@@ -113,7 +117,7 @@ export function relatorioResumo(d: DadosRelatorio): string {
   const p = (s = '') => L.push(s);
   p(`# Simulação de ${d.epocas} épocas — semente ${d.semente}`);
   p();
-  p(`> **DADOS DE TESTE.** Mundo fictício (${w.ligas.length} ligas, ${d.pacotes} pacotes). Épocas ${ep(H[0].epoca)} a ${ep(H[H.length - 1].epoca)}. Uma página por época em [epocas/](epocas/), com todas as classificações finais.`);
+  p(`> **DADOS DE TESTE.** Mundo fictício (${w.ligas.length} ligas, ${d.pacotes} pacotes). Dois calendários: Agosto–Maio (${rot(H.find((r) => r.grupo === 'ago_mai')!)} a ${rot([...H].reverse().find((r) => r.grupo === 'ago_mai')!)}) e ano civil, Fevereiro–Dezembro (${H.some((r) => r.grupo === 'ano_civil') ? `${rot(H.find((r) => r.grupo === 'ano_civil')!)} a ${rot([...H].reverse().find((r) => r.grupo === 'ano_civil')!)}` : '—'}). Uma página por época em [epocas/](epocas/), com todas as classificações finais.`);
   p();
 
   // ---------- Testes ----------
@@ -166,16 +170,23 @@ export function relatorioResumo(d: DadosRelatorio): string {
 
   // ---------- Campeões ----------
   p('## 2. Campeões por liga');
-  p();
-  p(`| Liga | ${H.map((r) => ep(r.epoca)).join(' | ')} | Diferentes |`);
-  p(`|---|${H.map(() => '---').join('|')}|---:|`);
-  for (const l of w.ligas) {
-    const id = l.regras.id;
-    const camps = H.map((r) => r.campeoes[id]);
-    p(`| ${nomeLiga(w, id)} | ${camps.map((x) => w.clubes[x].nome_curto).join(' | ')} | ${new Set(camps).size} |`);
+  for (const g of ['ago_mai', 'ano_civil']) {
+    const HG = H.filter((r) => r.grupo === g);
+    if (!HG.length) continue;
+    p();
+    p(`### Calendário ${NOME_GRUPO[g]}`);
+    p();
+    p(`| Liga | ${HG.map(rot).join(' | ')} | Diferentes |`);
+    p(`|---|${HG.map(() => '---').join('|')}|---:|`);
+    for (const l of w.ligas) {
+      const id = l.regras.id;
+      if (l.regras.epoca.calendario !== g) continue;
+      const camps = HG.map((r) => r.campeoes[id]);
+      p(`| ${nomeLiga(w, id)} | ${camps.map((x) => w.clubes[x].nome_curto).join(' | ')} | ${new Set(camps).size} |`);
+    }
   }
   p();
-  p('Siglas: ver as classificações em cada página de época. Ligas com play-off de campeão (Argentina, MLS): campeão = vencedor do play-off.');
+  p('Siglas: ver as classificações em cada página de época. Ligas com play-off de campeão (Argentina): campeão = vencedor do play-off.');
   p();
 
   // ---------- Pontos ----------
@@ -193,7 +204,7 @@ export function relatorioResumo(d: DadosRelatorio): string {
   p();
   p('| Época | Competição | Vencedor | Finalista | Final |');
   p('|---|---|---|---|---|');
-  for (const r of H) for (const [id, c2] of Object.entries(r.continentais)) p(`| ${ep(r.epoca)} | ${NOMES_COMP[id] ?? id} | ${nome(w, c2.vencedor, true)} | ${nome(w, c2.finalista, true)} | ${c2.final} |`);
+  for (const r of H) for (const [id, c2] of Object.entries(r.continentais)) p(`| ${rot(r)} | ${NOMES_COMP[id] ?? id} | ${nome(w, c2.vencedor, true)} | ${nome(w, c2.finalista, true)} | ${c2.final} |`);
   p();
   const titulos = new Map<string, number>();
   for (const r of H) for (const [id, c2] of Object.entries(r.continentais)) {
@@ -208,22 +219,25 @@ export function relatorioResumo(d: DadosRelatorio): string {
   p();
   p('| Época | 3 melhores associações (coeficiente) | Bónus na época seguinte | Campeões em título na época seguinte (UCL / UEL / UECL) |');
   p('|---|---|---|---|');
-  for (const r of H) {
+  for (const r of H.filter((h) => Object.keys(h.coeficientes).length)) {
     const top = Object.entries(r.coeficientes).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([l, v]) => `${l} ${v.toFixed(2)}`).join(', ');
     const det = ['UCL', 'UEL', 'UECL'].map((k) => (r.detentoresProxima[k] !== undefined ? nome(w, r.detentoresProxima[k], true) : '—')).join(' / ');
-    p(`| ${ep(r.epoca)} | ${top} | ${r.bonusProxima.join(', ')} | ${det} |`);
+    p(`| ${rot(r)} | ${top} | ${r.bonusProxima.join(', ')} | ${det} |`);
   }
   p();
 
   // ---------- Taças ----------
   p('## 5. Taças nacionais (vencedores)');
   p();
-  p(`| País | ${H.map((r) => ep(r.epoca)).join(' | ')} |`);
-  p(`|---|${H.map(() => '---').join('|')}|`);
-  for (const pk of w.pacotes) {
-    for (const tc of pk.tacas) p(`| ${tc.nome} (${pk.manifest.nome}) | ${H.map((r) => (r.tacas[tc.id] ? w.clubes[r.tacas[tc.id].vencedor].nome_curto : '')).join(' | ')} |`);
+  for (const g of ['ago_mai', 'ano_civil']) {
+    const HG = H.filter((r) => r.grupo === g);
+    const pacs = w.pacotes.filter((pk) => w.ligas[pk.ligas[0]].regras.epoca.calendario === g && pk.tacas.length);
+    if (!HG.length || !pacs.length) continue;
+    p(`| Taça (${NOME_GRUPO[g]}) | ${HG.map(rot).join(' | ')} |`);
+    p(`|---|${HG.map(() => '---').join('|')}|`);
+    for (const pk of pacs) for (const tc of pk.tacas) p(`| ${tc.nome} (${pk.manifest.nome}) | ${HG.map((r) => (r.tacas[tc.id] ? w.clubes[r.tacas[tc.id].vencedor].nome_curto : '')).join(' | ')} |`);
+    p();
   }
-  p();
 
   // ---------- Movimentos ----------
   p('## 6. Subidas, descidas e exterior por época');
@@ -234,7 +248,7 @@ export function relatorioResumo(d: DadosRelatorio): string {
     const sub = r.movimentos.filter((m) => m.de !== 'exterior' && m.para !== 'exterior' && nivel(w, m.para) < nivel(w, m.de)).length;
     const des = r.movimentos.filter((m) => m.de !== 'exterior' && m.para !== 'exterior' && nivel(w, m.para) > nivel(w, m.de)).length;
     const bar = r.movimentos.filter((m) => m.via === 'barragem' && nivel(w, m.para) < nivel(w, m.de)).length;
-    p(`| ${ep(r.epoca)} | ${sub} | ${des} | ${bar} | ${r.movimentos.filter((m) => m.para === 'exterior').length} | ${r.movimentos.filter((m) => m.de === 'exterior').length} |`);
+    p(`| ${rot(r)} | ${sub} | ${des} | ${bar} | ${r.movimentos.filter((m) => m.para === 'exterior').length} | ${r.movimentos.filter((m) => m.de === 'exterior').length} |`);
   }
   p();
   p('Detalhe (clube a clube) em cada página de época.');
@@ -257,7 +271,7 @@ export function relatorioEpoca(d: DadosRelatorio, r: RegistoEpoca): string {
   REP_ANTES = new Map(r.repAntes.map((x, i) => [i, x]));
   const L: string[] = [];
   const p = (s = '') => L.push(s);
-  p(`# Época ${ep(r.epoca)} — semente ${d.semente}`);
+  p(`# Época ${rot(r)} (${NOME_GRUPO[r.grupo]}) — semente ${d.semente}`);
   p();
   p('> DADOS DE TESTE. Notas: **C** campeão; **↑** sobe; **↓** desce; **↓ ext.** sai para o exterior; **PO** play-off; **Barr.** barragem; siglas das competições para a época seguinte: **LC** Liga dos Campeões, **PO-LC** play-off de acesso à LC, **LE** Liga Europa, **PO-LE** play-off de acesso à LE, **LConf** Liga Conferência, **Lib** Libertadores, **LCA** Liga dos Campeões Asiática. Rep. = reputação no fim da época, antes da actualização.');
   p();
@@ -348,7 +362,7 @@ export function relatorioEpoca(d: DadosRelatorio, r: RegistoEpoca): string {
     }
   }
   p();
-  p(`## Vagas continentais para ${ep(r.epoca + 1)}`);
+  p(`## Vagas continentais definidas no fim desta época (${Object.keys(r.qualificadosProxima).join(', ') || '—'})`);
   for (const [comp, q] of Object.entries(r.qualificadosProxima)) {
     p();
     p(`**${NOMES_COMP[comp] ?? comp}** (${q.length}): ` + q.map((x) => `${nome(w, x.clube)} (${x.pais}, ${x.via})`).join('; ') + '.');

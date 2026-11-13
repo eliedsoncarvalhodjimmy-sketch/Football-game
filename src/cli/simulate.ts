@@ -9,7 +9,8 @@ import { construirMundo } from '../engine/world.ts';
 import { Simulador } from '../engine/simulador.ts';
 import { MUNDO } from '../config/mundo.ts';
 import { args, RAIZ_PACKS } from './args.ts';
-import { verificarIntegridade, verificarVagas, verificarCalendarioEpoca, impressaoDigital } from '../engine/verificacoes.ts';
+import { verificarIntegridade, verificarVagas, verificarCalendarioEpoca, verificarCalendarioMundo, impressaoDigital } from '../engine/verificacoes.ts';
+import type { Temporada } from '../engine/season/temporada.ts';
 import { novasEstatisticas, type Estatisticas } from '../engine/season/temporada.ts';
 import { relatorioResumo, relatorioEpoca, type DadosRelatorio } from './relatorioEpocas.ts';
 import { serializarHistorico } from '../storage/serializar.ts';
@@ -28,35 +29,40 @@ async function correr(semente: number, n: number, medir: boolean) {
     calib10k: novasEstatisticas(), favoritos: [], memoriaMB: 0, saveKB: [], pacotes: dados.pacotes.length,
   };
   out.vagas.push({ epoca: w.epoca, problemas: verificarVagas(w) });
-  for (let e = 0; e < n; e++) {
-    const t = sim.temporada;
-    const ep = w.epoca;
-    // Favorito de cada liga no início da época: maior reputação.
-    for (const [id, c] of t.ligas) {
-      const fav = [...c.clubes].sort((x, y) => w.reputacao[y] - w.reputacao[x]);
-      out.favoritos.push({ epoca: ep, liga: id, top1: fav[0], top3: fav.slice(0, 3) });
-    }
-    const t0 = performance.now();
-    for (let s = 0; s < 52; s++) {
-      const ts = performance.now();
-      sim.simularSemana();
-      if (medir) out.semanasMs.push(performance.now() - ts);
-    }
-    out.epocasMs.push(performance.now() - t0);
-    if (e === 0) {
-      let k = 0;
-      for (const j of t.jogos) {
-        if (k >= 10000) break;
-        if (!t.ligas.has(j.comp)) continue;
-        somar(out.calib10k, j.r!.gc, j.r!.gf);
-        k++;
+  const fechadas: Temporada[] = [];
+  let primeiraAgo = true;
+  let tEpoca = performance.now();
+  sim.aoFechar = (t, reg) => {
+    fechadas.push(t);
+    const rot = t.grupo === 'ago_mai' ? `${t.ano}/${String(t.ano + 1).slice(2)}` : `${t.ano}`;
+    if (t.grupo === 'ago_mai') {
+      out.epocasMs.push(performance.now() - tEpoca);
+      tEpoca = performance.now();
+      if (primeiraAgo) {
+        primeiraAgo = false;
+        let k = 0;
+        for (const j of t.jogos) {
+          if (k >= 10000) break;
+          if (!t.ligas.has(j.comp)) continue;
+          somar(out.calib10k, j.r!.gc, j.r!.gf);
+          k++;
+        }
       }
     }
-    out.calendario.push({ epoca: ep, problemas: verificarCalendarioEpoca(t).map((p) => `${p.tipo}: ${p.msg}`), jogos: t.jogos.length });
-    out.integridade.push({ epoca: w.epoca, problemas: verificarIntegridade(w) });
-    out.vagas.push({ epoca: w.epoca, problemas: verificarVagas(w) });
-    if (medir) out.saveKB.push(gzipSync(serializarHistorico([sim.historico[sim.historico.length - 1]])).length / 1024);
+    out.calendario.push({ epoca: rot, problemas: verificarCalendarioEpoca(t).map((p) => `${p.tipo}: ${p.msg}`), jogos: t.jogos.length });
+    out.integridade.push({ epoca: rot, problemas: verificarIntegridade(w) });
+    out.vagas.push({ epoca: rot, problemas: verificarVagas(w) });
+    if (medir) out.saveKB.push(gzipSync(serializarHistorico([reg])).length / 1024);
+  };
+  const grupos = [...sim.temporadas.keys()];
+  while (grupos.some((g) => sim.historico.filter((r) => r.grupo === g).length < n)) {
+    const ts = performance.now();
+    sim.simularSemana();
+    if (medir) out.semanasMs.push(performance.now() - ts);
   }
+  // Choques entre calendários (ex.: clube norueguês na liga de ano civil e na UEFA), por data absoluta.
+  out.calendario.push({ epoca: 'todas (entre calendários)', problemas: verificarCalendarioMundo(fechadas).map((p) => `${p.tipo}: ${p.msg}`), jogos: 0 });
+  out.favoritos = sim.inicios;
   out.memoriaMB = process.memoryUsage().heapUsed / 1024 / 1024;
   return out;
 }
@@ -77,7 +83,7 @@ const total = performance.now() - t0;
 const dA = impressaoDigital(res.historico.slice(0, 2));
 const rB = await correr(semente, 2, false);
 const rC = await correr(semente + 1, 2, false);
-res.determinismo = { mesma: dA === impressaoDigital(rB.historico), outra: dA !== impressaoDigital(rC.historico), hash: dA };
+res.determinismo = { mesma: dA === impressaoDigital(rB.historico.slice(0, 2)), outra: dA !== impressaoDigital(rC.historico.slice(0, 2)), hash: dA };
 
 console.log(`${N} épocas simuladas em ${(total / 1000).toFixed(1)} s (média ${(res.epocasMs.reduce((x, y) => x + y, 0) / N).toFixed(0)} ms/época).`);
 const prob = [...res.integridade, ...res.vagas, ...res.calendario].reduce((s, x) => s + x.problemas.length, 0);
@@ -86,6 +92,6 @@ if (comRelatorio) {
   const dir = new URL('../../docs/relatorios/', import.meta.url).pathname;
   mkdirSync(`${dir}epocas`, { recursive: true });
   writeFileSync(`${dir}simulacao_${N}_epocas.md`, relatorioResumo(res));
-  for (const r of res.historico) writeFileSync(`${dir}epocas/epoca_${r.epoca}-${String(r.epoca + 1).slice(2)}.md`, relatorioEpoca(res, r));
+  for (const r of res.historico) writeFileSync(`${dir}epocas/epoca_${r.grupo === 'ano_civil' ? `${r.epoca}_ano_civil` : `${r.epoca}-${String(r.epoca + 1).slice(2)}`}.md`, relatorioEpoca(res, r));
   console.log(`Relatório: docs/relatorios/simulacao_${N}_epocas.md e docs/relatorios/epocas/`);
 }

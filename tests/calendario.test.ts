@@ -44,15 +44,21 @@ describe('calendário das ligas', async () => {
   const w = await mundo(2026);
   const cal = calendarioLigas(w);
   const todos = [...cal.values()].flat();
-  const m = CALENDARIO.modelos.ago_mai;
+  const modeloDe = (comp: string) => CALENDARIO.modelos[w.ligaPorId(comp).regras.epoca.calendario];
 
   it('sem choques: mesmo dia, > 2 jogos por semana, sequências > 3', () => {
     expect(verificarCalendario(todos)).toEqual([]);
   });
 
+  it('ligas de ano civil usam o calendário Fevereiro–Dezembro (8 ligas da folha)', () => {
+    const anoCivil = w.ligas.filter((l) => l.regras.epoca.calendario === 'ano_civil').map((l) => l.regras.id).sort();
+    expect(anoCivil).toEqual(['ARG1', 'BRA1', 'BRA2', 'COL1', 'ECU1', 'KOR1', 'NOR1', 'URU1', 'USA1']);
+  });
+
   it('jornadas dentro da época; só as divisões inferiores jogam nas paragens de selecções', () => {
     const nasParagens = new Set(w.ligas.filter((l) => l.regras.jogam_nas_paragens).map((l) => l.regras.id));
     for (const j of todos) {
+      const m = modeloDe(j.comp);
       expect(j.semana).toBeGreaterThanOrEqual(m.primeira_semana);
       expect(j.semana).toBeLessThanOrEqual(m.ultima_semana);
       if (!nasParagens.has(j.comp)) expect(m.paragens_selecoes).not.toContain(j.semana);
@@ -60,9 +66,12 @@ describe('calendário das ligas', async () => {
   });
 
   it('jornadas a meio da semana não usam semanas continentais', () => {
-    const c = m.continentais;
-    const reservadas = new Set([...c.fase_liga, ...c.playoff, ...c.oitavos, ...c.quartos, ...c.meias, ...c.grupos, ...c.quartos_grupos, ...c.meias_grupos, ...c.acesso]);
-    for (const j of todos) if (j.ranhura === 'meio') expect(reservadas.has(j.semana)).toBe(false);
+    for (const j of todos) {
+      if (j.ranhura !== 'meio') continue;
+      const c = modeloDe(j.comp).continentais;
+      const reservadas = new Set([...c.fase_liga, ...c.playoff, ...c.oitavos, ...c.quartos, ...c.meias, ...c.grupos, ...c.quartos_grupos, ...c.meias_grupos, ...c.acesso]);
+      expect(reservadas.has(j.semana)).toBe(false);
+    }
   });
 
   it('número de jogos por liga = n(n-1)/2 × voltas', () => {

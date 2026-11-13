@@ -45,9 +45,11 @@ const resMM = (m: MataMata) => ({ vencedor: m.vencedorFinal!, finalista: m.final
 
 export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, historico: RegistoEpoca[] = []): RegistoEpoca {
   if (t.comps.some((c) => !c.terminada())) throw new Error('passagem de época com competições por terminar');
-  const ep = w.epoca;
+  const ep = t.ano;
+  const grupo = t.grupo;
+  const hist = historico.filter((r) => r.grupo === grupo);
   const reg: RegistoEpoca = {
-    epoca: ep, tabelas: {}, campeoes: {}, playoffsCampeao: {}, playoffsSubida: {}, barragens: {}, movimentos: [],
+    grupo, epoca: ep, tabelas: {}, campeoes: {}, playoffsCampeao: {}, playoffsSubida: {}, barragens: {}, movimentos: [],
     tacas: {}, continentais: {}, acesso: {}, coeficientes: {}, bonusProxima: [], detentoresProxima: {},
     qualificadosProxima: {}, repAntes: Array.from(w.reputacao), repDepois: [], estatLiga: t.estatLiga, jogos: null, impressao: 0,
   };
@@ -93,14 +95,18 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
     reg.acesso[id] = { participantes: m.participantes ?? [], vencedores: venc };
     for (const x of venc) somar(x, (REPUTACAO.continental_fase.playoff ?? 0) * (REPUTACAO.continental_prestigio[id.replace('_PO', '')] ?? 0.5));
   }
-  // Coeficiente UEFA da época (por associação = liga que deu a vaga).
-  reg.coeficientes = coeficientesUEFA(t);
-  const bonusCfg = w.continental?.vagas.especiais?.bonus_ranking;
-  reg.bonusProxima = Object.entries(reg.coeficientes).sort((a, b) => b[1] - a[1]).slice(0, bonusCfg?.paises ?? 0).map(([l]) => l);
-  for (const d of w.continental?.vagas.especiais?.detentores ?? []) {
-    const cc = t.continentais.get(d.de);
-    const ko = cc instanceof FaseLigaUEFA ? cc.final : cc?.ko;
-    if (ko?.vencedorFinal != null) reg.detentoresProxima[d.de] = ko.vencedorFinal;
+  // Coeficiente UEFA da época (por associação = liga que deu a vaga), só no calendário das competições UEFA.
+  if ([...t.continentais.values()].some((cc) => cc instanceof FaseLigaUEFA)) {
+    reg.coeficientes = coeficientesUEFA(t);
+    const bonusCfg = w.continental?.vagas.especiais?.bonus_ranking;
+    reg.bonusProxima = Object.entries(reg.coeficientes).sort((a, b) => b[1] - a[1]).slice(0, bonusCfg?.paises ?? 0).map(([l]) => l);
+    for (const d of w.continental?.vagas.especiais?.detentores ?? []) {
+      const cc = t.continentais.get(d.de);
+      const ko = cc instanceof FaseLigaUEFA ? cc.final : cc?.ko;
+      if (ko?.vencedorFinal != null) reg.detentoresProxima[d.de] = ko.vencedorFinal;
+    }
+    w.detentores = new Map(Object.entries(reg.detentoresProxima));
+    w.bonusRanking = reg.bonusProxima;
   }
 
   // 2. Alvos de reputação (pela liga em que jogaram).
@@ -113,7 +119,7 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
   // 3. Movimentos entre divisões.
   const novaLiga = new Map<number, number>();
   const movs: Movimento[] = [];
-  for (const p of w.pacotes) {
+  for (const p of t.pacotes) {
     const ligas = p.ligas.map((li) => t.ligas.get(w.ligas[li].regras.id)!);
     ligas.forEach((c, i) => { for (const x of c.clubes) novaLiga.set(x, p.ligas[i]); });
     ligas.forEach((c, i) => {
@@ -133,7 +139,7 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
       if (r.descida_media_epocas && r.descidas.directas > 0) {
         // Descida pela média de pontos das últimas N épocas na liga (ex.: Colômbia).
         const linhas = c.classificacao();
-        const med = new Map(linhas.map((l) => [l.clube, mediaPontos(l.clube, r.id, r.descida_media_epocas!, l, historico)]));
+        const med = new Map(linhas.map((l) => [l.clube, mediaPontos(l.clube, r.id, r.descida_media_epocas!, l, hist)]));
         const pos = new Map(ordem.map((x, k) => [x, k]));
         const porMedia = [...ordem].sort((a, b) => med.get(a)! - med.get(b)! || pos.get(b)! - pos.get(a)!);
         for (let k = 0; k < r.descidas.directas; k++) desce(porMedia[k], 'directa');
@@ -159,8 +165,9 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
 
   // 4. Vagas continentais da próxima época (com a liga já actualizada, para excluir quem saiu do jogo).
   for (const [x, l] of novaLiga) w.liga[x] = l;
-  const entradas = new Map<string, EntradaLiga>();
-  for (const p of w.pacotes) {
+  // Última classificação conhecida das ligas deste calendário; as do outro calendário mantêm-se.
+  const entradas = w.entradasVagas;
+  for (const p of t.pacotes) {
     const id1 = w.ligas[p.ligas[0]].regras.id;
     const tabela = reg.tabelas[id1].map((l) => l.clube);
     const camp = reg.campeoes[id1];
@@ -168,24 +175,29 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
     for (const tc of p.tacas) if (tc.vaga_vencedor && reg.tacas[tc.id]) vencedoresTaca.set(tc.vaga_vencedor, reg.tacas[tc.id].vencedor);
     entradas.set(id1, { liga: id1, ordem: [camp, ...tabela.filter((x) => x !== camp)], pos: new Map(tabela.map((x, i) => [x, i + 1])), campeao: camp, vencedoresTaca });
   }
-  w.qualificados = atribuirVagas(w, entradas, { detentores: new Map(Object.entries(reg.detentoresProxima)), bonus: reg.bonusProxima });
-  reg.qualificadosProxima = Object.fromEntries(w.qualificados);
+  const todas = atribuirVagas(w, entradas, { detentores: w.detentores, bonus: w.bonusRanking });
+  // Só se actualizam as competições deste calendário (e os seus play-offs de acesso).
+  const minhas = new Set((w.continental?.competicoes ?? []).filter((c) => (c.calendario ?? 'ago_mai') === grupo).flatMap((c) => [c.id, `${c.id}_PO`]));
+  for (const [comp, q] of todas) if (minhas.has(comp)) { w.qualificados.set(comp, q); reg.qualificadosProxima[comp] = q; }
 
   // 5. Reputação.
-  for (const [x, a] of alvo) {
-    const r = w.reputacao[x];
-    const delta = clamp(REPUTACAO.alfa * (a + (bonus.get(x) ?? 0) - r), -REPUTACAO.max_variacao, REPUTACAO.max_variacao);
-    w.reputacao[x] = clamp(Math.round((r + delta) * 10) / 10, 1, 100);
+  const novaRep = (x: number, delta: number) => {
+    w.reputacao[x] = clamp(Math.round((w.reputacao[x] + delta) * 10) / 10, 1, 100);
     w.clubes[x].reputacao = w.reputacao[x];
+  };
+  for (const [x, a] of alvo) {
+    novaRep(x, clamp(REPUTACAO.alfa * (a + (bonus.get(x) ?? 0) - w.reputacao[x]), -REPUTACAO.max_variacao, REPUTACAO.max_variacao));
   }
+  // Clubes de ligas do outro calendário com bónus continental (ex.: noruegueses na UEFA): só o bónus.
+  for (const [x, b] of bonus) if (!alvo.has(x) && w.liga[x] >= 0) novaRep(x, clamp(REPUTACAO.alfa * b, -REPUTACAO.max_variacao, REPUTACAO.max_variacao));
 
   // 6. Listas das ligas e clubes do exterior.
-  for (const l of w.ligas) l.clubes = [];
+  for (const li of t.pacotes.flatMap((p) => p.ligas)) w.ligas[li].clubes = [];
   for (const [x, l] of novaLiga) {
     if (l >= 0) { w.ligas[l].clubes.push(x); w.clubes[x].liga = w.ligas[l].regras.id; }
     else w.clubes[x].liga = 'exterior';
   }
-  for (const p of w.pacotes) {
+  for (const p of t.pacotes) {
     const li = p.ligas[p.ligas.length - 1];
     const l = w.ligas[li];
     const falta = l.regras.formato.equipas - l.clubes.length;
@@ -204,8 +216,9 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
   }
   reg.repDepois = Array.from(w.reputacao);
 
-  // 7. Nova época.
-  w.epoca = ep + 1;
-  w.recalcularForca();
+  // 7. Nova época deste calendário.
+  w.epocaPorGrupo[grupo] = ep + 1;
+  if (grupo === 'ago_mai') w.epoca = ep + 1;
+  w.recalcularForca(0, grupo);
   return reg;
 }

@@ -2,6 +2,7 @@
   "id": "UECL",
   "nome": "UEFA Conference League",
   "confederacao": "UEFA",
+  "calendario": "ago_mai",
   "equipas": 32,
   "formato_folha": "fase de liga única de 32 equipas (6 jogos por equipa, adversários sorteados); 1.º–8.º direto aos oitavos; 9.º–24.º play-off de eliminatórias; 25.º–32.º eliminados",
   "premios": [

@@ -66,3 +66,13 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
 43. **Colômbia**: desce pela média de pontos das últimas 3 épocas na liga.
 44. **Splits e fases finais** (SCO1, AUT1, DEN1, SUI1, CZE1, GRE1, BEL1, KOR1) não estão implementados: as ligas jogam o número de voltas que a folha indica ("33 jogos" → 3 voltas; "4 voltas" → 4).
 45. **Liga 3 portuguesa**, **SWE1**, **HUN1** e **UKR1** saem do jogo (não estão nas folhas). A EUR1 tem clubes desses e de outros países, com quotas geradas.
+
+## Respostas do utilizador (13/11/2026) às 12 pendências
+
+46. **AFR1** 24 clubes, fechada, quotas antigas. **EUR1** UKR 3, ISR 3, CYP 3, SWE 3, ROU 3, HUN 3, AZE 2. **ARG1** desce 2 e mantém o play-off de campeão de 8. **FRA3** sobe 3 e **FRA2** desce 3.
+47. **SUI1, POL1, CZE1, CRO1, EUR1**: TV gerada pelo índice de riqueza (9 M€ × índice; 50/30/20), plantel máximo 29; marcados "gerado".
+48. **MLS** sem tecto salarial. **Mínimo de nacionais**: 0 em todas, excepto Alemanha 12, Inglaterra 8 e Itália 8 (nacional = formado no país); o valor da folha fica guardado em `minimo_nacionais_folha`, sem uso.
+49. **Ano civil** (substitui U7): NOR1, BRA1/2, ARG1, COL1, URU1, ECU1, KOR1 e USA1 jogam Fevereiro–Novembro (play-offs em Dezembro) e começam na época de 2027; a Libertadores acompanha esse calendário. O mundo avança por datas reais com duas épocas em paralelo (`Simulador`), cada uma com a sua passagem de época. As vagas usam a última classificação conhecida de cada liga (ex.: a Noruega para a UEFA usa a tabela de Dezembro anterior).
+50. **Choques entre calendários**: as taças de pacotes com vagas em continentais do outro calendário (Noruega na UEFA, Coreia na Ásia) evitam essas semanas, e as jornadas de liga evitam os fins-de-semana das finais desse calendário. A verificação de calendário passa a fazer-se também por data absoluta entre calendários. Um clube de ano civil pode descer para fora do jogo a meio da campanha europeia (qualificou-se antes): é aceite.
+51. **Formatos**: sem splits nem play-outs (opções em `config/formatos.ts`, desligadas; textos em `split_folha`). BEL2 com 4 voltas. **MEX1 e USA1 sem play-offs**, tabela única (USA1 com 1 volta, 30 equipas).
+52. **KSA1**: força desportiva 50 (decisão do utilizador). Mesmo assim, a Arábia ganhava ~6,8 de 10 títulos asiáticos; baixei o tecto da banda de reputação provisória de 78 para 72. Com 6 sementes, a Arábia fica com ~4,7 de 10.

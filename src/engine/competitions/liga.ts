@@ -15,11 +15,11 @@ export class CompLiga implements Competicao {
   private registados = 0;
   private final: LinhaTabela[] | null = null;
 
-  constructor(public regras: RegrasLiga, public clubes: number[], rng: Rng, private sal: string) {
+  constructor(public regras: RegrasLiga, public clubes: number[], rng: Rng, private sal: string, excluirFds: number[] = []) {
     this.id = regras.id;
     this.nome = regras.nome;
     this.tabela = new Tabela(clubes);
-    this.jogos = agendarLiga(regras.id, clubes, regras.formato.voltas, regras.epoca.calendario, rng, !!regras.jogam_nas_paragens);
+    this.jogos = agendarLiga(regras.id, clubes, regras.formato.voltas, regras.epoca.calendario, rng, !!regras.jogam_nas_paragens, excluirFds);
     for (const j of this.jogos) {
       if (!this.porSemana.has(j.semana)) this.porSemana.set(j.semana, []);
       this.porSemana.get(j.semana)!.push(j);

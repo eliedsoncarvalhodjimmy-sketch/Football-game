@@ -1,96 +1,764 @@
 {
   "_leia_me": "Valores que NÃO vêm das folhas do utilizador: interpretações estruturadas das colunas de texto (play-offs, formato), propostas do Claude (força desportiva, bandas de reputação) e valores GERADOS para campos 'a obter'. Cada entrada diz a origem. As folhas em data/fontes/*.xlsx têm sempre prioridade quando o campo estiver preenchido.",
   "paises": {
-    "ENG": { "pacote": "eng", "nome": "Inglaterra", "confederacao": "UEFA", "perfil": "en" },
-    "GER": { "pacote": "ger", "nome": "Alemanha", "confederacao": "UEFA", "perfil": "de" },
-    "FRA": { "pacote": "fra", "nome": "França", "confederacao": "UEFA", "perfil": "fr" },
-    "POR": { "pacote": "por", "nome": "Portugal", "confederacao": "UEFA", "perfil": "pt" },
-    "ESP": { "pacote": "esp", "nome": "Espanha", "confederacao": "UEFA", "perfil": "es" },
-    "NED": { "pacote": "ned", "nome": "Países Baixos", "confederacao": "UEFA", "perfil": "nl" },
-    "BEL": { "pacote": "bel", "nome": "Bélgica", "confederacao": "UEFA", "perfil": "be" },
-    "SCO": { "pacote": "sco", "nome": "Escócia", "confederacao": "UEFA", "perfil": "sc" },
-    "TUR": { "pacote": "tur", "nome": "Turquia", "confederacao": "UEFA", "perfil": "tr" },
-    "ITA": { "pacote": "ita", "nome": "Itália", "confederacao": "UEFA", "perfil": "it" },
-    "AUT": { "pacote": "aut", "nome": "Áustria", "confederacao": "UEFA", "perfil": "de" },
-    "NOR": { "pacote": "nor", "nome": "Noruega", "confederacao": "UEFA", "perfil": "no" },
-    "GRE": { "pacote": "gre", "nome": "Grécia", "confederacao": "UEFA", "perfil": "el" },
-    "DEN": { "pacote": "den", "nome": "Dinamarca", "confederacao": "UEFA", "perfil": "da" },
-    "SUI": { "pacote": "sui", "nome": "Suíça", "confederacao": "UEFA", "perfil": "de" },
-    "POL": { "pacote": "pol", "nome": "Polónia", "confederacao": "UEFA", "perfil": "pl" },
-    "CZE": { "pacote": "cze", "nome": "Chéquia", "confederacao": "UEFA", "perfil": "cs" },
-    "CRO": { "pacote": "cro", "nome": "Croácia", "confederacao": "UEFA", "perfil": "hr" },
-    "EUR": { "pacote": "europa_resto", "nome": "Europa (resto)", "confederacao": "UEFA", "perfil": "regional", "regional": true },
-    "BRA": { "pacote": "bra", "nome": "Brasil", "confederacao": "CONMEBOL", "perfil": "br" },
-    "ARG": { "pacote": "arg", "nome": "Argentina", "confederacao": "CONMEBOL", "perfil": "ar" },
-    "COL": { "pacote": "col", "nome": "Colômbia", "confederacao": "CONMEBOL", "perfil": "es_am" },
-    "URU": { "pacote": "uru", "nome": "Uruguai", "confederacao": "CONMEBOL", "perfil": "es_am" },
-    "ECU": { "pacote": "ecu", "nome": "Equador", "confederacao": "CONMEBOL", "perfil": "es_am" },
-    "KSA": { "pacote": "ksa", "nome": "Arábia Saudita", "confederacao": "AFC", "perfil": "ar_g" },
-    "JPN": { "pacote": "jpn", "nome": "Japão", "confederacao": "AFC", "perfil": "ja" },
-    "KOR": { "pacote": "kor", "nome": "Coreia do Sul", "confederacao": "AFC", "perfil": "ko" },
-    "UAE": { "pacote": "uae", "nome": "Emirados Árabes Unidos", "confederacao": "AFC", "perfil": "ar_g" },
-    "USA": { "pacote": "usa", "nome": "EUA (MLS)", "confederacao": "CONCACAF", "perfil": "us" },
-    "MEX": { "pacote": "mex", "nome": "México", "confederacao": "CONCACAF", "perfil": "es_am" },
-    "AFR": { "pacote": "africa_unificada", "nome": "Liga Africana Unificada", "confederacao": "CAF", "perfil": "regional", "regional": true }
+    "ENG": {
+      "pacote": "eng",
+      "nome": "Inglaterra",
+      "confederacao": "UEFA",
+      "perfil": "en"
+    },
+    "GER": {
+      "pacote": "ger",
+      "nome": "Alemanha",
+      "confederacao": "UEFA",
+      "perfil": "de"
+    },
+    "FRA": {
+      "pacote": "fra",
+      "nome": "França",
+      "confederacao": "UEFA",
+      "perfil": "fr"
+    },
+    "POR": {
+      "pacote": "por",
+      "nome": "Portugal",
+      "confederacao": "UEFA",
+      "perfil": "pt"
+    },
+    "ESP": {
+      "pacote": "esp",
+      "nome": "Espanha",
+      "confederacao": "UEFA",
+      "perfil": "es"
+    },
+    "NED": {
+      "pacote": "ned",
+      "nome": "Países Baixos",
+      "confederacao": "UEFA",
+      "perfil": "nl"
+    },
+    "BEL": {
+      "pacote": "bel",
+      "nome": "Bélgica",
+      "confederacao": "UEFA",
+      "perfil": "be"
+    },
+    "SCO": {
+      "pacote": "sco",
+      "nome": "Escócia",
+      "confederacao": "UEFA",
+      "perfil": "sc"
+    },
+    "TUR": {
+      "pacote": "tur",
+      "nome": "Turquia",
+      "confederacao": "UEFA",
+      "perfil": "tr"
+    },
+    "ITA": {
+      "pacote": "ita",
+      "nome": "Itália",
+      "confederacao": "UEFA",
+      "perfil": "it"
+    },
+    "AUT": {
+      "pacote": "aut",
+      "nome": "Áustria",
+      "confederacao": "UEFA",
+      "perfil": "de"
+    },
+    "NOR": {
+      "pacote": "nor",
+      "nome": "Noruega",
+      "confederacao": "UEFA",
+      "perfil": "no"
+    },
+    "GRE": {
+      "pacote": "gre",
+      "nome": "Grécia",
+      "confederacao": "UEFA",
+      "perfil": "el"
+    },
+    "DEN": {
+      "pacote": "den",
+      "nome": "Dinamarca",
+      "confederacao": "UEFA",
+      "perfil": "da"
+    },
+    "SUI": {
+      "pacote": "sui",
+      "nome": "Suíça",
+      "confederacao": "UEFA",
+      "perfil": "de"
+    },
+    "POL": {
+      "pacote": "pol",
+      "nome": "Polónia",
+      "confederacao": "UEFA",
+      "perfil": "pl"
+    },
+    "CZE": {
+      "pacote": "cze",
+      "nome": "Chéquia",
+      "confederacao": "UEFA",
+      "perfil": "cs"
+    },
+    "CRO": {
+      "pacote": "cro",
+      "nome": "Croácia",
+      "confederacao": "UEFA",
+      "perfil": "hr"
+    },
+    "EUR": {
+      "pacote": "europa_resto",
+      "nome": "Europa (resto)",
+      "confederacao": "UEFA",
+      "perfil": "regional",
+      "regional": true
+    },
+    "BRA": {
+      "pacote": "bra",
+      "nome": "Brasil",
+      "confederacao": "CONMEBOL",
+      "perfil": "br"
+    },
+    "ARG": {
+      "pacote": "arg",
+      "nome": "Argentina",
+      "confederacao": "CONMEBOL",
+      "perfil": "ar"
+    },
+    "COL": {
+      "pacote": "col",
+      "nome": "Colômbia",
+      "confederacao": "CONMEBOL",
+      "perfil": "es_am"
+    },
+    "URU": {
+      "pacote": "uru",
+      "nome": "Uruguai",
+      "confederacao": "CONMEBOL",
+      "perfil": "es_am"
+    },
+    "ECU": {
+      "pacote": "ecu",
+      "nome": "Equador",
+      "confederacao": "CONMEBOL",
+      "perfil": "es_am"
+    },
+    "KSA": {
+      "pacote": "ksa",
+      "nome": "Arábia Saudita",
+      "confederacao": "AFC",
+      "perfil": "ar_g"
+    },
+    "JPN": {
+      "pacote": "jpn",
+      "nome": "Japão",
+      "confederacao": "AFC",
+      "perfil": "ja"
+    },
+    "KOR": {
+      "pacote": "kor",
+      "nome": "Coreia do Sul",
+      "confederacao": "AFC",
+      "perfil": "ko"
+    },
+    "UAE": {
+      "pacote": "uae",
+      "nome": "Emirados Árabes Unidos",
+      "confederacao": "AFC",
+      "perfil": "ar_g"
+    },
+    "USA": {
+      "pacote": "usa",
+      "nome": "EUA (MLS)",
+      "confederacao": "CONCACAF",
+      "perfil": "us"
+    },
+    "MEX": {
+      "pacote": "mex",
+      "nome": "México",
+      "confederacao": "CONCACAF",
+      "perfil": "es_am"
+    },
+    "AFR": {
+      "pacote": "africa_unificada",
+      "nome": "Liga Africana Unificada",
+      "confederacao": "CAF",
+      "perfil": "regional",
+      "regional": true
+    }
   },
   "ligas": {
-    "ENG1": { "forca_desportiva": 90, "rep": [93, 62] },
-    "ENG2": { "forca_desportiva": 72, "rep": [66, 44], "playoff": { "de": 3, "ate": 6, "destino": "subida" }, "jogam_nas_paragens": true },
-    "ENG3": { "forca_desportiva": 54, "rep": [50, 32], "playoff": { "de": 3, "ate": 6, "destino": "subida" }, "jogam_nas_paragens": true },
-    "ENG4": { "forca_desportiva": 44, "rep": [40, 24], "playoff": { "de": 4, "ate": 7, "destino": "subida" }, "jogam_nas_paragens": true },
-    "GER1": { "forca_desportiva": 85, "rep": [94, 56], "barragem": { "posicao": 16, "adversario": 3 } },
-    "GER2": { "forca_desportiva": 62, "rep": [62, 40], "barragem": { "posicao": 16, "adversario": 3 }, "jogam_nas_paragens": true },
-    "GER3": { "forca_desportiva": 46, "rep": [48, 30], "jogam_nas_paragens": true },
-    "FRA1": { "forca_desportiva": 76, "rep": [92, 50], "barragem": { "posicao": 16, "adversario": "playoff" } },
-    "FRA2": { "forca_desportiva": 52, "rep": [52, 32], "playoff": { "de": 3, "ate": 5, "destino": "barragem", "origem": "gerado: posições a obter ('play-off de acesso (confirmar)')" }, "jogam_nas_paragens": true },
-    "FRA3": { "forca_desportiva": 36, "rep": [38, 22], "descem": { "valor": 3, "origem": "gerado: campo vazio na folha" }, "sobem": { "valor": 3, "origem": "gerado: a FRA2 desce 3 e a folha diz que a FRA3 sobe 2; usei 3 para as contas fecharem" }, "jogam_nas_paragens": true },
-    "POR1": { "forca_desportiva": 68, "rep": [85, 40], "barragem": { "posicao": 16, "adversario": 3 } },
-    "POR2": { "forca_desportiva": 42, "rep": [44, 26], "jogam_nas_paragens": true },
-    "ESP1": { "forca_desportiva": 88, "rep": [95, 55] },
-    "ESP2": { "forca_desportiva": 60, "rep": [58, 38], "playoff": { "de": 3, "ate": 6, "destino": "subida" }, "jogam_nas_paragens": true },
-    "NED1": { "forca_desportiva": 69, "rep": [82, 40], "barragem": { "posicao": 17, "adversario": 3 } },
-    "NED2": { "forca_desportiva": 38, "rep": [42, 24], "jogam_nas_paragens": true },
-    "BEL1": { "forca_desportiva": 61, "rep": [74, 40], "barragem": { "posicao": 15, "adversario": 3 } },
-    "BEL2": { "forca_desportiva": 36, "rep": [40, 26], "voltas": { "valor": 4, "origem": "gerado: 'várias voltas (confirmar)'" }, "jogam_nas_paragens": true },
-    "SCO1": { "forca_desportiva": 50, "rep": [78, 34], "barragem": { "posicao": 11, "adversario": 3 } },
-    "SCO2": { "forca_desportiva": 30, "rep": [38, 20], "jogam_nas_paragens": true },
-    "TUR1": { "forca_desportiva": 57, "rep": [80, 42] },
-    "TUR2": { "forca_desportiva": 38, "rep": [48, 28], "jogam_nas_paragens": true },
-    "ITA1": { "forca_desportiva": 88, "rep": [92, 56] },
-    "ITA2": { "forca_desportiva": 58, "rep": [58, 36], "playoff": { "de": 3, "ate": 8, "destino": "subida" }, "jogam_nas_paragens": true },
-    "AUT1": { "forca_desportiva": 50, "rep": [68, 40] },
-    "NOR1": { "forca_desportiva": 51, "rep": [64, 38] },
-    "GRE1": { "forca_desportiva": 54, "rep": [74, 40] },
-    "DEN1": { "forca_desportiva": 51, "rep": [66, 40] },
-    "SUI1": { "forca_desportiva": 50, "rep": [68, 42] },
-    "POL1": { "forca_desportiva": 51, "rep": [64, 40] },
-    "CZE1": { "forca_desportiva": 54, "rep": [70, 38] },
-    "CRO1": { "forca_desportiva": 44, "rep": [68, 32] },
-    "EUR1": { "forca_desportiva": 46, "rep": [70, 38], "quotas": { "valor": { "UKR": 3, "ISR": 3, "CYP": 3, "SWE": 3, "ROU": 3, "HUN": 3, "AZE": 2 }, "origem": "gerado: clubes por país a obter" } },
-    "BRA1": { "forca_desportiva": 68, "rep": [84, 58] },
-    "BRA2": { "forca_desportiva": 48, "rep": [58, 38], "jogam_nas_paragens": true },
-    "ARG1": { "forca_desportiva": 58, "rep": [82, 45], "voltas": { "valor": 1, "origem": "decisão do utilizador U2 (formato a confirmar na folha)" }, "playoff_campeao": { "valor": 8, "origem": "decisão do utilizador U2 (a folha diz play-offs 'não')" }, "descem": { "valor": 2, "origem": "gerado: campo vazio na folha" } },
-    "COL1": { "forca_desportiva": 45, "rep": [64, 40], "descida_media_epocas": 3 },
-    "URU1": { "forca_desportiva": 44, "rep": [66, 32] },
-    "ECU1": { "forca_desportiva": 47, "rep": [64, 36] },
-    "KSA1": { "forca_desportiva": 56, "rep": [78, 40] },
-    "KSA2": { "forca_desportiva": 30, "rep": [40, 24], "playoff": { "de": 3, "ate": 6, "destino": "subida", "origem": "gerado: posições do play-off a obter" }, "jogam_nas_paragens": true },
-    "JPN1": { "forca_desportiva": 49, "rep": [66, 48] },
-    "JPN2": { "forca_desportiva": 36, "rep": [50, 34], "jogam_nas_paragens": true },
-    "KOR1": { "forca_desportiva": 45, "rep": [64, 44] },
-    "UAE1": { "forca_desportiva": 42, "rep": [62, 38] },
-    "USA1": { "forca_desportiva": 52, "rep": [70, 46], "voltas": { "valor": 1, "origem": "decisão do utilizador U2" }, "playoff_campeao": { "valor": 8, "origem": "decisão do utilizador U2" } },
-    "MEX1": { "forca_desportiva": 52, "rep": [72, 48], "playoff_campeao": { "valor": 8, "origem": "gerado: 'liguilla pelo título' sem nº de equipas" } },
-    "AFR1": { "forca_desportiva": 45, "rep": [68, 36], "equipas": { "valor": 24, "origem": "gerado: nº de equipas a obter (usa o valor da Fase 1)" }, "sobem": { "valor": 0, "origem": "gerado" }, "descem": { "valor": 0, "origem": "gerado: liga fechada como na Fase 1" }, "quotas": { "valor": { "EGY": 4, "MAR": 3, "RSA": 3, "TUN": 2, "ALG": 2, "NGA": 2, "COD": 2, "SEN": 2, "GHA": 2, "CIV": 2 }, "origem": "decisão do utilizador no Prompt 1" }, "jogam_nas_paragens": true }
+    "ENG1": {
+      "forca_desportiva": 90,
+      "rep": [
+        93,
+        62
+      ]
+    },
+    "ENG2": {
+      "forca_desportiva": 72,
+      "rep": [
+        66,
+        44
+      ],
+      "playoff": {
+        "de": 3,
+        "ate": 6,
+        "destino": "subida"
+      },
+      "jogam_nas_paragens": true
+    },
+    "ENG3": {
+      "forca_desportiva": 54,
+      "rep": [
+        50,
+        32
+      ],
+      "playoff": {
+        "de": 3,
+        "ate": 6,
+        "destino": "subida"
+      },
+      "jogam_nas_paragens": true
+    },
+    "ENG4": {
+      "forca_desportiva": 44,
+      "rep": [
+        40,
+        24
+      ],
+      "playoff": {
+        "de": 4,
+        "ate": 7,
+        "destino": "subida"
+      },
+      "jogam_nas_paragens": true
+    },
+    "GER1": {
+      "forca_desportiva": 85,
+      "rep": [
+        94,
+        56
+      ],
+      "barragem": {
+        "posicao": 16,
+        "adversario": 3
+      }
+    },
+    "GER2": {
+      "forca_desportiva": 62,
+      "rep": [
+        62,
+        40
+      ],
+      "barragem": {
+        "posicao": 16,
+        "adversario": 3
+      },
+      "jogam_nas_paragens": true
+    },
+    "GER3": {
+      "forca_desportiva": 46,
+      "rep": [
+        48,
+        30
+      ],
+      "jogam_nas_paragens": true
+    },
+    "FRA1": {
+      "forca_desportiva": 76,
+      "rep": [
+        92,
+        50
+      ],
+      "barragem": {
+        "posicao": 16,
+        "adversario": "playoff"
+      }
+    },
+    "FRA2": {
+      "forca_desportiva": 52,
+      "rep": [
+        52,
+        32
+      ],
+      "playoff": {
+        "de": 3,
+        "ate": 5,
+        "destino": "barragem",
+        "origem": "gerado: posições a obter ('play-off de acesso (confirmar)')"
+      },
+      "jogam_nas_paragens": true
+    },
+    "FRA3": {
+      "forca_desportiva": 36,
+      "rep": [
+        38,
+        22
+      ],
+      "descem": {
+        "valor": 3,
+        "origem": "gerado: campo vazio na folha"
+      },
+      "sobem": {
+        "valor": 3,
+        "origem": "decisão do utilizador (13/11/2026): FRA3 sobe 3 e FRA2 desce 3"
+      },
+      "jogam_nas_paragens": true
+    },
+    "POR1": {
+      "forca_desportiva": 68,
+      "rep": [
+        85,
+        40
+      ],
+      "barragem": {
+        "posicao": 16,
+        "adversario": 3
+      }
+    },
+    "POR2": {
+      "forca_desportiva": 42,
+      "rep": [
+        44,
+        26
+      ],
+      "jogam_nas_paragens": true
+    },
+    "ESP1": {
+      "forca_desportiva": 88,
+      "rep": [
+        95,
+        55
+      ]
+    },
+    "ESP2": {
+      "forca_desportiva": 60,
+      "rep": [
+        58,
+        38
+      ],
+      "playoff": {
+        "de": 3,
+        "ate": 6,
+        "destino": "subida"
+      },
+      "jogam_nas_paragens": true
+    },
+    "NED1": {
+      "forca_desportiva": 69,
+      "rep": [
+        82,
+        40
+      ],
+      "barragem": {
+        "posicao": 17,
+        "adversario": 3
+      }
+    },
+    "NED2": {
+      "forca_desportiva": 38,
+      "rep": [
+        42,
+        24
+      ],
+      "jogam_nas_paragens": true
+    },
+    "BEL1": {
+      "forca_desportiva": 61,
+      "rep": [
+        74,
+        40
+      ],
+      "barragem": {
+        "posicao": 15,
+        "adversario": 3
+      }
+    },
+    "BEL2": {
+      "forca_desportiva": 36,
+      "rep": [
+        40,
+        26
+      ],
+      "voltas": {
+        "valor": 4,
+        "origem": "decisão do utilizador (13/11/2026)"
+      },
+      "jogam_nas_paragens": true
+    },
+    "SCO1": {
+      "forca_desportiva": 50,
+      "rep": [
+        78,
+        34
+      ],
+      "barragem": {
+        "posicao": 11,
+        "adversario": 3
+      }
+    },
+    "SCO2": {
+      "forca_desportiva": 30,
+      "rep": [
+        38,
+        20
+      ],
+      "jogam_nas_paragens": true
+    },
+    "TUR1": {
+      "forca_desportiva": 57,
+      "rep": [
+        80,
+        42
+      ]
+    },
+    "TUR2": {
+      "forca_desportiva": 38,
+      "rep": [
+        48,
+        28
+      ],
+      "jogam_nas_paragens": true
+    },
+    "ITA1": {
+      "forca_desportiva": 88,
+      "rep": [
+        92,
+        56
+      ]
+    },
+    "ITA2": {
+      "forca_desportiva": 58,
+      "rep": [
+        58,
+        36
+      ],
+      "playoff": {
+        "de": 3,
+        "ate": 8,
+        "destino": "subida"
+      },
+      "jogam_nas_paragens": true
+    },
+    "AUT1": {
+      "forca_desportiva": 50,
+      "rep": [
+        68,
+        40
+      ]
+    },
+    "NOR1": {
+      "forca_desportiva": 51,
+      "rep": [
+        64,
+        38
+      ]
+    },
+    "GRE1": {
+      "forca_desportiva": 54,
+      "rep": [
+        74,
+        40
+      ]
+    },
+    "DEN1": {
+      "forca_desportiva": 51,
+      "rep": [
+        66,
+        40
+      ]
+    },
+    "SUI1": {
+      "forca_desportiva": 50,
+      "rep": [
+        68,
+        42
+      ],
+      "gerar_tv_plantel": true
+    },
+    "POL1": {
+      "forca_desportiva": 51,
+      "rep": [
+        64,
+        40
+      ],
+      "gerar_tv_plantel": true
+    },
+    "CZE1": {
+      "forca_desportiva": 54,
+      "rep": [
+        70,
+        38
+      ],
+      "gerar_tv_plantel": true
+    },
+    "CRO1": {
+      "forca_desportiva": 44,
+      "rep": [
+        68,
+        32
+      ],
+      "gerar_tv_plantel": true
+    },
+    "EUR1": {
+      "forca_desportiva": 46,
+      "rep": [
+        70,
+        38
+      ],
+      "quotas": {
+        "valor": {
+          "UKR": 3,
+          "ISR": 3,
+          "CYP": 3,
+          "SWE": 3,
+          "ROU": 3,
+          "HUN": 3,
+          "AZE": 2
+        },
+        "origem": "decisão do utilizador (13/11/2026)"
+      },
+      "gerar_tv_plantel": true
+    },
+    "BRA1": {
+      "forca_desportiva": 68,
+      "rep": [
+        84,
+        58
+      ]
+    },
+    "BRA2": {
+      "forca_desportiva": 48,
+      "rep": [
+        58,
+        38
+      ],
+      "jogam_nas_paragens": true
+    },
+    "ARG1": {
+      "forca_desportiva": 58,
+      "rep": [
+        82,
+        45
+      ],
+      "voltas": {
+        "valor": 1,
+        "origem": "decisão do utilizador U2 (formato a confirmar na folha)"
+      },
+      "playoff_campeao": {
+        "valor": 8,
+        "origem": "decisão do utilizador (13/11/2026) (mantém o play-off de campeão de 8)"
+      },
+      "descem": {
+        "valor": 2,
+        "origem": "decisão do utilizador (13/11/2026)"
+      }
+    },
+    "COL1": {
+      "forca_desportiva": 45,
+      "rep": [
+        64,
+        40
+      ],
+      "descida_media_epocas": 3
+    },
+    "URU1": {
+      "forca_desportiva": 44,
+      "rep": [
+        66,
+        32
+      ]
+    },
+    "ECU1": {
+      "forca_desportiva": 47,
+      "rep": [
+        64,
+        36
+      ]
+    },
+    "KSA1": {
+      "forca_desportiva": 50,
+      "rep": [
+        72,
+        40
+      ],
+      "_nota": "forca_desportiva 50: decisão do utilizador (13/11/2026); tecto da banda de reputação 78 → 72 (proposta Claude) para a Arábia ficar com 3–5 de 10 títulos asiáticos"
+    },
+    "KSA2": {
+      "forca_desportiva": 30,
+      "rep": [
+        40,
+        24
+      ],
+      "playoff": {
+        "de": 3,
+        "ate": 6,
+        "destino": "subida",
+        "origem": "gerado: posições do play-off a obter"
+      },
+      "jogam_nas_paragens": true
+    },
+    "JPN1": {
+      "forca_desportiva": 49,
+      "rep": [
+        66,
+        48
+      ]
+    },
+    "JPN2": {
+      "forca_desportiva": 36,
+      "rep": [
+        50,
+        34
+      ],
+      "jogam_nas_paragens": true
+    },
+    "KOR1": {
+      "forca_desportiva": 45,
+      "rep": [
+        64,
+        44
+      ]
+    },
+    "UAE1": {
+      "forca_desportiva": 42,
+      "rep": [
+        62,
+        38
+      ]
+    },
+    "USA1": {
+      "forca_desportiva": 52,
+      "rep": [
+        70,
+        46
+      ],
+      "voltas": {
+        "valor": 1,
+        "origem": "decisão do utilizador U2 (30 equipas: uma volta); sem play-offs, tabela única (13/11/2026)"
+      },
+      "tecto_salarial": {
+        "valor": "não",
+        "origem": "decisão do utilizador (13/11/2026)"
+      }
+    },
+    "MEX1": {
+      "forca_desportiva": 52,
+      "rep": [
+        72,
+        48
+      ]
+    },
+    "AFR1": {
+      "forca_desportiva": 45,
+      "rep": [
+        68,
+        36
+      ],
+      "equipas": {
+        "valor": 24,
+        "origem": "decisão do utilizador (13/11/2026)"
+      },
+      "sobem": {
+        "valor": 0,
+        "origem": "gerado"
+      },
+      "descem": {
+        "valor": 0,
+        "origem": "decisão do utilizador (13/11/2026): liga fechada"
+      },
+      "quotas": {
+        "valor": {
+          "EGY": 4,
+          "MAR": 3,
+          "RSA": 3,
+          "TUN": 2,
+          "ALG": 2,
+          "NGA": 2,
+          "COD": 2,
+          "SEN": 2,
+          "GHA": 2,
+          "CIV": 2
+        },
+        "origem": "decisão do utilizador (13/11/2026): quotas antigas"
+      },
+      "jogam_nas_paragens": true
+    }
   },
   "tacas": {
-    "ENG-FAC": { "entrada": { "ENG1": 3, "ENG2": 3, "ENG3": 1, "ENG4": 1 }, "origem_entrada": "folha Prémios (1.ª ronda: ENG3 e ENG4; 3.ª ronda: ENG1 e ENG2)" },
-    "ENG-EFL": { "entrada": { "ENG1": 2, "ENG2": 1, "ENG3": 1, "ENG4": 1 }, "origem_entrada": "gerado: 'a ENG1 entra numa ronda mais avançada' sem ronda indicada" },
-    "GER-DFB": { "entrada": { "GER1": 2, "GER2": 2, "GER3": 1 }, "origem_entrada": "gerado: 'a GER3 entra primeiro' sem ronda indicada" }
+    "ENG-FAC": {
+      "entrada": {
+        "ENG1": 3,
+        "ENG2": 3,
+        "ENG3": 1,
+        "ENG4": 1
+      },
+      "origem_entrada": "folha Prémios (1.ª ronda: ENG3 e ENG4; 3.ª ronda: ENG1 e ENG2)"
+    },
+    "ENG-EFL": {
+      "entrada": {
+        "ENG1": 2,
+        "ENG2": 1,
+        "ENG3": 1,
+        "ENG4": 1
+      },
+      "origem_entrada": "gerado: 'a ENG1 entra numa ronda mais avançada' sem ronda indicada"
+    },
+    "GER-DFB": {
+      "entrada": {
+        "GER1": 2,
+        "GER2": 2,
+        "GER3": 1
+      },
+      "origem_entrada": "gerado: 'a GER3 entra primeiro' sem ronda indicada"
+    }
   },
-  "tacas_padrao": { "entrada": "gerado: a 1.ª divisão entra na 2.ª ronda e as restantes na 1.ª (a folha não indica a ronda)" },
+  "tacas_padrao": {
+    "entrada": "gerado: a 1.ª divisão entra na 2.ª ronda e as restantes na 1.ª (a folha não indica a ronda)"
+  },
   "uefa": {
     "detentores_1a_epoca": "gerado: no mundo fictício não há campeões em título em 2026/27; usa-se o clube de maior reputação da Europa (UCL), o 2.º (UEL) e o 3.º (UECL)",
-    "bonus_ranking_1a_epoca": { "valor": ["ENG1", "ITA1"], "origem": "gerado: os 2 melhores países do ranking UEFA 2025/26 estão a obter; usei os 2 primeiros do ranking de 5 épocas (Inglaterra e Itália)" }
+    "bonus_ranking_1a_epoca": {
+      "valor": [
+        "ENG1",
+        "ITA1"
+      ],
+      "origem": "gerado: os 2 melhores países do ranking UEFA 2025/26 estão a obter; usei os 2 primeiros do ranking de 5 épocas (Inglaterra e Itália)"
+    }
+  },
+  "min_nacionais": {
+    "_origem": "decisão do utilizador (13/11/2026): 0 (sem regra) em todas as ligas, excepto Alemanha 12, Inglaterra 8 e Itália 8; nacional = formado no país; os valores da folha ficam guardados mas não se usam",
+    "por_pais": {
+      "GER": 12,
+      "ENG": 8,
+      "ITA": 8
+    },
+    "padrao": 0
+  },
+  "geracao_tv": {
+    "_origem": "gerado a partir do índice de riqueza (ajuste às ligas com TV preenchida na folha): tv_total_eur = 9 000 000 × índice; 50% igual, 30% desempenho, 20% comercial; plantel máximo 29",
+    "eur_por_ponto": 9000000,
+    "pct_igual": 0.5,
+    "pct_desempenho": 0.3,
+    "pct_comercial": 0.2,
+    "regra": "linear: 1º recebe 3x o último",
+    "max_plantel": 29
+  },
+  "calendario": {
+    "_origem": "decisão do utilizador (13/11/2026): as ligas marcadas \"ano civil\" na folha jogam Fevereiro–Dezembro e começam na época de 2027 (salta o resto de 2026); a Libertadores acompanha esse calendário",
+    "continentais": {
+      "CLI": "ano_civil",
+      "UCL": "ago_mai",
+      "UEL": "ago_mai",
+      "UECL": "ago_mai",
+      "ACLE": "ago_mai"
+    }
+  },
+  "splits": {
+    "_origem": "decisão do utilizador (13/11/2026): sem splits nem play-outs por agora; ficam como opção em config (src/config/formatos.ts, desligados)"
   }
 }

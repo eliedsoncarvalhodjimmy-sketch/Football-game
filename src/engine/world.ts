@@ -5,7 +5,7 @@ import type { Clube, Manifest, RegrasLiga, RegrasTaca } from '../data/types.ts';
 import { completarPacote, novoContexto, clamp, type OpcoesGeracao, type ContextoGeracao } from '../gen/mundoFicticio.ts';
 import { FORCA } from '../config/forca.ts';
 import { Rng } from '../core/rng.ts';
-import { vagasIniciais } from './season/qualify.ts';
+import { vagasIniciais, type EntradaLiga } from './season/qualify.ts';
 
 export interface LigaInfo {
   idx: number;
@@ -47,6 +47,13 @@ export class World {
   modo: 'teste' | 'gerado' = 'teste';
   /** Qualificados para as competições continentais da época actual. */
   qualificados = new Map<string, Qualificado[]>();
+  /** Época actual de cada calendário (ago_mai: 2026 = 2026/27; ano_civil: 2027). */
+  epocaPorGrupo: Record<string, number> = { ago_mai: 2026, ano_civil: 2027 };
+  /** Última classificação conhecida da liga principal de cada pacote (para as vagas). */
+  entradasVagas = new Map<string, EntradaLiga>();
+  /** Campeões em título (UCL, UEL, UECL) e ligas com o bónus do ranking, para as próximas vagas. */
+  detentores = new Map<string, number>();
+  bonusRanking: string[] = [];
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -95,15 +102,23 @@ export class World {
     this.recalcularForca(n0);
   }
 
-  /** Força derivada da reputação e da força desportiva da liga (Fase 1, sem jogadores). */
-  recalcularForca(desde = 0) {
+  /** Calendário (grupo) de uma liga. */
+  grupoDaLiga(l: number): string {
+    return this.ligas[l].regras.epoca.calendario;
+  }
+
+  /** Força derivada da reputação e da força desportiva da liga (Fase 1, sem jogadores).
+   *  `grupo`: só recalcula os clubes das ligas desse calendário (na passagem de época desse calendário). */
+  recalcularForca(desde = 0, grupo?: string) {
     for (let i = desde; i < this.clubes.length; i++) {
       const l = this.liga[i];
       if (l < 0) continue;
+      const g = this.grupoDaLiga(l);
+      if (grupo && g !== grupo) continue;
       const fd = this.ligas[l].regras.forca_desportiva;
       const f = this.reputacao[i] * (FORCA.base + (FORCA.peso_forca_desportiva * fd) / 100);
       // Choque de forma e ruído por época: mudanças de plantel, lesões, treinador.
-      const rng = Rng.de(this.semente, 'forca', this.clubes[i].id, this.epoca);
+      const rng = Rng.de(this.semente, 'forca', this.clubes[i].id, `${g}|${this.epocaPorGrupo[g]}`);
       const forma = rng.normal(0, FORCA.choque_forma);
       this.ataque[i] = clamp(f + forma + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);
       this.defesa[i] = clamp(f + forma + rng.normal(0, FORCA.ruido_ataque_defesa), 1, 100);

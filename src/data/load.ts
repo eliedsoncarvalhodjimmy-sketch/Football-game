@@ -9,6 +9,8 @@ export interface CompContinental {
   tipo: 'fase_liga' | 'grupos';
   confederacao: string;
   equipas: number;
+  /** Modelo de calendário ("ago_mai" ou "ano_civil"). */
+  calendario?: string;
   [k: string]: unknown;
 }
 

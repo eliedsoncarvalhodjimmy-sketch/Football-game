@@ -47,8 +47,8 @@ export interface Slot {
 }
 
 /** Slots (semana, ranhura) para R jornadas de liga, por ordem cronológica. */
-export function slotsLiga(m: ModeloCalendario, R: number, jogamNasParagens = false): Slot[] {
-  const fds = semanasFds(m, jogamNasParagens);
+export function slotsLiga(m: ModeloCalendario, R: number, jogamNasParagens = false, excluirFds: number[] = []): Slot[] {
+  const fds = semanasFds(m, jogamNasParagens).filter((s) => !excluirFds.includes(s));
   let slots: Slot[];
   if (R <= fds.length) slots = espacar(fds, R).map((semana) => ({ semana, ranhura: 'fds' as const }));
   else {
@@ -65,11 +65,11 @@ export function slotsLiga(m: ModeloCalendario, R: number, jogamNasParagens = fal
 }
 
 /** Calendário completo de uma liga. `clubes` são índices globais. */
-export function agendarLiga(compId: string, clubes: number[], voltas: number, modeloId: string, rng: Rng, jogamNasParagens = false): Jogo[] {
+export function agendarLiga(compId: string, clubes: number[], voltas: number, modeloId: string, rng: Rng, jogamNasParagens = false, excluirFds: number[] = []): Jogo[] {
   const m = modelo(modeloId);
   const ordem = rng.shuffle([...clubes]);
   const rondas = rondasBerger(ordem.length, voltas);
-  const slots = slotsLiga(m, rondas.length, jogamNasParagens);
+  const slots = slotsLiga(m, rondas.length, jogamNasParagens, excluirFds);
   const jogos: Jogo[] = [];
   rondas.forEach((rd, r) => {
     const { semana, ranhura } = slots[r];

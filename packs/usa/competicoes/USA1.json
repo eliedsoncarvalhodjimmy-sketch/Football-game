@@ -9,17 +9,19 @@
   "descida_media_epocas": null,
   "calendario_folha": "ano civil",
   "vagas_continentais_folha": null,
-  "tecto_salarial": 200000000,
+  "tecto_salarial": "não",
   "fonte": null,
   "notas": null,
   "origem_campos": {
     "nº_equipas": "folha",
-    "voltas": "decisão do utilizador U2",
+    "voltas": "decisão do utilizador U2 (30 equipas: uma volta); sem play-offs, tabela única (13/11/2026)",
     "sobem": "folha",
     "descem": "folha",
-    "playoff_campeao": "decisão do utilizador U2",
     "forca_desportiva": "proposta Claude (ranking UEFA): a validar",
-    "geracao": "proposta Claude: bandas de reputação provisórias"
+    "geracao": "proposta Claude: bandas de reputação provisórias",
+    "tecto_salarial": "decisão do utilizador (13/11/2026)",
+    "calendario": "decisão do utilizador (13/11/2026): as ligas marcadas \"ano civil\" na folha jogam Fevereiro–Dezembro e começam na época de 2027 (salta o resto de 2026); a Libertadores acompanha esse calendário (folha: \"ano civil\")",
+    "min_nacionais_plantel": "decisão do utilizador (13/11/2026): 0 (sem regra) em todas as ligas, excepto Alemanha 12, Inglaterra 8 e Itália 8; nacional = formado no país; os valores da folha ficam guardados mas não se usam"
   },
   "a_obter": [
     "fonte"
@@ -27,9 +29,7 @@
   "formato": {
     "equipas": 30,
     "voltas": 1,
-    "playoff_campeao": {
-      "equipas": 8
-    }
+    "playoff_campeao": null
   },
   "subidas": {
     "directas": 0,
@@ -49,8 +49,9 @@
     "sorteio"
   ],
   "epoca": {
-    "calendario": "ago_mai"
+    "calendario": "ano_civil"
   },
+  "split_folha": null,
   "indice_riqueza": 20,
   "geracao": {
     "rep_tecto": 70,
@@ -68,10 +69,11 @@
   ],
   "plantel": {
     "max": 29,
-    "minimo_nacionais": 12,
+    "minimo_nacionais": 0,
     "maximo_estrangeiros": null,
     "minimo_formados_no_clube": null,
-    "por_validar": true
+    "por_validar": true,
+    "minimo_nacionais_folha": 12
   },
   "tv": {
     "total_eur": 250000000,
