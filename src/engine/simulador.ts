@@ -9,6 +9,8 @@ import { podar, type RegistoEpoca } from './history.ts';
 import { baseDias } from './calendar/datas.ts';
 import type { JogoR } from './competitions/base.ts';
 import { evoluirMes, parteMinutosPorOrdem } from '../players/evolucao.ts';
+import { MOTOR } from '../config/motor.ts';
+import { EVOLUCAO } from '../config/evolucao.ts';
 
 export interface InicioEpoca {
   grupo: string;
@@ -58,7 +60,14 @@ export class Simulador {
     if (st) {
       for (let d = this.segunda; d < this.segunda + 7; d++) {
         if (new Date(d * 86400000).getUTCDate() === 1) {
-          evoluirMes(this.w, st, d, { parteMinutos: parteMinutosPorOrdem(this.w, st), desenvolvimentoTreinador: () => 10 });
+          const m = this.w.motor;
+          const comMinutos = m && MOTOR.modo_forca === 'onze';
+          evoluirMes(this.w, st, d, {
+            parteMinutos: comMinutos ? (i) => Math.min(1, st.minMes[i] / EVOLUCAO.minutos_mes_referencia) : parteMinutosPorOrdem(this.w, st),
+            desenvolvimentoTreinador: m ? (c) => m.treinadores[c]?.atributos.desenvolvimento ?? 10 : () => 10,
+          });
+          st.minMes.fill(0);
+          m?.cache.limpar();
         }
       }
     }

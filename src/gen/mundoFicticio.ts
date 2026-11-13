@@ -7,6 +7,8 @@ import { GeradorNomes, nomeCurto } from './nomes.ts';
 import { PERFIL_POR_PAIS_REGIONAL } from './perfisNomes.ts';
 
 export interface OpcoesGeracao {
+  /** Afinar os plantéis gerados à força-alvo da Fase 1 (por defeito sim; a calibração da conversão desliga). */
+  afinar?: boolean;
   semente: number;
   modo: 'teste' | 'gerado';
   /** Gerar jogadores (Fase 2). Por defeito sim. */

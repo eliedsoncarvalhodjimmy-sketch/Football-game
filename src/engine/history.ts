@@ -40,6 +40,8 @@ export interface RegistoEpoca {
   movimentos: Movimento[];
   tacas: Record<string, ResultadoMataMata>;
   continentais: Record<string, RegistoContinental>;
+  /** Melhores marcadores de cada liga na época (modo com jogadores). */
+  jogadores: Record<string, { j: number; nome: string; clube: number; golos: number; assist: number; jogos: number; nota: number }[]>;
   /** Play-offs de acesso UEFA (UCL_PO, UEL_PO). */
   acesso: Record<string, { participantes: number[]; vencedores: number[] }>;
   /** Coeficiente UEFA da época por associação (liga que deu a vaga). */

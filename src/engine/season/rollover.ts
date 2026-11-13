@@ -10,6 +10,8 @@ import type { Temporada } from './temporada.ts';
 import { atribuirVagas, type EntradaLiga } from './qualify.ts';
 import { coeficientesUEFA } from './coeficiente.ts';
 import { gerarPlantel } from '../../players/gerador.ts';
+import { gerarTreinador } from '../../coaches/gerador.ts';
+import { afinarPlantel, corrigirDeriva } from '../../players/afinacao.ts';
 import { renovarPlantel } from '../../players/evolucao.ts';
 import { bandaReputacao, gerarClube, clamp } from '../../gen/mundoFicticio.ts';
 import { empacotarJogos, textoResultado, type Movimento, type RegistoEpoca, type RegistoContinental } from '../history.ts';
@@ -52,7 +54,7 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
   const hist = historico.filter((r) => r.grupo === grupo);
   const reg: RegistoEpoca = {
     grupo, epoca: ep, tabelas: {}, campeoes: {}, playoffsCampeao: {}, playoffsSubida: {}, barragens: {}, movimentos: [],
-    tacas: {}, continentais: {}, acesso: {}, coeficientes: {}, bonusProxima: [], detentoresProxima: {},
+    tacas: {}, continentais: {}, acesso: {}, jogadores: {}, coeficientes: {}, bonusProxima: [], detentoresProxima: {},
     qualificadosProxima: {}, repAntes: Array.from(w.reputacao), repDepois: [], estatLiga: t.estatLiga, jogos: null, impressao: 0,
   };
   const pac = empacotarJogos(t.jogos);
@@ -216,13 +218,22 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
     w.adicionarClubes(novos);
     // Plantéis dos clubes que entram do exterior.
     if (w.jogadores) for (let k = 0; k < novos.length; k++) w.plantel[n0 + k] = gerarPlantel(w, w.jogadores, n0 + k, t.base + 51 * 7, Rng.de(w.semente, 'plantel', novos[k].id));
+    if (w.motor) for (let k = 0; k < novos.length; k++) w.motor.treinadores[n0 + k] = gerarTreinador(w, n0 + k, Rng.de(w.semente, 'treinador', novos[k].id));
+    if (w.jogadores && w.motor) for (let k = 0; k < novos.length; k++) afinarPlantel(w, n0 + k, w.motor.treinadores[n0 + k], t.base + 51 * 7, Rng.de(w.semente, 'afinacao', novos[k].id));
     for (let k = 0; k < novos.length; k++) movs.push({ clube: n0 + k, de: 'exterior', para: l.regras.id, via: 'exterior' });
   }
   reg.repDepois = Array.from(w.reputacao);
 
-  // 6b. Jogadores: aposentações e reposição nos clubes deste calendário.
+  // 6b. Jogadores: estatísticas da época (melhores por liga), aposentações e reposição.
   if (w.jogadores) {
     const dia = t.base + 51 * 7;
+    const st = w.jogadores;
+    for (const [id, c] of t.ligas) {
+      const js = c.clubes.flatMap((x) => w.plantel[x] ?? []);
+      reg.jogadores[id] = js.filter((j) => st.eJogos[j] > 0).sort((a, b) => st.eGolos[b] - st.eGolos[a] || st.eAssist[b] - st.eAssist[a]).slice(0, 10)
+        .map((j) => ({ j, nome: st.nomes[j], clube: st.clube[j], golos: st.eGolos[j], assist: st.eAssist[j], jogos: st.eJogos[j], nota: st.eJogos[j] ? st.eNotas[j] / st.eJogos[j] / 10 : 0 }));
+      st.zerarEstatisticas(js);
+    }
     const rngJ = Rng.de(w.semente, 'renovacao', grupo, ep);
     for (const li of t.pacotes.flatMap((p) => p.ligas)) for (const c of w.ligas[li].clubes) renovarPlantel(w, w.jogadores, c, dia, rngJ, ep);
   }
@@ -231,5 +242,7 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
   w.epocaPorGrupo[grupo] = ep + 1;
   if (grupo === 'ago_mai') w.epoca = ep + 1;
   w.recalcularForca(0, grupo);
+  // Correcção provisória da deriva dos plantéis (com a reputação já actualizada).
+  if (w.jogadores && w.motor) corrigirDeriva(w, t.pacotes.flatMap((p) => p.ligas).flatMap((li) => w.ligas[li].clubes), t.base + 51 * 7);
   return reg;
 }

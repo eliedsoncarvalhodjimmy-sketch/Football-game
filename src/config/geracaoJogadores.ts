@@ -49,3 +49,31 @@ export const GERACAO_JOGADORES = {
   /** Pé: direito, esquerdo, ambos. */
   pe: { direito: 0.72, esquerdo: 0.24, ambos: 0.04 },
 };
+
+/**
+ * Afinação do plantel gerado (Fase 2, Bloco B): depois de gerar um plantel, a força do onze
+ * (ratings → escala da Fase 1) é aproximada da força-alvo do clube (reputação × força desportiva),
+ * deslocando os atributos visíveis dos jogadores gerados (arredondamento estocástico).
+ * Os jogadores reais ou editados à mão nunca são tocados.
+ */
+export const AFINACAO_PLANTEL = {
+  iteracoes: 5,
+  /** Diferença aceite (pontos de força). */
+  tolerancia: 1.0,
+  /** Pontos de força por ponto de atributo (≈ declive médio da conversão índice → força). */
+  forca_por_ponto: 7.4,
+  /** Deslocamento máximo por iteração (pontos de atributo). */
+  passo_maximo: 2.5,
+};
+
+/**
+ * Correcção provisória da deriva dos plantéis (Fase 2, até haver mercado de transferências no Prompt 3).
+ * Sem transferências, os plantéis afastam-se da força-alvo do clube (evolução, reformas, reposição) e
+ * os domínios fixam-se. No início de cada época, cada clube recebe uma correcção de força igual a uma
+ * fracção da distância entre a força-alvo e a força do seu onze, limitada. Desliga-se com reversao 0.
+ */
+export const DERIVA_PLANTEL = {
+  reversao: 0.7,
+  /** Limite da correcção (pontos de força). */
+  limite: 8,
+};

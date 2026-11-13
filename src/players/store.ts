@@ -57,11 +57,32 @@ export class PlayerStore {
   lesaoTipo!: Uint8Array;
   suspensao!: Uint8Array;
   amarelos!: Uint8Array;
+  /** Indisponível (lesão) até este dia absoluto, exclusive. */
+  indisponivelAte!: Int32Array;
+  /** Dia do último jogo (para a recuperação física). */
+  ultimoJogo!: Int32Array;
+  // ---- Estatísticas da época (todas as competições) ----
+  eJogos!: Uint16Array;
+  eTitular!: Uint16Array;
+  eMinutos!: Uint16Array;
+  eGolos!: Uint16Array;
+  eAssist!: Uint16Array;
+  eAmarelos!: Uint16Array;
+  eVermelhos!: Uint16Array;
+  eLesoes!: Uint16Array;
+  eRemates!: Uint16Array;
+  eSofridos!: Uint16Array;
+  /** Soma das notas × 10. */
+  eNotas!: Int32Array;
+  /** Minutos jogados no mês corrente (para a evolução). */
+  minMes!: Uint16Array;
   // ---- Caches ----
   /** Adequação a cada papel × 10 (10–200). */
   adeq!: Uint8Array;
   /** OVR por posição (1–100), sem familiaridade. */
   ovr!: Uint8Array;
+  /** Melhor adequação (× 10) entre os papéis de cada posição (n × 12). */
+  adeqMaxPos!: Uint8Array;
   // ---- Textos ----
   ids: string[] = [];
   nomes: string[] = [];
@@ -100,8 +121,14 @@ export class PlayerStore {
     this.lesaoTipo = g(this.lesaoTipo, Uint8Array);
     this.suspensao = g(this.suspensao, Uint8Array);
     this.amarelos = g(this.amarelos, Uint8Array);
+    this.indisponivelAte = g(this.indisponivelAte, Int32Array);
+    this.ultimoJogo = g(this.ultimoJogo, Int32Array);
+    for (const k of ['eJogos', 'eTitular', 'eMinutos', 'eGolos', 'eAssist', 'eAmarelos', 'eVermelhos', 'eLesoes', 'eRemates', 'eSofridos'] as const) this[k] = g(this[k], Uint16Array);
+    this.eNotas = g(this.eNotas, Int32Array);
+    this.minMes = g(this.minMes, Uint16Array);
     this.adeq = g(this.adeq, Uint8Array, N_PAPEIS);
     this.ovr = g(this.ovr, Uint8Array, N_POS);
+    this.adeqMaxPos = g(this.adeqMaxPos, Uint8Array, N_POS);
     this.cap = novo;
   }
 
@@ -150,8 +177,9 @@ export class PlayerStore {
     }
     for (let p = 0; p < N_POS; p++) {
       const papeis = PAPEIS_DA_POSICAO[POSICOES[p]];
-      let s = 0;
-      for (const r of papeis) s += this.adeq[i * N_PAPEIS + r];
+      let s = 0, mx = 0;
+      for (const r of papeis) { const v = this.adeq[i * N_PAPEIS + r]; s += v; if (v > mx) mx = v; }
+      this.adeqMaxPos[i * N_POS + p] = mx;
       const a = s / papeis.length / 10;
       this.ovr[i * N_POS + p] = Math.max(1, Math.min(100, Math.round(1 + (99 * (a - 1)) / 19)));
     }
@@ -173,6 +201,16 @@ export class PlayerStore {
 
   idade(i: number, dia: number): number {
     return (dia - this.nasc[i]) / 365.25;
+  }
+
+  /** Repõe as estatísticas da época de um conjunto de jogadores. */
+  zerarEstatisticas(js: Iterable<number>) {
+    for (const i of js) {
+      this.eJogos[i] = this.eTitular[i] = this.eMinutos[i] = this.eGolos[i] = this.eAssist[i] = 0;
+      this.eAmarelos[i] = this.eVermelhos[i] = this.eLesoes[i] = this.eRemates[i] = this.eSofridos[i] = 0;
+      this.eNotas[i] = 0;
+      this.amarelos[i] = 0;
+    }
   }
 
   /** Bytes ocupados pelos arrays tipados (capacidade alocada). */

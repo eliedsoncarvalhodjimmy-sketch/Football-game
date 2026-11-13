@@ -18,6 +18,8 @@ export const EVOLUCAO = {
   /** Profissionalismo e ambição (média) 20 → +20%; 1 → −20%. */
   factor_personalidade: (prof: number, amb: number) => 1 + (((prof + amb) / 2 - 10.5) / 9.5) * 0.2,
   ruido: 0.12,
+  /** Minutos por mês de um titular habitual (≈ 4 jogos), para a parte dos minutos. */
+  minutos_mes_referencia: 330,
   /** Sem dados de minutos (antes do Bloco B): parte estimada pela ordem no plantel. */
   parte_minutos_padrao: { titular: 0.85, suplente: 0.3 },
   /** Atributos que mais caem com a idade (físicos) e que ainda podem subir (mentais). */

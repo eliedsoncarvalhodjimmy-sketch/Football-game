@@ -1,8 +1,8 @@
 // Modo rápido de jogo (sem jogadores): Poisson com correcção de Dixon-Coles.
-import { SIMULACAO as S } from '../../config/simulacao.ts';
+import { SIMULACAO } from '../../config/simulacao.ts';
 import type { Rng } from '../../core/rng.ts';
 
-export function golosEsperados(atqC: number, defC: number, atqF: number, defF: number, neutro: boolean): [number, number] {
+export function golosEsperados(atqC: number, defC: number, atqF: number, defF: number, neutro: boolean, S = SIMULACAO): [number, number] {
   const casa = neutro ? 1 : S.casa;
   const lc = S.base * Math.exp(S.gama * (atqC - defF)) * casa;
   const lf = (S.base * Math.exp(S.gama * (atqF - defC))) / casa;
@@ -19,7 +19,7 @@ function tau(x: number, y: number, l: number, m: number, rho: number): number {
 }
 
 /** Sorteia um resultado com golos esperados (l, m). */
-export function sortearGolos(l: number, m: number, rng: Rng, rho = S.rho): [number, number] {
+export function sortearGolos(l: number, m: number, rng: Rng, rho = SIMULACAO.rho, S = SIMULACAO): [number, number] {
   const tmax = Math.max(1, 1 - l * m * rho, 1 + l * rho, 1 + m * rho, (1 - rho) * S.empate_fator, S.empate_fator);
   for (;;) {
     const x = rng.poisson(l);
@@ -31,6 +31,8 @@ export function sortearGolos(l: number, m: number, rng: Rng, rho = S.rho): [numb
     if (rng.next() * tmax <= w) return [x, y];
   }
 }
+
+const S = SIMULACAO;
 
 export function jogoRapido(atqC: number, defC: number, atqF: number, defF: number, neutro: boolean, rng: Rng): [number, number] {
   const [l, m] = golosEsperados(atqC, defC, atqF, defF, neutro);

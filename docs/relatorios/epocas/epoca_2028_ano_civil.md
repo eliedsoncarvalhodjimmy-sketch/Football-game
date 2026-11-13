@@ -12,41 +12,41 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Club Atlético Coronel Arroyito | 29 | 25 | 0 | 4 | 71 | 25 | +46 | **75** | 81 | Lib (1.º) |
-| 2 | Sportivo Villa Chañares | 29 | 23 | 4 | 2 | 79 | 23 | +56 | **73** | 66 | C; Lib (campeão) |
-| 3 | Deportivo Paso Pinares | 29 | 21 | 7 | 1 | 74 | 20 | +54 | **70** | 61 | Lib (3.º) |
-| 4 | Club Atlético Puerto Chañares | 29 | 22 | 2 | 5 | 74 | 22 | +52 | **68** | 69 | Lib (4.º) |
-| 5 | Unión de Puerto Ceibos | 29 | 21 | 4 | 4 | 60 | 19 | +41 | **67** | 78 |  |
-| 6 | Club Atlético Villa Quintana | 29 | 17 | 7 | 5 | 52 | 20 | +32 | **58** | 66 |  |
-| 7 | Unión de Colonia Alamos | 29 | 15 | 9 | 5 | 62 | 29 | +33 | **54** | 72 |  |
-| 8 | Sportivo General Alamos | 29 | 16 | 4 | 9 | 58 | 30 | +28 | **52** | 54 |  |
-| 9 | Ferro Paso Moreira | 29 | 14 | 8 | 7 | 41 | 29 | +12 | **50** | 70 |  |
-| 10 | Club Atlético Villa Alamos | 29 | 13 | 6 | 10 | 44 | 40 | +4 | **45** | 58 |  |
-| 11 | Juventud General Alamos | 29 | 12 | 8 | 9 | 37 | 24 | +13 | **44** | 51 |  |
-| 12 | Club Atlético Puerto Tala | 29 | 11 | 9 | 9 | 51 | 44 | +7 | **42** | 51 |  |
-| 13 | Club Atlético General Ceibos | 29 | 11 | 9 | 9 | 39 | 38 | +1 | **42** | 70 |  |
-| 14 | Sportivo Paso Lagunita | 29 | 12 | 5 | 12 | 36 | 37 | -1 | **41** | 54 |  |
-| 15 | Juventud Villa Moreira | 29 | 11 | 8 | 10 | 36 | 38 | -2 | **41** | 55 |  |
-| 16 | Club Atlético Paso Bellavista | 29 | 11 | 8 | 10 | 44 | 49 | -5 | **41** | 55 |  |
-| 17 | Club Atlético Puerto Pradera | 29 | 8 | 12 | 9 | 29 | 35 | -6 | **36** | 51 |  |
-| 18 | Deportivo Puerto Chañares | 29 | 9 | 8 | 12 | 40 | 45 | -5 | **35** | 58 |  |
-| 19 | Sportivo Coronel Chañares | 29 | 8 | 9 | 12 | 27 | 49 | -22 | **33** | 62 |  |
-| 20 | Deportivo Coronel Sauces | 29 | 8 | 6 | 15 | 26 | 41 | -15 | **30** | 49 |  |
-| 21 | Unión de Paso Toscas | 29 | 6 | 8 | 15 | 27 | 44 | -17 | **26** | 60 |  |
-| 22 | Deportivo Villa Toscas | 29 | 7 | 5 | 17 | 28 | 52 | -24 | **26** | 46 |  |
-| 23 | Unión de Colonia Ceibos | 29 | 6 | 7 | 16 | 27 | 53 | -26 | **25** | 55 |  |
-| 24 | Sportivo Barrio Toscas | 29 | 6 | 5 | 18 | 24 | 60 | -36 | **23** | 51 |  |
-| 25 | Social Puerto Quintana | 29 | 4 | 11 | 14 | 33 | 70 | -37 | **23** | 49 |  |
-| 26 | Club Atlético Paso Quintana | 29 | 4 | 9 | 16 | 31 | 46 | -15 | **21** | 50 |  |
-| 27 | Club Atlético Villa Arroyito | 29 | 3 | 8 | 18 | 13 | 45 | -32 | **17** | 47 |  |
-| 28 | Sportivo Barrio Moreira | 29 | 4 | 5 | 20 | 23 | 70 | -47 | **17** | 54 |  |
-| 29 | Talleres de Coronel Bellavista | 29 | 1 | 11 | 17 | 19 | 60 | -41 | **14** | 40 | ↓ ext. |
-| 30 | Club Atlético Coronel Ceibos | 29 | 1 | 8 | 20 | 23 | 71 | -48 | **11** | 39 | ↓ ext. |
+| 1 | Unión de Puerto Ceibos | 29 | 22 | 5 | 2 | 66 | 17 | +49 | **71** | 74 | C; Lib (campeão) |
+| 2 | Club Atlético Puerto Chañares | 29 | 19 | 6 | 4 | 81 | 27 | +54 | **63** | 70 | Lib (2.º) |
+| 3 | Club Atlético Villa Quintana | 29 | 16 | 11 | 2 | 52 | 18 | +34 | **59** | 67 | Lib (3.º) |
+| 4 | Unión de Colonia Alamos | 29 | 17 | 7 | 5 | 65 | 24 | +41 | **58** | 73 | Lib (4.º) |
+| 5 | Club Atlético Coronel Arroyito | 29 | 18 | 4 | 7 | 63 | 37 | +26 | **58** | 82 |  |
+| 6 | Club Atlético General Ceibos | 29 | 17 | 6 | 6 | 56 | 26 | +30 | **57** | 73 |  |
+| 7 | Deportivo Puerto Chañares | 29 | 16 | 6 | 7 | 63 | 33 | +30 | **54** | 59 |  |
+| 8 | Juventud General Alamos | 29 | 16 | 4 | 9 | 43 | 37 | +6 | **52** | 52 |  |
+| 9 | Sportivo Coronel Chañares | 29 | 16 | 3 | 10 | 48 | 32 | +16 | **51** | 61 |  |
+| 10 | Sportivo General Alamos | 29 | 13 | 7 | 9 | 39 | 35 | +4 | **46** | 54 |  |
+| 11 | Club Atlético Colonia Toscas | 29 | 13 | 7 | 9 | 45 | 47 | -2 | **46** | 53 |  |
+| 12 | Sportivo Villa Chañares | 29 | 12 | 7 | 10 | 44 | 33 | +11 | **43** | 66 |  |
+| 13 | Unión de Paso Toscas | 29 | 11 | 10 | 8 | 38 | 32 | +6 | **43** | 61 |  |
+| 14 | Ferro Paso Moreira | 29 | 11 | 8 | 10 | 44 | 39 | +5 | **41** | 70 |  |
+| 15 | Club Atlético Puerto Pradera | 29 | 10 | 10 | 9 | 29 | 35 | -6 | **40** | 50 |  |
+| 16 | Sportivo Paso Lagunita | 29 | 11 | 7 | 11 | 32 | 41 | -9 | **40** | 54 |  |
+| 17 | Deportivo Paso Pinares | 29 | 10 | 9 | 10 | 29 | 30 | -1 | **39** | 61 |  |
+| 18 | Unión de Villa Bellavista | 29 | 10 | 8 | 11 | 39 | 39 | 0 | **38** | 58 |  |
+| 19 | Club Atlético Villa Arroyito | 29 | 9 | 11 | 9 | 32 | 43 | -11 | **38** | 47 |  |
+| 20 | Social Puerto Quintana | 29 | 10 | 5 | 14 | 36 | 51 | -15 | **35** | 49 |  |
+| 21 | Unión de Colonia Ceibos | 29 | 8 | 7 | 14 | 40 | 46 | -6 | **31** | 55 |  |
+| 22 | Club Atlético Villa Alamos | 29 | 7 | 7 | 15 | 40 | 53 | -13 | **28** | 58 |  |
+| 23 | Club Atlético Puerto Tala | 29 | 7 | 7 | 15 | 30 | 50 | -20 | **28** | 50 |  |
+| 24 | Deportivo Coronel Sauces | 29 | 8 | 4 | 17 | 23 | 50 | -27 | **28** | 49 |  |
+| 25 | Club Atlético Paso Quintana | 29 | 6 | 9 | 14 | 34 | 49 | -15 | **27** | 50 |  |
+| 26 | Juventud Villa Moreira | 29 | 6 | 6 | 17 | 20 | 35 | -15 | **24** | 53 |  |
+| 27 | Club Atlético Paso Bellavista | 29 | 6 | 3 | 20 | 22 | 48 | -26 | **21** | 53 |  |
+| 28 | Club Atlético Coronel Ceibos | 29 | 4 | 8 | 17 | 25 | 57 | -32 | **20** | 39 |  |
+| 29 | Deportivo Villa Toscas | 29 | 4 | 6 | 19 | 18 | 55 | -37 | **18** | 46 | ↓ ext. |
+| 30 | Talleres de Coronel Bellavista | 29 | 1 | 4 | 24 | 15 | 92 | -77 | **7** | 40 | ↓ ext. |
 
-- Play-off de campeão: **Sportivo Villa Chañares** venceu Unión de Puerto Ceibos na final (2-1).
+- Play-off de campeão: **Unión de Puerto Ceibos** venceu Club Atlético Puerto Chañares na final (1-0).
 - Entram do exterior para a próxima época: Talleres de Colonia Ombúes (rep. 39), Club Atlético General Chañares (rep. 40).
 
-**Copa Argentina:** Deportivo Paso Pinares venceu Sportivo Villa Chañares na final (2-0).
+**Copa Argentina:** Deportivo Puerto Chañares venceu Club Atlético Coronel Arroyito na final (3-0).
 
 ### Áustria
 
@@ -58,55 +58,55 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Esporte Clube Ribeirão da Cascata | 38 | 26 | 8 | 4 | 95 | 39 | +56 | **86** | 76 | C; Lib (campeão) |
-| 2 | Rio do Angico Futebol Clube | 38 | 25 | 5 | 8 | 92 | 41 | +51 | **80** | 80 | Lib (2.º) |
-| 3 | América de Vila das Garças | 38 | 21 | 9 | 8 | 76 | 36 | +40 | **72** | 67 | Lib (3.º) |
-| 4 | Grêmio Campo do Cajueiro | 38 | 19 | 12 | 7 | 58 | 32 | +26 | **69** | 74 | Lib (4.º) |
-| 5 | Atlético Pouso das Pedras | 38 | 18 | 11 | 9 | 66 | 42 | +24 | **65** | 83 | Lib (5.º) |
-| 6 | Esporte Clube Campo do Cajueiro | 38 | 18 | 10 | 10 | 69 | 41 | +28 | **64** | 67 | Lib (6.º) |
-| 7 | Campo dos Ventos Futebol Clube | 38 | 15 | 17 | 6 | 67 | 50 | +17 | **62** | 66 |  |
-| 8 | Associação Rio dos Ventos | 38 | 17 | 8 | 13 | 56 | 46 | +10 | **59** | 67 |  |
-| 9 | Clube Atlético Pouso das Pedras | 38 | 16 | 10 | 12 | 56 | 45 | +11 | **58** | 76 |  |
-| 10 | América de Campo do Cedro | 38 | 14 | 14 | 10 | 58 | 44 | +14 | **56** | 72 |  |
-| 11 | Grêmio Campo do Sertão | 38 | 14 | 10 | 14 | 59 | 59 | 0 | **52** | 59 |  |
-| 12 | Associação Serra do Jatobá | 38 | 13 | 10 | 15 | 61 | 59 | +2 | **49** | 63 |  |
-| 13 | Serra do Sertão Futebol Clube | 38 | 12 | 10 | 16 | 51 | 59 | -8 | **46** | 66 |  |
-| 14 | Associação Porto do Angico | 38 | 11 | 10 | 17 | 53 | 59 | -6 | **43** | 64 |  |
-| 15 | Atlético Barra dos Ventos | 38 | 9 | 15 | 14 | 41 | 59 | -18 | **42** | 62 |  |
-| 16 | Campo da Cascata Futebol Clube | 38 | 10 | 9 | 19 | 35 | 61 | -26 | **39** | 54 |  |
-| 17 | Grêmio Barra das Palmeiras | 38 | 7 | 11 | 20 | 30 | 62 | -32 | **32** | 62 | ↓ |
-| 18 | Campo do Ipê Futebol Clube | 38 | 7 | 9 | 22 | 39 | 75 | -36 | **30** | 46 | ↓ |
-| 19 | Grêmio Arraial dos Ventos | 38 | 6 | 6 | 26 | 28 | 103 | -75 | **24** | 47 | ↓ |
-| 20 | Grêmio Pouso do Cedro | 38 | 3 | 4 | 31 | 21 | 99 | -78 | **13** | 42 | ↓ |
+| 1 | Atlético Pouso das Pedras | 38 | 25 | 7 | 6 | 82 | 26 | +56 | **82** | 82 | C; Lib (campeão) |
+| 2 | Rio do Angico Futebol Clube | 38 | 22 | 8 | 8 | 81 | 40 | +41 | **74** | 79 | Lib (2.º) |
+| 3 | América de Campo do Cedro | 38 | 21 | 9 | 8 | 61 | 34 | +27 | **72** | 71 | Lib (3.º) |
+| 4 | Serra do Sertão Futebol Clube | 38 | 20 | 10 | 8 | 72 | 48 | +24 | **70** | 65 | Lib (4.º) |
+| 5 | Grêmio Campo do Cajueiro | 38 | 20 | 6 | 12 | 72 | 48 | +24 | **66** | 75 | Lib (5.º) |
+| 6 | Clube Atlético Pouso das Pedras | 38 | 19 | 9 | 10 | 76 | 55 | +21 | **66** | 77 | Lib (6.º) |
+| 7 | América de Vila das Garças | 38 | 18 | 11 | 9 | 75 | 50 | +25 | **65** | 67 |  |
+| 8 | Atlético Barra dos Ventos | 38 | 17 | 9 | 12 | 61 | 51 | +10 | **60** | 62 |  |
+| 9 | Grêmio Barra das Palmeiras | 38 | 16 | 11 | 11 | 50 | 37 | +13 | **59** | 62 |  |
+| 10 | Atlético Barra das Palmeiras | 38 | 16 | 9 | 13 | 61 | 43 | +18 | **57** | 62 |  |
+| 11 | Associação Serra do Jatobá | 38 | 14 | 9 | 15 | 57 | 59 | -2 | **51** | 63 |  |
+| 12 | Campo dos Ventos Futebol Clube | 38 | 13 | 12 | 13 | 47 | 46 | +1 | **51** | 67 |  |
+| 13 | Esporte Clube Campo do Cajueiro | 38 | 14 | 7 | 17 | 60 | 71 | -11 | **49** | 67 |  |
+| 14 | Esporte Clube Ribeirão da Cascata | 38 | 13 | 6 | 19 | 49 | 68 | -19 | **45** | 76 |  |
+| 15 | Esporte Clube Campo do Angico | 38 | 11 | 12 | 15 | 55 | 60 | -5 | **45** | 57 |  |
+| 16 | Associação Lagoa da Cascata | 38 | 9 | 14 | 15 | 40 | 51 | -11 | **41** | 60 |  |
+| 17 | Associação Porto do Angico | 38 | 6 | 14 | 18 | 23 | 50 | -27 | **32** | 65 | ↓ |
+| 18 | Grêmio Vale do Buriti | 38 | 7 | 10 | 21 | 35 | 90 | -55 | **31** | 48 | ↓ |
+| 19 | Grêmio Arraial dos Ventos | 38 | 3 | 7 | 28 | 29 | 91 | -62 | **16** | 48 | ↓ |
+| 20 | Campo do Ipê Futebol Clube | 38 | 2 | 8 | 28 | 23 | 91 | -68 | **14** | 46 | ↓ |
 
 **Brasileirão Série B**
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Clube Atlético Lagoa do Pequi | 38 | 30 | 5 | 3 | 79 | 23 | +56 | **95** | 63 | C; ↑ |
-| 2 | Grêmio Vale do Buriti | 38 | 27 | 4 | 7 | 84 | 37 | +47 | **85** | 46 | ↑ |
-| 3 | Esporte Clube Campo do Angico | 38 | 25 | 10 | 3 | 62 | 21 | +41 | **85** | 56 | ↑ |
-| 4 | Atlético Barra das Palmeiras | 38 | 22 | 9 | 7 | 71 | 45 | +26 | **75** | 61 | ↑ |
-| 5 | Associação Lagoa da Cascata | 38 | 22 | 7 | 9 | 73 | 37 | +36 | **73** | 59 |  |
-| 6 | Arraial do Pequi Futebol Clube | 38 | 18 | 11 | 9 | 59 | 46 | +13 | **65** | 44 |  |
-| 7 | Grêmio Vila do Ipê | 38 | 18 | 7 | 13 | 63 | 41 | +22 | **61** | 42 |  |
-| 8 | Clube Atlético Lagoa da Cascata | 38 | 15 | 9 | 14 | 51 | 44 | +7 | **54** | 50 |  |
-| 9 | Serra do Pequi Futebol Clube | 38 | 14 | 10 | 14 | 45 | 50 | -5 | **52** | 40 |  |
-| 10 | Atlético Lagoa do Ipê | 38 | 14 | 9 | 15 | 43 | 51 | -8 | **51** | 41 |  |
-| 11 | Esporte Clube Campo do Sertão | 38 | 10 | 12 | 16 | 37 | 58 | -21 | **42** | 54 |  |
-| 12 | Esporte Clube Morro do Cajueiro | 38 | 11 | 8 | 19 | 40 | 58 | -18 | **41** | 42 |  |
-| 13 | Sociedade Esportiva Morro das Araras | 38 | 8 | 16 | 14 | 35 | 48 | -13 | **40** | 47 |  |
-| 14 | Atlético Lagoa da Cascata | 38 | 10 | 8 | 20 | 45 | 58 | -13 | **38** | 45 |  |
-| 15 | Barra do Angico Futebol Clube | 38 | 9 | 11 | 18 | 38 | 57 | -19 | **38** | 40 |  |
-| 16 | Atlético Campo do Pequi | 38 | 8 | 8 | 22 | 36 | 72 | -36 | **32** | 33 |  |
-| 17 | América de Serra do Ipê | 38 | 7 | 10 | 21 | 37 | 65 | -28 | **31** | 30 | ↓ ext. |
-| 18 | Campo do Cajueiro Futebol Clube | 38 | 6 | 13 | 19 | 34 | 55 | -21 | **31** | 58 | ↓ ext. |
-| 19 | Esporte Clube Lagoa das Araras | 38 | 6 | 13 | 19 | 32 | 68 | -36 | **31** | 35 | ↓ ext. |
-| 20 | Pouso das Araras Futebol Clube | 38 | 4 | 12 | 22 | 34 | 64 | -30 | **24** | 34 | ↓ ext. |
+| 1 | Associação Rio dos Ventos | 38 | 32 | 2 | 4 | 115 | 22 | +93 | **98** | 66 | C; ↑ |
+| 2 | Clube Atlético Lagoa do Pequi | 38 | 29 | 6 | 3 | 66 | 14 | +52 | **93** | 63 | ↑ |
+| 3 | Grêmio Campo do Sertão | 38 | 26 | 5 | 7 | 74 | 30 | +44 | **83** | 58 | ↑ |
+| 4 | Esporte Clube Campo do Sertão | 38 | 25 | 6 | 7 | 85 | 41 | +44 | **81** | 54 | ↑ |
+| 5 | Sociedade Esportiva Morro das Araras | 38 | 22 | 8 | 8 | 64 | 37 | +27 | **74** | 48 |  |
+| 6 | Atlético Lagoa da Cascata | 38 | 18 | 9 | 11 | 59 | 50 | +9 | **63** | 45 |  |
+| 7 | Campo da Cascata Futebol Clube | 38 | 19 | 5 | 14 | 65 | 50 | +15 | **62** | 51 |  |
+| 8 | Clube Atlético Lagoa da Cascata | 38 | 17 | 8 | 13 | 52 | 44 | +8 | **59** | 50 |  |
+| 9 | Atlético Lagoa do Ipê | 38 | 17 | 8 | 13 | 59 | 53 | +6 | **59** | 40 |  |
+| 10 | Campo do Cajueiro Futebol Clube | 38 | 16 | 11 | 11 | 58 | 43 | +15 | **59** | 58 |  |
+| 11 | Esporte Clube Morro do Cajueiro | 38 | 14 | 10 | 14 | 54 | 46 | +8 | **52** | 42 |  |
+| 12 | Esporte Clube Rio do Buriti | 38 | 13 | 11 | 14 | 40 | 46 | -6 | **50** | 42 |  |
+| 13 | Pouso das Araras Futebol Clube | 38 | 12 | 7 | 19 | 34 | 52 | -18 | **43** | 34 |  |
+| 14 | Arraial do Pequi Futebol Clube | 38 | 11 | 8 | 19 | 41 | 61 | -20 | **41** | 43 |  |
+| 15 | Serra do Pequi Futebol Clube | 38 | 8 | 6 | 24 | 27 | 65 | -38 | **30** | 40 |  |
+| 16 | Grêmio Pouso do Cedro | 38 | 8 | 3 | 27 | 30 | 74 | -44 | **27** | 40 |  |
+| 17 | Atlético Campo do Pequi | 38 | 7 | 5 | 26 | 27 | 79 | -52 | **26** | 33 | ↓ ext. |
+| 18 | Lagoa do Ipê Futebol Clube | 38 | 5 | 11 | 22 | 25 | 57 | -32 | **26** | 45 | ↓ ext. |
+| 19 | Esporte Clube Lagoa das Araras | 38 | 6 | 6 | 26 | 24 | 81 | -57 | **24** | 35 | ↓ ext. |
+| 20 | América de Serra do Ipê | 38 | 4 | 7 | 27 | 24 | 78 | -54 | **19** | 30 | ↓ ext. |
 
 - Entram do exterior para a próxima época: Barra do Sertão Futebol Clube (rep. 36), Sociedade Esportiva Pouso do Jatobá (rep. 34), Rio das Araras Futebol Clube (rep. 32), América de Barra das Araras (rep. 33).
 
-**Copa do Brasil:** Atlético Pouso das Pedras venceu América de Vila das Garças na final (1.ª mão 1-0, 2.ª mão 1-2).
+**Copa do Brasil:** Atlético Pouso das Pedras venceu América de Vila das Garças na final (1.ª mão 1-1, 2.ª mão 2-3 (a.p.)).
 
 ### Colômbia
 
@@ -114,30 +114,30 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Atlético Monte Floresta | 38 | 23 | 7 | 8 | 67 | 43 | +24 | **76** | 51 | C; Lib (campeão) |
-| 2 | Deportivo Llano Arenal | 38 | 22 | 8 | 8 | 76 | 39 | +37 | **74** | 46 | Lib (2.º) |
-| 3 | Atlético Puerto Portillo | 38 | 20 | 11 | 7 | 66 | 37 | +29 | **71** | 54 |  |
-| 4 | Deportivo Llano Lucero | 38 | 18 | 13 | 7 | 74 | 38 | +36 | **67** | 55 |  |
-| 5 | Club Loma Quebrada | 38 | 18 | 13 | 7 | 53 | 35 | +18 | **67** | 59 |  |
-| 6 | Juventud Cerro Tablada | 38 | 19 | 9 | 10 | 65 | 47 | +18 | **66** | 64 |  |
-| 7 | Atlético Puerto Tablada | 38 | 17 | 13 | 8 | 58 | 42 | +16 | **64** | 47 |  |
-| 8 | Club Cerro Arenal | 38 | 17 | 12 | 9 | 56 | 48 | +8 | **63** | 60 |  |
-| 9 | Deportivo Paso Rosario Alto | 38 | 12 | 17 | 9 | 45 | 41 | +4 | **53** | 41 |  |
-| 10 | Unión Villa Alameda | 38 | 11 | 16 | 11 | 53 | 43 | +10 | **49** | 47 |  |
-| 11 | Unión Villa Lucero | 38 | 12 | 9 | 17 | 34 | 45 | -11 | **45** | 44 |  |
-| 12 | Real Loma Mirador | 38 | 12 | 6 | 20 | 50 | 58 | -8 | **42** | 37 |  |
-| 13 | Club Llano Cumbre | 38 | 11 | 8 | 19 | 30 | 53 | -23 | **41** | 42 |  |
-| 14 | Unión Puerto Cumbre | 38 | 9 | 13 | 16 | 46 | 64 | -18 | **40** | 49 |  |
-| 15 | Juventud Valle Esperanza | 38 | 8 | 15 | 15 | 32 | 46 | -14 | **39** | 48 |  |
-| 16 | Club Villa Lucero | 38 | 8 | 14 | 16 | 44 | 63 | -19 | **38** | 42 |  |
-| 17 | Real Valle Cumbre | 38 | 9 | 11 | 18 | 41 | 60 | -19 | **38** | 49 |  |
-| 18 | Unión Paso Rosario Alto | 38 | 8 | 9 | 21 | 41 | 67 | -26 | **33** | 43 | ↓ ext. |
-| 19 | Juventud Puerto Mirador | 38 | 7 | 11 | 20 | 36 | 67 | -31 | **32** | 36 | ↓ ext. |
-| 20 | Atlético Río Floresta | 38 | 4 | 15 | 19 | 38 | 69 | -31 | **27** | 43 |  |
+| 1 | Atlético Puerto Portillo | 38 | 24 | 11 | 3 | 88 | 32 | +56 | **83** | 53 | C; Lib (campeão) |
+| 2 | Deportivo Llano Lucero | 38 | 21 | 12 | 5 | 87 | 43 | +44 | **75** | 56 | Lib (2.º) |
+| 3 | Juventud Cerro Tablada | 38 | 20 | 11 | 7 | 81 | 44 | +37 | **71** | 64 |  |
+| 4 | Club Loma Mirador | 38 | 18 | 12 | 8 | 68 | 46 | +22 | **66** | 45 |  |
+| 5 | Club Cerro Arenal | 38 | 20 | 5 | 13 | 70 | 44 | +26 | **65** | 58 |  |
+| 6 | Juventud Valle Esperanza | 38 | 18 | 10 | 10 | 70 | 47 | +23 | **64** | 48 |  |
+| 7 | Unión Puerto Cumbre | 38 | 15 | 17 | 6 | 47 | 35 | +12 | **62** | 49 |  |
+| 8 | Unión Paso Rosario Alto | 38 | 18 | 8 | 12 | 51 | 47 | +4 | **62** | 45 |  |
+| 9 | Club Loma Quebrada | 38 | 15 | 10 | 13 | 50 | 52 | -2 | **55** | 60 |  |
+| 10 | Unión Villa Lucero | 38 | 15 | 6 | 17 | 45 | 64 | -19 | **51** | 44 |  |
+| 11 | Deportivo Llano Arenal | 38 | 14 | 6 | 18 | 54 | 52 | +2 | **48** | 47 |  |
+| 12 | Unión Villa Alameda | 38 | 11 | 14 | 13 | 47 | 51 | -4 | **47** | 47 |  |
+| 13 | Atlético Monte Floresta | 38 | 12 | 8 | 18 | 59 | 66 | -7 | **44** | 50 |  |
+| 14 | Real Valle Cumbre | 38 | 10 | 14 | 14 | 40 | 48 | -8 | **44** | 49 |  |
+| 15 | Club Villa Lucero | 38 | 11 | 11 | 16 | 34 | 51 | -17 | **44** | 43 |  |
+| 16 | Atlético Puerto Tablada | 38 | 12 | 8 | 18 | 37 | 56 | -19 | **44** | 47 |  |
+| 17 | Club Llano Cumbre | 38 | 10 | 12 | 16 | 33 | 50 | -17 | **42** | 42 |  |
+| 18 | Real Loma Mirador | 38 | 6 | 10 | 22 | 35 | 75 | -40 | **28** | 37 | ↓ ext. |
+| 19 | Unión Valle Rosario Alto | 38 | 4 | 11 | 23 | 29 | 69 | -40 | **23** | 42 |  |
+| 20 | Juventud Puerto Mirador | 38 | 4 | 8 | 26 | 28 | 81 | -53 | **20** | 36 | ↓ ext. |
 
 - Entram do exterior para a próxima época: Deportivo Llano Tablada (rep. 37), Club Cerro Lucero (rep. 35).
 
-**Copa Colombia:** Unión Villa Alameda venceu Atlético Puerto Portillo na final (2-0).
+**Copa Colombia:** Club Cerro Arenal venceu Atlético Puerto Portillo na final (1-1 (a.p.) 4-5 g.p.).
 
 ### Croácia
 
@@ -151,26 +151,26 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Club Loma Tablada | 30 | 22 | 4 | 4 | 59 | 19 | +40 | **70** | 49 | C; Lib (campeão) |
-| 2 | Atlético Monte Cumbre | 30 | 18 | 8 | 4 | 51 | 25 | +26 | **62** | 46 | Lib (2.º) |
-| 3 | Real Cerro Rosario Alto | 30 | 18 | 6 | 6 | 65 | 18 | +47 | **60** | 57 |  |
-| 4 | Unión Cerro Alameda | 30 | 17 | 9 | 4 | 57 | 21 | +36 | **60** | 55 |  |
-| 5 | Sporting Loma Tablada | 30 | 18 | 6 | 6 | 57 | 26 | +31 | **60** | 59 |  |
-| 6 | Club Cerro Alameda | 30 | 16 | 6 | 8 | 40 | 27 | +13 | **54** | 43 |  |
-| 7 | Real Cerro Corral | 30 | 11 | 8 | 11 | 34 | 34 | 0 | **41** | 57 |  |
-| 8 | Atlético Monte Soledad | 30 | 11 | 6 | 13 | 43 | 49 | -6 | **39** | 50 |  |
-| 9 | Deportivo Valle Mirador | 30 | 10 | 9 | 11 | 41 | 47 | -6 | **39** | 38 |  |
-| 10 | Unión Puerto Arenal | 30 | 11 | 5 | 14 | 37 | 50 | -13 | **38** | 42 |  |
-| 11 | Unión Llano Aguada | 30 | 9 | 8 | 13 | 33 | 45 | -12 | **35** | 33 |  |
-| 12 | Atlético Monte Lucero | 30 | 9 | 3 | 18 | 32 | 59 | -27 | **30** | 39 |  |
-| 13 | Sporting Río Mirador | 30 | 7 | 7 | 16 | 27 | 49 | -22 | **28** | 39 |  |
-| 14 | Independiente Valle Quebrada | 30 | 4 | 11 | 15 | 32 | 55 | -23 | **23** | 36 |  |
-| 15 | Unión Llano Floresta | 30 | 5 | 5 | 20 | 20 | 55 | -35 | **20** | 40 | ↓ ext. |
-| 16 | Deportivo Río Palmar | 30 | 1 | 5 | 24 | 20 | 69 | -49 | **8** | 41 | ↓ ext. |
+| 1 | Sporting Loma Tablada | 30 | 20 | 8 | 2 | 69 | 19 | +50 | **68** | 61 | C; Lib (campeão) |
+| 2 | Atlético Monte Soledad | 30 | 19 | 4 | 7 | 59 | 33 | +26 | **61** | 49 | Lib (2.º) |
+| 3 | Unión Cerro Alameda | 30 | 15 | 8 | 7 | 51 | 30 | +21 | **53** | 53 |  |
+| 4 | Real Cerro Corral | 30 | 14 | 10 | 6 | 44 | 33 | +11 | **52** | 58 |  |
+| 5 | Unión Puerto Arenal | 30 | 15 | 6 | 9 | 49 | 32 | +17 | **51** | 43 |  |
+| 6 | Club Loma Tablada | 30 | 15 | 5 | 10 | 41 | 38 | +3 | **50** | 49 |  |
+| 7 | Atlético Monte Cumbre | 30 | 14 | 7 | 9 | 45 | 30 | +15 | **49** | 45 |  |
+| 8 | Club Cerro Alameda | 30 | 13 | 7 | 10 | 42 | 38 | +4 | **46** | 43 |  |
+| 9 | Atlético Monte Lucero | 30 | 12 | 7 | 11 | 44 | 37 | +7 | **43** | 40 |  |
+| 10 | Real Cerro Rosario Alto | 30 | 11 | 8 | 11 | 44 | 42 | +2 | **41** | 56 |  |
+| 11 | Club Monte Cumbre | 30 | 11 | 5 | 14 | 44 | 51 | -7 | **38** | 44 |  |
+| 12 | Unión Llano Floresta | 30 | 7 | 8 | 15 | 21 | 46 | -25 | **29** | 39 |  |
+| 13 | Sporting Río Mirador | 30 | 6 | 8 | 16 | 33 | 46 | -13 | **26** | 39 |  |
+| 14 | Atlético Valle Mirador | 30 | 5 | 9 | 16 | 28 | 47 | -19 | **24** | 36 |  |
+| 15 | Independiente Valle Quebrada | 30 | 6 | 5 | 19 | 30 | 70 | -40 | **23** | 36 | ↓ ext. |
+| 16 | Unión Llano Aguada | 30 | 2 | 5 | 23 | 23 | 75 | -52 | **11** | 33 | ↓ ext. |
 
 - Entram do exterior para a próxima época: Club Monte Rosario Alto (rep. 29), Unión Paso Cumbre (rep. 30).
 
-**Copa Equador:** Atlético Monte Soledad venceu Unión Cerro Alameda na final (1-0).
+**Copa Equador:** Sporting Loma Tablada venceu Unión Cerro Alameda na final (3-0).
 
 ### Inglaterra
 
@@ -194,20 +194,20 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Namgok Citizen | 33 | 21 | 7 | 5 | 61 | 20 | +41 | **70** | 64 | C |
-| 2 | Namcheon Citizen | 33 | 16 | 10 | 7 | 68 | 38 | +30 | **58** | 51 |  |
-| 3 | Hwacheon United | 33 | 14 | 12 | 7 | 50 | 41 | +9 | **54** | 56 |  |
-| 4 | Jinwon Hawks | 33 | 11 | 15 | 7 | 51 | 37 | +14 | **48** | 51 |  |
-| 5 | Hangok Phoenix | 33 | 13 | 9 | 11 | 57 | 48 | +9 | **48** | 51 |  |
-| 6 | Muncheon FC | 33 | 12 | 10 | 11 | 40 | 46 | -6 | **46** | 44 |  |
-| 7 | Hwadong Citizen | 33 | 10 | 14 | 9 | 40 | 43 | -3 | **44** | 53 |  |
-| 8 | Daeju Hawks | 33 | 10 | 12 | 11 | 39 | 45 | -6 | **42** | 56 |  |
-| 9 | Daeju Phoenix | 33 | 11 | 6 | 16 | 40 | 46 | -6 | **39** | 42 |  |
-| 10 | Seogang FC | 33 | 7 | 9 | 17 | 32 | 52 | -20 | **30** | 47 |  |
-| 11 | Munrim Dragons | 33 | 7 | 9 | 17 | 34 | 61 | -27 | **30** | 48 |  |
-| 12 | Handong FC | 33 | 5 | 9 | 19 | 23 | 58 | -35 | **24** | 45 |  |
+| 1 | Daeju Hawks | 33 | 16 | 8 | 9 | 57 | 33 | +24 | **56** | 56 | C |
+| 2 | Hwadong Citizen | 33 | 16 | 7 | 10 | 47 | 26 | +21 | **55** | 55 |  |
+| 3 | Namcheon Citizen | 33 | 15 | 10 | 8 | 50 | 31 | +19 | **55** | 52 |  |
+| 4 | Seogang FC | 33 | 13 | 12 | 8 | 49 | 38 | +11 | **51** | 47 |  |
+| 5 | Hangok Phoenix | 33 | 13 | 9 | 11 | 37 | 43 | -6 | **48** | 51 |  |
+| 6 | Hwacheon United | 33 | 12 | 9 | 12 | 33 | 37 | -4 | **45** | 55 |  |
+| 7 | Munrim Dragons | 33 | 12 | 7 | 14 | 35 | 47 | -12 | **43** | 48 |  |
+| 8 | Muncheon FC | 33 | 9 | 13 | 11 | 34 | 39 | -5 | **40** | 44 |  |
+| 9 | Namgok Citizen | 33 | 10 | 10 | 13 | 31 | 39 | -8 | **40** | 62 |  |
+| 10 | Jinwon Hawks | 33 | 10 | 8 | 15 | 48 | 49 | -1 | **38** | 52 |  |
+| 11 | Handong FC | 33 | 7 | 12 | 14 | 33 | 43 | -10 | **33** | 44 |  |
+| 12 | Daeju Phoenix | 33 | 7 | 11 | 15 | 33 | 62 | -29 | **32** | 42 |  |
 
-**Korean FA Cup:** Hwacheon United venceu Muncheon FC na final (4-2).
+**Korean FA Cup:** Daeju Hawks venceu Seogang FC na final (2-1 (a.p.)).
 
 ### Arábia Saudita
 
@@ -221,26 +221,26 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Åsvik FK | 30 | 24 | 6 | 0 | 74 | 17 | +57 | **78** | 61 | C |
-| 2 | Lienbø BK | 30 | 18 | 7 | 5 | 52 | 27 | +25 | **61** | 61 |  |
-| 3 | Elvesund Fotball | 30 | 15 | 12 | 3 | 49 | 29 | +20 | **57** | 48 |  |
-| 4 | Skogdal IL | 30 | 16 | 7 | 7 | 53 | 30 | +23 | **55** | 56 |  |
-| 5 | Fjellvang IL | 30 | 16 | 5 | 9 | 44 | 31 | +13 | **53** | 51 |  |
-| 6 | Liendal IL | 30 | 14 | 7 | 9 | 41 | 33 | +8 | **49** | 43 |  |
-| 7 | IK Lienstad | 30 | 13 | 9 | 8 | 45 | 35 | +10 | **48** | 43 |  |
-| 8 | Elvefjord BK | 30 | 13 | 4 | 13 | 46 | 55 | -9 | **43** | 41 |  |
-| 9 | IK Nordbø | 30 | 10 | 6 | 14 | 41 | 32 | +9 | **36** | 49 |  |
-| 10 | Skogfjord FK | 30 | 9 | 8 | 13 | 39 | 45 | -6 | **35** | 36 |  |
-| 11 | Bergvik FK | 30 | 8 | 9 | 13 | 39 | 45 | -6 | **33** | 33 |  |
-| 12 | Åsnes IL | 30 | 10 | 2 | 18 | 34 | 47 | -13 | **32** | 38 |  |
-| 13 | Bjørstad FK | 30 | 5 | 9 | 16 | 28 | 51 | -23 | **24** | 42 |  |
-| 14 | Bergdal BK | 30 | 5 | 6 | 19 | 25 | 60 | -35 | **21** | 45 |  |
-| 15 | Viknes BK | 30 | 5 | 6 | 19 | 29 | 66 | -37 | **21** | 39 | ↓ ext. |
-| 16 | Strømvang FK | 30 | 4 | 7 | 19 | 30 | 66 | -36 | **19** | 49 | ↓ ext. |
+| 1 | Fjellvang IL | 30 | 23 | 3 | 4 | 58 | 19 | +39 | **72** | 52 | C |
+| 2 | Liendal IL | 30 | 18 | 6 | 6 | 56 | 27 | +29 | **60** | 42 |  |
+| 3 | Åsvik FK | 30 | 17 | 7 | 6 | 42 | 23 | +19 | **58** | 59 |  |
+| 4 | Lienbø BK | 30 | 16 | 6 | 8 | 49 | 29 | +20 | **54** | 64 |  |
+| 5 | Elvesund Fotball | 30 | 15 | 8 | 7 | 45 | 34 | +11 | **53** | 48 |  |
+| 6 | IK Nordbø | 30 | 13 | 8 | 9 | 33 | 32 | +1 | **47** | 48 |  |
+| 7 | Skogdal IL | 30 | 11 | 11 | 8 | 33 | 30 | +3 | **44** | 56 |  |
+| 8 | Liennes IL | 30 | 11 | 8 | 11 | 38 | 31 | +7 | **41** | 39 |  |
+| 9 | Skogvik IL | 30 | 10 | 11 | 9 | 30 | 32 | -2 | **41** | 49 |  |
+| 10 | Elvefjord BK | 30 | 8 | 9 | 13 | 35 | 51 | -16 | **33** | 41 |  |
+| 11 | Bergdal BK | 30 | 8 | 7 | 15 | 37 | 36 | +1 | **31** | 46 |  |
+| 12 | Strømvang FK | 30 | 8 | 7 | 15 | 25 | 38 | -13 | **31** | 48 |  |
+| 13 | Viknes BK | 30 | 8 | 7 | 15 | 26 | 54 | -28 | **31** | 39 |  |
+| 14 | IK Lienstad | 30 | 7 | 8 | 15 | 35 | 34 | +1 | **29** | 43 |  |
+| 15 | Bergvik FK | 30 | 6 | 3 | 21 | 28 | 63 | -35 | **21** | 33 | ↓ ext. |
+| 16 | Skogfjord FK | 30 | 4 | 5 | 21 | 24 | 61 | -37 | **17** | 36 | ↓ ext. |
 
 - Entram do exterior para a próxima época: Bergfjord Fotball (rep. 34), Strømmo FK (rep. 35).
 
-**Taça da Noruega:** Skogdal IL venceu Åsvik FK na final (3-3 (a.p.) 5-4 g.p.).
+**Taça da Noruega:** Lienbø BK venceu Skogdal IL na final (2-0).
 
 ### Polónia
 
@@ -260,26 +260,26 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Deportivo Río Rosario Alto | 30 | 29 | 1 | 0 | 92 | 12 | +80 | **88** | 66 | C; Lib (campeão) |
-| 2 | Unión Loma Palmar | 30 | 22 | 5 | 3 | 71 | 31 | +40 | **71** | 59 | Lib (2.º) |
-| 3 | Deportivo Monte Corral | 30 | 15 | 9 | 6 | 51 | 24 | +27 | **54** | 54 |  |
-| 4 | Club Valle Soledad | 30 | 16 | 4 | 10 | 51 | 27 | +24 | **52** | 46 |  |
-| 5 | Sporting Monte Mirador | 30 | 14 | 10 | 6 | 45 | 35 | +10 | **52** | 49 |  |
-| 6 | Club Monte Corral | 30 | 14 | 9 | 7 | 45 | 35 | +10 | **51** | 44 |  |
-| 7 | Deportivo Cerro Cumbre | 30 | 15 | 2 | 13 | 36 | 44 | -8 | **47** | 39 |  |
-| 8 | Club Río Corral | 30 | 13 | 7 | 10 | 49 | 35 | +14 | **46** | 50 |  |
-| 9 | Juventud Valle Palmar | 30 | 9 | 12 | 9 | 27 | 33 | -6 | **39** | 39 |  |
-| 10 | Deportivo Villa Corral | 30 | 10 | 5 | 15 | 29 | 39 | -10 | **35** | 33 |  |
-| 11 | Atlético Villa Corral | 30 | 8 | 8 | 14 | 37 | 48 | -11 | **32** | 31 |  |
-| 12 | Deportivo Loma Cumbre | 30 | 7 | 8 | 15 | 32 | 51 | -19 | **29** | 43 |  |
-| 13 | Valle Lucero FC | 30 | 8 | 5 | 17 | 27 | 56 | -29 | **29** | 24 |  |
-| 14 | Juventud Puerto Alameda | 30 | 4 | 6 | 20 | 28 | 63 | -35 | **18** | 37 | ↓ ext. |
-| 15 | Atlético Paso Tablada | 30 | 4 | 4 | 22 | 23 | 63 | -40 | **16** | 36 | ↓ ext. |
-| 16 | Juventud Llano Soledad | 30 | 2 | 5 | 23 | 22 | 69 | -47 | **11** | 36 | ↓ ext. |
+| 1 | Deportivo Monte Corral | 30 | 25 | 4 | 1 | 97 | 22 | +75 | **79** | 56 | C; Lib (campeão) |
+| 2 | Unión Loma Palmar | 30 | 22 | 3 | 5 | 74 | 24 | +50 | **69** | 61 | Lib (2.º) |
+| 3 | Deportivo Río Rosario Alto | 30 | 17 | 2 | 11 | 48 | 32 | +16 | **53** | 64 |  |
+| 4 | Sporting Monte Mirador | 30 | 15 | 6 | 9 | 51 | 42 | +9 | **51** | 49 |  |
+| 5 | Club Cerro Mirador | 30 | 16 | 1 | 13 | 44 | 41 | +3 | **49** | 40 |  |
+| 6 | Atlético Paso Tablada | 30 | 12 | 11 | 7 | 37 | 27 | +10 | **47** | 36 |  |
+| 7 | Club Monte Corral | 30 | 14 | 5 | 11 | 47 | 46 | +1 | **47** | 44 |  |
+| 8 | Club Valle Soledad | 30 | 12 | 7 | 11 | 38 | 37 | +1 | **43** | 46 |  |
+| 9 | Juventud Valle Palmar | 30 | 9 | 11 | 10 | 33 | 30 | +3 | **38** | 38 |  |
+| 10 | Club Río Corral | 30 | 11 | 5 | 14 | 32 | 36 | -4 | **38** | 47 |  |
+| 11 | Deportivo Loma Cumbre | 30 | 11 | 5 | 14 | 39 | 44 | -5 | **38** | 44 |  |
+| 12 | Deportivo Cerro Cumbre | 30 | 9 | 8 | 13 | 26 | 36 | -10 | **35** | 41 |  |
+| 13 | Juventud Puerto Alameda | 30 | 9 | 7 | 14 | 25 | 33 | -8 | **34** | 38 |  |
+| 14 | Deportivo Villa Corral | 30 | 5 | 6 | 19 | 25 | 48 | -23 | **21** | 33 | ↓ ext. |
+| 15 | Valle Lucero FC | 30 | 5 | 4 | 21 | 22 | 80 | -58 | **19** | 24 | ↓ ext. |
+| 16 | Atlético Villa Corral | 30 | 4 | 3 | 23 | 17 | 77 | -60 | **15** | 31 | ↓ ext. |
 
 - Entram do exterior para a próxima época: Club Loma Ceibal (rep. 27), Deportivo Villa Aguada (rep. 27), Paso Ceibal FC (rep. 26).
 
-**Copa Uruguai:** Unión Loma Palmar venceu Club Valle Soledad na final (3-2).
+**Copa Uruguai:** Deportivo Monte Corral venceu Atlético Paso Tablada na final (2-1).
 
 ### EUA (MLS)
 
@@ -287,73 +287,73 @@
 
 | # | Clube | J | V | E | D | GM | GS | DG | Pts | Rep. | Nota |
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | Red Bluff United | 29 | 19 | 7 | 3 | 66 | 27 | +39 | **64** | 58 | C |
-| 2 | Pine Springs FC | 29 | 19 | 7 | 3 | 58 | 26 | +32 | **64** | 54 |  |
-| 3 | Bay Heights United | 29 | 19 | 5 | 5 | 58 | 19 | +39 | **62** | 69 |  |
-| 4 | Summit Rock SC | 29 | 17 | 11 | 1 | 54 | 15 | +39 | **62** | 59 |  |
-| 5 | Real Summit Rock | 29 | 16 | 7 | 6 | 37 | 22 | +15 | **55** | 65 |  |
-| 6 | Cedar Springs SC | 29 | 14 | 8 | 7 | 43 | 24 | +19 | **50** | 59 |  |
-| 7 | Iron Valley SC | 29 | 14 | 6 | 9 | 42 | 38 | +4 | **48** | 60 |  |
-| 8 | Redville United | 29 | 13 | 7 | 9 | 35 | 26 | +9 | **46** | 61 |  |
-| 9 | Copper Ridge United | 29 | 12 | 9 | 8 | 43 | 32 | +11 | **45** | 53 |  |
-| 10 | Iron Creek United | 29 | 12 | 8 | 9 | 41 | 32 | +9 | **44** | 57 |  |
-| 11 | Real Pine Falls | 29 | 12 | 8 | 9 | 36 | 28 | +8 | **44** | 54 |  |
-| 12 | Falcon Rock FC | 29 | 11 | 11 | 7 | 49 | 34 | +15 | **44** | 58 |  |
-| 13 | Stoneton FC | 29 | 9 | 13 | 7 | 30 | 28 | +2 | **40** | 50 |  |
-| 14 | Athletic River Ridge | 29 | 8 | 13 | 8 | 33 | 32 | +1 | **37** | 49 |  |
-| 15 | Redville FC | 29 | 9 | 9 | 11 | 37 | 38 | -1 | **36** | 63 |  |
-| 16 | Prairie Falls United | 29 | 9 | 9 | 11 | 41 | 43 | -2 | **36** | 49 |  |
-| 17 | Athletic Granite Bluff | 29 | 9 | 9 | 11 | 38 | 41 | -3 | **36** | 52 |  |
-| 18 | Iron Bluff City SC | 29 | 8 | 12 | 9 | 33 | 38 | -5 | **36** | 48 |  |
-| 19 | Sun Ridge United | 29 | 8 | 12 | 9 | 26 | 31 | -5 | **36** | 56 |  |
-| 20 | Silver Falls United | 29 | 8 | 11 | 10 | 49 | 44 | +5 | **35** | 57 |  |
-| 21 | Harbor Springs FC | 29 | 7 | 12 | 10 | 37 | 51 | -14 | **33** | 51 |  |
-| 22 | Silver Falls FC | 29 | 7 | 10 | 12 | 24 | 38 | -14 | **31** | 53 |  |
-| 23 | Cedar Creek United | 29 | 6 | 12 | 11 | 30 | 41 | -11 | **30** | 51 |  |
-| 24 | Cedar Heights FC | 29 | 7 | 8 | 14 | 32 | 47 | -15 | **29** | 54 |  |
-| 25 | Real Copperville | 29 | 6 | 7 | 16 | 24 | 50 | -26 | **25** | 54 |  |
-| 26 | Real Summit Valley | 29 | 5 | 8 | 16 | 26 | 46 | -20 | **23** | 44 |  |
-| 27 | Falcon Springs SC | 29 | 4 | 8 | 17 | 31 | 63 | -32 | **20** | 48 |  |
-| 28 | Athletic Lake Harbor | 29 | 4 | 8 | 17 | 20 | 54 | -34 | **20** | 48 |  |
-| 29 | Iron Creek FC | 29 | 3 | 11 | 15 | 20 | 45 | -25 | **20** | 52 |  |
-| 30 | Summit Bluff SC | 29 | 1 | 12 | 16 | 18 | 58 | -40 | **15** | 46 |  |
+| 1 | Bay Heights United | 29 | 21 | 6 | 2 | 77 | 18 | +59 | **69** | 69 | C |
+| 2 | Cedar Springs SC | 29 | 20 | 5 | 4 | 61 | 23 | +38 | **65** | 58 |  |
+| 3 | Summit Rock SC | 29 | 20 | 4 | 5 | 51 | 20 | +31 | **64** | 60 |  |
+| 4 | Redville United | 29 | 20 | 4 | 5 | 49 | 26 | +23 | **64** | 60 |  |
+| 5 | Redville FC | 29 | 18 | 5 | 6 | 46 | 25 | +21 | **59** | 64 |  |
+| 6 | Falcon Rock FC | 29 | 16 | 6 | 7 | 57 | 32 | +25 | **54** | 60 |  |
+| 7 | Harbor Springs FC | 29 | 15 | 4 | 10 | 37 | 34 | +3 | **49** | 51 |  |
+| 8 | Iron Valley SC | 29 | 14 | 7 | 8 | 43 | 34 | +9 | **49** | 59 |  |
+| 9 | Real Summit Rock | 29 | 14 | 6 | 9 | 41 | 26 | +15 | **48** | 65 |  |
+| 10 | Prairie Falls United | 29 | 13 | 6 | 10 | 43 | 39 | +4 | **45** | 50 |  |
+| 11 | Cedar Creek United | 29 | 13 | 6 | 10 | 31 | 27 | +4 | **45** | 50 |  |
+| 12 | Real Pine Falls | 29 | 13 | 5 | 11 | 32 | 33 | -1 | **44** | 55 |  |
+| 13 | Red Bluff United | 29 | 12 | 7 | 10 | 42 | 39 | +3 | **43** | 59 |  |
+| 14 | Copper Ridge United | 29 | 10 | 9 | 10 | 30 | 30 | 0 | **39** | 53 |  |
+| 15 | Silver Falls United | 29 | 10 | 8 | 11 | 37 | 32 | +5 | **38** | 54 |  |
+| 16 | Iron Creek United | 29 | 9 | 11 | 9 | 41 | 38 | +3 | **38** | 56 |  |
+| 17 | Iron Creek FC | 29 | 10 | 5 | 14 | 26 | 35 | -9 | **35** | 52 |  |
+| 18 | Pine Springs FC | 29 | 9 | 7 | 13 | 40 | 48 | -8 | **34** | 53 |  |
+| 19 | Cedar Heights FC | 29 | 9 | 6 | 14 | 35 | 52 | -17 | **33** | 55 |  |
+| 20 | Stoneton FC | 29 | 6 | 13 | 10 | 30 | 34 | -4 | **31** | 51 |  |
+| 21 | Athletic River Ridge | 29 | 7 | 9 | 13 | 29 | 39 | -10 | **30** | 48 |  |
+| 22 | Silver Falls FC | 29 | 6 | 12 | 11 | 32 | 43 | -11 | **30** | 53 |  |
+| 23 | Falcon Springs SC | 29 | 7 | 8 | 14 | 24 | 45 | -21 | **29** | 48 |  |
+| 24 | Real Copperville | 29 | 6 | 10 | 13 | 25 | 37 | -12 | **28** | 53 |  |
+| 25 | Athletic Lake Harbor | 29 | 5 | 13 | 11 | 28 | 41 | -13 | **28** | 48 |  |
+| 26 | Sun Ridge United | 29 | 6 | 8 | 15 | 28 | 45 | -17 | **26** | 57 |  |
+| 27 | Summit Bluff SC | 29 | 5 | 9 | 15 | 27 | 47 | -20 | **24** | 46 |  |
+| 28 | Athletic Granite Bluff | 29 | 5 | 9 | 15 | 26 | 47 | -21 | **24** | 54 |  |
+| 29 | Iron Bluff City SC | 29 | 5 | 4 | 20 | 26 | 54 | -28 | **19** | 47 |  |
+| 30 | Real Summit Valley | 29 | 1 | 8 | 20 | 17 | 68 | -51 | **11** | 44 |  |
 
 ## Competições continentais
 
 ### Libertadores
 
-**Vencedor: Atlético Pouso das Pedras (BRA)**; finalista Unión de Colonia Alamos (ARG); final 2-1 (a.p.).
+**Vencedor: Clube Atlético Pouso das Pedras (BRA)**; finalista Atlético Pouso das Pedras (BRA); final 2-0.
 
 Qualificados (vaga e via):
 
 | Clube | País | Via | Fase alcançada |
 |---|---|---|---|
-| Atlético Pouso das Pedras | BRA | 4.º | vencedor |
-| Unión de Colonia Alamos | ARG | 4.º | final |
-| América de Campo do Cedro | BRA | 6.º | meias |
-| Unión de Puerto Ceibos | ARG | campeão | meias |
-| Clube Atlético Pouso das Pedras | BRA | campeão | quartos |
-| Esporte Clube Ribeirão da Cascata | BRA | 2.º | quartos |
-| Rio do Angico Futebol Clube | BRA | 3.º | quartos |
+| Clube Atlético Pouso das Pedras | BRA | campeão | vencedor |
+| Atlético Pouso das Pedras | BRA | 5.º | final |
+| Rio do Angico Futebol Clube | BRA | 2.º | meias |
+| Club Atlético General Ceibos | ARG | 2.º | meias |
+| Club Atlético Puerto Chañares | ARG | campeão | quartos |
 | Club Atlético Coronel Arroyito | ARG | 1.º | quartos |
-| Serra do Sertão Futebol Clube | BRA | 5.º | grupos |
-| Ferro Paso Moreira | ARG | 3.º | grupos |
-| Club Cerro Arenal | COL | campeão | grupos |
-| Atlético Puerto Portillo | COL | 2.º | grupos |
-| Deportivo Río Rosario Alto | URU | campeão | grupos |
-| Club Río Corral | URU | 2.º | grupos |
-| Unión Cerro Alameda | ECU | campeão | grupos |
-| Real Cerro Rosario Alto | ECU | 2.º | grupos |
+| Unión Loma Palmar | URU | campeão | quartos |
+| Deportivo Monte Corral | URU | 2.º | quartos |
+| Esporte Clube Ribeirão da Cascata | BRA | 3.º | grupos |
+| Grêmio Campo do Cajueiro | BRA | 4.º | grupos |
+| Campo dos Ventos Futebol Clube | BRA | 6.º | grupos |
+| Unión de Colonia Alamos | ARG | 3.º | grupos |
+| Deportivo Llano Lucero | COL | campeão | grupos |
+| Club Loma Quebrada | COL | 2.º | grupos |
+| Sporting Loma Tablada | ECU | campeão | grupos |
+| Real Cerro Corral | ECU | 2.º | grupos |
 
-Grupo A: Clube Atlético Pouso das Pedras (BRA) 13, Unión de Puerto Ceibos (ARG) 13, Deportivo Río Rosario Alto (URU) 8, Real Cerro Rosario Alto (ECU) 0
+Grupo A: Atlético Pouso das Pedras (BRA) 14, Club Atlético General Ceibos (ARG) 10, Campo dos Ventos Futebol Clube (BRA) 8, Real Cerro Corral (ECU) 1
 
-Grupo B: Club Atlético Coronel Arroyito (ARG) 12, Esporte Clube Ribeirão da Cascata (BRA) 10, Serra do Sertão Futebol Clube (BRA) 8, Club Río Corral (URU) 3
+Grupo B: Rio do Angico Futebol Clube (BRA) 13, Unión Loma Palmar (URU) 9, Unión de Colonia Alamos (ARG) 7, Club Loma Quebrada (COL) 4
 
-Grupo C: Unión de Colonia Alamos (ARG) 14, Atlético Pouso das Pedras (BRA) 10, Unión Cerro Alameda (ECU) 7, Club Cerro Arenal (COL) 2
+Grupo C: Deportivo Monte Corral (URU) 11, Club Atlético Coronel Arroyito (ARG) 9, Sporting Loma Tablada (ECU) 6, Grêmio Campo do Cajueiro (BRA) 5
 
-Grupo D: Rio do Angico Futebol Clube (BRA) 15, América de Campo do Cedro (BRA) 8, Ferro Paso Moreira (ARG) 7, Atlético Puerto Portillo (COL) 4
+Grupo D: Clube Atlético Pouso das Pedras (BRA) 14, Club Atlético Puerto Chañares (ARG) 9, Deportivo Llano Lucero (COL) 4, Esporte Clube Ribeirão da Cascata (BRA) 4
 
 
 ## Vagas continentais definidas no fim desta época (CLI)
 
-**Libertadores** (16): Esporte Clube Ribeirão da Cascata (BRA, campeão); Rio do Angico Futebol Clube (BRA, 2.º); América de Vila das Garças (BRA, 3.º); Grêmio Campo do Cajueiro (BRA, 4.º); Atlético Pouso das Pedras (BRA, 5.º); Esporte Clube Campo do Cajueiro (BRA, 6.º); Sportivo Villa Chañares (ARG, campeão); Club Atlético Coronel Arroyito (ARG, 1.º); Deportivo Paso Pinares (ARG, 3.º); Club Atlético Puerto Chañares (ARG, 4.º); Atlético Monte Floresta (COL, campeão); Deportivo Llano Arenal (COL, 2.º); Deportivo Río Rosario Alto (URU, campeão); Unión Loma Palmar (URU, 2.º); Club Loma Tablada (ECU, campeão); Atlético Monte Cumbre (ECU, 2.º).
+**Libertadores** (16): Atlético Pouso das Pedras (BRA, campeão); Rio do Angico Futebol Clube (BRA, 2.º); América de Campo do Cedro (BRA, 3.º); Serra do Sertão Futebol Clube (BRA, 4.º); Grêmio Campo do Cajueiro (BRA, 5.º); Clube Atlético Pouso das Pedras (BRA, 6.º); Unión de Puerto Ceibos (ARG, campeão); Club Atlético Puerto Chañares (ARG, 2.º); Club Atlético Villa Quintana (ARG, 3.º); Unión de Colonia Alamos (ARG, 4.º); Atlético Puerto Portillo (COL, campeão); Deportivo Llano Lucero (COL, 2.º); Deportivo Monte Corral (URU, campeão); Unión Loma Palmar (URU, 2.º); Sporting Loma Tablada (ECU, campeão); Atlético Monte Soledad (ECU, 2.º).

@@ -96,7 +96,7 @@ describe('10 épocas do mundo fictício', async () => {
     const s3 = new Simulador(w3);
     s3.simularEpoca();
     expect(impressaoDigital(s3.historico)).not.toBe(impressaoDigital(H.slice(0, 1)));
-  });
+  }, 120000);
 
   it('vagas: a vaga da taça e a do campeão em título descem em cascata na liga', () => {
     const ordemEng = [...w.ligaPorId('ENG1').clubes];

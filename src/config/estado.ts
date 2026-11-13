@@ -1,6 +1,10 @@
 // Estado dinâmico dos jogadores (Fase 2). Usado pelo motor no Bloco B.
 export const ESTADO = {
   moral_inicial: 13,
+  /** Moral (1–20) depois de cada jogo: ±1 pelo resultado e regresso à referência (fracção da distância por jogo),
+   *  para que uma série de vitórias não fique presa no máximo. */
+  moral_por_resultado: 1,
+  moral_reversao: 0.25,
   condicao_inicial: 100,
   ritmo_inicial: 70,
   /** Condição física (0–100): perda por 90 minutos e recuperação por dia de descanso. */

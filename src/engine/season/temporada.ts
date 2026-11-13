@@ -13,6 +13,9 @@ import { FaseLigaUEFA, type Equipa } from '../competitions/leaguePhase.ts';
 import { GruposEliminatorias } from '../competitions/groups.ts';
 import { modelo } from '../calendar/scheduler.ts';
 import { jogoRapido, prolongamento, penaltis } from '../match/quickSim.ts';
+import { MOTOR } from '../../config/motor.ts';
+import { SIMULACAO_ONZE } from '../../config/simulacao.ts';
+import { prepararLado, golosRapido, registarLado, desempatePenaltis, saoRivais } from '../../match/rapido.ts';
 
 export interface Estatisticas {
   jogos: number;
@@ -206,6 +209,7 @@ export class Temporada {
   }
 
   private simular(j: JogoR) {
+    if (MOTOR.modo_forca === 'onze' && this.w.jogadores && this.w.motor) return this.simularOnze(j);
     const w = this.w;
     const rng = Rng.de(w.semente, 'jogo', this.ano, j.comp, j.ronda, j.casa, j.fora, j.ida ? 2 : 1);
     const [gc, gf] = jogoRapido(w.ataque[j.casa], w.defesa[j.casa], w.ataque[j.fora], w.defesa[j.fora], !!j.neutro, rng);
@@ -219,6 +223,34 @@ export class Temporada {
         if (a === b) j.r.pen = penaltis(w.reputacao[j.casa], w.reputacao[j.fora], rng);
       }
     }
+  }
+
+  /** Modo rápido com jogadores (Fase 2): onzes, ratings e modificadores → golos; depois estatísticas e estado. */
+  private simularOnze(j: JogoR) {
+    const w = this.w;
+    const dia = this.base + j.semana * 7 + j.dia;
+    const rng = Rng.de(w.semente, 'jogo', this.ano, j.comp, j.ronda, j.casa, j.fora, j.ida ? 2 : 1);
+    const casa = prepararLado(w, j.casa, dia, rng);
+    const fora = prepararLado(w, j.fora, dia, rng);
+    const { gc, gf, xg } = golosRapido(w, casa, fora, !!j.neutro, rng);
+    j.r = { gc, gf };
+    let duracao = 90;
+    const xgTot: [number, number] = [xg[0], xg[1]];
+    if (j.decisivo) {
+      let c = gc, f = gf;
+      if (j.ida) { c += j.ida.r!.gf; f += j.ida.r!.gc; }
+      if (c === f) {
+        const a = rng.poisson(xg[0] * SIMULACAO_ONZE.prolongamento);
+        const b = rng.poisson(xg[1] * SIMULACAO_ONZE.prolongamento);
+        xgTot[0] += xg[0] * SIMULACAO_ONZE.prolongamento; xgTot[1] += xg[1] * SIMULACAO_ONZE.prolongamento;
+        j.r.gc += a; j.r.gf += b; j.r.prol = true; duracao = 120;
+        if (a === b) j.r.pen = desempatePenaltis(w, casa, fora, rng);
+      }
+    }
+    const rival = saoRivais(w, j.casa, j.fora);
+    const rc = registarLado(w, casa, j.r.gc, j.r.gf, xgTot[0], duracao, dia, rng, rival);
+    const rf = registarLado(w, fora, j.r.gf, j.r.gc, xgTot[1], duracao, dia, rng, rival);
+    j.est = { xg: [Math.round(xgTot[0] * 100) / 100, Math.round(xgTot[1] * 100) / 100], remates: [rc.remates, rf.remates] };
   }
 
   /** Simula a semana actual de todas as competições. Devolve os jogos jogados. */

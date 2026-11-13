@@ -14,7 +14,8 @@
     "gen-world": "tsx src/cli/gen-world.ts",
     "simulate": "tsx src/cli/simulate.ts",
     "bench": "tsx src/cli/bench.ts",
-    "players": "tsx src/cli/players.ts"
+    "players": "tsx src/cli/players.ts",
+    "simulate-match": "tsx src/cli/simulate-match.ts"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

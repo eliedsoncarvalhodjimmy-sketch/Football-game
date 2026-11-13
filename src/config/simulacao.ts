@@ -27,3 +27,9 @@ export const SIMULACAO = {
   /** Penáltis: probabilidade base de vitória da equipa mais forte (0,5 = moeda ao ar), por cada 10 pontos de diferença. */
   penaltis_vantagem_por_10: 0.02,
 };
+
+/**
+ * Parâmetros do modo rápido com jogadores (Fase 2). Partem dos da Fase 1 e são afinados à parte, para o
+ * modo 'reputacao' (alternativa da Fase 1) manter a sua calibração.
+ */
+export const SIMULACAO_ONZE = { ...SIMULACAO, base: 1.245, casa: 1.17, rho: -0.02, empate_fator: 1.12 };

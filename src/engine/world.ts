@@ -4,11 +4,14 @@ import type { Dados, Continental } from '../data/load.ts';
 import type { Clube, Manifest, RegrasLiga, RegrasTaca } from '../data/types.ts';
 import { completarPacote, novoContexto, clamp, type OpcoesGeracao, type ContextoGeracao } from '../gen/mundoFicticio.ts';
 import { FORCA } from '../config/forca.ts';
+import { afinarPlantel } from '../players/afinacao.ts';
 import { Rng } from '../core/rng.ts';
 import { vagasIniciais, type EntradaLiga } from './season/qualify.ts';
 import { PlayerStore } from '../players/store.ts';
 import { gerarPlantel } from '../players/gerador.ts';
 import { importarLinhas } from '../players/csv.ts';
+import { MotorMundo } from '../match/motorMundo.ts';
+import { gerarTreinadores } from '../coaches/gerador.ts';
 import { MUNDO } from '../config/mundo.ts';
 
 /** Dia absoluto do início do mundo (1 de Julho de 2026). */
@@ -66,6 +69,8 @@ export class World {
   /** Jogadores (Fase 2) e plantel de cada clube (índices de jogadores). */
   jogadores: PlayerStore | null = null;
   plantel: number[][] = [];
+  /** Motor de jogo (treinadores, cache de ratings). */
+  motor: MotorMundo | null = null;
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -162,15 +167,17 @@ export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World
   for (const pk of pacotes) w.adicionarClubes(completarPacote(pk, ctx, op));
   w.recalcularForca();
   w.qualificados = vagasIniciais(w);
-  if (op.jogadores !== false) gerarJogadoresMundo(w, d);
+  if (op.jogadores !== false) gerarJogadoresMundo(w, d, op.afinar !== false);
   return w;
 }
 
 /** Gera os plantéis de todos os clubes e aplica as edições de players.csv (manual > real > gerado). */
-export function gerarJogadoresMundo(w: World, d: Dados) {
+export function gerarJogadoresMundo(w: World, d: Dados, afinar = true) {
   const st = new PlayerStore(w.clubes.length * 26);
   w.jogadores = st;
   const dia = diaInicioMundo();
   w.plantel = w.clubes.map((c, i) => gerarPlantel(w, st, i, dia, Rng.de(w.semente, 'plantel', c.id)));
   for (const p of d.pacotes) if (p.jogadores?.length) importarLinhas(w, st, p.jogadores);
+  w.motor = new MotorMundo(gerarTreinadores(w));
+  if (afinar) for (let c = 0; c < w.clubes.length; c++) afinarPlantel(w, c, w.motor.treinadores[c], dia + 40, Rng.de(w.semente, 'afinacao', w.clubes[c].id));
 }
