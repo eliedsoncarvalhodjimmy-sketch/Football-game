@@ -15,7 +15,7 @@ import type { Economia } from '../economia/motorEconomico.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
 import type { RegistoEpoca } from '../engine/history.ts';
 
-export type TipoEvento = 'capital_dono' | 'emprestimo_dono' | 'emprestimo_banco' | 'amortizacao' | 'administracao' | 'saida_administracao' | 'recuperacao_judicial' | 'aviso' | 'aviso_ffp' | 'limite_divida' | 'fim_proibicao' | 'venda' | 'evento_raro' | 'injeccao_anual' | 'pontos' | 'treinador_contratado' | 'treinador_despedido' | 'treinador_sai' | 'treinador_demite' | 'arquetipo' | 'crise' | 'conflito' | 'staff';
+export type TipoEvento = 'capital_dono' | 'emprestimo_dono' | 'emprestimo_banco' | 'amortizacao' | 'administracao' | 'saida_administracao' | 'recuperacao_judicial' | 'aviso' | 'aviso_ffp' | 'limite_divida' | 'fim_proibicao' | 'venda' | 'evento_raro' | 'injeccao_anual' | 'pontos' | 'treinador_contratado' | 'treinador_despedido' | 'treinador_sai' | 'treinador_demite' | 'arquetipo' | 'crise' | 'conflito' | 'staff' | 'tv';
 
 export interface EventoClube {
   dia: number;
@@ -176,11 +176,14 @@ export function entrarAdministracao(e: Economia, c: number, dia: number) {
     let folha = todos.reduce((x, j) => x + st.salario[j], 0);
     const plantel = todos.filter((j) => !melhores.has(j)).sort((a, b) => st.salario[b] - st.salario[a]);
     let n = todos.length;
-    for (const j of plantel) {
+    for (const j of (w.mercado ? todos.sort((a, b) => st.salario[b] - st.salario[a]) : plantel)) {
       if (folha <= AD.massa_alvo * receita || n <= K.plantel_minimo) break;
       folha -= st.salario[j];
+      // Com mercado (Prompt 4): venda forçada a preço de crise; sem mercado, saída para os livres.
+      if (w.mercado) { w.mercado.contratos.listado[j] = 3; n--; saidas++; continue; }
       st.clube[j] = -3; st.salario[j] = 0; e.livres.push(j); n--; saidas++;
     }
+    if (w.mercado) folha = todos.reduce((x, j) => x + st.salario[j], 0);
     w.plantel[c] = w.plantel[c].filter((j) => st.clube[j] === c);
     s.folha[c] = folha;
   }
@@ -190,7 +193,7 @@ export function entrarAdministracao(e: Economia, c: number, dia: number) {
   s.dividaDono[c] = 0;
   s.caixa[c] = AD.caixa_nova * receita;
   const d = e.donos[c];
-  const texto = `entra em administração: −${AD.pontos} pontos, proibição de contratar até regularizar, ${saidas} jogadores saem, dívida de ${(antes / 1e6).toFixed(1)} para ${(s.divida(c) / 1e6).toFixed(1)} M€`;
+  const texto = `entra em administração: −${AD.pontos} pontos, proibição de contratar até regularizar, ${saidas} jogadores ${w.mercado ? 'postos à venda' : 'saem'}, dívida de ${(antes / 1e6).toFixed(1)} para ${(s.divida(c) / 1e6).toFixed(1)} M€`;
   evento(e, { dia, clube: c, tipo: 'administracao', texto, valor: antes - s.divida(c) });
   // Perda do controlo do clube: novo dono por valor baixo (nos clubes de sócios, uma comissão administrativa até regularizar).
   if (d && d.tipo !== 'adeptos') trocarDono(e, c, dia, 'administração', AD.preco * receita, Rng.de(w.semente, 'administracao', w.clubes[c].id, dia));

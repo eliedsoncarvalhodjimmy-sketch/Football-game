@@ -39,6 +39,10 @@ export interface ClubController {
   financiamento(w: World, e: Economia, c: number, defice: number): Financiamento[];
   /** Dívida acima de 2,5× a receita: o dono pede recuperação judicial? */
   pedirRecuperacao(w: World, e: Economia, c: number): boolean;
+  /** Mercado (Prompt 4): resposta a uma oferta por um jogador do clube (a IA usa o preço pedido se omitido). */
+  responderOferta?(w: World, e: Economia, c: number, p: { jogador: number; comprador: number; oferta: number; pedido: number }): 'aceitar' | 'recusar' | { contra: number };
+  /** Mercado: jogadores que o clube põe à venda. */
+  listarParaVenda?(w: World, e: Economia, c: number): number[];
 }
 
 export type Financiamento = 'capital_dono' | 'emprestimo_dono' | 'banco';
@@ -92,6 +96,11 @@ export class ControladorIA implements ClubController {
     if (d.tipo === 'estado' || d.tipo === 'bilionario') return ['capital_dono', 'emprestimo_dono', 'banco'];
     if (d.tipo === 'familia' || d.tipo === 'multiclube') return ['emprestimo_dono', 'banco', 'capital_dono'];
     return ['banco', 'capital_dono', 'emprestimo_dono'];
+  }
+
+  /** A IA lista os jogadores das intenções de venda da sua filosofia (clube-vendedor, analítico em crise). */
+  listarParaVenda(w: World, e: Economia, c: number): number[] {
+    return (e.ia?.intencoes ?? []).filter((x) => x.clube === c).map((x) => x.jogador);
   }
 
   /** A IA pede recuperação judicial quando o dono não consegue cobrir a dívida (pouca capacidade ou pouca lealdade). */

@@ -1,6 +1,7 @@
 // Contratos mínimos dos jogadores (Prompt 3, Bloco A): salário anual e data de fim.
 // O contrato completo (cláusulas, prémios, negociação) é do Prompt 4.
 import { SALARIO as S, CONTRATOS as K } from '../config/economia.ts';
+import { CONTRATO as CONTRATO_J } from '../config/contratosJogador.ts';
 import type { Rng } from '../core/rng.ts';
 import type { World } from '../engine/world.ts';
 import type { PlayerStore } from '../players/store.ts';
@@ -41,7 +42,10 @@ export function garantirContratos(w: World, c: number, dia: number, rng: Rng, jo
     if (st.clube[j] !== c) continue;
     if (!st.salario[j]) {
       const ruido = jovens ? 1 : Math.exp(rng.normal(0, S.ruido_geracao));
-      st.salario[j] = Math.max(S.minimo, Math.round((salarioMercado(st, j, ind, dia, escala) * ruido) / 1000) * 1000);
+      // Primeiro contrato de jovem (Prompt 4): bem abaixo do mercado (até 40% do salário de mercado do OVR).
+      const fr = jovens && w.mercado ? CONTRATO_J.jovem_fraccao : 1;
+      st.salario[j] = Math.max(S.minimo, Math.round((salarioMercado(st, j, ind, dia, escala) * ruido * fr) / 1000) * 1000);
+      if (jovens && w.mercado) { w.mercado.contratos.garantir(st.cap); w.mercado.contratos.aumentoJogos[j] = CONTRATO_J.jovem_aumento_jogos; w.mercado.contratos.formadoClube[j] = c; w.mercado.contratos.chegada[j] = dia; w.mercado.definirEstatuto(j, 30, dia); }
       st.fimContrato[j] = fimDeEpoca(w, c, dia, jovens ? K.anos_jovens : rng.int(K.anos_gerados[0], K.anos_gerados[1]));
     }
     folha += st.salario[j];

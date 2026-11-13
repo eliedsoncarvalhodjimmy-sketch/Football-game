@@ -7,6 +7,7 @@ import { FORCA } from '../config/forca.ts';
 import { afinarPlantel } from '../players/afinacao.ts';
 import { registarReferencia } from '../players/evolucao.ts';
 import { Economia } from '../economia/motorEconomico.ts';
+import { Mercado } from '../mercado/mercado.ts';
 import { Rng } from '../core/rng.ts';
 import { vagasIniciais, type EntradaLiga } from './season/qualify.ts';
 import { PlayerStore } from '../players/store.ts';
@@ -77,6 +78,8 @@ export class World {
   motor: MotorMundo | null = null;
   /** Economia dos clubes (Prompt 3). */
   economia: Economia | null = null;
+  /** Mercado de transferências e contratos (Prompt 4). */
+  mercado: Mercado | null = null;
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -199,6 +202,7 @@ export function iniciarEconomia(w: World, d: Dados) {
     }
   }
   w.economia = new Economia(w, d.pacotes.flatMap((p) => p.financas ?? []), d.pacotes.flatMap((p) => p.donos ?? []), { arquetipos: d.pacotes.flatMap((p) => p.arquetipos ?? []), staff: d.pacotes.flatMap((p) => p.staffCsv ?? []) });
+  w.mercado = new Mercado(w, d.pacotes.flatMap((p) => p.clausulas ?? []));
   for (const p of d.pacotes) for (const r of p.rivalidades ?? []) {
     const a = w.clubes.findIndex((c) => c.id === r.clube_a), b = w.clubes.findIndex((c) => c.id === r.clube_b);
     if (a >= 0 && b >= 0) w.economia.rivalidade.set(a < b ? `${a}|${b}` : `${b}|${a}`, Math.max(1, Math.min(3, Number(r.intensidade) || 2)));

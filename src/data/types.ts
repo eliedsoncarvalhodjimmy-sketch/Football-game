@@ -177,4 +177,6 @@ export interface Pacote {
   /** arquetipos.csv (clube, arquetipo) e staff.csv (Prompt 3, Bloco C). */
   arquetipos?: Record<string, string>[];
   staffCsv?: Record<string, string>[];
+  /** clausulas.csv (jogador, valor): cláusulas de rescisão (Prompt 4). */
+  clausulas?: Record<string, string>[];
 }

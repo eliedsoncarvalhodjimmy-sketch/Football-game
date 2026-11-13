@@ -71,6 +71,7 @@ export class Simulador {
           st.minMes.fill(0);
           m?.cache.limpar();
           this.w.economia?.mes(d);
+          this.w.mercado?.mes(d);
         }
       }
     }
@@ -83,6 +84,7 @@ export class Simulador {
       if (t.semana >= 52) this.fechar(g, t);
     }
     this.w.economia?.semana(this.segunda, out);
+    this.w.mercado?.semana(this.segunda);
     this.segunda += 7;
     return out;
   }

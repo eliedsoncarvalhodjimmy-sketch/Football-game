@@ -12,6 +12,7 @@ import type { RegistoEpoca } from '../engine/history.ts';
 import type { JogoR } from '../engine/competitions/base.ts';
 import type { Premio, RegrasLiga } from '../data/types.ts';
 import { CORTES_CRISE } from '../config/divida.ts';
+import { INFLACAO, TV_RENEGOCIACAO } from '../config/valor.ts';
 import { SALARIO, BILHETEIRA as B, COMERCIAL as CM, ADEPTOS as AD, DESPESAS as DP, FINANCAS_INICIAIS as FI, SAUDE as SA, TV, FAIR_PLAY, CONTRATOS as K, HISTORICO_CLUBE } from '../config/economia.ts';
 import { TIPOS_INFRA, INFRA, EFEITOS_INFRA as EI, NIVEIS_INICIAIS } from '../config/infraestruturas.ts';
 import { ClubStore, N_INFRA, RECEITAS, DESPESAS_R, N_RUB, type BalancoEpoca, type Rubrica } from '../club/store.ts';
@@ -53,6 +54,14 @@ export class Economia {
   pontosPendentes = new Map<number, number>();
   private limiteLiga = new Map<string, number>();
   private arquetiposCsv = new Map<string, string>();
+  /** Índice de inflação de valores e salários (Prompt 4: 2% a cada 2 anos) e multiplicador da TV de cada liga (renegociada a cada 3 anos). */
+  inflacao = 1;
+  tvMult = new Map<string, number>();
+
+  tvTotal(r: RegrasLiga): number {
+    return (r.tv.total_eur ?? 0) * (this.tvMult.get(r.id) ?? 1);
+  }
+
   /** Escala salarial de cada liga (calibrada no arranque). */
   escalaSalarial = new Map<string, number>();
   private ligaIds = new Set<string>();
@@ -291,7 +300,7 @@ export class Economia {
     if (l < 0) return 0;
     const L = this.w.ligas[l];
     const p = partesTV(L.regras);
-    const total = L.regras.tv.total_eur ?? 0;
+    const total = this.tvTotal(L.regras);
     let somaRep = 0;
     for (const x of L.clubes) somaRep += Math.pow(this.w.reputacao[x], TV.expoente_comercial);
     return (total * p.igual) / L.clubes.length + (total * p.comercial * Math.pow(this.w.reputacao[c], TV.expoente_comercial)) / Math.max(1, somaRep);
@@ -300,7 +309,7 @@ export class Economia {
   /** Parte de desempenho para uma posição final. */
   tvDesempenho(regras: RegrasLiga, n: number, pos: number): number {
     const p = partesTV(regras);
-    const total = (regras.tv.total_eur ?? 0) * p.desempenho;
+    const total = this.tvTotal(regras) * p.desempenho;
     const k = razaoDesempenho(regras);
     const peso = (q: number) => 1 + ((k - 1) * (n - q)) / Math.max(1, n - 1);
     let soma = 0;
@@ -511,7 +520,7 @@ export class Economia {
       const pct = TV.paraquedas[de];
       if (!pct) continue;
       const L = w.ligaPorId(de);
-      const igual = ((L.regras.tv.total_eur ?? 0) * partesTV(L.regras).igual) / L.clubes.length;
+      const igual = (this.tvTotal(L.regras) * partesTV(L.regras).igual) / L.clubes.length;
       s.paraquedas[c] = pct[0] * igual;
       s.paraquedasProx[c] = (pct[1] ?? 0) * igual;
       s.paraquedasAnos[c] = pct.length;
@@ -540,7 +549,19 @@ export class Economia {
       this.ia.fecharEpoca(t, reg);
       if (t.grupo === 'ago_mai') { const dia = t.base + 51 * 7; this.mercadoT.anual(dia); this.staff.repor(dia); }
     }
-    if (t.grupo === 'ago_mai') this.podarEventos(t.base + 51 * 7);
+    if (t.grupo === 'ago_mai') {
+      this.podarEventos(t.base + 51 * 7);
+      const anos = t.ano + 1 - 2026;
+      // Inflação de valores e salários: 2% a cada 2 anos.
+      if (anos > 0 && anos % INFLACAO.anos === 0) this.inflacao *= 1 + INFLACAO.taxa;
+      // TV renegociada a cada 3 anos: sobe 5–25% ou desce 5%.
+      if (anos > 0 && anos % TV_RENEGOCIACAO.anos === 0) for (const L of w.ligas) {
+        const rng = Rng.de(w.semente, 'tv', L.regras.id, t.ano);
+        const f = rng.chance(TV_RENEGOCIACAO.sobe_prob) ? 1 + TV_RENEGOCIACAO.sobe[0] + rng.next() * (TV_RENEGOCIACAO.sobe[1] - TV_RENEGOCIACAO.sobe[0]) : 1 - TV_RENEGOCIACAO.desce;
+        this.tvMult.set(L.regras.id, (this.tvMult.get(L.regras.id) ?? 1) * f);
+        this.registar(t.base + 51 * 7, L.clubes[0] ?? 0, 'tv', `${L.regras.id}: contrato de TV renegociado (${f >= 1 ? '+' : ''}${Math.round(100 * (f - 1))}%)`, f);
+      }
+    }
   }
 
   private premiosContinentais(id: string, rc: RegistoEpoca['continentais'][string], t: Temporada) {

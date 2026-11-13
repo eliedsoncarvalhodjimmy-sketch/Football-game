@@ -135,7 +135,9 @@ describe('uma época com a economia ligada', () => {
       else if (st.clube[j] >= 0) { renovados++; expect(st.fimContrato[j]).toBeGreaterThan(fim); }
     }
     expect(renovados).toBeGreaterThan(livres);
-    expect(w.economia!.livres.length).toBeGreaterThan(livresAntes);
+    // Prompt 4: a lista de livres passou para o mercado.
+    const nLivres = w.mercado ? [...w.mercado.livres.values()].reduce((x, y) => x + y.length, 0) : w.economia!.livres.length;
+    expect(nLivres).toBeGreaterThan(livresAntes);
     for (const L of w.ligas) for (const c of L.clubes) expect(w.plantel[c].length).toBeGreaterThanOrEqual(CONTRATOS.plantel_minimo);
   });
 
