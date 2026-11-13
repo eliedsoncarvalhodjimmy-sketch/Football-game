@@ -169,6 +169,7 @@ describe('controlador do clube', () => {
       orcamentos: (ww, ee, cc, r) => { chamadas++; return { salarios: 0.5 * r, transferencias: 0, infra: 0, staff: 0.05 * r }; },
       renovar: (_w, _e, _c, p) => p.tamanhoPlantel <= CONTRATOS.plantel_minimo,
       obra: () => null,
+      financiamento: () => ['banco'],
     };
     const s2 = new Simulador(v);
     s2.simularEpoca();

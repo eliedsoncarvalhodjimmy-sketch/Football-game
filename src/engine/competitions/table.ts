@@ -11,6 +11,8 @@ export interface LinhaTabela {
   gm: number;
   gs: number;
   pts: number;
+  /** Pontos deduzidos (sanções). */
+  ded?: number;
 }
 
 export class Tabela {
@@ -24,6 +26,15 @@ export class Tabela {
       this.pos.set(clube, i);
       return { clube, pj: 0, v: 0, e: 0, d: 0, gm: 0, gs: 0, pts: 0 };
     });
+  }
+
+  /** Dedução de pontos (sanção): fica registada na linha. */
+  deduzir(clube: number, pts: number) {
+    const i = this.pos.get(clube);
+    if (i === undefined) return false;
+    this.linhas[i].pts -= pts;
+    this.linhas[i].ded = (this.linhas[i].ded ?? 0) + pts;
+    return true;
   }
 
   registar(casa: number, fora: number, gc: number, gf: number) {

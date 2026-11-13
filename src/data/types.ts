@@ -172,4 +172,6 @@ export interface Pacote {
   /** Linhas de estadios.csv e rivalidades.csv. */
   estadios?: Record<string, string>[];
   rivalidades?: Record<string, string>[];
+  /** Linhas de donos.csv (Prompt 3, Bloco B). */
+  donos?: Record<string, string>[];
 }

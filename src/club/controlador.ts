@@ -7,6 +7,7 @@ import { indiceRiqueza } from '../economia/contratos.ts';
 import type { World } from '../engine/world.ts';
 import type { Economia } from '../economia/motorEconomico.ts';
 import { N_INFRA } from './store.ts';
+import { massaAlvo } from '../donos/dono.ts';
 
 export interface Orcamentos {
   salarios: number;
@@ -32,7 +33,11 @@ export interface ClubController {
   renovar(w: World, e: Economia, c: number, p: PedidoRenovacao, folhaActual: number): boolean;
   /** Mensal: obra a lançar (tipo) ou null. */
   obra(w: World, e: Economia, c: number, dia: number): TipoInfra | null;
+  /** Falta de caixa: por que ordem pedir dinheiro (o dono e o banco decidem se dão). */
+  financiamento(w: World, e: Economia, c: number, defice: number): Financiamento[];
 }
+
+export type Financiamento = 'capital_dono' | 'emprestimo_dono' | 'banco';
 
 /** Custo e prazo da obra de um tipo a partir do nível actual. */
 export function custoObra(tipo: TipoInfra, nivel: number, indice = 100): { custo: number; semanas: number } {
@@ -51,10 +56,15 @@ export class ControladorIA implements ClubController {
     const s = e.clubes;
     const limite = e.limiteFairPlay(c);
     const reserva = (F.reserva_meses / 12) * receita;
+    // O dono define a massa salarial alvo; só os de risco alto aceitam passar o limite do fair play (pesam o custo da sanção).
+    const d = e.donos[c];
+    const m = d ? massaAlvo(d) : { alvo: F.massa_salarial_alvo, arriscaFFP: false };
+    const alvo = m.arriscaFFP ? Math.min(m.alvo, limite + 0.05) : Math.min(m.alvo, limite - 0.03);
+    const amb = d ? d.atributos.ambicao / 10 : 1;
     return {
-      salarios: Math.min(limite, F.massa_salarial_alvo) * receita,
+      salarios: alvo * receita,
       transferencias: Math.max(0, (s.caixa[c] - reserva) * F.transferencias_fraccao_caixa),
-      infra: F.orcamento_infra * receita,
+      infra: F.orcamento_infra * receita * amb,
       staff: e.custoStaffPrevisto(c, receita),
     };
   }
@@ -65,8 +75,17 @@ export class ControladorIA implements ClubController {
     return folha + p.salario <= e.clubes.orcSalarios[c];
   }
 
+  financiamento(w: World, e: Economia, c: number): Financiamento[] {
+    const d = e.donos[c];
+    if (!d) return ['banco'];
+    if (d.tipo === 'estado' || d.tipo === 'bilionario') return ['capital_dono', 'emprestimo_dono', 'banco'];
+    if (d.tipo === 'familia' || d.tipo === 'multiclube') return ['emprestimo_dono', 'banco', 'capital_dono'];
+    return ['banco', 'capital_dono', 'emprestimo_dono'];
+  }
+
   obra(w: World, e: Economia, c: number, dia: number): TipoInfra | null {
     const s = e.clubes;
+    if (s.administracaoAte[c] > dia) return null;
     let emCurso = 0;
     for (let k = 0; k < N_INFRA; k++) if (s.obraFim[c * N_INFRA + k] > dia) emCurso++;
     if (emCurso >= OBRAS_IA.simultaneas) return null;

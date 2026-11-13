@@ -15,6 +15,8 @@ import { SALARIO, BILHETEIRA as B, COMERCIAL as CM, ADEPTOS as AD, DESPESAS as D
 import { TIPOS_INFRA, INFRA, EFEITOS_INFRA as EI, NIVEIS_INICIAIS } from '../config/infraestruturas.ts';
 import { ClubStore, N_INFRA, RECEITAS, DESPESAS_R, N_RUB, type BalancoEpoca, type Rubrica } from '../club/store.ts';
 import { IA, custoObra, factorCustoInfra, type ClubController } from '../club/controlador.ts';
+import { gerirMes, fecharEpocaFinancas, abrirEpocaFinancas, type EventoClube } from '../club/financas.ts';
+import { gerarDono, donoDeCsv, type Dono } from '../donos/dono.ts';
 import { garantirContratos, massaSalarial, salarioMercado, indiceRiqueza, fimDeEpoca } from './contratos.ts';
 
 const CONTINENTAIS = new Set(['UCL', 'UEL', 'UECL', 'CLI', 'ACLE', 'UCL_PO', 'UEL_PO']);
@@ -37,12 +39,17 @@ export class Economia {
   tvFixa = new Float64Array(0);
   /** Intensidade de rivalidade (1–3) por par "a|b" (a < b). */
   rivalidade = new Map<string, number>();
+  /** Dono de cada clube, objectivo da época, eventos financeiros e pontos a deduzir na época seguinte. */
+  donos: Dono[] = [];
+  objectivos: string[] = [];
+  eventos: EventoClube[] = [];
+  pontosPendentes = new Map<number, number>();
   private limiteLiga = new Map<string, number>();
   /** Escala salarial de cada liga (calibrada no arranque). */
   escalaSalarial = new Map<string, number>();
   private ligaIds = new Set<string>();
 
-  constructor(public w: World, financas: LinhaFinancas[] = []) {
+  constructor(public w: World, financas: LinhaFinancas[] = [], donosCsv: LinhaFinancas[] = []) {
     for (const l of w.ligas) {
       this.ligaIds.add(l.regras.id);
       this.limiteLiga.set(l.regras.id, limiteFairPlayLiga(l.regras));
@@ -54,19 +61,32 @@ export class Economia {
       }
     });
     const porId = new Map(financas.map((f) => [f.clube, f]));
+    const dia0 = diaReferencia(w);
+    for (const l of donosCsv) { const i = w.clubes.findIndex((c) => c.id === l.clube); const d = i >= 0 ? donoDeCsv(l, dia0) : null; if (d) this.donos[i] = d; }
+    for (let c = 0; c < w.clubes.length; c++) if (!this.donos[c]) this.donos[c] = gerarDono(w, c, Rng.de(w.semente, 'dono', w.clubes[c].id), dia0);
     this.garantir(w.clubes.length, porId);
   }
 
   // ---------------------------------------------------------------- utilidades
+
+  /** Pontos a deduzir na próxima época do clube (sanções). */
+  penalizar(c: number, pts: number, _motivo: string) {
+    this.pontosPendentes.set(c, (this.pontosPendentes.get(c) ?? 0) + pts);
+  }
+
+  nivelLiga(id: string): number {
+    return this.ligaIds.has(id) ? this.w.ligaPorId(id).regras.nivel : 99;
+  }
 
   limiteFairPlay(c: number): number {
     const l = this.w.liga[c];
     return l >= 0 ? this.limiteLiga.get(this.w.ligas[l].regras.id) ?? FAIR_PLAY.padrao : FAIR_PLAY.padrao;
   }
 
+  /** Multiplicador do salário de mercado no clube: escala da liga × capacidade salarial do clube. */
   escala(c: number): number {
     const l = this.w.liga[c];
-    return l >= 0 ? this.escalaSalarial.get(this.w.ligas[l].regras.id) ?? 1 : 1;
+    return (l >= 0 ? this.escalaSalarial.get(this.w.ligas[l].regras.id) ?? 1 : 1) * (this.clubes.escalaClube[c] || 1);
   }
 
   /** Calibra a escala salarial de cada liga: massa salarial de mercado = alvo × receita prevista da liga. */
@@ -124,6 +144,7 @@ export class Economia {
     const s = this.clubes;
     const n0 = s.n;
     if (n <= n0) return;
+    for (let c = n0; c < n; c++) if (!this.donos[c]) this.donos[c] = gerarDono(this.w, c, Rng.de(this.w.semente, 'dono', this.w.clubes[c].id), diaReferencia(this.w));
     s.crescer(n);
     const t = new Float64Array(n);
     t.set(this.tvFixa);
@@ -155,7 +176,15 @@ export class Economia {
   private iniciarCaixa(c: number, dia: number, f?: LinhaFinancas) {
     const w = this.w, s = this.clubes;
     const rng = Rng.de(w.semente, 'caixa', w.clubes[c].id);
-    if (w.jogadores) s.folha[c] = garantirContratos(w, c, dia, rng, false, this.escala(c));
+    if (w.jogadores) {
+      // Capacidade salarial do clube: a massa de mercado do plantel fica à volta do alvo × receita prevista.
+      const st = w.jogadores, ind = indiceRiqueza(w, c);
+      let mercado = 0;
+      for (const j of w.plantel[c]) if (st.clube[j] === c) mercado += salarioMercado(st, j, ind, dia, this.escala(c));
+      const alvo = Math.min(SALARIO.alvo_massa_receita.nivel1, this.limiteFairPlay(c) - 0.05) * Math.exp(rng.normal(0, SALARIO.clube.desvio));
+      s.escalaClube[c] = mercado > 0 ? clamp((alvo * s.receitaPrevista[c]) / mercado, SALARIO.clube.min, SALARIO.clube.max) : 1;
+      s.folha[c] = garantirContratos(w, c, dia, rng, false, this.escala(c));
+    }
     const receita = s.receitaPrevista[c];
     s.caixa[c] = receita * FI.caixa_fraccao * Math.exp(rng.normal(0, FI.caixa_ruido));
     s.dividaBanco[c] = rng.chance(FI.divida_prob_zero) ? 0 : receita * FI.divida_max_fraccao * rng.next();
@@ -305,6 +334,7 @@ export class Economia {
         s.obraFim[c * N_INFRA + k] = dia + semanas * 7;
         s.obraSemanal[c * N_INFRA + k] = custo / semanas;
       }
+      gerirMes(this, c, dia);
     }
   }
 
@@ -425,15 +455,13 @@ export class Economia {
     const posicao = new Map<number, [string, number]>();
     for (const [id, tab] of Object.entries(reg.tabelas)) tab.forEach((l, i) => posicao.set(l.clube, [id, i + 1]));
     for (const [c] of posicao) if (c < s.n) this.fecharBalanco(c, ano, posicao.get(c));
-    // Mercado salarial: a escala de cada liga ajusta-se devagar à receita real da época (inflação/deflação limitada).
+    // Mercado salarial: a capacidade salarial de cada clube ajusta-se devagar à sua receita real (inflação/deflação limitada).
     const A = SALARIO.ajuste_anual;
-    for (const [id, tab] of Object.entries(reg.tabelas)) {
-      const L = w.ligaPorId(id);
-      let rec = 0, sal = 0;
-      for (const l of tab) { const b = s.balancos[l.clube].at(-1); if (b) { rec += b.receita; sal += b.massaSalarial; } }
-      if (sal <= 0) continue;
-      const alvo = L.regras.nivel === 1 ? SALARIO.alvo_massa_receita.nivel1 : SALARIO.alvo_massa_receita.inferiores;
-      this.escalaSalarial.set(id, (this.escalaSalarial.get(id) ?? 1) * clamp(Math.pow((alvo * rec) / sal, A.expoente), A.min, A.max));
+    for (const [c] of posicao) {
+      const b = s.balancos[c].at(-1);
+      if (!b || b.massaSalarial <= 0 || b.receita <= 0) continue;
+      const alvo = Math.min(SALARIO.alvo_massa_receita.nivel1, this.limiteFairPlay(c) - 0.05);
+      s.escalaClube[c] = clamp((s.escalaClube[c] || 1) * clamp(Math.pow((alvo * b.receita) / b.massaSalarial, A.expoente), A.min, A.max), SALARIO.clube.min, SALARIO.clube.max);
     }
     // Patrocínios que acabam: renovam com a reputação actual.
     for (const p of t.pacotes) for (const li of p.ligas) for (const c of w.ligas[li].clubes) {
@@ -442,6 +470,7 @@ export class Economia {
       s.patrocinio[c] = valorComercial(w.reputacao[c], indiceRiqueza(w, c), s.adeptos[c]) * Math.exp(rng.normal(0, CM.ruido_renovacao));
       s.patrocinioFim[c] = ano + rng.int(CM.anos[0], CM.anos[1]);
     }
+    fecharEpocaFinancas(this, t, reg);
   }
 
   private premiosContinentais(id: string, rc: RegistoEpoca['continentais'][string], t: Temporada) {
@@ -517,8 +546,9 @@ export class Economia {
       const est = this.estimarReceita(c);
       s.receitaPrevista[c] = ult ? 0.5 * (ult.receita - (ult.receitas.premios ?? 0)) + 0.5 * est : est;
       this.tvFixa[c] = this.tvFixaPrevista(c);
-      this.definirOrcamentos(c);
     }
+    abrirEpocaFinancas(this, t);
+    for (const p of t.pacotes) for (const li of p.ligas) for (const c of w.ligas[li].clubes) this.definirOrcamentos(c);
   }
 
   massaSalarialReal(c: number): number {

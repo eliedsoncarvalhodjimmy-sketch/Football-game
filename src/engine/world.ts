@@ -198,7 +198,7 @@ export function iniciarEconomia(w: World, d: Dados) {
       if (i >= 0 && Number(e.capacidade) > 0) { w.clubes[i].capacidade = Number(e.capacidade); if (e.nome) w.clubes[i].estadio = e.nome; }
     }
   }
-  w.economia = new Economia(w, d.pacotes.flatMap((p) => p.financas ?? []));
+  w.economia = new Economia(w, d.pacotes.flatMap((p) => p.financas ?? []), d.pacotes.flatMap((p) => p.donos ?? []));
   for (const p of d.pacotes) for (const r of p.rivalidades ?? []) {
     const a = w.clubes.findIndex((c) => c.id === r.clube_a), b = w.clubes.findIndex((c) => c.id === r.clube_b);
     if (a >= 0 && b >= 0) w.economia.rivalidade.set(a < b ? `${a}|${b}` : `${b}|${a}`, Math.max(1, Math.min(3, Number(r.intensidade) || 2)));

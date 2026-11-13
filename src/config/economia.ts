@@ -14,7 +14,9 @@ export const SALARIO = {
   /** Escala salarial de cada liga, calibrada no arranque: massa salarial de mercado = alvo × receita prevista da liga.
    *  (O índice de riqueza dá a escala de partida; esta calibração corrige ligas com receitas fora da proporção.) */
   alvo_massa_receita: { nivel1: 0.58, inferiores: 0.58 },
-  /** Ajuste anual da escala de cada liga (mercado salarial): × (alvo × receita / massa) ^ expoente, limitado a [min, max] por época. */
+  /** Capacidade salarial de cada clube no arranque: massa = alvo × e^N(0, desvio) × receita prevista; limites. */
+  clube: { desvio: 0.12, min: 0.3, max: 3 },
+  /** Ajuste anual da capacidade salarial de cada clube (mercado salarial): × (alvo × receita / massa) ^ expoente, limitado a [min, max] por época. */
   ajuste_anual: { expoente: 0.35, min: 0.92, max: 1.1 },
   /** Mínimo absoluto (€/ano). */
   minimo: 12_000,

@@ -45,6 +45,8 @@ export class ClubStore {
   orcStaff = new Float64Array(0);
   /** Receita prevista da época (base dos orçamentos). */
   receitaPrevista = new Float64Array(0);
+  /** Capacidade salarial do clube: multiplica o salário de mercado da liga (clubes ricos pagam mais pelo mesmo jogador). */
+  escalaClube = new Float32Array(0);
   /** Massa salarial anual dos contratos actuais. */
   folha = new Float64Array(0);
   // Adeptos.
@@ -68,6 +70,15 @@ export class ClubStore {
   /** Reputação no fim de cada uma das últimas 10 épocas (anel). */
   repHist = new Float32Array(0);
   repHistN = new Uint8Array(0);
+  /** Proibição de contratar até ao dia (fair play, limite de dívida, administração). */
+  proibidoAte = new Int32Array(0);
+  /** Em administração até ao dia (0 = não). */
+  administracaoAte = new Int32Array(0);
+  /** Épocas seguidas em incumprimento do fair play; épocas seguidas a falhar o objectivo do dono. */
+  ffpSeguidas = new Uint8Array(0);
+  objectivoFalhado = new Uint8Array(0);
+  /** Dinheiro posto pelo dono na época (capital, sem contar empréstimos). */
+  injeccoes = new Float64Array(0);
   /** Pontos por jogo recentes (forma, para a bilheteira): média móvel. */
   forma = new Float32Array(0);
   /** Origem dos valores iniciais por clube ("gerado" ou "manual" se vier de financas.csv). */
@@ -122,6 +133,10 @@ export class ClubStore {
     if (n < N_HIST) { this.repHist[c * N_HIST + n] = rep; this.repHistN[c] = n + 1; return; }
     for (let k = 0; k < N_HIST - 1; k++) this.repHist[c * N_HIST + k] = this.repHist[c * N_HIST + k + 1];
     this.repHist[c * N_HIST + N_HIST - 1] = rep;
+  }
+
+  resultadoUltimo(c: number): number {
+    return this.balancos[c]?.at(-1)?.resultado ?? 0;
   }
 
   historicoReputacao(c: number): number[] {
