@@ -52,12 +52,18 @@ export function modificadores(w: World, st: PlayerStore, c: number, t: Treinador
   moral /= js.length; cond /= js.length; ent /= js.length;
   const fm = nForma ? forma / nForma : M.forma.referencia;
   const a = t.atributos;
+  const sm = w.economia?.staff;
+  const tem = !!sm?.porClube[c];
+  const tac = tem ? sm!.atributoTreinador(c, t, 'tactica') : a.tactica;
+  const mot = tem ? sm!.atributoTreinador(c, t, 'motivacao') : a.motivacao;
+  const analista = tem ? sm!.bonusAnalista(c) : 0;
   const p: Record<string, number> = {
     moral: clamp((moral - M.moral.referencia) * M.moral.por_ponto, -M.moral.limite, M.moral.limite),
     forma: clamp((fm - M.forma.referencia) * M.forma.por_ponto, -M.forma.limite, M.forma.limite),
     cansaco: -clamp((M.cansaco.limiar - cond) * M.cansaco.por_ponto, 0, M.cansaco.limite),
     entrosamento: clamp((ent - M.entrosamento.referencia) * M.entrosamento.por_ponto, -M.entrosamento.limite, M.entrosamento.limite),
-    treinador: clamp((a.tactica - 10) * M.treinador.tactica + (a.motivacao - 10) * M.treinador.motivacao + ((e.ajuste - 1) / 0.1) * M.treinador.adequacao, -M.treinador.limite, M.treinador.limite),
+    // Treinador (com o adjunto a atenuar as fraquezas e o analista a somar um pouco), dentro do limite da parcela.
+    treinador: clamp((tac - 10) * M.treinador.tactica + (mot - 10) * M.treinador.motivacao + ((e.ajuste - 1) / 0.1) * M.treinador.adequacao + analista, -M.treinador.limite, M.treinador.limite),
   };
   const total = clamp(Object.values(p).reduce((s, x) => s + x, 0), -M.limite_total, M.limite_total);
   // Forma da época (equivalente ao choque de forma da Fase 1): nível do clube na época, fora do tecto dos modificadores de jogo.
@@ -223,7 +229,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
   for (const p of parts) {
     const j = p.j;
     const cond = condicaoActual(st, j, dia);
-    const pl = E.lesao_base_por_jogo * E.lesao_por_propensao(st.oculto(j, 'les')) * E.lesao_por_condicao(cond) * (p.minutos / 90);
+    const pl = E.lesao_base_por_jogo * E.lesao_por_propensao(st.oculto(j, 'les')) * E.lesao_por_condicao(cond) * (p.minutos / 90) * (w.economia?.factorTaxaLesao(lado.clube) ?? 1);
     if (rng.chance(pl)) {
       let u = rng.next();
       const g = E.gravidade.find((x) => (u -= x.p) < 0) ?? E.gravidade[0];

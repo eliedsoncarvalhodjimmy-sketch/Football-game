@@ -174,4 +174,7 @@ export interface Pacote {
   rivalidades?: Record<string, string>[];
   /** Linhas de donos.csv (Prompt 3, Bloco B). */
   donos?: Record<string, string>[];
+  /** arquetipos.csv (clube, arquetipo) e staff.csv (Prompt 3, Bloco C). */
+  arquetipos?: Record<string, string>[];
+  staffCsv?: Record<string, string>[];
 }

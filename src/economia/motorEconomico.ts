@@ -17,9 +17,15 @@ import { TIPOS_INFRA, INFRA, EFEITOS_INFRA as EI, NIVEIS_INICIAIS } from '../con
 import { ClubStore, N_INFRA, RECEITAS, DESPESAS_R, N_RUB, type BalancoEpoca, type Rubrica } from '../club/store.ts';
 import { IA, custoObra, factorCustoInfra, type ClubController } from '../club/controlador.ts';
 import { gerirMes, fecharEpocaFinancas, abrirEpocaFinancas, type EventoClube } from '../club/financas.ts';
+import { IAClubes } from '../club/ia.ts';
+import { MercadoTreinadores } from '../coaches/mercado.ts';
+import { StaffMundo, aplicarStaffCsv } from '../staff/staff.ts';
+import { STAFF } from '../config/staff.ts';
+import { MERCADO_TREINADORES } from '../config/mercadoTreinadores.ts';
 import { gerarDono, donoDeCsv, type Dono } from '../donos/dono.ts';
 import { garantirContratos, massaSalarial, salarioMercado, indiceRiqueza, fimDeEpoca } from './contratos.ts';
 
+const EVENTOS_RETENCAO_DIAS = 2 * 365;
 const CONTINENTAIS = new Set(['UCL', 'UEL', 'UECL', 'CLI', 'ACLE', 'UCL_PO', 'UEL_PO']);
 /** Ordem das fases continentais alcançadas. */
 const ORDEM_FASE: Record<string, number> = { liga: 0, grupos: 0, playoff: 1, oitavos: 2, quartos: 3, meias: 4, final: 5, vencedor: 6 };
@@ -46,11 +52,21 @@ export class Economia {
   eventos: EventoClube[] = [];
   pontosPendentes = new Map<number, number>();
   private limiteLiga = new Map<string, number>();
+  private arquetiposCsv = new Map<string, string>();
   /** Escala salarial de cada liga (calibrada no arranque). */
   escalaSalarial = new Map<string, number>();
   private ligaIds = new Set<string>();
 
-  constructor(public w: World, financas: LinhaFinancas[] = [], donosCsv: LinhaFinancas[] = []) {
+  /** IA dos clubes, mercado de treinadores e staff (Bloco C). */
+  ia: IAClubes;
+  mercadoT: MercadoTreinadores;
+  staff: StaffMundo;
+
+  constructor(public w: World, financas: LinhaFinancas[] = [], donosCsv: LinhaFinancas[] = [], extra: { arquetipos?: LinhaFinancas[]; staff?: LinhaFinancas[] } = {}) {
+    this.ia = new IAClubes(w, this);
+    this.mercadoT = new MercadoTreinadores(w, this);
+    this.staff = new StaffMundo(w);
+    this.arquetiposCsv = new Map((extra.arquetipos ?? []).map((l) => [l.clube, l.arquetipo]));
     for (const l of w.ligas) {
       this.ligaIds.add(l.regras.id);
       this.limiteLiga.set(l.regras.id, limiteFairPlayLiga(l.regras));
@@ -66,6 +82,12 @@ export class Economia {
     for (const l of donosCsv) { const i = w.clubes.findIndex((c) => c.id === l.clube); const d = i >= 0 ? donoDeCsv(l, dia0) : null; if (d) this.donos[i] = d; }
     for (let c = 0; c < w.clubes.length; c++) if (!this.donos[c]) this.donos[c] = gerarDono(w, c, Rng.de(w.semente, 'dono', w.clubes[c].id), dia0);
     this.garantir(w.clubes.length, porId);
+    if (w.motor && w.jogadores) {
+      this.staff.gerarLivres(dia0);
+      if (extra.staff?.length) aplicarStaffCsv(this.staff, w, extra.staff, dia0);
+      this.mercadoT.gerarLivres(dia0, MERCADO_TREINADORES.livres);
+      for (let c = 0; c < w.clubes.length; c++) this.definirOrcamentos(c);
+    }
   }
 
   // ---------------------------------------------------------------- utilidades
@@ -117,8 +139,20 @@ export class Economia {
     }
   }
 
-  custoStaffPrevisto(_c: number, receita: number): number {
-    return DP.staff_fraccao_receita * receita;
+  /** Salário anual do treinador principal. */
+  custoTreinador(c: number): number {
+    return this.w.motor?.treinadores[c]?.salario ?? 0;
+  }
+
+  /** Orçamento de staff: treinador + staff técnico + outros (departamentos), com 10% de folga para melhorar um cargo. */
+  custoStaffPrevisto(c: number, receita: number): number {
+    if (!this.w.motor || !this.staff?.porClube[c]) return DP.staff_fraccao_receita * receita;
+    return 1.1 * (this.custoTreinador(c) + this.staff.custo(c)) + STAFF.outros_fraccao * receita;
+  }
+
+  /** Regista um evento do clube (finanças, treinadores, staff, filosofia). */
+  registar(dia: number, clube: number, tipo: EventoClube['tipo'], texto: string, valor?: number) {
+    this.eventos.push({ dia, clube, tipo, texto, valor });
   }
 
   controlador(c: number): ClubController {
@@ -140,7 +174,13 @@ export class Economia {
 
   /** Efeito das instalações médicas: factor dos dias de lesão. */
   factorLesao(c: number): number {
-    return c < this.clubes.n ? 1 - EI.medico_dias * (this.nivel(c, 'medico') - 5) : 1;
+    const inst = c < this.clubes.n ? 1 - EI.medico_dias * (this.nivel(c, 'medico') - 5) : 1;
+    return inst * (this.staff?.porClube[c] ? this.staff.factorDiasLesao(c) : 1);
+  }
+
+  /** Taxa de lesões (preparador físico). */
+  factorTaxaLesao(c: number): number {
+    return this.staff?.porClube[c] ? this.staff.factorTaxaLesao(c) : 1;
   }
 
   private receber(c: number, r: Rubrica, valor: number) {
@@ -189,6 +229,12 @@ export class Economia {
   private iniciarCaixa(c: number, dia: number, f?: LinhaFinancas) {
     const w = this.w, s = this.clubes;
     const rng = Rng.de(w.semente, 'caixa', w.clubes[c].id);
+    if (w.motor && w.jogadores) {
+      this.ia.garantir(c + 1, this.arquetiposCsv);
+      const t = w.motor.treinadores[c];
+      if (t && t.estado === undefined) this.mercadoT.prepararEmpregado(t, c, dia, Rng.de(w.semente, 'contrato-treinador', w.clubes[c].id));
+      if (!this.staff.porClube[c]) this.staff.gerarClube(c, dia, s.receitaPrevista[c]);
+    }
     if (w.jogadores) {
       // Capacidade salarial do clube: a massa de mercado do plantel fica à volta do alvo × receita prevista.
       const st = w.jogadores, ind = indiceRiqueza(w, c);
@@ -303,7 +349,10 @@ export class Economia {
       if (w.liga[c] < 0) continue;
       const ind = indiceRiqueza(w, c);
       s.lancar(c, 'salarios', s.folha[c] / 52);
-      s.lancar(c, 'staff', (s.caixa[c] < 0 ? CORTES_CRISE.staff : 1) * s.orcStaff[c] / 52);
+      if (this.w.motor && this.staff.porClube[c]) {
+        // Treinador e staff (contratos) + outros custos de pessoal (cortados em crise).
+        s.lancar(c, 'staff', (this.custoTreinador(c) + this.staff.custo(c) + (s.caixa[c] < 0 ? CORTES_CRISE.staff : 1) * STAFF.outros_fraccao * s.receitaPrevista[c]) / 52);
+      } else s.lancar(c, 'staff', (s.caixa[c] < 0 ? CORTES_CRISE.staff : 1) * s.orcStaff[c] / 52);
       let manut = s.capacidade[c] * DP.manutencao_por_lugar * Math.pow(ind / 100, 0.3);
       const fc = factorCustoInfra(ind);
       TIPOS_INFRA.forEach((tipo, k) => { const t = INFRA[tipo]; manut += fc * t.manutencao * t.base * Math.pow(t.crescimento, s.infra[c * N_INFRA + k]); });
@@ -351,6 +400,7 @@ export class Economia {
       }
       gerirMes(this, c, dia);
     }
+    if (this.w.motor && this.w.jogadores) this.ia.mes(dia);
   }
 
   /** Despesa anual estimada (salários, staff, manutenção, juros). */
@@ -486,6 +536,11 @@ export class Economia {
       s.patrocinioFim[c] = ano + rng.int(CM.anos[0], CM.anos[1]);
     }
     fecharEpocaFinancas(this, t, reg);
+    if (this.w.motor && this.w.jogadores) {
+      this.ia.fecharEpoca(t, reg);
+      if (t.grupo === 'ago_mai') { const dia = t.base + 51 * 7; this.mercadoT.anual(dia); this.staff.repor(dia); }
+    }
+    if (t.grupo === 'ago_mai') this.podarEventos(t.base + 51 * 7);
   }
 
   private premiosContinentais(id: string, rc: RegistoEpoca['continentais'][string], t: Temporada) {
@@ -562,8 +617,15 @@ export class Economia {
       s.receitaPrevista[c] = ult ? 0.5 * (ult.receita - (ult.receitas.premios ?? 0)) + 0.5 * est : est;
       this.tvFixa[c] = this.tvFixaPrevista(c);
     }
+    if (this.w.motor && this.w.jogadores) this.ia.abrirEpoca(t);
     abrirEpocaFinancas(this, t);
     for (const p of t.pacotes) for (const li of p.ligas) for (const c of w.ligas[li].clubes) this.definirOrcamentos(c);
+  }
+
+  /** Eventos de rotina (empréstimos, amortizações, injecções, avisos, staff) só ficam 2 épocas; os importantes (vendas, administrações, treinadores, filosofia, crises, pontos) ficam sempre. */
+  podarEventos(dia: number) {
+    const rotina = new Set(['emprestimo_banco', 'amortizacao', 'injeccao_anual', 'capital_dono', 'emprestimo_dono', 'aviso', 'aviso_ffp', 'staff', 'fim_proibicao']);
+    this.eventos = this.eventos.filter((x) => !rotina.has(x.tipo) || dia - x.dia < EVENTOS_RETENCAO_DIAS);
   }
 
   massaSalarialReal(c: number): number {

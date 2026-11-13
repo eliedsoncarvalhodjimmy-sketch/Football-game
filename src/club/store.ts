@@ -4,7 +4,7 @@ import { TIPOS_INFRA } from '../config/infraestruturas.ts';
 import { HISTORICO_CLUBE } from '../config/economia.ts';
 
 export const RECEITAS = ['tv', 'bilheteira', 'comercial', 'premios', 'transferencias', 'outras'] as const;
-export const DESPESAS_R = ['salarios', 'staff', 'agentes', 'manutencao', 'obras', 'juros', 'impostos', 'multas'] as const;
+export const DESPESAS_R = ['salarios', 'staff', 'agentes', 'manutencao', 'obras', 'juros', 'impostos', 'multas', 'indemnizacoes'] as const;
 export const RUBRICAS = [...RECEITAS, ...DESPESAS_R] as const;
 export type Rubrica = (typeof RUBRICAS)[number];
 export const IDX_RUBRICA = Object.fromEntries(RUBRICAS.map((r, i) => [r, i])) as Record<Rubrica, number>;

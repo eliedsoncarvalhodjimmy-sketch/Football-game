@@ -9,6 +9,7 @@ import type { World } from '../engine/world.ts';
 import type { Economia } from '../economia/motorEconomico.ts';
 import { N_INFRA } from './store.ts';
 import { massaAlvo, capacidadeAnual } from '../donos/dono.ts';
+import { PARAMETROS, LIMITE_ORCAMENTOS } from '../config/arquetipos.ts';
 
 export interface Orcamentos {
   salarios: number;
@@ -62,12 +63,18 @@ export class ControladorIA implements ClubController {
     // O dono define a massa salarial alvo; só os de risco alto aceitam passar o limite do fair play (pesam o custo da sanção).
     const d = e.donos[c];
     const m = d ? massaAlvo(d) : { alvo: F.massa_salarial_alvo, arriscaFFP: false };
-    const alvo = m.arriscaFFP ? Math.min(m.alvo, limite + 0.05) : Math.min(m.alvo, limite - 0.03);
-    const amb = d ? d.atributos.ambicao / 10 : 1;
+    // Arquétipo do clube: massa alvo, disposição de arriscar o balizador do fair play, peso das obras.
+    const arq = e.ia?.arquetipo[c] ? PARAMETROS[e.ia.arquetipo[c]] : null;
+    const massa = m.alvo + (arq?.massa ?? 0);
+    const arrisca = m.arriscaFFP || !!arq?.arriscaFFP;
+    const alvo = arrisca ? Math.min(massa, limite + 0.05) : Math.min(massa, limite - 0.03);
+    const amb = (d ? d.atributos.ambicao / 10 : 1) * (arq?.infra ?? 1);
+    // Inércia: os orçamentos não variam mais de 25% por época, excepto em eventos (dono novo, subida, descida).
+    const lim = (novo: number, antigo: number) => (!antigo || e.ia?.evento[c] ? novo : Math.max(antigo * (1 - LIMITE_ORCAMENTOS), Math.min(antigo * (1 + LIMITE_ORCAMENTOS), novo)));
     return {
-      salarios: alvo * receita,
+      salarios: lim(alvo * receita, s.orcSalarios[c]),
       transferencias: Math.max(0, (s.caixa[c] - reserva) * F.transferencias_fraccao_caixa),
-      infra: F.orcamento_infra * receita * amb,
+      infra: lim(F.orcamento_infra * receita * amb, s.orcInfra[c]),
       staff: e.custoStaffPrevisto(c, receita),
     };
   }

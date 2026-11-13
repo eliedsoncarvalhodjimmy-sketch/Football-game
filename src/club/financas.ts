@@ -5,6 +5,7 @@ import { Rng } from '../core/rng.ts';
 import { DIVIDA as DV, ADMINISTRACAO as AD, RECUPERACAO as RJ, PONTOS_CAIXA as PC, FAIR_PLAY_AVISO as FPA, INJECCAO_MAXIMA } from '../config/divida.ts';
 import { DONOS as DN, VENDA as VD, EVENTOS_RAROS as ER } from '../config/donos.ts';
 import { CONTRATOS as K } from '../config/economia.ts';
+import { PARAMETROS } from '../config/arquetipos.ts';
 import { INFRA, TIPOS_INFRA } from '../config/infraestruturas.ts';
 import { N_INFRA } from './store.ts';
 import { factorCustoInfra } from './controlador.ts';
@@ -14,7 +15,7 @@ import type { Economia } from '../economia/motorEconomico.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
 import type { RegistoEpoca } from '../engine/history.ts';
 
-export type TipoEvento = 'capital_dono' | 'emprestimo_dono' | 'emprestimo_banco' | 'amortizacao' | 'administracao' | 'saida_administracao' | 'recuperacao_judicial' | 'aviso' | 'aviso_ffp' | 'limite_divida' | 'fim_proibicao' | 'venda' | 'evento_raro' | 'injeccao_anual' | 'pontos';
+export type TipoEvento = 'capital_dono' | 'emprestimo_dono' | 'emprestimo_banco' | 'amortizacao' | 'administracao' | 'saida_administracao' | 'recuperacao_judicial' | 'aviso' | 'aviso_ffp' | 'limite_divida' | 'fim_proibicao' | 'venda' | 'evento_raro' | 'injeccao_anual' | 'pontos' | 'treinador_contratado' | 'treinador_despedido' | 'treinador_sai' | 'treinador_demite' | 'arquetipo' | 'crise' | 'conflito' | 'staff';
 
 export interface EventoClube {
   dia: number;
@@ -89,7 +90,8 @@ export function gerirMes(e: Economia, c: number, dia: number) {
         const v = Math.min(defice, capacidadeRestante(e, c, false));
         if (v > 0) { s.caixa[c] += v; s.dividaDono[c] += v; evento(e, { dia, clube: c, tipo: 'emprestimo_dono', texto: 'empréstimo do dono', valor: v }); }
       } else if (via === 'banco') {
-        const tecto = Math.min(DV.limite_banco, d ? politicaDivida(d) : DV.limite_banco) * receita;
+        const arqDiv = e.ia.arquetipo[c] ? PARAMETROS[e.ia.arquetipo[c]].divida : 0;
+        const tecto = Math.min(DV.limite_banco, (d ? politicaDivida(d) : DV.limite_banco) + arqDiv) * receita;
         const div = s.divida(c);
         const saude = e.calcularSaude(c);
         if (saude === 2 && div > tecto / 2) continue;
@@ -296,6 +298,7 @@ export function trocarDono(e: Economia, c: number, dia: number, motivo: string, 
   s.dividaDono[c] = 0;
   s.orcInfra[c] *= 1 + novo.atributos.ambicao / 20;
   s.objectivoFalhado[c] = 0;
+  if (e.w.motor && e.w.jogadores) e.ia.donoNovo(c, dia, rng);
   evento(e, { dia, clube: c, tipo: 'venda', texto: `vendido (${motivo}) por ${(preco / 1e6).toFixed(1)} M€: ${antigo ? `${antigo.nome} → ` : ''}${novo.nome} (${novo.tipo}); injecção ${(inj / 1e6).toFixed(1)} M€${pago ? `, paga ${(pago / 1e6).toFixed(1)} M€ de dívida` : ''}`, valor: preco });
 }
 

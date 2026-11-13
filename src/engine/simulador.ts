@@ -66,7 +66,7 @@ export class Simulador {
           const comMinutos = m && MOTOR.modo_forca === 'onze';
           evoluirMes(this.w, st, d, {
             parteMinutos: comMinutos ? (i) => Math.min(1, st.minMes[i] / EVOLUCAO.minutos_mes_referencia) : parteMinutosPorOrdem(this.w, st),
-            desenvolvimentoTreinador: m ? (c) => (m.treinadores[c]?.atributos.desenvolvimento ?? 10) + (this.w.economia?.bonusTreino(c) ?? 0) : () => 10,
+            desenvolvimentoTreinador: m ? (c, j) => (m.treinadores[c]?.atributos.desenvolvimento ?? 10) + (this.w.economia?.bonusTreino(c) ?? 0) + (j !== undefined && st.posNat[j] === 0 && this.w.economia?.staff.porClube[c] ? this.w.economia.staff.bonusGR(c) : 0) : () => 10,
           });
           st.minMes.fill(0);
           m?.cache.limpar();

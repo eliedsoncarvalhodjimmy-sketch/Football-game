@@ -25,7 +25,7 @@ export interface ContextoEvolucao {
   /** Fracção dos minutos possíveis jogados no último mês (0–1). */
   parteMinutos: (i: number) => number;
   /** Desenvolvimento de jovens do treinador principal do clube (1–20). */
-  desenvolvimentoTreinador: (clube: number) => number;
+  desenvolvimentoTreinador: (clube: number, jogador?: number) => number;
 }
 
 /** Variação mensal esperada de OVR (sem ruído), exposta para os testes e as curvas. */
@@ -79,7 +79,7 @@ export function evoluirMes(w: World, st: PlayerStore, dia: number, ctx: Contexto
     if (st.clube[i] < 0) continue;
     const idade = st.idade(i, dia);
     const gr = st.posNat[i] === GR;
-    const esperado = variacaoEsperada(idade, gr, st.ovrNat(i), st.pot[i], st.oculto(i, 'prof'), st.oculto(i, 'amb'), ctx.parteMinutos(i), ctx.desenvolvimentoTreinador(st.clube[i]));
+    const esperado = variacaoEsperada(idade, gr, st.ovrNat(i), st.pot[i], st.oculto(i, 'prof'), st.oculto(i, 'amb'), ctx.parteMinutos(i), ctx.desenvolvimentoTreinador(st.clube[i], i));
     const delta = esperado + rng.normal(0, E.ruido);
     if (Math.abs(delta) < 0.01) continue;
     aplicarVariacao(st, i, delta, idade, rng);
