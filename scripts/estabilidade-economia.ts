@@ -33,7 +33,7 @@ function escalas() {
   return [a.reduce((x, y) => x + y, 0) / a.length, b.reduce((x, y) => x + y, 0) / b.length];
 }
 const esc0 = escalas();
-const porEpoca: { ano: number; sal: number[]; esc: number[]; adm: number; ffp: number; avisos: number; vendas: number; raros: number; crise: number; apertado: number; prejuizo: number; activos: number }[] = [];
+const porEpoca: { ano: number; sal: number[]; esc: number[]; adm: number; ffp: number; rj: number; ban: number; avisos: number; vendas: number; raros: number; crise: number; apertado: number; prejuizo: number; activos: number }[] = [];
 let ev0 = 0;
 const grupos = [...sim.temporadas.keys()];
 sim.aoFechar = (t) => {
@@ -48,8 +48,8 @@ sim.aoFechar = (t) => {
     if ((s.balancos[c].at(-1)?.resultado ?? 0) < 0) prejuizo++;
   }
   porEpoca.push({
-    ano: t.ano, sal: salarios(), esc: escalas(), adm: evs.filter((x) => x.tipo === 'administracao').length, ffp: evs.filter((x) => x.tipo === 'sancao_ffp').length,
-    avisos: evs.filter((x) => x.tipo === 'aviso_ffp').length, vendas: evs.filter((x) => x.tipo === 'venda').length, raros: evs.filter((x) => x.tipo === 'evento_raro').length, crise, apertado, prejuizo, activos,
+    ano: t.ano, sal: salarios(), esc: escalas(), adm: evs.filter((x) => x.tipo === 'administracao').length, ffp: evs.filter((x) => x.tipo === 'pontos').length, rj: evs.filter((x) => x.tipo === 'recuperacao_judicial').length, ban: evs.filter((x) => x.tipo === 'limite_divida' && x.texto.startsWith('dívida')).length,
+    avisos: evs.filter((x) => x.tipo === 'aviso_ffp' || x.tipo === 'aviso').length, vendas: evs.filter((x) => x.tipo === 'venda').length, raros: evs.filter((x) => x.tipo === 'evento_raro').length, crise, apertado, prejuizo, activos,
   });
 };
 const t0 = performance.now();
@@ -91,7 +91,7 @@ const inflMedia = Math.pow(porEpoca.at(-1)!.esc[0] / esc0[0], 1 / porEpoca.lengt
 const inflInf = Math.pow(porEpoca.at(-1)!.esc[1] / esc0[1], 1 / porEpoca.length) - 1;
 const salMedia = Math.pow(porEpoca.at(-1)!.sal[0] / sal0[0], 1 / porEpoca.length) - 1;
 const nAct = porEpoca.at(-1)!.activos;
-const media = (k: 'adm' | 'ffp' | 'vendas') => porEpoca.reduce((x, y) => x + y[k], 0) / porEpoca.length;
+const media = (k: 'adm' | 'ffp' | 'vendas' | 'rj' | 'ban') => porEpoca.reduce((x, y) => x + y[k], 0) / porEpoca.length;
 const linha = (m: string, v: string, alvo: string, ok: boolean) => p(`| ${m} | ${v} | ${alvo} | ${ok ? '✅' : '⚠️'} |`);
 p('| Medida | Valor | Faixa proposta | |', '|---|---|---|:---:|');
 linha('Maior receita de um clube', M(maxRec), '≤ 1 200 M€', maxRec <= 1.2e9);
@@ -101,11 +101,13 @@ linha('Inflação do salário de mercado (escala), 1.as divisões', `${(100 * in
 p(`| Salário médio pago, 1.as divisões (inclui a mudança de composição dos plantéis) | ${(100 * salMedia).toFixed(1)}%/ano | — | |`);
 linha('Inflação do salário de mercado (escala), divisões inferiores', `${(100 * inflInf).toFixed(1)}%`, '−3 a +6%/ano', inflInf >= -0.03 && inflInf <= 0.06);
 linha('Administrações por época (média)', `${media('adm').toFixed(1)} (${((100 * media('adm')) / nAct).toFixed(2)}% dos clubes)`, '0,2–1,5% (≈ 2–13), nunca 0 em 5 épocas', media('adm') >= 0.002 * nAct && media('adm') <= 0.015 * nAct);
-linha('Sanções de fair play por época (média)', `${media('ffp').toFixed(1)} (${((100 * media('ffp')) / nAct).toFixed(1)}%)`, '2–12% dos clubes', media('ffp') >= 0.02 * nAct && media('ffp') <= 0.12 * nAct);
+linha('Deduções de pontos por época (média)', `${media('ffp').toFixed(1)} (${((100 * media('ffp')) / nAct).toFixed(1)}%)`, '1–6% dos clubes', media('ffp') >= 0.01 * nAct && media('ffp') <= 0.06 * nAct);
+linha('Recuperações judiciais por época (média)', `${media('rj').toFixed(1)} (${((100 * media('rj')) / nAct).toFixed(2)}%)`, '0,2–2% dos clubes', media('rj') >= 0.002 * nAct && media('rj') <= 0.02 * nAct);
+linha('Novas proibições por limite de dívida por época (média)', `${media('ban').toFixed(1)} (${((100 * media('ban')) / nAct).toFixed(1)}%)`, '0,5–5% dos clubes', media('ban') >= 0.005 * nAct && media('ban') <= 0.05 * nAct);
 linha('Vendas de clubes por época (média)', `${media('vendas').toFixed(1)} (${((100 * media('vendas')) / nAct).toFixed(1)}%)`, '2–6% dos clubes', media('vendas') >= 0.02 * nAct && media('vendas') <= 0.06 * nAct);
 linha('Clubes em crise no fim', `${porEpoca.at(-1)!.crise} (${((100 * porEpoca.at(-1)!.crise) / nAct).toFixed(1)}%)`, '≤ 10%', porEpoca.at(-1)!.crise <= 0.1 * nAct);
-p('', '## 2. Por época', '', '| Época | Salário médio 1.as / inferiores | Escala de mercado 1.as / inferiores | Salário médio 1.as (var.) | Administrações | Sanções FFP | Avisos | Vendas | Eventos raros | Em crise | Apertados | Com prejuízo |', '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|');
-porEpoca.forEach((x, i) => p(`| ${x.ano}/${String(x.ano + 1).slice(2)} | ${M(x.sal[0])} / ${M(x.sal[1])} | ${(x.esc[0] / esc0[0]).toFixed(3)} / ${(x.esc[1] / esc0[1]).toFixed(3)} | ${(100 * infl[i]).toFixed(1)}% | ${x.adm} | ${x.ffp} | ${x.avisos} | ${x.vendas} | ${x.raros} | ${x.crise} | ${x.apertado} | ${x.prejuizo} |`));
+p('', '## 2. Por época', '', '| Época | Salário médio 1.as / inferiores | Escala de mercado 1.as / inferiores | Salário médio 1.as (var.) | Administrações | Rec. judiciais | Proibições (dívida) | Deduções de pontos | Avisos | Vendas | Eventos raros | Em crise | Apertados | Com prejuízo |', '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|');
+porEpoca.forEach((x, i) => p(`| ${x.ano}/${String(x.ano + 1).slice(2)} | ${M(x.sal[0])} / ${M(x.sal[1])} | ${(x.esc[0] / esc0[0]).toFixed(3)} / ${(x.esc[1] / esc0[1]).toFixed(3)} | ${(100 * infl[i]).toFixed(1)}% | ${x.adm} | ${x.rj} | ${x.ban} | ${x.ffp} | ${x.avisos} | ${x.vendas} | ${x.raros} | ${x.crise} | ${x.apertado} | ${x.prejuizo} |`));
 p('', '## 3. Histogramas (última época fechada de cada clube)', '');
 p(...histograma('Receita anual', receitas, [1e6, 3e6, 10e6, 30e6, 100e6, 300e6, 600e6], (x) => (x >= 1e6 ? `${x / 1e6}M` : `${x / 1e3}k`)));
 p(...histograma('Massa salarial ÷ receita', massa, [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], pct));
@@ -120,16 +122,23 @@ p('', '## 5. Administrações', '');
 for (const x of e.eventos.filter((x) => x.tipo === 'administracao')) p(`- ${ano(x.dia)} — ${nome(x.clube)}: ${x.texto}`);
 p('', '## 6. Vendas de clubes e eventos raros', '');
 for (const x of e.eventos.filter((x) => x.tipo === 'venda' || x.tipo === 'evento_raro')) p(`- ${ano(x.dia)} — ${nome(x.clube)}: ${x.texto}`);
-p('', '## 7. Sanções de fair play por liga (todas as épocas)', '', '| Liga | Limite | Avisos | Sanções | Com perda de pontos | Exemplo |', '|---|---:|---:|---:|---:|---|');
-const porLiga = new Map<string, { av: number; sa: number; pts: number; ex: string }>();
+p('', '## 7. Sanções e avisos por liga (todas as épocas)', '', '| Liga | Avisos (dívida, caixa, fair play) | Deduções de pontos | Pontos deduzidos | Rec. judiciais | Administrações | Proibições por dívida |', '|---|---:|---:|---:|---:|---:|---:|');
+const porLiga = new Map<string, number[]>();
 for (const x of e.eventos) {
-  if (x.tipo !== 'sancao_ffp' && x.tipo !== 'aviso_ffp') continue;
-  const id = x.texto.split(':')[0];
-  const o = porLiga.get(id) ?? { av: 0, sa: 0, pts: 0, ex: '' };
-  if (x.tipo === 'aviso_ffp') o.av++; else { o.sa++; if (x.texto.includes('pontos')) o.pts++; if (!o.ex) o.ex = `${w.clubes[x.clube].nome}: ${x.texto.split(': ').slice(1).join(': ')}`; }
+  const l = w.liga[x.clube];
+  const id = l >= 0 ? w.ligas[l].regras.id : 'exterior';
+  const o = porLiga.get(id) ?? [0, 0, 0, 0, 0, 0];
+  if (x.tipo === 'aviso' || x.tipo === 'aviso_ffp') o[0]++;
+  else if (x.tipo === 'pontos') { o[1]++; o[2] += x.valor ?? 0; }
+  else if (x.tipo === 'recuperacao_judicial') o[3]++;
+  else if (x.tipo === 'administracao') o[4]++;
+  else if (x.tipo === 'limite_divida' && x.texto.startsWith('dívida')) o[5]++;
+  else continue;
   porLiga.set(id, o);
 }
-for (const [id, o] of [...porLiga].sort((a, b) => b[1].sa - a[1].sa)) p(`| ${id} | ${Math.round(100 * e.limiteFairPlay(w.ligaPorId(id).clubes[0]))}% | ${o.av} | ${o.sa} | ${o.pts} | ${o.ex} |`);
+for (const [id, o] of [...porLiga].sort((a, b) => b[1][1] + b[1][4] - a[1][1] - a[1][4]).slice(0, 25)) p(`| ${id} | ${o[0]} | ${o[1]} | ${o[2]} | ${o[3]} | ${o[4]} | ${o[5]} |`);
+p('', '## 7b. Recuperações judiciais e deduções de pontos', '');
+for (const x of e.eventos.filter((x) => x.tipo === 'recuperacao_judicial' || x.tipo === 'pontos').slice(0, 60)) p(`- ${ano(x.dia)} — ${nome(x.clube)}: ${x.texto}`);
 p('', '## 8. Donos (estado actual)', '', '| Tipo | Clubes | Reputação média |', '|---|---:|---:|');
 const tipos = new Map<string, number[]>();
 for (const c of activos) { const t = e.donos[c].tipo; tipos.set(t, [...(tipos.get(t) ?? []), w.reputacao[c]]); }

@@ -2,7 +2,7 @@
 // Funções chamadas pelo motor económico: mensal (financiamento, amortização, insolvência),
 // fecho de época (amortização bancária, sanções, objectivo do dono, venda, eventos raros) e abertura (objectivo, injecção, pontos).
 import { Rng } from '../core/rng.ts';
-import { DIVIDA as DV, ADMINISTRACAO as AD, SANCOES_FFP as SF } from '../config/divida.ts';
+import { DIVIDA as DV, ADMINISTRACAO as AD, RECUPERACAO as RJ, PONTOS_CAIXA as PC, FAIR_PLAY_AVISO as FPA, INJECCAO_MAXIMA } from '../config/divida.ts';
 import { DONOS as DN, VENDA as VD, EVENTOS_RAROS as ER } from '../config/donos.ts';
 import { CONTRATOS as K } from '../config/economia.ts';
 import { INFRA, TIPOS_INFRA } from '../config/infraestruturas.ts';
@@ -14,7 +14,7 @@ import type { Economia } from '../economia/motorEconomico.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
 import type { RegistoEpoca } from '../engine/history.ts';
 
-export type TipoEvento = 'capital_dono' | 'emprestimo_dono' | 'emprestimo_banco' | 'amortizacao' | 'administracao' | 'saida_administracao' | 'sancao_ffp' | 'aviso_ffp' | 'limite_divida' | 'venda' | 'evento_raro' | 'injeccao_anual' | 'pontos';
+export type TipoEvento = 'capital_dono' | 'emprestimo_dono' | 'emprestimo_banco' | 'amortizacao' | 'administracao' | 'saida_administracao' | 'recuperacao_judicial' | 'aviso' | 'aviso_ffp' | 'limite_divida' | 'fim_proibicao' | 'venda' | 'evento_raro' | 'injeccao_anual' | 'pontos';
 
 export interface EventoClube {
   dia: number;
@@ -30,10 +30,42 @@ function evento(e: Economia, ev: EventoClube) {
   e.eventos.push(ev);
 }
 
-/** Dinheiro que o dono ainda pode pôr nesta época. */
-function capacidadeRestante(e: Economia, c: number): number {
+/** Dinheiro que o dono ainda pode pôr nesta época: a capacidade dele, até 25% da receita (capital; empréstimos à parte). */
+function capacidadeRestante(e: Economia, c: number, capital = true): number {
   const d = e.donos[c];
-  return d ? Math.max(0, capacidadeAnual(d) - e.clubes.injeccoes[c]) : 0;
+  if (!d) return 0;
+  const cap = capacidadeAnual(d);
+  return Math.max(0, (capital ? Math.min(cap, INJECCAO_MAXIMA * Math.max(1, e.clubes.receitaPrevista[c])) : cap) - e.clubes.injeccoes[c]);
+}
+
+/** Dívida efectiva ÷ receita: banco + dono + parcelas + caixa negativa (salários e fornecedores em atraso). */
+export function racioDivida(e: Economia, c: number): number {
+  const s = e.clubes;
+  return (s.divida(c) + Math.max(0, -s.caixa[c])) / Math.max(1, s.receitaPrevista[c]);
+}
+
+/** Meses de salários em atraso (caixa negativa ÷ salários mensais). */
+export function mesesAtraso(e: Economia, c: number): number {
+  const s = e.clubes;
+  return s.caixa[c] >= 0 ? 0 : -s.caixa[c] / Math.max(1, s.folha[c] / 12);
+}
+
+/** Dia em que fecha a próxima janela de transferências da liga do clube (ou a actual, se estiver aberta). */
+export function fimProximaJanela(e: Economia, c: number, dia: number): number {
+  const l = e.w.liga[c];
+  const janelas = l >= 0 ? e.w.ligas[l].regras.janelas_transferencias : [];
+  if (!janelas?.length) return dia + 120;
+  const ano = new Date(dia * 864e5).getUTCFullYear();
+  let melhor = Infinity;
+  for (const jn of janelas) for (const a of [ano - 1, ano, ano + 1]) {
+    const [m, d] = jn.fecha.split('-').map(Number);
+    const [ma, da] = jn.abre.split('-').map(Number);
+    const abre = Math.floor(Date.UTC(a, ma - 1, da) / 864e5);
+    let fecha = Math.floor(Date.UTC(a, m - 1, d) / 864e5);
+    if (fecha < abre) fecha = Math.floor(Date.UTC(a + 1, m - 1, d) / 864e5);
+    if (fecha > dia && fecha < melhor) melhor = fecha;
+  }
+  return melhor === Infinity ? dia + 120 : melhor;
 }
 
 // ---------------------------------------------------------------- mensal
@@ -42,11 +74,7 @@ export function gerirMes(e: Economia, c: number, dia: number) {
   const w = e.w, s = e.clubes;
   const receita = Math.max(1, s.receitaPrevista[c]);
   const rng = Rng.de(w.semente, 'financas-mes', w.clubes[c].id, dia);
-  if (s.administracaoAte[c] && dia >= s.administracaoAte[c] && s.caixa[c] >= 0) {
-    s.administracaoAte[c] = 0;
-    s.saude[c] = e.calcularSaude(c);
-    evento(e, { dia, clube: c, tipo: 'saida_administracao', texto: 'sai de administração' });
-  }
+  // 1. Falta de caixa: o clube pede dinheiro pela ordem do controlador.
   const reserva = DV.reserva_meses * despesaMensal(e, c);
   if (s.caixa[c] < reserva && !s.administracaoAte[c]) {
     for (const via of e.controlador(c).financiamento(w, e, c, reserva - s.caixa[c])) {
@@ -56,10 +84,10 @@ export function gerirMes(e: Economia, c: number, dia: number) {
       if (via === 'capital_dono' && d) {
         const p = Math.max(DN.socorro_minimo, (d.atributos.lealdade + d.atributos.riqueza) / 40);
         const v = Math.min(defice, capacidadeRestante(e, c));
-        if (v > 0 && rng.chance(p)) { s.caixa[c] += v; s.injeccoes[c] += v; evento(e, { dia, clube: c, tipo: 'capital_dono', texto: `o dono injecta capital`, valor: v }); }
+        if (v > 0 && rng.chance(p)) { s.caixa[c] += v; s.injeccoes[c] += v; evento(e, { dia, clube: c, tipo: 'capital_dono', texto: 'o dono injecta capital', valor: v }); }
       } else if (via === 'emprestimo_dono' && d && d.atributos.lealdade >= 12) {
-        const v = Math.min(defice, capacidadeRestante(e, c));
-        if (v > 0) { s.caixa[c] += v; s.dividaDono[c] += v; s.injeccoes[c] += v; evento(e, { dia, clube: c, tipo: 'emprestimo_dono', texto: 'empréstimo do dono', valor: v }); }
+        const v = Math.min(defice, capacidadeRestante(e, c, false));
+        if (v > 0) { s.caixa[c] += v; s.dividaDono[c] += v; evento(e, { dia, clube: c, tipo: 'emprestimo_dono', texto: 'empréstimo do dono', valor: v }); }
       } else if (via === 'banco') {
         const tecto = Math.min(DV.limite_banco, d ? politicaDivida(d) : DV.limite_banco) * receita;
         const div = s.divida(c);
@@ -68,7 +96,6 @@ export function gerirMes(e: Economia, c: number, dia: number) {
         const v = Math.min(defice, tecto - div);
         if (v > 0) {
           s.caixa[c] += v;
-          // Juro novo: média ponderada com o da dívida antiga.
           const j = DV.juro_base + DV.premio_saude[Math.min(2, saude)];
           s.juroBanco[c] = s.dividaBanco[c] > 0 ? (s.juroBanco[c] * s.dividaBanco[c] + j * v) / (s.dividaBanco[c] + v) : j;
           s.dividaBanco[c] += v;
@@ -82,20 +109,64 @@ export function gerirMes(e: Economia, c: number, dia: number) {
     s.dividaBanco[c] -= v;
     evento(e, { dia, clube: c, tipo: 'amortizacao', texto: 'amortiza dívida bancária', valor: v });
   }
-  // Insolvência.
-  if (!s.administracaoAte[c] && (s.caixa[c] < -AD.caixa_negativa * receita || s.divida(c) > AD.divida_maxima * receita)) entrarAdministracao(e, c, dia);
-  // Limite de dívida: proibição de contratar enquanto estiver acima.
-  if (s.divida(c) > DV.limite_sancao * receita) s.proibidoAte[c] = Math.max(s.proibidoAte[c], dia + 31);
+  const r = racioDivida(e, c);
+  // 2. Administração (dívida > 3,5×) e saída quando regulariza.
+  if (s.administracaoAte[c]) {
+    if (r <= AD.regularizado && s.caixa[c] >= 0) {
+      s.administracaoAte[c] = 0;
+      s.proibidoAte[c] = dia;
+      s.saude[c] = e.calcularSaude(c);
+      evento(e, { dia, clube: c, tipo: 'saida_administracao', texto: 'situação regularizada: sai de administração e acaba a proibição de contratar' });
+    } else s.proibidoAte[c] = Math.max(s.proibidoAte[c], dia + 31);
+  } else if (r > AD.divida) { entrarAdministracao(e, c, dia); return; }
+  // 3. Recuperação judicial (dívida > 2,5×), a pedido do dono.
+  else if (r > RJ.divida && (!s.rjUltimo[c] || dia - s.rjUltimo[c] > RJ.intervalo_anos * 365) && e.controlador(c).pedirRecuperacao(w, e, c)) recuperacaoJudicial(e, c, dia);
+  // 4. Limite de dívida (> 1,5×): proibição de contratar até voltar a 1× (a multa é anual, no fecho de época).
+  if (r > DV.limite_sancao && !s.banDivida[c]) {
+    s.banDivida[c] = 1;
+    evento(e, { dia, clube: c, tipo: 'limite_divida', texto: `dívida de ${r.toFixed(2)}× a receita: proibição de contratar até voltar a ${DV.saida_proibicao}×` });
+  } else if (s.banDivida[c] && r <= DV.saida_proibicao) {
+    s.banDivida[c] = 0;
+    evento(e, { dia, clube: c, tipo: 'fim_proibicao', texto: 'dívida de volta a 1× a receita: acaba a proibição de contratar' });
+  }
+  if (s.banDivida[c]) s.proibidoAte[c] = Math.max(s.proibidoAte[c], dia + 31);
+  // 5. Avisos: dívida ≥ 1,2× (uma vez por subida), caixa negativa, salários em atraso.
+  if (r >= DV.aviso && !s.avisoDivida[c]) { s.avisoDivida[c] = 1; evento(e, { dia, clube: c, tipo: 'aviso', texto: `aviso: dívida de ${r.toFixed(2)}× a receita` }); }
+  else if (r < DV.aviso) s.avisoDivida[c] = 0;
+  // 6. Perda de pontos: caixa < −15% da receita ou mais de 2 meses de salários em atraso (um aviso por mês; 2.º −3, 3.º −9, em 12 meses).
+  if (s.caixa[c] < -PC.caixa_negativa * receita || mesesAtraso(e, c) > PC.atraso_meses) {
+    if (s.avisoUltimo[c] && dia - s.avisoUltimo[c] < PC.intervalo_dias) return;
+    s.avisoUltimo[c] = dia;
+    if (!s.avisosN[c] || dia - s.avisosDesde[c] > PC.janela_dias) { s.avisosN[c] = 0; s.avisosDesde[c] = dia; }
+    const n = Math.min(PC.pontos.length, s.avisosN[c] + 1);
+    s.avisosN[c] = n;
+    const pts = PC.pontos[n - 1] ?? 0;
+    const motivo = s.caixa[c] < -PC.caixa_negativa * receita ? `caixa de ${(s.caixa[c] / 1e6).toFixed(1)} M€` : `${mesesAtraso(e, c).toFixed(1)} meses de salários em atraso`;
+    evento(e, { dia, clube: c, tipo: 'aviso', texto: `${n}.º aviso (${motivo})${pts ? `: −${pts} pontos` : ''}` });
+    if (pts) e.penalizar(c, pts, 'caixa/salários em atraso', dia);
+  }
+}
+
+/** Recuperação judicial: −6 pontos, proibição de contratar durante a próxima janela, dívida bancária renegociada (juro e prazo). */
+export function recuperacaoJudicial(e: Economia, c: number, dia: number) {
+  const s = e.clubes;
+  s.rjUltimo[c] = dia;
+  e.penalizar(c, RJ.pontos, 'recuperação judicial', dia);
+  const fim = fimProximaJanela(e, c, dia);
+  s.proibidoAte[c] = Math.max(s.proibidoAte[c], fim);
+  s.juroBanco[c] = RJ.juro;
+  s.prazoBanco[c] = RJ.prazo_anos;
+  evento(e, { dia, clube: c, tipo: 'recuperacao_judicial', texto: `recuperação judicial: −${RJ.pontos} pontos, proibição de contratar até ${new Date(fim * 864e5).toISOString().slice(0, 10)}, dívida renegociada (${100 * RJ.juro}%, ${RJ.prazo_anos} anos)`, valor: s.divida(c) });
 }
 
 export function entrarAdministracao(e: Economia, c: number, dia: number) {
   const w = e.w, s = e.clubes, st = w.jogadores;
   const receita = Math.max(1, s.receitaPrevista[c]);
-  s.administracaoAte[c] = dia + AD.meses * 30;
-  s.proibidoAte[c] = Math.max(s.proibidoAte[c], s.administracaoAte[c]);
+  s.administracaoAte[c] = dia;
+  s.proibidoAte[c] = Math.max(s.proibidoAte[c], dia + 31);
   s.saude[c] = 3;
-  e.penalizar(c, AD.pontos, 'administração');
-  // Venda forçada (até ao mercado do Prompt 4: saída para a lista de livres) dos salários mais altos.
+  e.penalizar(c, AD.pontos, 'administração', dia);
+  // Venda forçada (até ao mercado do Prompt 4: saída para a lista de livres) dos salários mais altos, sem tocar nos melhores.
   let saidas = 0;
   if (st) {
     const todos = w.plantel[c].filter((j) => st.clube[j] === c);
@@ -111,16 +182,17 @@ export function entrarAdministracao(e: Economia, c: number, dia: number) {
     w.plantel[c] = w.plantel[c].filter((j) => st.clube[j] === c);
     s.folha[c] = folha;
   }
-  const antes = s.divida(c);
+  const antes = s.divida(c) + Math.max(0, -s.caixa[c]);
   s.dividaBanco[c] *= 1 - AD.perdao;
   s.dividaParcelas[c] *= 1 - AD.perdao;
   s.dividaDono[c] = 0;
   s.caixa[c] = AD.caixa_nova * receita;
   const d = e.donos[c];
-  const texto = `entra em administração: −${AD.pontos} pontos, ${saidas} jogadores saem, dívida de ${(antes / 1e6).toFixed(1)} para ${(s.divida(c) / 1e6).toFixed(1)} M€`;
+  const texto = `entra em administração: −${AD.pontos} pontos, proibição de contratar até regularizar, ${saidas} jogadores saem, dívida de ${(antes / 1e6).toFixed(1)} para ${(s.divida(c) / 1e6).toFixed(1)} M€`;
   evento(e, { dia, clube: c, tipo: 'administracao', texto, valor: antes - s.divida(c) });
-  // Novo dono por valor baixo (os clubes de adeptos continuam dos sócios, com nova direcção).
+  // Perda do controlo do clube: novo dono por valor baixo (nos clubes de sócios, uma comissão administrativa até regularizar).
   if (d && d.tipo !== 'adeptos') trocarDono(e, c, dia, 'administração', AD.preco * receita, Rng.de(w.semente, 'administracao', w.clubes[c].id, dia));
+  else if (d) evento(e, { dia, clube: c, tipo: 'evento_raro', texto: 'os sócios perdem o controlo: comissão administrativa até regularizar' });
 }
 
 // ---------------------------------------------------------------- fecho de época
@@ -138,21 +210,20 @@ export function fecharEpocaFinancas(e: Economia, t: Temporada, reg: RegistoEpoca
     const receita = Math.max(1, b?.receita ?? s.receitaPrevista[c]);
     // Amortização anual da dívida bancária (capital).
     if (s.dividaBanco[c] > 0) {
-      const v = Math.min(s.dividaBanco[c], s.dividaBanco[c] / DV.prazo_anos);
+      const v = Math.min(s.dividaBanco[c], s.dividaBanco[c] / (s.prazoBanco[c] || DV.prazo_anos));
       s.caixa[c] -= v;
       s.dividaBanco[c] -= v;
     }
-    // Fair play financeiro.
+    // Fair play salarial: a massa acima do balizador da liga (ou perto dele) dá aviso.
     if (b) {
       const limite = e.limiteFairPlay(c);
-      const excesso = b.massaSalarial / receita - limite;
-      if (excesso > 0) sancionarFFP(e, c, dia, excesso, receita, id);
-      else s.ffpSeguidas[c] = 0;
+      const m = b.massaSalarial / receita;
+      if (m > limite - FPA.perto) evento(e, { dia, clube: c, tipo: 'aviso_ffp', texto: `${id}: aviso do fair play (massa salarial ${Math.round(100 * m)}% da receita, balizador ${Math.round(100 * limite)}%)` });
     }
-    // Limite de dívida: multa anual.
-    if (s.divida(c) > DV.limite_sancao * receita) {
+    // Limite de dívida: multa anual de 2% da receita enquanto durar a proibição.
+    if (s.banDivida[c]) {
       s.lancar(c, 'multas', DV.multa_limite * receita);
-      evento(e, { dia, clube: c, tipo: 'limite_divida', texto: `dívida acima de ${DV.limite_sancao}× a receita: multa e proibição de contratar`, valor: DV.multa_limite * receita });
+      evento(e, { dia, clube: c, tipo: 'limite_divida', texto: `multa anual do limite de dívida (${(100 * DV.multa_limite).toFixed(0)}% da receita)`, valor: DV.multa_limite * receita });
     }
     // Dono: objectivo, venda, eventos raros.
     const d = e.donos[c];
@@ -162,26 +233,6 @@ export function fecharEpocaFinancas(e: Economia, t: Temporada, reg: RegistoEpoca
     if (d.idade) d.idade++;
     avaliarVenda(e, c, dia, rng);
   }
-}
-
-export function sancionarFFP(e: Economia, c: number, dia: number, excesso: number, receita: number, liga: string) {
-  const s = e.clubes;
-  const r = s.ffpSeguidas[c];
-  s.ffpSeguidas[c] = Math.min(255, r + 1);
-  if (r === 0 && excesso <= SF.aviso_ate) {
-    evento(e, { dia, clube: c, tipo: 'aviso_ffp', texto: `${liga}: aviso do fair play (massa ${(100 * excesso).toFixed(1)} p.p. acima)` });
-    return;
-  }
-  const multa = SF.multa[Math.min(1, r)] * excesso * receita;
-  s.lancar(c, 'multas', multa);
-  const partes = [`multa de ${(multa / 1e6).toFixed(2)} M€`];
-  if (excesso > SF.proibicao_excesso || r >= 1) { s.proibidoAte[c] = Math.max(s.proibidoAte[c], dia + 365); partes.push('proibição de contratar (1 época)'); }
-  if (r >= SF.pontos_reincidencia || (r >= 1 && excesso > SF.pontos_excesso)) {
-    const pts = Math.min(SF.pontos_maximo, SF.pontos_base + SF.pontos_por_decimo * Math.floor(excesso / 0.1));
-    e.penalizar(c, pts, 'fair play');
-    partes.push(`−${pts} pontos`);
-  }
-  evento(e, { dia, clube: c, tipo: 'sancao_ffp', texto: `${liga}: fair play (massa ${(100 * excesso).toFixed(1)} p.p. acima, ${r ? `reincidência ${r}` : '1.ª vez'}): ${partes.join(', ')}`, valor: multa });
 }
 
 /** Preço do clube = múltiplo × receita + instalações + caixa − dívida (mínimo: fracção da receita). */
@@ -237,7 +288,7 @@ export function trocarDono(e: Economia, c: number, dia: number, motivo: string, 
   novo.luaDeMelAte = dia + VD.lua_de_mel_meses * 30;
   e.donos[c] = novo;
   const receita = Math.max(1, s.receitaPrevista[c]);
-  const inj = Math.min(capacidadeAnual(novo), (VD.injeccao_inicial * receita * novo.atributos.ambicao) / 20);
+  const inj = Math.min(capacidadeRestante(e, c), (VD.injeccao_inicial * receita * novo.atributos.ambicao) / 20);
   s.caixa[c] += inj;
   s.injeccoes[c] += inj;
   let pago = 0;
@@ -259,7 +310,7 @@ export function abrirEpocaFinancas(e: Economia, t: Temporada) {
     e.objectivos[c] = objectivo(w, c, d);
     // Injecção anual de um dono ambicioso.
     if (d.atributos.ambicao > DN.injeccao_limiar_ambicao && !s.administracaoAte[c]) {
-      const v = Math.min(capacidadeAnual(d), ((d.atributos.ambicao - DN.injeccao_limiar_ambicao) / 10) * DN.injeccao_fraccao_receita * s.receitaPrevista[c]);
+      const v = Math.min(capacidadeRestante(e, c), ((d.atributos.ambicao - DN.injeccao_limiar_ambicao) / 10) * DN.injeccao_fraccao_receita * s.receitaPrevista[c]);
       if (v > 0) { s.caixa[c] += v; s.injeccoes[c] += v; evento(e, { dia: t.base, clube: c, tipo: 'injeccao_anual', texto: `${d.nome} injecta capital (objectivo: ${e.objectivos[c]})`, valor: v }); }
     }
   }

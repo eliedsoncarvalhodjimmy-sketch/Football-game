@@ -2,12 +2,13 @@
 // A economia chama o controlador para as decisões; o controlo manual (UI) chega no Prompt 5,
 // que só tem de implementar esta interface (ex.: devolvendo as escolhas feitas no ecrã).
 import { FINANCAS_INICIAIS as F, CONTRATOS as K } from '../config/economia.ts';
+import { CORTES_CRISE } from '../config/divida.ts';
 import { INFRA, OBRAS_IA, TIPOS_INFRA, CUSTO_INFRA_RIQUEZA, type TipoInfra } from '../config/infraestruturas.ts';
 import { indiceRiqueza } from '../economia/contratos.ts';
 import type { World } from '../engine/world.ts';
 import type { Economia } from '../economia/motorEconomico.ts';
 import { N_INFRA } from './store.ts';
-import { massaAlvo } from '../donos/dono.ts';
+import { massaAlvo, capacidadeAnual } from '../donos/dono.ts';
 
 export interface Orcamentos {
   salarios: number;
@@ -35,6 +36,8 @@ export interface ClubController {
   obra(w: World, e: Economia, c: number, dia: number): TipoInfra | null;
   /** Falta de caixa: por que ordem pedir dinheiro (o dono e o banco decidem se dão). */
   financiamento(w: World, e: Economia, c: number, defice: number): Financiamento[];
+  /** Dívida acima de 2,5× a receita: o dono pede recuperação judicial? */
+  pedirRecuperacao(w: World, e: Economia, c: number): boolean;
 }
 
 export type Financiamento = 'capital_dono' | 'emprestimo_dono' | 'banco';
@@ -71,7 +74,8 @@ export class ControladorIA implements ClubController {
 
   renovar(w: World, e: Economia, c: number, p: PedidoRenovacao, folha: number): boolean {
     if (p.idade > K.idade_maxima_renovacao) return false;
-    if (p.ordem < K.renovar_sempre_melhores || p.tamanhoPlantel <= K.plantel_minimo) return true;
+    const melhores = e.clubes.caixa[c] < 0 ? CORTES_CRISE.renovar_melhores : K.renovar_sempre_melhores;
+    if (p.ordem < melhores || p.tamanhoPlantel <= K.plantel_minimo) return true;
     return folha + p.salario <= e.clubes.orcSalarios[c];
   }
 
@@ -83,9 +87,16 @@ export class ControladorIA implements ClubController {
     return ['banco', 'capital_dono', 'emprestimo_dono'];
   }
 
+  /** A IA pede recuperação judicial quando o dono não consegue cobrir a dívida (pouca capacidade ou pouca lealdade). */
+  pedirRecuperacao(w: World, e: Economia, c: number): boolean {
+    const d = e.donos[c];
+    if (!d) return true;
+    return capacidadeAnual(d) < 0.5 * e.clubes.divida(c) || d.atributos.lealdade < 12;
+  }
+
   obra(w: World, e: Economia, c: number, dia: number): TipoInfra | null {
     const s = e.clubes;
-    if (s.administracaoAte[c] > dia) return null;
+    if (s.administracaoAte[c]) return null;
     let emCurso = 0;
     for (let k = 0; k < N_INFRA; k++) if (s.obraFim[c * N_INFRA + k] > dia) emCurso++;
     if (emCurso >= OBRAS_IA.simultaneas) return null;

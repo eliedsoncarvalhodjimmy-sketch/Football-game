@@ -72,7 +72,18 @@ export class ClubStore {
   repHistN = new Uint8Array(0);
   /** Proibição de contratar até ao dia (fair play, limite de dívida, administração). */
   proibidoAte = new Int32Array(0);
-  /** Em administração até ao dia (0 = não). */
+  /** Avisos que contam para perda de pontos (caixa/atrasos): quantos e desde quando (janela de 12 meses). */
+  avisosN = new Uint8Array(0);
+  avisosDesde = new Int32Array(0);
+  avisoUltimo = new Int32Array(0);
+  /** Proibição de contratar por limite de dívida activa (até a dívida voltar a 1× a receita). */
+  banDivida = new Uint8Array(0);
+  /** Aviso de dívida ≥ 1,2× já dado (volta a dar quando desce e torna a subir). */
+  avisoDivida = new Uint8Array(0);
+  /** Última recuperação judicial (dia) e prazo da dívida bancária (anos). */
+  rjUltimo = new Int32Array(0);
+  prazoBanco = new Uint8Array(0);
+  /** Em administração desde o dia (0 = não). */
   administracaoAte = new Int32Array(0);
   /** Épocas seguidas em incumprimento do fair play; épocas seguidas a falhar o objectivo do dono. */
   ffpSeguidas = new Uint8Array(0);

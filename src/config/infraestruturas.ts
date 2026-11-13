@@ -22,9 +22,9 @@ export const EFEITOS_INFRA = {
   estadio_preco: 0.03,
   estadio_capacidade_por_obra: 0.06,
   /** Centro de treino: soma ao "desenvolvimento" do treinador na evolução mensal (pontos por nível acima de 5). */
-  treino_desenvolvimento: 0.8,
+  treino_desenvolvimento: 0.4,
   /** Médico: dias de lesão × (1 − x × (nível − 5)). */
-  medico_dias: 0.03,
+  medico_dias: 0.015,
   /** Academia e recrutamento: só o nível (efeitos no Prompt 4). */
 };
 

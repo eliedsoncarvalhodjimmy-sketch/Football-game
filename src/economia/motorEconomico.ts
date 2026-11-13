@@ -11,6 +11,7 @@ import type { Temporada } from '../engine/season/temporada.ts';
 import type { RegistoEpoca } from '../engine/history.ts';
 import type { JogoR } from '../engine/competitions/base.ts';
 import type { Premio, RegrasLiga } from '../data/types.ts';
+import { CORTES_CRISE } from '../config/divida.ts';
 import { SALARIO, BILHETEIRA as B, COMERCIAL as CM, ADEPTOS as AD, DESPESAS as DP, FINANCAS_INICIAIS as FI, SAUDE as SA, TV, FAIR_PLAY, CONTRATOS as K, HISTORICO_CLUBE } from '../config/economia.ts';
 import { TIPOS_INFRA, INFRA, EFEITOS_INFRA as EI, NIVEIS_INICIAIS } from '../config/infraestruturas.ts';
 import { ClubStore, N_INFRA, RECEITAS, DESPESAS_R, N_RUB, type BalancoEpoca, type Rubrica } from '../club/store.ts';
@@ -69,8 +70,20 @@ export class Economia {
 
   // ---------------------------------------------------------------- utilidades
 
-  /** Pontos a deduzir na próxima época do clube (sanções). */
-  penalizar(c: number, pts: number, _motivo: string) {
+  /** Épocas a decorrer (o simulador liga-as aqui) para as deduções de pontos imediatas. */
+  temporadas: Map<string, Temporada> | null = null;
+
+  /** Deduz pontos: na época em curso da liga do clube, se estiver a decorrer; senão na próxima. */
+  penalizar(c: number, pts: number, motivo: string, dia = 0) {
+    const l = this.w.liga[c];
+    if (l >= 0 && this.temporadas) {
+      const L = this.w.ligas[l].regras;
+      const comp = this.temporadas.get(L.epoca.calendario)?.ligas.get(L.id);
+      if (comp && !comp.terminada() && comp.tabela.deduzir(c, pts)) {
+        this.eventos.push({ dia, clube: c, tipo: 'pontos', texto: `−${pts} pontos na época em curso (${motivo})`, valor: pts });
+        return;
+      }
+    }
     this.pontosPendentes.set(c, (this.pontosPendentes.get(c) ?? 0) + pts);
   }
 
@@ -290,7 +303,7 @@ export class Economia {
       if (w.liga[c] < 0) continue;
       const ind = indiceRiqueza(w, c);
       s.lancar(c, 'salarios', s.folha[c] / 52);
-      s.lancar(c, 'staff', s.orcStaff[c] / 52);
+      s.lancar(c, 'staff', (s.caixa[c] < 0 ? CORTES_CRISE.staff : 1) * s.orcStaff[c] / 52);
       let manut = s.capacidade[c] * DP.manutencao_por_lugar * Math.pow(ind / 100, 0.3);
       const fc = factorCustoInfra(ind);
       TIPOS_INFRA.forEach((tipo, k) => { const t = INFRA[tipo]; manut += fc * t.manutencao * t.base * Math.pow(t.crescimento, s.infra[c * N_INFRA + k]); });
@@ -327,6 +340,8 @@ export class Economia {
     for (let c = 0; c < s.n; c++) {
       if (w.liga[c] < 0) continue;
       s.saude[c] = Math.max(s.saude[c] === 3 ? 3 : 0, this.calcularSaude(c));
+      // Em crise (caixa negativa) suspende as obras em curso.
+      if (s.caixa[c] < 0) for (let k = 0; k < N_INFRA; k++) if (s.obraSemanal[c * N_INFRA + k]) { s.obraSemanal[c * N_INFRA + k] = 0; s.obraFim[c * N_INFRA + k] = 0; }
       const tipo = this.controlador(c).obra(w, this, c, dia);
       if (tipo) {
         const k = TIPOS_INFRA.indexOf(tipo);
@@ -461,7 +476,7 @@ export class Economia {
       const b = s.balancos[c].at(-1);
       if (!b || b.massaSalarial <= 0 || b.receita <= 0) continue;
       const alvo = Math.min(SALARIO.alvo_massa_receita.nivel1, this.limiteFairPlay(c) - 0.05);
-      s.escalaClube[c] = clamp((s.escalaClube[c] || 1) * clamp(Math.pow((alvo * b.receita) / b.massaSalarial, A.expoente), A.min, A.max), SALARIO.clube.min, SALARIO.clube.max);
+      s.escalaClube[c] = clamp((s.escalaClube[c] || 1) * clamp(Math.pow((alvo * b.receita) / b.massaSalarial, A.expoente), s.caixa[c] < 0 ? CORTES_CRISE.ajuste_min : A.min, A.max), SALARIO.clube.min, SALARIO.clube.max);
     }
     // Patrocínios que acabam: renovam com a reputação actual.
     for (const p of t.pacotes) for (const li of p.ligas) for (const c of w.ligas[li].clubes) {

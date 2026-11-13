@@ -36,6 +36,7 @@ export class Simulador {
     const grupos = [...new Set(w.ligas.map((l) => l.regras.epoca.calendario))];
     for (const g of grupos) this.abrir(g, w.epocaPorGrupo[g] ?? w.epoca);
     this.segunda = baseDias(w.epoca, 'ago_mai');
+    if (w.economia) w.economia.temporadas = this.temporadas;
   }
 
   /** Época do calendário de Agosto–Maio (compatibilidade com testes e relatórios). */

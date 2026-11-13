@@ -170,6 +170,7 @@ describe('controlador do clube', () => {
       renovar: (_w, _e, _c, p) => p.tamanhoPlantel <= CONTRATOS.plantel_minimo,
       obra: () => null,
       financiamento: () => ['banco'],
+      pedirRecuperacao: () => false,
     };
     const s2 = new Simulador(v);
     s2.simularEpoca();
