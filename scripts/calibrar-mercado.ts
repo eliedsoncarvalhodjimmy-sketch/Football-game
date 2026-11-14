@@ -47,9 +47,9 @@ const livres = R.filter((r) => r.tipo === 'livre'), emp = R.filter((r) => r.tipo
 p(`# Prompt 4 — Paragem B: calibração do mercado (${N} épocas, semente ${semente})`, '', '> DADOS DE TESTE. Mundo completo sem interface, IA de mercado com nevoeiro de informação e scouting.', '');
 p('## 1. Resumo', '', '| Medida | Valor | Faixa proposta |', '|---|---|---|');
 const porJanela = R.length / (2 * N);
-p(`| Negócios por janela (média, todas as ligas) | ${porJanela.toFixed(0)} | 1 500–4 000 |`);
+p(`| Negócios por janela (média, todas as ligas) | ${porJanela.toFixed(0)} | emergente (necessidade, vontade do jogador, dinheiro) |`);
 p(`| Transferências pagas / livres / empréstimos / cláusulas | ${pagos.length - clau.length} / ${livres.length} / ${emp.length} / ${clau.length} | — |`);
-p(`| % livres e % empréstimos | ${((100 * livres.length) / R.length).toFixed(0)}% / ${((100 * emp.length) / R.length).toFixed(0)}% | 25–45% / 15–30% |`);
+p(`| % livres e % empréstimos | ${((100 * livres.length) / R.length).toFixed(0)}% / ${((100 * emp.length) / R.length).toFixed(0)}% | emergente |`);
 p(`| Idade média dos transferidos (pagos) | ${(pagos.reduce((a, r) => a + r.idade, 0) / Math.max(1, pagos.length)).toFixed(1)} | 24–27 |`);
 const razoes = pagos.map((r) => r.fee / Math.max(1, r.valor)).sort((a, b) => a - b);
 p(`| Razão preço/valor (mediana; p5–p95) | ${razoes[Math.floor(razoes.length / 2)]?.toFixed(2)} (${razoes[Math.floor(razoes.length * 0.05)]?.toFixed(2)}–${razoes[Math.floor(razoes.length * 0.95)]?.toFixed(2)}) | 0,6–2,5, extremos raros |`);

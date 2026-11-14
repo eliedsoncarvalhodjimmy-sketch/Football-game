@@ -6,9 +6,9 @@
 
 | Medida | Valor | Faixa proposta |
 |---|---|---|
-| Negócios por janela (média, todas as ligas) | 806 | 1 500–4 000 |
+| Negócios por janela (média, todas as ligas) | 806 | emergente (necessidade, vontade do jogador, dinheiro) |
 | Transferências pagas / livres / empréstimos / cláusulas | 2120 / 679 / 378 / 47 | — |
-| % livres e % empréstimos | 21% / 12% | 25–45% / 15–30% |
+| % livres e % empréstimos | 21% / 12% | emergente |
 | Idade média dos transferidos (pagos) | 25.5 | 24–27 |
 | Razão preço/valor (mediana; p5–p95) | 1.09 (0.89–1.61) | 0,6–2,5, extremos raros |
 | Cláusulas activadas por época | 23.5 | 5–30 |
