@@ -519,7 +519,10 @@ export class Academia {
         if (st.clube[j] !== c || st.idade(j, dia) > PD.idade_maxima) continue;
         const parte = this.escalao[j] ? this.minutos(j) : clamp(st.eMinutos[j] / (90 * jornadas), 0, 1);
         const mu = PD.minutos * (parte - PD.minutos_centro) + (PD.liga * (fd - PD.liga_centro)) / 50 + (PD.treino * (treino - 5)) / 5 - (PD.acima_do_clube * Math.max(0, st.ovrNat(j) - L - PD.margem_clube)) / 10;
-        const d = Math.round(clamp(mu + rng.normal(0, PD.desvio), -PD.maximo, PD.maximo));
+        let d = clamp(mu + rng.normal(0, PD.desvio), -PD.maximo, PD.maximo);
+        // Perto do topo sobe-se cada vez menos: o 99 é raríssimo.
+        if (d > 0) d *= clamp((99 - st.pot[j]) / PD.topo_suave, 0, 1);
+        d = Math.round(d);
         if (d) st.pot[j] = clamp(st.pot[j] + d, st.ovrNat(j), 99);
       }
     }

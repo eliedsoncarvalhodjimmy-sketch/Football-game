@@ -163,7 +163,7 @@ export const JOVEM_TITULAR = { idade_maxima: 21, bonus: 0.5, minutos_minimos: 0.
 
 /** Potencial dinâmico (fim de época, até aos 24): Δ ~ N(μ, σ), μ = minutos × a + força da liga × b + centro de treino × c
  *  − (OVR acima do nível do clube) × d; |Δ| ≤ máximo. Um jovem bom num clube fraco pode perder potencial e estagnar. */
-export const POTENCIAL_DINAMICO = { idade_maxima: 24, minutos: 1.2, minutos_centro: 0.6, liga: 0.6, liga_centro: 60, treino: 0.3, acima_do_clube: 2, margem_clube: 6, desvio: 1.2, maximo: 4 };
+export const POTENCIAL_DINAMICO = { idade_maxima: 24, minutos: 1.2, minutos_centro: 0.6, liga: 0.6, liga_centro: 60, treino: 0.3, acima_do_clube: 2, margem_clube: 6, desvio: 1.2, maximo: 4, topo_suave: 12 };
 
 /** Contrato profissional obrigatório aos 18 (proposto pelo coordenador da academia, aprovado pelo dono/director): senão sai.
  *  Salário mínimo da liga = base × (1 + por_riqueza × índice/100) × (1 na 1.ª divisão, divisao nas outras); dura até aos 22. */

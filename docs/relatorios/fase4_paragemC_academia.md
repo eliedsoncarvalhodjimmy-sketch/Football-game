@@ -6,49 +6,49 @@
 
 | Medida | Resultado | Alvo | |
 |---|---|---|---|
-| Deriva do OVR médio por liga (máx. ao longo das épocas, 31 ligas principais) | 3.79 | ≤ 3 | ❌ |
-| Ligas com maior deriva (liga: máx. na época) | BEL1 +3.8 (2033), POR1 +3.5 (2039), TUR1 +3.1 (2036), NOR1 -3.0 (2044), CZE1 -2.9 (2043) | | |
-| Nível esperado (reputação) dessas ligas, início → fim | BEL1 62.5 → 61.3, POR1 64.9 → 64.3, TUR1 63.9 → 63.2, NOR1 58.9 → 57.9, CZE1 61.2 → 59.2 | | |
-| Posições em falta (clubes × grupo abaixo de GR 2, DEF 6, MED 6, AVA 4), pior época, medidas no fim de Setembro | 2 | 0 | ❌ |
-| Plantel mais curto (pior época) | 21 | ≥ 18 | ✅ |
-| Idade média dos plantéis (mín.–máx.) | 27.07–27.97 | estável (±1) | ✅ |
-| Juniores individuais (início → fim) | 34 934 (época 1: 35 660) | ~40 000 | |
-| Jovens no agregado (fim) | 3810 | — | |
+| Deriva do OVR médio por liga (máx. ao longo das épocas, 31 ligas principais) | 3.46 | ≤ 3 | ❌ |
+| Ligas com maior deriva (liga: máx. na época) | NED1 +3.5 (2033), POR1 +3.4 (2035), BEL1 +3.1 (2034), CRO1 +3.1 (2036), SUI1 -3.0 (2045) | | |
+| Nível esperado (reputação) dessas ligas, início → fim | NED1 64.5 → 64.3, POR1 64.9 → 64.1, BEL1 62.5 → 62.0, CRO1 57.9 → 57.0, SUI1 61.6 → 60.5 | | |
+| Posições em falta (clubes × grupo abaixo de GR 2, DEF 6, MED 6, AVA 4), pior época, medidas no fim de Setembro | 1 | 0 | ❌ |
+| Plantel mais curto (pior época) | 22 | ≥ 18 | ✅ |
+| Idade média dos plantéis (mín.–máx.) | 27.08–27.93 | estável (±1) | ✅ |
+| Juniores individuais (início → fim) | 34 847 (época 1: 35 638) | ~40 000 | |
+| Jovens no agregado (fim) | 3862 | — | |
 
-| Época | CZE1 | DEN1 | SUI1 | NOR1 | ARG1 | POL1 | AUT1 | GRE1 | faltas | idade | jogadores | juniores | registos |
+| Época | SUI1 | DEN1 | NOR1 | POL1 | AUT1 | CZE1 | GRE1 | GER1 | faltas | idade | jogadores | juniores | registos |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| início | 56.0 | 55.5 | 57.4 | 53.6 | 61.6 | 54.6 | 54.7 | 57.1 | | | | | |
-| 2026 | 55.3 | 54.3 | 56.6 | 53.6 | 61.6 | 53.7 | 54.2 | 56.6 | 2 | 27.07 | 22305 | 35660 | 67015 |
-| 2027 | 55.8 | 54.6 | 56.4 | 53.3 | 61.1 | 53.1 | 54.2 | 55.5 | 0 | 27.19 | 23037 | 35831 | 78772 |
-| 2028 | 56.0 | 55.4 | 56.5 | 53.4 | 61.5 | 54.0 | 54.5 | 56.3 | 0 | 27.38 | 23358 | 36875 | 90525 |
-| 2029 | 56.2 | 54.9 | 56.7 | 53.3 | 61.5 | 54.6 | 54.6 | 56.4 | 0 | 27.48 | 23289 | 36686 | 102140 |
-| 2030 | 56.3 | 55.0 | 57.4 | 53.2 | 61.2 | 54.6 | 55.3 | 56.0 | 0 | 27.34 | 23427 | 36130 | 113696 |
-| 2031 | 57.0 | 55.2 | 57.0 | 53.0 | 61.5 | 54.2 | 55.9 | 55.6 | 0 | 27.37 | 23652 | 35890 | 125231 |
-| 2032 | 57.1 | 55.4 | 57.2 | 53.2 | 61.8 | 54.8 | 56.3 | 56.5 | 0 | 27.39 | 23547 | 36437 | 136780 |
-| 2033 | 57.5 | 54.9 | 56.8 | 53.1 | 61.4 | 54.4 | 55.8 | 56.7 | 0 | 27.43 | 23551 | 36543 | 148320 |
-| 2034 | 57.7 | 54.9 | 56.7 | 53.7 | 61.3 | 54.2 | 56.1 | 57.0 | 0 | 27.43 | 23526 | 36247 | 159834 |
-| 2035 | 58.4 | 54.7 | 57.8 | 53.2 | 61.3 | 54.1 | 56.7 | 57.4 | 0 | 27.54 | 23460 | 36350 | 171339 |
-| 2036 | 57.9 | 55.4 | 57.9 | 53.3 | 61.1 | 54.6 | 56.2 | 57.5 | 0 | 27.70 | 23397 | 36211 | 182872 |
-| 2037 | 57.6 | 55.1 | 57.5 | 53.2 | 60.9 | 54.3 | 56.4 | 57.3 | 0 | 27.82 | 23338 | 35951 | 194410 |
-| 2038 | 56.3 | 55.1 | 57.7 | 53.0 | 60.5 | 55.5 | 55.5 | 56.8 | 0 | 27.92 | 23223 | 35889 | 205952 |
-| 2039 | 55.3 | 54.5 | 57.2 | 52.3 | 60.4 | 55.5 | 55.9 | 56.3 | 0 | 27.85 | 23090 | 35763 | 217501 |
-| 2040 | 55.3 | 53.4 | 56.3 | 51.9 | 60.2 | 54.3 | 55.2 | 56.1 | 0 | 27.84 | 23016 | 35452 | 229054 |
-| 2041 | 54.8 | 53.7 | 56.6 | 51.6 | 60.1 | 54.9 | 54.9 | 56.2 | 0 | 27.92 | 23122 | 35284 | 240591 |
-| 2042 | 54.7 | 52.9 | 56.3 | 51.3 | 59.8 | 54.2 | 54.7 | 55.8 | 0 | 27.97 | 23028 | 35236 | 252167 |
-| 2043 | 53.0 | 53.6 | 55.5 | 51.3 | 59.4 | 53.6 | 54.3 | 55.3 | 0 | 27.90 | 22887 | 35038 | 263743 |
-| 2044 | 53.9 | 53.2 | 55.1 | 50.6 | 59.5 | 53.1 | 53.4 | 55.4 | 0 | 27.80 | 22923 | 34966 | 275340 |
-| 2045 | 53.1 | 52.7 | 54.7 | 50.9 | 59.7 | 52.7 | 52.8 | 55.6 | 0 | 27.72 | 22904 | 35015 | 286925 |
+| início | 57.4 | 55.5 | 53.6 | 54.6 | 54.7 | 56.0 | 57.1 | 72.4 | | | | | |
+| 2026 | 56.4 | 55.2 | 53.7 | 53.3 | 54.3 | 55.1 | 55.5 | 71.1 | 1 | 27.08 | 22295 | 35638 | 67015 |
+| 2027 | 56.1 | 55.1 | 53.3 | 53.4 | 54.4 | 55.6 | 56.0 | 71.6 | 0 | 27.20 | 23028 | 35901 | 78762 |
+| 2028 | 55.5 | 55.9 | 53.4 | 53.9 | 54.6 | 55.9 | 55.9 | 71.5 | 0 | 27.37 | 23357 | 36896 | 90492 |
+| 2029 | 55.6 | 54.2 | 53.5 | 54.8 | 54.2 | 55.8 | 56.4 | 71.5 | 0 | 27.48 | 23246 | 36649 | 102123 |
+| 2030 | 56.3 | 55.2 | 53.2 | 54.2 | 55.2 | 56.0 | 55.8 | 72.1 | 0 | 27.36 | 23295 | 36159 | 113661 |
+| 2031 | 57.0 | 55.3 | 53.2 | 54.3 | 55.5 | 55.9 | 55.9 | 72.7 | 0 | 27.36 | 23661 | 35914 | 125196 |
+| 2032 | 58.1 | 56.3 | 53.6 | 55.5 | 56.3 | 56.0 | 56.5 | 72.4 | 0 | 27.37 | 23460 | 36527 | 136732 |
+| 2033 | 57.4 | 55.6 | 53.9 | 54.8 | 56.1 | 55.9 | 56.9 | 72.7 | 0 | 27.39 | 23507 | 36573 | 148271 |
+| 2034 | 57.0 | 55.8 | 54.0 | 54.7 | 56.6 | 56.6 | 57.5 | 71.8 | 0 | 27.45 | 23562 | 36308 | 159797 |
+| 2035 | 57.1 | 55.5 | 53.6 | 54.0 | 56.5 | 56.4 | 57.8 | 71.9 | 0 | 27.54 | 23468 | 36237 | 171341 |
+| 2036 | 56.2 | 55.5 | 54.0 | 54.1 | 56.2 | 56.8 | 57.7 | 72.3 | 0 | 27.70 | 23424 | 36094 | 182876 |
+| 2037 | 57.4 | 55.6 | 53.4 | 54.3 | 55.4 | 56.9 | 57.1 | 72.0 | 0 | 27.88 | 23349 | 36025 | 194446 |
+| 2038 | 57.3 | 54.7 | 53.5 | 55.0 | 54.9 | 56.7 | 56.8 | 71.8 | 0 | 27.93 | 23226 | 35988 | 206000 |
+| 2039 | 56.9 | 53.9 | 52.7 | 54.8 | 54.8 | 55.9 | 56.1 | 71.4 | 0 | 27.87 | 23073 | 35847 | 217579 |
+| 2040 | 56.0 | 53.8 | 52.4 | 54.3 | 54.1 | 55.2 | 55.7 | 72.7 | 0 | 27.83 | 23060 | 35369 | 229154 |
+| 2041 | 56.5 | 54.6 | 52.0 | 54.4 | 53.4 | 55.4 | 56.3 | 72.5 | 0 | 27.87 | 23168 | 35101 | 240708 |
+| 2042 | 55.7 | 53.9 | 51.8 | 54.2 | 54.1 | 55.5 | 55.2 | 72.4 | 0 | 27.92 | 23129 | 35004 | 252308 |
+| 2043 | 55.3 | 54.5 | 51.4 | 53.6 | 53.2 | 54.1 | 55.2 | 71.5 | 0 | 27.89 | 23012 | 34838 | 263878 |
+| 2044 | 55.2 | 54.3 | 51.4 | 52.7 | 53.1 | 54.6 | 55.8 | 72.2 | 0 | 27.79 | 22968 | 34802 | 275488 |
+| 2045 | 54.4 | 52.9 | 51.1 | 52.2 | 52.4 | 54.0 | 55.4 | 70.7 | 0 | 27.70 | 23015 | 34853 | 287094 |
 
 ## 2. Formador × comprador de estrelas
 
 | Arquétipo | Clubes | Formados no clube na equipa principal (início → fim, por clube) | Entre os 11 melhores (fim, por clube) | Promoções por clube por época |
 |---|---:|---:|---:|---:|
-| comprador_estrelas | 99 | 4.7 → 8.7 | 2.9 | 1.64 |
-| tradicional | 244 | 5.3 → 6.8 | 1.8 | 1.87 |
-| analitico | 153 | 5.3 → 6.0 | 1.4 | 1.35 |
-| vendedor | 142 | 5.4 → 5.9 | 1.5 | 2.16 |
-| formador | 176 | 5.6 → 5.8 | 1.3 | 2.41 |
-| magnata_impaciente | 58 | 5.5 → 4.9 | 1.2 | 1.44 |
+| comprador_estrelas | 97 | 4.7 → 9.4 | 3.3 | 1.74 |
+| vendedor | 136 | 5.4 → 6.7 | 1.8 | 2.27 |
+| tradicional | 247 | 5.3 → 6.6 | 1.8 | 1.84 |
+| analitico | 161 | 5.3 → 5.9 | 1.4 | 1.31 |
+| formador | 165 | 5.6 → 5.9 | 1.3 | 2.48 |
+| magnata_impaciente | 66 | 5.5 → 4.5 | 1.0 | 1.30 |
 
 ## 3. Shortlist de prospectos do Atlético de Serra do Freixo (POR2, formador), no início — 10 exemplos (dados para a interface)
 
@@ -71,49 +71,49 @@ Formato: escalão OVR/potencial (clube, se saiu).
 
 | Jogador | início | 2026 | 2027 | 2028 | 2029 | 2030 | 2031 | 2032 | 2033 | 2034 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| André Valilho (MC) | academia 9/79 | sub-18 20/79 | sub-18 29/79 | sub-18 37/78 | sub-21 43/78 | sub-21 51/79 | sub-21 57/81 | principal 61/81 | livre | principal 71/80 (Real Saladrón) |
-| Gonçalo Valilho (GR) | academia 13/67 | academia 23/69 | sub-18 32/69 | sub-18 40/69 | sub-21 46/70 | sub-21 50/70 | sub-21 54/70 | principal 60/72 | livre | principal 63/71 (Viknes BK) |
-| Rafael Corares (DC) | academia 9/62 | academia 18/63 | sub-18 27/63 | sub-18 32/62 | deixou | deixou | deixou | deixou | deixou | deixou |
-| Rafael Valota (DE) | academia 12/70 | academia 21/70 | sub-18 31/68 | sub-18 39/66 | sub-21 46/68 | sub-21 51/67 | sub-21 55/67 | principal 56/67 | livre | principal 57/66 (Marlwick City) |
-| Filipe Teiedo (DC) | academia 22/59 | sub-18 28/58 | deixou | deixou | deixou | deixou | deixou | deixou | deixou | deixou |
-| Miguel Salança (MC) | sub-18 7/83 | sub-18 21/84 | sub-18 32/83 | sub-21 38/84 | sub-21 45/82 | sub-21 52/80 | principal 58/80 | livre | principal 62/78 (Ashcester County) | principal 66/78 (Ashcester County) |
+| André Valilho (MC) | academia 9/79 | sub-18 20/79 | sub-18 28/80 | sub-18 39/78 | sub-21 46/80 | sub-21 52/81 | sub-21 59/80 | principal 64/79 | livre | principal 70/79 (Panathlitikos Kato Kastro) |
+| Gonçalo Valilho (GR) | academia 13/67 | academia 21/66 | sub-18 32/67 | sub-18 37/66 | sub-21 41/66 | sub-21 47/67 | sub-21 51/67 | principal 54/69 | livre | principal 56/69 (SC Groveen) |
+| Rafael Corares (DC) | academia 9/62 | academia 21/61 | sub-18 27/61 | sub-18 32/59 | sub-21 37/57 | sub-21 40/59 | sub-21 44/58 | livre | principal 49/58 (Elverfield County) | principal 50/58 (Elverfield County) |
+| Rafael Valota (DE) | academia 12/70 | academia 18/71 | sub-18 28/70 | sub-18 40/68 | sub-21 45/68 | sub-21 49/67 | sub-21 54/66 | principal 57/66 | principal 57/64 (Falcon Rock FC) | principal 58/64 (Falcon Rock FC) |
+| Filipe Teiedo (DC) | academia 22/59 | sub-18 29/60 | sub-18 32/59 | deixou | deixou | deixou | deixou | deixou | deixou | deixou |
+| Miguel Salança (MC) | sub-18 7/83 | sub-18 21/84 | sub-18 35/85 | sub-21 43/83 | principal 51/84 | principal 56/81 | livre | principal 59/79 (SV Eichstetten) | principal 63/79 (SV Eichstetten) | principal 64/79 (SV Eichstetten) |
 
 ## 5. Promoções fora da curva (sub-18 → sub-21 ou equipa principal)
 
-268 casos em 20 épocas (0.015 por clube por época). Exemplos:
+251 casos em 20 épocas (0.014 por clube por época). Exemplos:
 
 | Data | Clube | Jogador | Idade | OVR | Potencial | Para |
 |---|---|---|---:|---:|---:|---|
-| 2027-12-20 | Unión de Puerto Ceibos | Juan Cedilla | 17 | 58 | 99 | sub-21 |
-| 2028-06-19 | Brackcombe Town | James Whitby | 17 | 65 | 99 | sub-21 |
-| 2028-06-19 | Carnley Albion | Jordan Cartford | 17 | 65 | 99 | sub-21 |
-| 2029-06-18 | Poggiovecchio Calcio | Davide Capardi | 17 | 62 | 99 | sub-21 |
-| 2029-06-18 | Fontemarino Calcio | Federico Barone | 17 | 56 | 99 | sub-21 |
-| 2030-06-17 | Thornford Albion | Ben Thornwell | 17 | 57 | 99 | sub-21 |
+| 2027-06-21 | Stourmercombe City | Jack Morley | 17 | 61 | 99 | sub-21 |
+| 2029-06-18 | Fontemarino Calcio | Federico Barone | 17 | 60 | 99 | sub-21 |
+| 2029-06-18 | Achilles Rijszand | Kevin DekDijk | 17 | 58 | 99 | sub-21 |
+| 2033-06-20 | SC Grüntal | Niklas Langke | 17 | 60 | 99 | sub-21 |
+| 2033-12-19 | Åsvik FK | Kostas Vasiopoulos | 17 | 57 | 99 | sub-21 |
+| 2034-06-19 | SS Valchiaro | Federico Dellato | 17 | 58 | 99 | sub-21 |
 
 ## 6. Aliciamento de jovens (compensação de formação)
 
-381 jovens aliciados em 20 épocas; compensação média 313 mil €. Exemplos:
+384 jovens aliciados em 20 épocas; compensação média 316 mil €. Exemplos:
 
 | Data | Jogador | De | Para | Compensação |
 |---|---|---|---|---:|
-| 2027-07-01 | Mikkel Ekberg | FC Molzele | Unión de Puerto Ceibos | 540 mil € |
-| 2027-07-01 | Jakub Woźrowski | Górnik Raków | KSC Beausart | 360 mil € |
-| 2027-07-01 | Václav Prochný | SK Podkov | América de Campo do Cedro | 360 mil € |
-| 2027-07-01 | Nicolás Quinudo | Club Llano Cumbre | Serra do Sertão Futebol Clube | 420 mil € |
-| 2027-07-01 | Charlie Ashford | Auchbrae | NK Slaven Vigrad | 50 mil € |
-| 2027-07-01 | Joaquín Paludo | Campo do Cajueiro Futebol Clube | CF Alcormonte | 630 mil € |
+| 2027-07-01 | Franco Seroya | Atlético Puerto Portillo | Unión de Colonia Alamos | 300 mil € |
+| 2027-07-01 | Sander Lindstrøm | Metalurh Kameyne | KSC Beausart | 300 mil € |
+| 2027-07-01 | Nicolò Dellese | Académico de Quinta das Lajes | KAS Oostmeer | 300 mil € |
+| 2027-07-01 | Wout de ser | FC Dijkwijk | KV Herengem | 150 mil € |
+| 2027-07-01 | Nakasaki Yuki | Yamamine FC | Atlético Pouso das Pedras | 450 mil € |
+| 2027-07-01 | Jack Morley | Grimbridge Albion | Rio do Angico Futebol Clube | 540 mil € |
 
 ## 7. Memória, gravação e desempenho
 
 | Medida | Valor | Alvo |
 |---|---|---|
-| Geração do mundo (com ~36 000 juniores) | 3.3 s | — |
-| Memória (heap) do mundo / no fim | 28.8 / 169.5 MB | — |
-| Jogadores no PlayerStore (inclui aposentados e libertados) | 289 474 | — |
+| Geração do mundo (com ~36 000 juniores) | 2.1 s | — |
+| Memória (heap) do mundo / no fim | 28.6 / 169.3 MB | — |
+| Jogadores no PlayerStore (inclui aposentados e libertados) | 289 656 | — |
 | Gravação: jogadores (gzip) | 12.0 MB | — |
 | Gravação: uma época de histórico (gzip) | 0.0 MB | ~20 MB |
 | Gravação: histórico de 40 épocas (gzip) | 1.0 MB | — |
 | Estimativa para 25 épocas (jogadores + histórico) | 14.7 MB | < 500 MB |
-| Semana (mediana / p99 / máx.) | 314 / 967 / 1654 ms | tablet × 3 a 6 |
-| 20 épocas | 371 s | — |
+| Semana (mediana / p99 / máx.) | 254 / 633 / 913 ms | tablet × 3 a 6 |
+| 20 épocas | 288 s | — |
