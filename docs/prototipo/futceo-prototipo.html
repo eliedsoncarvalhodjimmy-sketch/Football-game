@@ -1,0 +1,420 @@
+<title>FutCEO Protótipo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Disposição: barra lateral (tablet) / barra inferior (telemóvel) + área de cartões; números grandes condensados; acento = cor do clube. */
+:root {
+  --fundo: #0b0d10;
+  --cartao: #16191e;
+  --cartao-2: #1d2128;
+  --linha: #2a2f38;
+  --texto: #e8eaee;
+  --suave: #9097a3;
+  --fraco: #5f6672;
+  --acento: #d63a3a;
+  --acento-2: #f1f1f1;
+  --bom: #3fb67a;
+  --aviso: #e2a33a;
+  --mau: #e0565b;
+  --info: #5a9be0;
+  --f-num: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-texto: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-dados: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  --raio: 12px;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--fundo); color: var(--texto); font-family: var(--f-texto); font-size: 14px; }
+* { box-sizing: border-box; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+.app { display: grid; grid-template-columns: 220px 1fr; height: 100%; }
+.lateral { background: #0f1216; border-right: 1px solid var(--linha); display: flex; flex-direction: column; padding: 16px 12px; gap: 4px; overflow-y: auto; }
+.marca { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; }
+.marca b { font-family: var(--f-num); font-size: 24px; letter-spacing: .5px; }
+.marca small { display: block; color: var(--suave); font-size: 11px; }
+.nav { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; color: var(--suave); text-decoration: none; font-weight: 500; }
+.nav:hover { background: var(--cartao); color: var(--texto); }
+.nav.activo { background: var(--cartao-2); color: var(--texto); box-shadow: inset 3px 0 0 var(--acento); }
+.nav svg { width: 18px; height: 18px; flex: none; }
+.nav-sep { height: 1px; background: var(--linha); margin: 10px 4px; }
+.nav.extra { opacity: .55; }
+
+.principal { overflow-y: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 32px; min-width: 0; }
+.topo { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 16px; }
+.topo h1 { font-family: var(--f-num); font-weight: 600; font-size: 30px; margin: 0; letter-spacing: .3px; text-wrap: balance; }
+.topo .sub { color: var(--suave); }
+.topo .direita { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--cartao-2); color: var(--suave); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.chip.bom { color: var(--bom); } .chip.aviso { color: var(--aviso); } .chip.mau { color: var(--mau); } .chip.info { color: var(--info); }
+.chip .pt { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.btn { border: 1px solid var(--linha); background: var(--cartao-2); padding: 8px 14px; border-radius: 10px; font-weight: 600; min-height: 40px; }
+.btn.prim { background: var(--acento); border-color: var(--acento); color: var(--acento-2); }
+.btn:hover { border-color: var(--suave); }
+
+.grelha { display: grid; gap: 14px; grid-template-columns: repeat(12, 1fr); }
+.c { background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px; min-width: 0; }
+.c h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--suave); margin: 0 0 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.c h2 .acao { margin-left: auto; text-transform: none; letter-spacing: 0; color: var(--acento); font-weight: 600; cursor: pointer; }
+.s3 { grid-column: span 3; } .s4 { grid-column: span 4; } .s5 { grid-column: span 5; } .s6 { grid-column: span 6; } .s7 { grid-column: span 7; } .s8 { grid-column: span 8; } .s12 { grid-column: span 12; }
+.num { font-family: var(--f-num); font-weight: 600; font-variant-numeric: tabular-nums; }
+.grande { font-size: 40px; line-height: 1; }
+.medio { font-size: 26px; line-height: 1; }
+.rot { color: var(--suave); font-size: 12px; }
+.muted { color: var(--suave); }
+.linha-kv { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--linha); }
+.linha-kv:last-child { border-bottom: 0; }
+.linha-kv span:last-child { font-variant-numeric: tabular-nums; }
+
+.escudo { width: 34px; height: 38px; flex: none; }
+.forma { display: inline-flex; gap: 4px; }
+.forma i { width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 700; color: #0b0d10; }
+.forma .V { background: var(--bom); } .forma .E { background: #8a919c; } .forma .D { background: var(--mau); }
+
+.proximo { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.equipa { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 110px; text-align: center; }
+.equipa .escudo { width: 52px; height: 58px; }
+.vs { text-align: center; }
+
+.tab-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--fraco); font-weight: 600; padding: 8px 8px; border-bottom: 1px solid var(--linha); white-space: nowrap; position: sticky; top: 0; background: var(--cartao); }
+td { padding: 9px 8px; border-bottom: 1px solid var(--linha); white-space: nowrap; }
+tr.clic { cursor: pointer; } tr.clic:hover td { background: var(--cartao-2); }
+tr.meu td { background: color-mix(in srgb, var(--acento) 16%, transparent); }
+td.r, th.r { text-align: right; }
+.ovr { display: inline-grid; place-items: center; min-width: 34px; height: 26px; border-radius: 7px; font-family: var(--f-num); font-weight: 700; font-size: 17px; background: var(--cartao-2); }
+.ovr.a { color: #7fe0a5; } .ovr.b { color: #c9e27a; } .ovr.c { color: #e8c46a; } .ovr.d { color: #e69a6a; }
+.intervalo { font-family: var(--f-dados); font-size: 12px; color: var(--aviso); }
+.barra { height: 6px; border-radius: 3px; background: var(--cartao-2); overflow: hidden; }
+.barra > i { display: block; height: 100%; background: var(--acento); }
+.zona { width: 3px; padding: 0; }
+.zona.ucl { background: var(--info); } .zona.uel { background: var(--aviso); } .zona.desc { background: var(--mau); }
+
+.filtros { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.filtros input, .filtros select { background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 10px; padding: 8px 12px; min-height: 40px; }
+.filtros input { flex: 1; min-width: 180px; }
+.seg { display: inline-flex; background: var(--cartao-2); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 7px 12px; border-radius: 8px; color: var(--suave); font-weight: 600; min-height: 34px; }
+.seg button.on { background: var(--cartao); color: var(--texto); }
+
+.jogador-topo { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.dorsal { width: 64px; height: 64px; border-radius: 50%; background: var(--acento); color: var(--acento-2); display: grid; place-items: center; font-family: var(--f-num); font-size: 30px; font-weight: 700; flex: none; }
+.estrelas { color: var(--aviso); letter-spacing: 2px; font-size: 15px; }
+.atrib { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+.atrib .v { font-family: var(--f-num); font-size: 18px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.v20 { color: #7fe0a5; } .v15 { color: #c9e27a; } .v10 { color: var(--texto); } .v5 { color: #e69a6a; }
+.papeis { display: grid; gap: 8px; }
+.papel { display: grid; grid-template-columns: 1fr 120px 28px; align-items: center; gap: 10px; }
+
+.campo { position: relative; aspect-ratio: 68/100; max-width: 420px; width: 100%; margin: 0 auto; border-radius: 10px; overflow: hidden;
+  background: repeating-linear-gradient(0deg, #1f5a35 0 9%, #23633b 9% 18%); border: 2px solid #2e7a4a; }
+.campo .lin { position: absolute; border: 2px solid rgba(255,255,255,.35); }
+.peca { position: absolute; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; width: 90px; }
+.peca b { width: 34px; height: 34px; border-radius: 50%; background: var(--acento); color: var(--acento-2); display: grid; place-items: center; font-family: var(--f-num); font-size: 16px; border: 2px solid rgba(255,255,255,.7); }
+.peca span { font-size: 11px; font-weight: 600; text-shadow: 0 1px 2px #000; white-space: nowrap; }
+.peca em { font-style: normal; font-size: 10px; color: #cfe8d6; text-shadow: 0 1px 2px #000; }
+.instr { display: grid; gap: 12px; }
+.instr label { display: grid; gap: 6px; color: var(--suave); font-size: 12px; }
+
+.barras-fin { display: grid; gap: 10px; }
+.bf { display: grid; grid-template-columns: 130px 1fr 80px; align-items: center; gap: 10px; }
+.bf .t { height: 14px; border-radius: 4px; background: var(--cartao-2); overflow: hidden; }
+.bf .t i { display: block; height: 100%; }
+
+.janela { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: color-mix(in srgb, var(--aviso) 14%, var(--cartao)); border: 1px solid color-mix(in srgb, var(--aviso) 45%, transparent); }
+.ronda { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--linha); }
+.ronda:last-child { border-bottom: 0; }
+
+.aviso-proto { font-size: 12px; color: var(--fraco); margin-top: 18px; }
+.cores { display: inline-flex; gap: 6px; }
+.cores button { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--linha); }
+
+.inferior { display: none; }
+@media (max-width: 1100px) { .s3 { grid-column: span 6; } .s4 { grid-column: span 6; } .s5, .s7, .s8 { grid-column: span 12; } }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; }
+  .lateral { display: none; }
+  .principal { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .s3, .s4, .s6 { grid-column: span 12; }
+  .inferior { display: flex; position: fixed; left: 0; right: 0; bottom: 0; background: #0f1216; border-top: 1px solid var(--linha);
+    padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); justify-content: space-around; z-index: 5; }
+  .inferior a { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--suave); text-decoration: none; font-size: 10px; padding: 6px 4px; min-width: 52px; border-radius: 8px; }
+  .inferior a.activo { color: var(--texto); }
+  .inferior a.activo svg { color: var(--acento); }
+  .inferior svg { width: 20px; height: 20px; }
+  .grande { font-size: 34px; }
+  .papel { grid-template-columns: 1fr 80px 28px; }
+  .bf { grid-template-columns: 100px 1fr 70px; }
+}
+</style>
+
+<div class="app">
+  <nav class="lateral" aria-label="Navegação principal">
+    <div class="marca"><svg class="escudo" id="escudo-marca" viewBox="0 0 34 38"></svg><div><b>FutCEO</b><small id="nome-clube-lat">Atlético de Serra do Freixo</small></div></div>
+    <div id="nav-lista"></div>
+    <div class="nav-sep"></div>
+    <div class="rot" style="padding:4px 12px">Ecrãs dos próximos passos</div>
+    <a class="nav extra" aria-disabled="true">Treinador e staff</a>
+    <a class="nav extra" aria-disabled="true">Scouting</a>
+    <a class="nav extra" aria-disabled="true">Academia</a>
+    <a class="nav extra" aria-disabled="true">Infraestruturas</a>
+    <a class="nav extra" aria-disabled="true">Clube e dono</a>
+    <a class="nav extra" aria-disabled="true">Mundo e calendário</a>
+    <a class="nav extra" aria-disabled="true">Armazenamento</a>
+  </nav>
+  <main class="principal" id="principal"></main>
+  <nav class="inferior" id="inferior" aria-label="Navegação"></nav>
+</div>
+
+<script>
+// ---------- dados fictícios (protótipo) ----------
+const ICON = {
+  inicio: '<path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  plantel: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c3 .2 5.5 2.6 5.5 5.8"/>',
+  jogador: '<circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/>',
+  tactica: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="3"/>',
+  mercado: '<path d="M4 7h16l-1.5 12h-13z"/><path d="M8 7a4 4 0 0 1 8 0"/>',
+  financas: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  classificacao: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/>',
+};
+const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['tactica', 'Táctica'], ['mercado', 'Mercado'], ['financas', 'Finanças'], ['classificacao', 'Classificação']];
+const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+
+let sem = 2026;
+const rnd = () => { sem = (sem * 1103515245 + 12345) % 2147483648; return sem / 2147483648; };
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+
+const CLUBE = { nome: 'Atlético de Serra do Freixo', curto: 'Serra do Freixo', liga: 'Liga Portugal (POR1)', cores: ['#d63a3a', '#f1f1f1'] };
+const PRIMEIROS = ['Rafael', 'Diogo', 'Pedro', 'Tiago', 'João', 'Miguel', 'Gonçalo', 'Nuno', 'Vasco', 'André', 'Bruno', 'Luís', 'Rúben', 'Kevin', 'Mateus', 'Hugo', 'Ivo', 'Samuel'];
+const APELIDOS = ['Salouro', 'Teiouro', 'Corança', 'Marota', 'Barouro', 'Valota', 'Tavouro', 'Gouilho', 'Barota', 'Salares', 'Marouro', 'Teieira', 'Ferrão', 'Alcobia', 'Quintela', 'Rebordão', 'Seixal', 'Lourosa', 'Amieira', 'Carvide'];
+const POS = ['GR', 'GR', 'GR', 'DC', 'DC', 'DC', 'DC', 'DD', 'DD', 'DE', 'DE', 'MDC', 'MDC', 'MC', 'MC', 'MC', 'MC', 'MO', 'MO', 'ED', 'EE', 'ED', 'PL', 'PL', 'PL'];
+const PAPEIS = { GR: ['Guarda-redes', 'Guarda-redes líbero'], DC: ['Defesa central', 'Central construtor', 'Central de marcação'], DD: ['Lateral', 'Lateral ofensivo', 'Ala'], DE: ['Lateral', 'Lateral ofensivo', 'Ala'], MDC: ['Trinco', 'Médio recuperador', 'Pivô construtor'], MC: ['Médio box-to-box', 'Médio organizador', 'Médio de cobertura'], MO: ['Médio ofensivo', 'Segundo avançado', 'Falso 10'], ED: ['Extremo', 'Extremo invertido', 'Avançado interior'], EE: ['Extremo', 'Extremo invertido', 'Avançado interior'], PL: ['Ponta de lança', 'Avançado móvel', 'Pivô'] };
+const PAISES = ['POR', 'POR', 'POR', 'POR', 'BRA', 'BRA', 'CPV', 'ARG', 'ANG', 'ESP', 'URU'];
+const plantel = POS.map((p, k) => {
+  const idade = ri(18, 34);
+  const ovr = Math.max(48, Math.min(78, 64 + ri(-8, 9) - (k % 4 === 3 ? 6 : 0)));
+  const pot = Math.min(92, ovr + (idade < 23 ? ri(4, 14) : ri(0, 3)));
+  return { n: k + 1, nome: `${PRIMEIROS[ri(0, PRIMEIROS.length - 1)]} ${APELIDOS[ri(0, APELIDOS.length - 1)]}`, pos: p, idade, ovr, pot, pais: PAISES[ri(0, PAISES.length - 1)],
+    moral: ri(8, 19), cond: ri(72, 100), forma: Array.from({ length: 5 }, () => (rnd() * 3 + 5.6).toFixed(1)), adq: ri(11, 18), papel: PAPEIS[p][ri(0, PAPEIS[p].length - 1)],
+    fim: 2026 + ri(1, 5), sal: Math.round((ovr - 40) ** 2 * 380 / 1000) * 1000, lesao: k === 9 ? 'Entorse (12 dias)' : k === 20 ? 'Muscular (3 dias)' : '', susp: k === 14 };
+});
+plantel[22].nome = 'Rafael Salouro'; plantel[22].idade = 19; plantel[22].ovr = 69; plantel[22].pot = 84;
+const nomeCurto = (n) => { const p = n.split(' '); return `${p[0][0]}. ${p[p.length - 1]}`; };
+
+const LIGA = ['Real Montalvo', 'CF Alvarenga', 'Sporting de Vale Formoso', 'Atlético de Serra do Freixo', 'Desportivo das Lezírias', 'União de Rio Maior', 'Académico de Penedono', 'Vitória de Castro Marim', 'FC Barca de Marvila', 'Clube Naval da Foz', 'Estrela de Valongo', 'Juventude de Arouca', 'Boavista do Mondego', 'SC Ribeira Brava', 'Os Lusitanos de Ourém', 'Marítimo da Amieira', 'GD Penafiel Velho', 'Recreativo de Tondela'];
+const CORES = [['#2c63c9', '#fff'], ['#2b8a4b', '#fff'], ['#1d9a6c', '#fff'], CLUBE.cores, ['#e2a33a', '#111'], ['#7a3cc7', '#fff'], ['#111', '#fff'], ['#c43b7a', '#fff'], ['#3aa0c7', '#111'], ['#1d3b6b', '#e2a33a'], ['#a12a2a', '#111'], ['#2a7a2a', '#e8e8e8'], ['#222', '#d63a3a'], ['#d6743a', '#fff'], ['#5a5a9a', '#fff'], ['#2a6a6a', '#fff'], ['#9a2a5a', '#fff'], ['#3a7a3a', '#111']];
+const tabela = LIGA.map((nome, i) => { const j = 12; const v = Math.max(0, 9 - Math.floor(i / 2) + ri(-1, 1)); const e = ri(1, 4); const d = j - v - e; const gm = v * 2 + e + ri(0, 4), gs = d * 2 + e + ri(0, 3); return { nome, cores: CORES[i], j, v, e, d: Math.max(0, d), gm, gs, pts: v * 3 + e, forma: Array.from({ length: 5 }, () => 'VVEDV'[ri(0, 4)]) }; }).sort((a, b) => b.pts - a.pts || (b.gm - b.gs) - (a.gm - a.gs));
+
+const MERCADO = [
+  ['Thanasis Kostopoulos', 'MC', 25, 'Asteras Thalassopyrgos', 'GRE1', 40, [63, 85], [74, 96], 3.1],
+  ['Antoine Bouon', 'ED', 28, 'Asteras Oristathmos', 'GRE1', 37, [65, 87], [74, 99], 4.6],
+  ['Yusuf Taşsoy', 'MO', 23, 'Kızılpınarspor', 'TUR1', 93, [71, 75], [74, 86], 6.8],
+  ['Tobias Mülel', 'PL', 30, 'Unión de Colonia Alamos', 'ARG1', 81, [71, 83], [74, 88], 2.4],
+  ['Erik Holmsen', 'DC', 23, 'AC Vestersted', 'DEN1', 35, [62, 86], [63, 84], 1.9],
+  ['Can Demirlik', 'MDC', 27, 'Kızılpınarspor', 'TUR1', 97, [77, 79], [80, 86], 9.5],
+  ['Loon Ji-sung', 'DE', 26, 'Kalalimni FC', 'GRE1', 69, [67, 79], [69, 83], 1.4],
+  ['Gustavo Rosilho', 'PL', 20, 'Atlético Pouso das Pedras', 'BRA1', 82, [73, 81], [87, 99], 14.0],
+];
+
+// ---------- utilitários ----------
+const corOvr = (o) => (o >= 75 ? 'a' : o >= 68 ? 'b' : o >= 60 ? 'c' : 'd');
+const M = (v) => (v >= 1e6 ? `${(v / 1e6).toFixed(1).replace('.', ',')} M€` : `${Math.round(v / 1000)} mil €`);
+const escudo = (cores, w = 34) => `<svg class="escudo" viewBox="0 0 34 38" width="${w}" aria-hidden="true"><path d="M17 1 L32 6 V18 C32 28 25 34 17 37 C9 34 2 28 2 18 V6 Z" fill="${cores[0]}" stroke="${cores[1]}" stroke-width="2"/><path d="M17 1 V37" stroke="${cores[1]}" stroke-width="5" opacity=".55"/></svg>`;
+const estrelas = (a, b) => { const s = (x) => '★'.repeat(Math.floor(x)) + (x % 1 ? '½' : ''); return a === b ? s(a) : `${s(a)}–${s(b)}`; };
+const potE = (p) => Math.max(0.5, Math.min(5, Math.round(((p - 40) / 12) * 2) / 2));
+
+// ---------- ecrãs ----------
+function inicio() {
+  const pos = tabela.findIndex((t) => t.nome === CLUBE.nome) + 1;
+  return `
+  <div class="topo"><h1>Início</h1><span class="sub">Época 2026/27 · Jornada 13</span><div class="direita"><span class="chip info"><span class="pt"></span>Janela fechada · abre a 1 de Janeiro</span><button class="btn prim">Avançar para o jogo</button></div></div>
+  <div class="grelha">
+    <section class="c s8"><h2>Próximo jogo<span class="acao">Pré-jogo</span></h2>
+      <div class="proximo">
+        <div class="equipa">${escudo(CLUBE.cores, 52)}<b>${CLUBE.curto}</b><span class="forma">${['V', 'V', 'E', 'D', 'V'].map((x) => `<i class="${x}">${x}</i>`).join('')}</span></div>
+        <div class="vs"><div class="rot">Liga Portugal · Jornada 13</div><div class="num grande">20:30</div><div class="rot">Sáb., 21 Nov · Estádio do Freixial · casa</div><div class="chip aviso" style="margin-top:8px">Dérbi regional</div></div>
+        <div class="equipa">${escudo(CORES[2], 52)}<b>Sporting de Vale Formoso</b><span class="forma">${['V', 'V', 'V', 'E', 'V'].map((x) => `<i class="${x}">${x}</i>`).join('')}</span></div>
+      </div>
+    </section>
+    <section class="c s4"><h2>Posição na liga</h2><div class="num grande">${pos}.º</div><div class="rot" style="margin-top:6px">${tabela[pos - 1].pts} pontos · objectivo do dono: Europa (top 5)</div><div class="barra" style="margin-top:12px"><i style="width:72%"></i></div><div class="rot" style="margin-top:6px">Confiança do dono 72/100</div></section>
+    <section class="c s3"><h2>Caixa</h2><div class="num grande">${M(18.4e6)}</div><div class="rot">+2,1 M€ este mês</div></section>
+    <section class="c s3"><h2>Orçamento de transferências</h2><div class="num grande">${M(9.5e6)}</div><div class="rot">disponível na janela de Janeiro</div></section>
+    <section class="c s3"><h2>Massa salarial</h2><div class="num grande">${M(31.2e6)}</div><div class="rot">94% do orçamento salarial</div></section>
+    <section class="c s3"><h2>Estado financeiro</h2><div class="num grande" style="color:var(--bom)">Saudável</div><div class="rot">Fair play: dentro do limite</div></section>
+    <section class="c s6"><h2>Tarefas pendentes</h2>
+      <div class="linha-kv"><span><span class="chip mau"><span class="pt"></span>Decisão</span> Oferta de 7,5 M€ do Real Montalvo por R. Salouro</span><span class="muted">expira em 2 dias</span></div>
+      <div class="linha-kv"><span><span class="chip aviso"><span class="pt"></span>Contrato</span> ${plantel[5].nome} quer renovar (último ano)</span><span class="muted">ver pedido</span></div>
+      <div class="linha-kv"><span><span class="chip info"><span class="pt"></span>Scouting</span> Relatório pronto: Gustavo Rosilho (82%)</span><span class="muted">abrir</span></div>
+      <div class="linha-kv"><span><span class="chip"><span class="pt"></span>Academia</span> 2 prospectos prontos para o sub-18</span><span class="muted">conselho</span></div>
+    </section>
+    <section class="c s6"><h2>Notícias</h2>
+      <div class="linha-kv"><span>Serra do Freixo vence em Penedono (2–0) com bis de R. Salouro</span><span class="muted">14 Nov</span></div>
+      <div class="linha-kv"><span>Clube Naval da Foz despede o treinador após 5 derrotas</span><span class="muted">12 Nov</span></div>
+      <div class="linha-kv"><span>Ranking UEFA: Portugal sobe ao 6.º lugar</span><span class="muted">10 Nov</span></div>
+      <div class="linha-kv"><span>Lesão: ${plantel[9].nome} fora 12 dias (entorse)</span><span class="muted">9 Nov</span></div>
+    </section>
+  </div>`;
+}
+
+let filtroPos = 'Todos', pesquisa = '';
+function plantelEcra() {
+  const grupos = { Todos: () => true, GR: (p) => p.pos === 'GR', Defesas: (p) => ['DC', 'DD', 'DE'].includes(p.pos), Médios: (p) => ['MDC', 'MC', 'MO'].includes(p.pos), Avançados: (p) => ['ED', 'EE', 'PL'].includes(p.pos) };
+  const lista = plantel.filter(grupos[filtroPos]).filter((p) => p.nome.toLowerCase().includes(pesquisa.toLowerCase()));
+  return `
+  <div class="topo"><h1>Plantel</h1><span class="sub">25 jogadores · média de idade 26,4 · OVR médio 63</span></div>
+  <div class="filtros"><input id="f-pesq" type="search" placeholder="Pesquisar no plantel…" value="${pesquisa}" aria-label="Pesquisar no plantel"><div class="seg" role="group">${Object.keys(grupos).map((g) => `<button data-pos="${g}" class="${g === filtroPos ? 'on' : ''}">${g}</button>`).join('')}</div></div>
+  <section class="c"><div class="tab-wrap"><table>
+    <thead><tr><th>N.º</th><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th>Melhor papel</th><th class="r">Adeq.</th><th class="r">Moral</th><th>Forma</th><th class="r">Condição</th><th class="r">Contrato</th><th class="r">Salário</th><th>Estado</th></tr></thead>
+    <tbody>${lista.map((p) => `<tr class="clic" data-j="${p.n}"><td class="muted">${p.n}</td><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="muted">${p.papel}</td><td class="r">${p.adq}</td><td class="r">${p.moral}</td><td>${p.forma.slice(-3).join(' · ')}</td><td class="r">${p.cond}%</td><td class="r">${p.fim}</td><td class="r">${M(p.sal)}</td><td>${p.lesao ? `<span class="chip mau">${p.lesao}</span>` : p.susp ? '<span class="chip aviso">Suspenso</span>' : '<span class="chip bom">Apto</span>'}</td></tr>`).join('')}</tbody>
+  </table></div></section>`;
+}
+
+let jogadorSel = 23, verComo = 'proprio';
+function jogadorEcra() {
+  const p = plantel[jogadorSel - 1];
+  const rival = verComo === 'rival';
+  const grupos = { Técnicos: ['Finalização', 'Drible', 'Passe', 'Técnica', 'Cabeceamento', 'Cruzamento', 'Primeiro toque'], Mentais: ['Antecipação', 'Compostura', 'Decisões', 'Movimentação', 'Trabalho de equipa', 'Visão', 'Determinação'], Físicos: ['Aceleração', 'Velocidade', 'Agilidade', 'Equilíbrio', 'Resistência', 'Força', 'Impulsão'] };
+  const val = (k) => Math.max(4, Math.min(20, Math.round((p.ovr - 30) / 3.4) + ((k * 7) % 7) - 3));
+  let k = 0;
+  const cel = (nome) => { const v = val(k++); const c = v >= 16 ? 'v20' : v >= 13 ? 'v15' : v >= 9 ? 'v10' : 'v5'; return `<span>${nome}</span><span class="v ${rival ? '' : c}">${rival ? `<span class="intervalo">${Math.max(1, v - 3)}–${Math.min(20, v + 3)}</span>` : v}</span>`; };
+  const papeis = (PAPEIS[p.pos] ?? []).concat(p.pos === 'PL' ? ['Avançado de área'] : []).map((r, i) => [r, Math.max(6, p.adq - i * 2 + (i === 0 ? 0 : 1))]);
+  return `
+  <div class="topo"><h1>Ficha do jogador</h1><div class="direita"><div class="seg" role="group" aria-label="Ver como"><button data-ver="proprio" class="${!rival ? 'on' : ''}">O meu clube (conhecimento total)</button><button data-ver="rival" class="${rival ? 'on' : ''}">Visto por um rival (41%)</button></div></div></div>
+  <div class="grelha">
+    <section class="c s12"><div class="jogador-topo">
+      <div class="dorsal">${p.n}</div>
+      <div style="min-width:0"><div class="num medio">${p.nome}</div><div class="muted" style="margin-top:4px">${p.pos} · ${p.papel} · ${p.idade} anos · ${p.pais} · pé direito</div></div>
+      <div style="margin-left:auto;display:flex;gap:28px;flex-wrap:wrap">
+        <div><div class="rot">OVR</div><div class="num grande">${rival ? `<span class="intervalo" style="font-size:24px">${p.ovr - 6}–${p.ovr + 5}</span>` : p.ovr}</div></div>
+        <div><div class="rot">Potencial</div><div class="estrelas" style="margin-top:8px">${rival ? estrelas(potE(p.pot - 9), potE(p.pot + 6)) : estrelas(potE(p.pot), potE(p.pot))}</div></div>
+        <div><div class="rot">Valor</div><div class="num medio" style="margin-top:6px">${rival ? '4–9 M€' : M(6.4e6)}</div></div>
+      </div></div>
+      ${rival ? '<div class="rot" style="margin-top:12px">Conhecimento 41% · relatório de 2 scouts · os atributos ocultos só aparecem a partir de 60%.</div>' : ''}
+    </section>
+    ${Object.entries(grupos).map(([g, at]) => `<section class="c s4"><h2>${g}</h2><div class="atrib">${at.map(cel).join('')}</div></section>`).join('')}
+    <section class="c s6"><h2>Adequação aos papéis (1–20)</h2><div class="papeis">${papeis.map(([r, v]) => `<div class="papel"><span>${r}</span><div class="barra"><i style="width:${v * 5}%"></i></div><b class="num" style="font-size:17px;text-align:right">${rival ? '?' : v}</b></div>`).join('')}</div></section>
+    <section class="c s3"><h2>Estado</h2>
+      <div class="linha-kv"><span class="muted">Moral</span><span>${p.moral}/20</span></div>
+      <div class="linha-kv"><span class="muted">Condição</span><span>${p.cond}%</span></div>
+      <div class="linha-kv"><span class="muted">Forma (5 jogos)</span><span>${p.forma.join(' ')}</span></div>
+      <div class="linha-kv"><span class="muted">Lesões</span><span>${p.lesao || 'nenhuma'}</span></div>
+      <div class="linha-kv"><span class="muted">Época</span><span>12 J · 7 G · 2 A</span></div>
+    </section>
+    <section class="c s3"><h2>Contrato</h2>
+      <div class="linha-kv"><span class="muted">Salário</span><span>${M(p.sal)}/ano</span></div>
+      <div class="linha-kv"><span class="muted">Fim</span><span>30 Jun ${p.fim}</span></div>
+      <div class="linha-kv"><span class="muted">Estatuto</span><span>Titular</span></div>
+      <div class="linha-kv"><span class="muted">Cláusula</span><span>${M(22e6)}</span></div>
+      <div class="linha-kv"><span class="muted">Formado no clube</span><span>Sim</span></div>
+    </section>
+  </div>`;
+}
+
+let mentalidade = 'Equilibrada';
+function tacticaEcra() {
+  const onze = [['GR', 50, 92], ['DD', 82, 74], ['DC', 62, 78], ['DC', 38, 78], ['DE', 18, 74], ['MDC', 50, 60], ['MC', 70, 46], ['MC', 30, 46], ['ED', 84, 24], ['PL', 50, 14], ['EE', 16, 24]];
+  const usados = new Set();
+  const pecas = onze.map(([pos, x, y]) => { const p = plantel.find((q) => q.pos === pos && !usados.has(q.n) && !q.lesao) ?? plantel.find((q) => !usados.has(q.n)); usados.add(p.n); return `<div class="peca" style="left:${x}%;top:${y}%"><b>${p.n}</b><span>${nomeCurto(p.nome)}</span><em>${p.papel}</em></div>`; }).join('');
+  return `
+  <div class="topo"><h1>Táctica</h1><span class="sub">Treinador: Hélder Quintela · perfil pressão alta</span><div class="direita"><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div></div>
+  <div class="grelha">
+    <section class="c s7"><h2>4-3-3 · onze provável</h2>
+      <div class="campo"><div class="lin" style="left:0;right:0;top:50%;height:0"></div><div class="lin" style="left:35%;width:30%;top:-2px;height:14%"></div><div class="lin" style="left:35%;width:30%;bottom:-2px;height:14%"></div><div class="lin" style="left:42%;width:16%;top:44%;height:12%;border-radius:50%"></div>${pecas}</div>
+    </section>
+    <section class="c s5"><h2>Instruções de equipa</h2>
+      <div class="instr">
+        <label>Mentalidade<div class="seg" role="group">${['Defensiva', 'Equilibrada', 'Ofensiva'].map((m) => `<button data-ment="${m}" class="${m === mentalidade ? 'on' : ''}">${m}</button>`).join('')}</div></label>
+        <label>Pressão<div class="barra"><i style="width:78%"></i></div></label>
+        <label>Linha defensiva<div class="barra"><i style="width:64%"></i></div></label>
+        <label>Ritmo<div class="barra"><i style="width:55%"></i></div></label>
+        <label>Largura<div class="barra"><i style="width:70%"></i></div></label>
+      </div>
+      <div class="rot" style="margin:16px 0 10px">Como Director de Futebol não escolhes o onze: o treinador decide. Podes sugerir; ele aceita, aceita em parte ou ignora, conforme a autoridade dele.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn">Sugerir titular</button><button class="btn">Sugerir mentalidade</button><button class="btn prim">Enviar sugestão</button></div>
+    </section>
+  </div>`;
+}
+
+let tabMercado = 'Pesquisa';
+function mercadoEcra() {
+  const rondas = [['3 Nov', 'Oferta de 5,0 M€ pelo Yusuf Taşsoy'], ['4 Nov', 'Kızılpınarspor recusa (pede 7,2 M€)'], ['6 Nov', 'Nova oferta: 6,1 M€ + 10% de venda futura'], ['7 Nov', 'Contra-proposta: 6,8 M€ — à espera da tua resposta']];
+  return `
+  <div class="topo"><h1>Mercado</h1><div class="direita"><div class="janela"><span class="num medio">48</span><span>dias para a janela de Janeiro abrir</span></div></div></div>
+  <div class="filtros"><div class="seg" role="group">${['Pesquisa', 'Shortlist (6)', 'Ofertas recebidas (1)', 'Ofertas feitas (2)', 'Empréstimos'].map((t) => `<button data-tabm="${t}" class="${t === tabMercado ? 'on' : ''}">${t}</button>`).join('')}</div></div>
+  <div class="filtros"><input type="search" placeholder="Pesquisar entre os jogadores conhecidos…" aria-label="Pesquisar jogadores"><select aria-label="Posição"><option>Todas as posições</option><option>Médios</option><option>Avançados</option></select><select aria-label="Idade"><option>Idade: todas</option><option>Até 23</option><option>24–29</option></select><select aria-label="Valor"><option>Valor até 10 M€</option><option>Sem limite</option></select></div>
+  <div class="grelha">
+    <section class="c s8"><h2>Jogadores conhecidos (o resto do mundo está no nevoeiro)</h2><div class="tab-wrap"><table>
+      <thead><tr><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th>Clube</th><th class="r">Conhec.</th><th>OVR estimado</th><th>Potencial</th><th class="r">Valor est.</th></tr></thead>
+      <tbody>${MERCADO.map(([n, p, i, c, l, k, o, pt, v]) => `<tr class="clic"><td><b>${n}</b></td><td>${p}</td><td class="r">${i}</td><td class="muted">${c} <span class="chip">${l}</span></td><td class="r"><span class="chip ${k >= 80 ? 'bom' : k >= 50 ? 'aviso' : 'mau'}">${k}%</span></td><td><span class="intervalo">${o[0]}–${o[1]}</span></td><td class="estrelas" style="font-size:13px">${estrelas(potE(pt[0]), potE(pt[1]))}</td><td class="r">${v.toFixed(1).replace('.', ',')} M€</td></tr>`).join('')}</tbody>
+    </table></div></section>
+    <section class="c s4"><h2>Negociação em curso</h2>
+      <div class="rot" style="margin-bottom:8px">Yusuf Taşsoy · Kızılpınarspor · pedido 7,2 M€</div>
+      ${rondas.map(([d, t]) => `<div class="ronda"><span class="muted">${d}</span><span>${t}</span></div>`).join('')}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn prim">Aceitar 6,8 M€</button><button class="btn">Contra-propor</button><button class="btn">Desistir</button></div>
+    </section>
+  </div>`;
+}
+
+function financasEcra() {
+  const rec = [['Bilheteira', 21.4], ['TV', 38.0], ['Patrocínios', 14.2], ['Merchandising', 6.1], ['Prémios', 9.8], ['Transferências', 12.5]];
+  const des = [['Salários', 31.2], ['Staff', 5.4], ['Transferências', 8.9], ['Infraestruturas', 4.1], ['Juros', 1.2], ['Outras', 3.6]];
+  const max = 40;
+  const bar = (l, v, cor) => `<div class="bf"><span class="muted">${l}</span><div class="t"><i style="width:${(v / max) * 100}%;background:${cor}"></i></div><span class="num" style="font-size:16px;text-align:right">${v.toFixed(1).replace('.', ',')} M€</span></div>`;
+  const orc = [['Salários', 31.2, 33.0], ['Transferências', 8.9, 18.4], ['Infraestruturas', 4.1, 6.0], ['Staff', 5.4, 5.5]];
+  return `
+  <div class="topo"><h1>Finanças</h1><span class="sub">Época 2026/27 até 14 Nov</span><div class="direita"><span class="chip bom"><span class="pt"></span>Saudável</span><span class="chip"><span class="pt"></span>Fair play: 61% do limite</span></div></div>
+  <div class="grelha">
+    <section class="c s3"><h2>Caixa</h2><div class="num grande">18,4 M€</div></section>
+    <section class="c s3"><h2>Dívida</h2><div class="num grande">12,0 M€</div><div class="rot">0,12× a receita · banco a 6,5%</div></section>
+    <section class="c s3"><h2>Receita prevista</h2><div class="num grande">102 M€</div></section>
+    <section class="c s3"><h2>Resultado previsto</h2><div class="num grande" style="color:var(--bom)">+4,8 M€</div></section>
+    <section class="c s6"><h2>Receitas por rubrica</h2><div class="barras-fin">${rec.map(([l, v]) => bar(l, v, 'var(--bom)')).join('')}</div></section>
+    <section class="c s6"><h2>Despesas por rubrica</h2><div class="barras-fin">${des.map(([l, v]) => bar(l, v, 'var(--mau)')).join('')}</div></section>
+    <section class="c s12"><h2>Orçamentos da época (definidos pelo dono)</h2><div class="grelha">${orc.map(([l, u, t]) => `<div class="s3" style="min-width:0"><div class="rot">${l}</div><div class="num medio" style="margin:6px 0">${u.toFixed(1).replace('.', ',')} / ${t.toFixed(1).replace('.', ',')} M€</div><div class="barra"><i style="width:${Math.min(100, (u / t) * 100)}%;${u / t > 0.9 ? 'background:var(--aviso)' : ''}"></i></div></div>`).join('')}</div></section>
+  </div>`;
+}
+
+function classificacaoEcra() {
+  return `
+  <div class="topo"><h1>Classificação</h1><span class="sub">Liga Portugal · Jornada 12 de 34</span><div class="direita"><select class="btn" aria-label="Liga"><option>Liga Portugal</option><option>Liga Portugal 2</option><option>Taça de Portugal</option><option>Liga dos Campeões</option></select></div></div>
+  <section class="c"><div class="tab-wrap"><table>
+    <thead><tr><th class="zona"></th><th class="r">#</th><th>Clube</th><th class="r">J</th><th class="r">V</th><th class="r">E</th><th class="r">D</th><th class="r">GM</th><th class="r">GS</th><th class="r">DG</th><th class="r">Pts</th><th>Forma</th></tr></thead>
+    <tbody>${tabela.map((t, i) => `<tr class="${t.nome === CLUBE.nome ? 'meu' : ''}"><td class="zona ${i < 2 ? 'ucl' : i < 5 ? 'uel' : i >= 15 ? 'desc' : ''}"></td><td class="r">${i + 1}</td><td><span style="display:inline-flex;align-items:center;gap:8px">${escudo(t.cores, 18)}<b>${t.nome}</b></span></td><td class="r">${t.j}</td><td class="r">${t.v}</td><td class="r">${t.e}</td><td class="r">${t.d}</td><td class="r">${t.gm}</td><td class="r">${t.gs}</td><td class="r">${t.gm - t.gs > 0 ? '+' : ''}${t.gm - t.gs}</td><td class="r"><b class="num" style="font-size:17px">${t.pts}</b></td><td><span class="forma">${t.forma.map((x) => `<i class="${x}">${x}</i>`).join('')}</span></td></tr>`).join('')}</tbody>
+  </table></div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px" class="rot"><span><span class="chip info"><span class="pt"></span></span> Liga dos Campeões</span><span><span class="chip aviso"><span class="pt"></span></span> Liga Europa / Conferência</span><span><span class="chip mau"><span class="pt"></span></span> Descida</span></div></section>`;
+}
+
+// ---------- navegação e acento ----------
+const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, tactica: tacticaEcra, mercado: mercadoEcra, financas: financasEcra, classificacao: classificacaoEcra };
+function rota() { const h = location.hash.replace('#', ''); return RENDER[h] ? h : 'inicio'; }
+function desenhar() {
+  const r = rota();
+  document.getElementById('nav-lista').innerHTML = ECRAS.map(([k, t]) => `<a class="nav ${k === r ? 'activo' : ''}" href="#${k}">${svg(k)}${t}</a>`).join('');
+  document.getElementById('inferior').innerHTML = ECRAS.filter(([k]) => k !== 'jogador').map(([k, t]) => `<a class="${k === r ? 'activo' : ''}" href="#${k}">${svg(k)}${t}</a>`).join('');
+  const m = document.getElementById('principal');
+  m.innerHTML = RENDER[r]() + `<div class="aviso-proto">Protótipo com dados fictícios do mundo gerado. Cor do clube (acento): <span class="cores">${[['#d63a3a', '#f1f1f1'], ['#2c63c9', '#ffffff'], ['#1d9a6c', '#ffffff'], ['#e2a33a', '#111111'], ['#7a3cc7', '#ffffff']].map((c) => `<button data-cor="${c[0]}" data-cor2="${c[1]}" style="background:${c[0]}" aria-label="Acento ${c[0]}"></button>`).join('')}</span></div>`;
+  ligar(m);
+}
+function ligar(m) {
+  m.querySelectorAll('[data-pos]').forEach((b) => b.addEventListener('click', () => { filtroPos = b.dataset.pos; desenhar(); }));
+  const f = m.querySelector('#f-pesq'); if (f) f.addEventListener('input', () => { pesquisa = f.value; const pos = f.selectionStart; desenhar(); const g = document.getElementById('f-pesq'); g.focus(); g.setSelectionRange(pos, pos); });
+  m.querySelectorAll('tr[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
+  m.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', () => { verComo = b.dataset.ver; desenhar(); }));
+  m.querySelectorAll('[data-ment]').forEach((b) => b.addEventListener('click', () => { mentalidade = b.dataset.ment; desenhar(); }));
+  m.querySelectorAll('[data-tabm]').forEach((b) => b.addEventListener('click', () => { tabMercado = b.dataset.tabm; desenhar(); }));
+  m.querySelectorAll('[data-cor]').forEach((b) => b.addEventListener('click', () => { CLUBE.cores = [b.dataset.cor, b.dataset.cor2]; CORES[3] = CLUBE.cores; tabela.forEach((t) => { if (t.nome === CLUBE.nome) t.cores = CLUBE.cores; }); acento(); desenhar(); }));
+}
+function acento() {
+  document.documentElement.style.setProperty('--acento', CLUBE.cores[0]);
+  document.documentElement.style.setProperty('--acento-2', CLUBE.cores[1]);
+  document.getElementById('escudo-marca').outerHTML = escudo(CLUBE.cores).replace('class="escudo"', 'class="escudo" id="escudo-marca"');
+}
+window.addEventListener('hashchange', desenhar);
+acento();
+desenhar();
+</script>
