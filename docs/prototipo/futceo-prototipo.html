@@ -149,12 +149,24 @@ td.r, th.r { text-align: right; }
 .modal-cab h3 { margin: 0; font-family: var(--f-num); font-size: 24px; font-weight: 600; flex: 1; }
 .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .cal .dsem { text-align: center; font-size: 11px; color: var(--fraco); text-transform: uppercase; padding: 4px 0; }
-.cal .dia { min-height: 64px; border-radius: 10px; background: var(--cartao-2); padding: 5px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; min-width: 0; }
+.cal .dia { min-height: 88px; border-radius: 10px; background: var(--cartao-2); padding: 5px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; min-width: 0; }
 .cal .dia.fora-mes { opacity: .3; }
 .cal .dia.hoje { outline: 2px solid var(--acento); }
 .cal .dia .n { font-weight: 600; }
 .cal .jogo { font-size: 10px; line-height: 1.2; border-radius: 5px; padding: 2px 4px; background: color-mix(in srgb, var(--acento) 30%, transparent); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cal .jogo i { font-style: normal; font-weight: 700; }
+.cal .dia { position: relative; }
+.cal .troca { position: absolute; top: 4px; right: 4px; width: 13px; height: 13px; color: var(--aviso); }
+.cal .partida { display: grid; grid-template-columns: 16px 1fr; gap: 4px; align-items: start; border-radius: 6px; padding: 3px 4px; background: var(--cartao); border-left: 3px solid var(--cor-comp); }
+.cal .partida .ci { width: 16px; height: 16px; border-radius: 4px; background: var(--cor-comp); display: grid; place-items: center; color: #0b0d10; }
+.cal .partida .ci svg { width: 11px; height: 11px; }
+.cal .partida .adv { font-size: 11px; font-weight: 600; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 3; word-break: break-word; -webkit-box-orient: vertical; overflow: hidden; }
+.cal .partida .cf { font-size: 9px; color: var(--suave); text-transform: uppercase; letter-spacing: .4px; }
+.cal .pausa { font-size: 10px; border-radius: 5px; padding: 2px 4px; background: color-mix(in srgb, var(--aviso) 28%, transparent); color: var(--texto); }
+.legenda { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px; font-size: 12px; color: var(--suave); }
+.legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.legenda .ci { width: 16px; height: 16px; border-radius: 4px; display: grid; place-items: center; color: #0b0d10; }
+.legenda .ci svg { width: 11px; height: 11px; }
 .cal .jogo.taca { background: color-mix(in srgb, var(--info) 35%, transparent); }
 .cal .jogo.janela { background: color-mix(in srgb, var(--aviso) 30%, transparent); }
 .msg { display: grid; grid-template-columns: 10px 1fr auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--linha); align-items: start; }
@@ -170,6 +182,8 @@ td.r, th.r { text-align: right; }
 .prof .lin-j .nm { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prof .lin-j .det { font-size: 10px; color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prof .lin-j.lesionado .nm { color: var(--mau); }
+.prof .lin-j.titular { background: color-mix(in srgb, var(--acento) 14%, transparent); border-radius: 6px; }
+.prof .lin-j:not(.titular) .nm { font-weight: 500; color: var(--suave); }
 @media (max-width: 760px) { .prof { aspect-ratio: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; } .prof .caixa { position: static; transform: none; width: auto; } .cal .dia { min-height: 52px; } .cal .jogo { font-size: 9px; } }
 .painel-cab { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
 .painel-cab .ic { width: 38px; height: 38px; border-radius: 10px; background: var(--cartao-2); display: grid; place-items: center; color: var(--acento); }
@@ -224,6 +238,9 @@ const ICON = {
   seta: '<path d="M9 6l6 6-6 6"/>',
   troca: '<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
   livre: '<circle cx="10" cy="8" r="3.5"/><path d="M4 20c0-3.3 2.7-6 6-6 1.6 0 3 .6 4.1 1.6M17 14v6M14 17h6"/>',
+  liga: '<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/>',
+  taca: '<path d="M7 3h10v4a5 5 0 0 1-10 0z"/><path d="M12 12v5M8 21h8M9 17h6"/>',
+  cont: '<path d="M12 2l2.9 6.2 6.6.6-5 4.5 1.5 6.6L12 16.6 6 19.9l1.5-6.6-5-4.5 6.6-.6z"/>',
   mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
 };
 const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições']];
@@ -276,9 +293,13 @@ const JOGOS = new Map();
 { const adv = LIGA_ADV(); let d = new Date(Date.UTC(2026, 7, 8)); let k = 0;
   while (d < Date.UTC(2027, 5, 1)) { JOGOS.set(chave(d), { tipo: 'liga', adv: adv[k % adv.length], casa: k % 2 === 0, comp: 'Liga Portugal' }); k++; d = new Date(d.getTime() + 7 * 864e5); }
   for (const [y, m, dd, a, c] of [[2026, 9, 21, 'Juventude de Arouca', 'Taça de Portugal'], [2026, 10, 25, 'GD Penafiel Velho', 'Taça de Portugal'], [2027, 0, 13, 'SC Ribeira Brava', 'Taça de Portugal']]) JOGOS.set(chave(new Date(Date.UTC(y, m, dd))), { tipo: 'taca', adv: a, casa: true, comp: c });
+  const cont = [['Brackcombe Town', ['#5a2d82', '#fff']], ['SV Mühlwangen', ['#111', '#e2a33a']], ['Asteras Oristathmos', ['#1d3b6b', '#fff']], ['Fontemarino Calcio', ['#1b4fa0', '#fff']]];
+  [[2026, 8, 17], [2026, 9, 1], [2026, 9, 22], [2026, 10, 5], [2026, 10, 26], [2026, 11, 10]].forEach(([y, m, dd], k) => JOGOS.set(chave(new Date(Date.UTC(y, m, dd))), { tipo: 'cont', adv: cont[k % 4][0], cores: cont[k % 4][1], casa: k % 2 === 1, comp: 'Liga Europa · fase de liga' }));
 }
 function LIGA_ADV() { return ['Real Montalvo', 'CF Alvarenga', 'Sporting de Vale Formoso', 'Desportivo das Lezírias', 'União de Rio Maior', 'Académico de Penedono', 'Vitória de Castro Marim', 'FC Barca de Marvila', 'Clube Naval da Foz', 'Estrela de Valongo', 'Juventude de Arouca', 'Boavista do Mondego', 'SC Ribeira Brava', 'Os Lusitanos de Ourém', 'Marítimo da Amieira', 'GD Penafiel Velho', 'Recreativo de Tondela']; }
-const EVENTOS = new Map([['2027-01-01', 'Abre a janela de Janeiro'], ['2027-01-31', 'Fecha a janela'], ['2026-11-16', 'Pausa internacional'], ['2026-12-25', 'Natal']]);
+const EVENTOS = new Map([['2026-11-16', 'Pausa internacional'], ['2026-11-17', 'Pausa internacional'], ['2026-11-18', 'Pausa internacional'], ['2027-03-22', 'Pausa internacional']]);
+const emJanela = (d) => { const m = d.getUTCMonth(); return m === 0 || m === 6 || m === 7; };
+const COR_COMP = { liga: 'var(--mau)', taca: 'var(--bom)', cont: 'var(--info)' };
 const MENSAGENS = [
   { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
   { de: 'Presidente (dono)', assunto: 'Objectivos de Janeiro', txt: 'Quero um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
@@ -339,21 +360,12 @@ function listaJuniores(lista, esc) {
     return `<tr><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="estrelas" style="font-size:13px">${estrelas(potE(p.pot), potE(p.pot))}</td><td class="r" style="color:${p.evol > 0 ? 'var(--bom)' : 'var(--suave)'}">${p.evol > 0 ? '+' : ''}${p.evol}</td><td><span class="chip ${c.startsWith('Promover') ? 'bom' : c === 'Libertar' ? 'mau' : ''}">${c}</span></td><td class="r" style="display:flex;gap:6px;justify-content:flex-end">${esc === 'sub21' ? `<button class="btn" data-mover="sub21:${i}:principal">↑ Principal</button><button class="btn" data-mover="sub21:${i}:sub18">↓ Sub-18</button>` : `<button class="btn" data-mover="sub18:${i}:sub21">↑ Sub-21</button>`}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function plantelEcra() {
-  const tabs = ['Equipa principal', 'Profundidade', 'Táctica', `Sub-21 (${sub21.length})`, `Sub-18 (${sub18.length})`];
+  const tabs = ['Equipa principal', 'Táctica', `Sub-21 (${sub21.length})`, `Sub-18 (${sub18.length})`];
   const cab = `<div class="topo"><h1>Plantel</h1><span class="sub">${plantel.length} na equipa principal · ${sub21.length} no sub-21 · ${sub18.length} no sub-18</span></div><div class="filtros"><div class="seg" role="group">${tabs.map((t) => `<button data-tabp="${t.split(' (')[0]}" class="${t.startsWith(tabPlantel) ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
   if (tabPlantel === 'Táctica') return cab + tacticaConteudo();
-  if (tabPlantel === 'Profundidade') return cab + profundidade();
   if (tabPlantel === 'Sub-21') return cab + `<section class="c"><h2>Sub-21 · 19 a 21 anos · máximo 18</h2>${listaJuniores(sub21, 'sub21')}</section>`;
   if (tabPlantel === 'Sub-18') return cab + `<section class="c"><h2>Sub-18 · 15 a 18 anos · máximo 18</h2>${listaJuniores(sub18, 'sub18')}</section>`;
   return cab + plantelPrincipal();
-}
-function profundidade() {
-  const slots = [['PL', 'Ponta de lança', 50, 9], ['EE', 'Extremo esquerdo', 17, 21], ['ED', 'Extremo direito', 83, 21], ['MO', 'Médio ofensivo', 50, 27], ['MC', 'Médio centro', 50, 44], ['MDC', 'Médio defensivo', 50, 61], ['DE', 'Lateral esquerdo', 16, 62], ['DD', 'Lateral direito', 84, 62], ['DC', 'Defesa central', 50, 77], ['GR', 'Guarda-redes', 50, 92]];
-  const valor = (p) => Math.max(0.3, Math.round(((p.ovr - 45) ** 2 * 0.012 + (p.idade < 23 ? 2 : 0)) * 10) / 10);
-  return `<section class="c"><h2>Profundidade do plantel · por posição, do titular para o suplente</h2><div class="prof">${slots.map(([pos, nome, x, y]) => {
-    const js = plantel.filter((p) => p.pos === pos).sort((a, b) => b.ovr - a.ovr);
-    return `<div class="caixa" style="left:${x}%;top:${y}%"><div class="pos">${nome.toUpperCase()} · ${js.length}</div>${js.map((p) => `<div class="lin-j ${p.lesao ? 'lesionado' : ''}" data-j="${p.n}"><b>${p.n}</b><div><div class="nm">${nomeCurto(p.nome)} '${String(2026 - p.idade).slice(2)}</div><div class="det">OVR ${p.ovr} · ${valor(p).toFixed(1).replace('.', ',')} M€${p.lesao ? ' · lesionado' : ''}</div></div></div>`).join('') || '<div class="det muted" style="padding:4px">— sem jogador —</div>'}</div>`;
-  }).join('')}</div></section>`;
 }
 function plantelPrincipal() {
   const grupos = { Todos: () => true, GR: (p) => p.pos === 'GR', Defesas: (p) => ['DC', 'DD', 'DE'].includes(p.pos), Médios: (p) => ['MDC', 'MC', 'MO'].includes(p.pos), Avançados: (p) => ['ED', 'EE', 'PL'].includes(p.pos) };
@@ -407,18 +419,29 @@ function jogadorEcra() {
   </div>`;
 }
 
-let mentalidade = 'Equilibrada';
+let mentalidade = 'Equilibrada', formacao = '4-3-3';
+const FORMACOES = {
+  '4-3-3': [['PL', 50, 10, ['PL']], ['EE', 17, 22, ['EE', 'ED']], ['ED', 83, 22, ['ED', 'EE']], ['MC', 30, 42, ['MC', 'MO']], ['MC', 70, 42, ['MC', 'MO']], ['MDC', 50, 58, ['MDC', 'MC']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
+  '4-2-3-1': [['PL', 50, 10, ['PL']], ['EE', 16, 26, ['EE', 'ED']], ['MO', 50, 28, ['MO', 'MC']], ['ED', 84, 26, ['ED', 'EE']], ['MDC', 32, 50, ['MDC', 'MC']], ['MDC', 68, 50, ['MDC', 'MC']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
+  '4-4-2': [['PL', 32, 11, ['PL']], ['PL', 68, 11, ['PL', 'MO']], ['EE', 13, 38, ['EE', 'ED']], ['MC', 37, 44, ['MC', 'MDC', 'MO']], ['MC', 63, 44, ['MC', 'MDC', 'MO']], ['ED', 87, 38, ['ED', 'EE']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
+};
+const NOME_POS = { GR: 'Guarda-redes', DD: 'Lateral direito', DE: 'Lateral esquerdo', DC: 'Defesa central', MDC: 'Médio defensivo', MC: 'Médio centro', MO: 'Médio ofensivo', ED: 'Extremo direito', EE: 'Extremo esquerdo', PL: 'Ponta de lança' };
 function tacticaConteudo() {
-  const onze = [['GR', 50, 92], ['DD', 82, 74], ['DC', 62, 78], ['DC', 38, 78], ['DE', 18, 74], ['MDC', 50, 60], ['MC', 70, 46], ['MC', 30, 46], ['ED', 84, 24], ['PL', 50, 14], ['EE', 16, 24]];
-  const usados = new Set();
-  const pecas = onze.map(([pos, x, y]) => { const p = plantel.find((q) => q.pos === pos && !usados.has(q.n) && !q.lesao) ?? plantel.find((q) => !usados.has(q.n)); usados.add(p.n); return `<div class="peca" style="left:${x}%;top:${y}%"><b>${p.n}</b><span>${nomeCurto(p.nome)}</span><em>${p.papel}</em></div>`; }).join('');
+  const slots = FORMACOES[formacao];
+  // Cada posição: titular + suplentes. Posições repetidas (2 DC, 2 MC) repartem os jogadores alternadamente.
+  const usados = new Set(), caixas = slots.map(() => []);
+  for (let rodada = 0; rodada < 4; rodada++) slots.forEach(([pos, , , pool], k) => {
+    const cand = plantel.filter((p) => !usados.has(p.n) && !(rodada === 0 && (p.lesao || p.susp)) && pool.includes(p.pos)).sort((a, b) => (b.pos === pos) - (a.pos === pos) || b.ovr - a.ovr)[0];
+    if (cand && (rodada === 0 || cand.pos === pos || caixas[k].length < 2)) { usados.add(cand.n); caixas[k].push(cand); }
+  });
+  const valor = (p) => Math.max(0.3, Math.round(((p.ovr - 45) ** 2 * 0.012 + (p.idade < 23 ? 2 : 0)) * 10) / 10);
+  const fora = plantel.filter((p) => !usados.has(p.n));
   return `
-  <div class="filtros"><span class="sub muted">Treinador: Hélder Quintela · perfil pressão alta</span><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div>
+  <div class="filtros"><div class="seg" role="group" aria-label="Formação">${Object.keys(FORMACOES).map((f) => `<button data-form="${f}" class="${f === formacao ? 'on' : ''}">${f}</button>`).join('')}</div><span class="muted">Treinador: Hélder Quintela · perfil pressão alta</span><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div>
   <div class="grelha">
-    <section class="c s7"><h2>4-3-3 · onze provável</h2>
-      <div class="campo"><div class="lin" style="left:0;right:0;top:50%;height:0"></div><div class="lin" style="left:35%;width:30%;top:-2px;height:14%"></div><div class="lin" style="left:35%;width:30%;bottom:-2px;height:14%"></div><div class="lin" style="left:42%;width:16%;top:44%;height:12%;border-radius:50%"></div>${pecas}</div>
-    </section>
-    <section class="c s5"><h2>Instruções de equipa</h2>
+    <section class="c s8"><h2>Onze e profundidade · titular em cima, suplentes por baixo</h2><div class="prof">${slots.map(([pos, x, y], k) => `<div class="caixa" style="left:${x}%;top:${y}%"><div class="pos">${NOME_POS[pos].toUpperCase()}</div>${caixas[k].map((p, i) => `<div class="lin-j ${i === 0 ? 'titular' : ''} ${p.lesao ? 'lesionado' : ''}" data-j="${p.n}"><b>${p.n}</b><div><div class="nm">${nomeCurto(p.nome)} '${String(2026 - p.idade).slice(2)}${p.pos !== pos ? ` <span class="muted">(${p.pos})</span>` : ''}</div><div class="det">OVR ${p.ovr} · ${valor(p).toFixed(1).replace('.', ',')} M€ · ${p.papel}${p.lesao ? ' · lesionado' : ''}</div></div></div>`).join('') || '<div class="det muted" style="padding:4px">— sem jogador —</div>'}</div>`).join('')}</div>
+    ${fora.length ? `<div class="rot" style="margin-top:10px">Fora das escolhas: ${fora.map((p) => `${nomeCurto(p.nome)} (${p.pos}${p.lesao ? ', lesionado' : ''})`).join(', ')}</div>` : ''}</section>
+    <section class="c s4"><h2>Instruções de equipa</h2>
       <div class="instr">
         <label>Mentalidade<div class="seg" role="group">${['Defensiva', 'Equilibrada', 'Ofensiva'].map((m) => `<button data-ment="${m}" class="${m === mentalidade ? 'on' : ''}">${m}</button>`).join('')}</div></label>
         <label>Pressão<div class="barra"><i style="width:78%"></i></div></label>
@@ -427,7 +450,7 @@ function tacticaConteudo() {
         <label>Largura<div class="barra"><i style="width:70%"></i></div></label>
       </div>
       <div class="rot" style="margin:16px 0 10px">Como Director de Futebol não escolhes o onze: o treinador decide. Podes sugerir; ele aceita, aceita em parte ou ignora, conforme a autoridade dele.</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn">Sugerir titular</button><button class="btn">Sugerir mentalidade</button><button class="btn prim">Enviar sugestão</button></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn">Sugerir titular</button><button class="btn">Sugerir formação</button><button class="btn prim">Enviar sugestão</button></div>
     </section>
   </div>`;
 }
@@ -618,10 +641,12 @@ function desenharModal() {
     const ini = new Date(base.getTime() - (((base.getUTCDay() + 6) % 7) * 864e5));
     let cel = '';
     for (let k = 0; k < 42; k++) { const d = new Date(ini.getTime() + k * 864e5); const j = JOGOS.get(chave(d)); const ev = EVENTOS.get(chave(d));
-      cel += `<div class="dia ${d.getUTCMonth() !== base.getUTCMonth() ? 'fora-mes' : ''} ${chave(d) === chave(hoje) ? 'hoje' : ''}"><span class="n">${d.getUTCDate()}</span>${j ? `<span class="jogo ${j.tipo}" title="${j.comp}: ${j.casa ? 'em casa' : 'fora'} com ${j.adv}"><i>${j.casa ? 'C' : 'F'}</i> VS ${j.adv}</span>` : ''}${ev ? `<span class="jogo janela">${ev}</span>` : ''}</div>`; }
-    el.innerHTML = `<div class="modal" role="dialog" aria-label="Calendário" style="width:min(760px,100%)"><div class="modal-cab"><button class="icone-btn" id="cal-ant" aria-label="Mês anterior" style="transform:scaleX(-1)">${svg('seta')}</button><h3>${MESES[base.getUTCMonth()]} ${base.getUTCFullYear()}</h3><button class="icone-btn" id="cal-seg" aria-label="Mês seguinte">${svg('seta')}</button><button class="btn" id="fechar">Fechar</button></div>
+      const cores = j ? j.cores ?? CORES[LIGA.indexOf(j.adv)] ?? ['#555', '#fff'] : null;
+      cel += `<div class="dia ${d.getUTCMonth() !== base.getUTCMonth() ? 'fora-mes' : ''} ${chave(d) === chave(hoje) ? 'hoje' : ''}" ${emJanela(d) ? 'title="Janela de transferências aberta"' : ''}><span class="n">${d.getUTCDate()}</span>${emJanela(d) ? `<svg class="troca" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-label="janela aberta"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>` : ''}${j ? `<div class="partida" style="--cor-comp:${COR_COMP[j.tipo]}" title="${j.comp}: ${j.casa ? 'em casa' : 'fora'} contra ${j.adv}"><span class="ci">${svg(j.tipo)}</span><div><div class="cf">${j.casa ? 'Casa' : 'Fora'} · vs</div><div class="adv">${escudo(cores, 10).replace('class="escudo"', 'class="escudo" style="width:10px;height:11px;vertical-align:-1px;margin-right:3px"')}${j.adv}</div></div></div>` : ''}${ev ? `<span class="pausa">${ev}</span>` : ''}</div>`; }
+    el.innerHTML = `<div class="modal" role="dialog" aria-label="Calendário" style="width:min(960px,100%)"><div class="modal-cab"><button class="icone-btn" id="cal-ant" aria-label="Mês anterior" style="transform:scaleX(-1)">${svg('seta')}</button><h3>${MESES[base.getUTCMonth()]} ${base.getUTCFullYear()}</h3><button class="icone-btn" id="cal-seg" aria-label="Mês seguinte">${svg('seta')}</button><button class="btn" id="fechar">Fechar</button></div>
       <div class="cal">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((x) => `<div class="dsem">${x}</div>`).join('')}${cel}</div>
-      <div class="rot" style="margin-top:10px">Hoje: ${fmtData(hoje)} · C = em casa, F = fora · a vermelho a liga, a azul a taça, a amarelo janelas e pausas.</div></div>`;
+      <div class="legenda"><span><i class="ci" style="background:var(--mau)">${svg('liga')}</i>Liga</span><span><i class="ci" style="background:var(--bom)">${svg('taca')}</i>Taça</span><span><i class="ci" style="background:var(--info)">${svg('cont')}</i>Competição continental</span><span><i class="ci" style="background:var(--aviso)"></i>Pausas</span><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--aviso)" stroke-width="2.4" stroke-linecap="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>Janela de transferências aberta</span></div>
+      <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
     el.innerHTML = `<div class="modal" role="dialog" aria-label="Mensagens"><div class="modal-cab"><h3>Mensagens</h3><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}</span></div>`).join('')}</div>`;
   }
@@ -642,6 +667,7 @@ function ligar(m) {
   m.querySelectorAll('.lin-j[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
   m.querySelectorAll('tr[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
   m.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', () => { verComo = b.dataset.ver; desenhar(); }));
+  m.querySelectorAll('[data-form]').forEach((b) => b.addEventListener('click', () => { formacao = b.dataset.form; desenhar(); }));
   m.querySelectorAll('[data-ment]').forEach((b) => b.addEventListener('click', () => { mentalidade = b.dataset.ment; desenhar(); }));
   m.querySelector('#ver-cal')?.addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
   m.querySelectorAll('[data-tabp]').forEach((b) => b.addEventListener('click', () => { tabPlantel = b.dataset.tabp; desenhar(); }));
