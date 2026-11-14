@@ -391,6 +391,11 @@ export class Academia {
         else this.libertar(j, dia);
       }
     }
+    // Arquétipo acima do tamanho: quem usa pouco a academia vende os formados da casa que não são titulares.
+    if (w.mercado && this.usoAcademia(c) < PR.vender_formados_uso) {
+      const pl = w.plantel[c].filter((j) => st.clube[j] === c).sort((a, b) => st.ovrNat(b) - st.ovrNat(a));
+      for (const [i, j] of pl.entries()) if (i >= PR.vender_formados_ordem && w.mercado.contratos.formadoClube[j] === c && idade(j) <= PR.vender_formados_idade && !w.mercado.contratos.listado[j]) w.mercado.contratos.listado[j] = 1;
+    }
     // Grupos de posições abaixo do mínimo: sobe o melhor júnior (17+) desse grupo.
     const grupo = (j: number) => GRUPO[POSICOES[st.posNat[j]]];
     const porG: Record<string, number> = { GR: 0, DEF: 0, MED: 0, AVA: 0 };

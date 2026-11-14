@@ -38,7 +38,7 @@ export const INTAKE = {
    *  o intake dos seus clubes tem potencial − ganho × d (d limitado a ±maximo). Mantém a qualidade das ligas em décadas. */
   ancora: { ganho: 3, maximo: 8 },
   /** uso: o uso da academia do arquétipo (formador 0,9 … comprador de estrelas 0,2): os formadores investem na prospecção de jovens. */
-  pesos: { reputacao: 3, academia: 3, coordenador: 2, recrutamento: 1, pais: 3, uso: 3 },
+  pesos: { reputacao: 3, academia: 3, coordenador: 2, recrutamento: 1, pais: 3, uso: 7 },
   desvio: 7,
   /** Volume: mínimo + (máximo − mínimo) × (dimensão do país × a + academia/10 × b + reputação/100 × c). */
   volume: { dimensao: 0.4, academia: 0.3, reputacao: 0.3 },
@@ -69,7 +69,11 @@ export const PROMOCAO = {
   margem_promocao: 1,
   /** Mínimos absolutos por grupo de posições: abaixo disto sobe o melhor júnior (17+) do grupo (o resto é com o mercado). */
   minimos_posicao: { GR: 2, DEF: 6, MED: 6, AVA: 4 } as Record<string, number>,
-  margem_por_academia: 10,
+  margem_por_academia: 14,
+  /** Clubes com pouco uso da academia (comprador de estrelas, magnata): os formados da casa até aos 23 fora dos 14 melhores são postos à venda. */
+  vender_formados_uso: 0.4,
+  vender_formados_ordem: 14,
+  vender_formados_idade: 23,
   /** Fora da curva: um sub-18 sobe ao sub-21 se o potencial ≥ este percentil do sub-18 ... */
   fora_da_curva_percentil: 0.9,
   /** ... e OVR ≥ este percentil do sub-21 (só com menos de 18 anos). */
