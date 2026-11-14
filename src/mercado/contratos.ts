@@ -35,6 +35,8 @@ export class Contratos {
   emprestimo = new Map<number, Emprestimo>();
   /** Preço pago na última transferência (para a % de venda futura sobre o lucro). */
   custo = new Map<number, number>();
+  /** Último salário de quem está livre (referência do que aceita; desce com os meses sem clube). */
+  salarioAnterior = new Map<number, number>();
 
   garantir(n: number) {
     if (n <= this.cap) return;
@@ -58,6 +60,6 @@ export class Contratos {
   bytes(): number {
     let s = 0;
     for (const v of Object.values(this)) if (ArrayBuffer.isView(v)) s += (v as Uint8Array).byteLength;
-    return s + (this.recompra.size + this.vendaFutura.size + this.emprestimo.size + this.custo.size) * 48;
+    return s + (this.recompra.size + this.vendaFutura.size + this.emprestimo.size + this.custo.size + this.salarioAnterior.size) * 48;
   }
 }

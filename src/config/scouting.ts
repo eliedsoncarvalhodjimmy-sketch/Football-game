@@ -42,6 +42,8 @@ export const SCOUTS = {
   vies_desvio: 2,
   /** Ligas a cobrir por scout (reatribuídas no início de cada época e em Janeiro). */
   ligas_por_scout: 1,
+  /** Fracção das observações dos scouts dedicada aos juniores dos clubes observados (Bloco C). */
+  juniores: 0.2,
 };
 
 /** Atracção dos jogadores: os mais velhos pesam mais o salário e menos o prestígio (fluxos emergentes: veteranos para ligas que pagam bem). */

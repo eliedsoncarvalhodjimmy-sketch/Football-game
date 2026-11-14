@@ -17,7 +17,9 @@ const fims = new Map<number, number>();
 beforeAll(async () => {
   w = await mundo();
   const st = w.jogadores!;
-  for (let j = 0; j < st.n; j++) if (st.clube[j] >= 0 && w.liga[st.clube[j]] >= 0) fims.set(j, st.fimContrato[j]);
+  // Só a equipa principal (os juniores da academia, Prompt 4 Bloco C, não têm contrato profissional).
+  const principal = new Set(w.plantel.flat());
+  for (let j = 0; j < st.n; j++) if (st.clube[j] >= 0 && w.liga[st.clube[j]] >= 0 && principal.has(j)) fims.set(j, st.fimContrato[j]);
   livresAntes = w.economia!.livres.length;
   sim = new Simulador(w);
   sim.simularEpoca();

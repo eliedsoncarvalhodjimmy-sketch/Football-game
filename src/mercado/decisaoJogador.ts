@@ -21,7 +21,11 @@ export function pontuarProposta(w: World, m: Mercado, j: number, p: PropostaJoga
   const rep = (c: number) => (c >= 0 ? w.reputacao[c] : 0);
   const fd = (c: number) => (c >= 0 && w.liga[c] >= 0 ? w.ligas[w.liga[c]].regras.forca_desportiva : 0);
   const europa = (c: number) => (c >= 0 && w.liga[c] >= 0 && w.ligas[w.liga[c]].regras.nivel === 1 && rep(c) >= 70 ? 1 : 0);
-  const salAct = Math.max(1, actual >= 0 ? st.salario[j] : 0.5 * p.salario);
+  // Livre: compara com o último salário, que desce com os meses sem clube (até ao mínimo); sem histórico, metade da oferta.
+  const ant = actual < 0 ? m.contratos.salarioAnterior.get(j) : undefined;
+  const meses = actual < 0 ? Math.max(0, dia - m.contratos.livreDesde[j]) / 30 : 0;
+  const salLivre = ant ? ant * Math.max(CONTRATO.livre_minimo, 1 - CONTRATO.livre_desconto_mes * meses) : 0.5 * p.salario;
+  const salAct = Math.max(1, actual >= 0 ? st.salario[j] : salLivre);
   // Os mais velhos pesam mais o salário e menos o prestígio.
   const da = st.idade(j, dia) - IDADE_DECISAO.referencia;
   const fSal = Math.max(0.5, 1 + IDADE_DECISAO.salario_por_ano * da), fPre = Math.max(0.2, 1 - IDADE_DECISAO.prestigio_por_ano * da);

@@ -237,7 +237,11 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
     if (w.mercado) w.mercado.fimDeContratos(t, dia);
     else w.economia?.renovarContratos(t, dia);
     const rngJ = Rng.de(w.semente, 'renovacao', grupo, ep);
-    for (const li of t.pacotes.flatMap((p) => p.ligas)) for (const c of w.ligas[li].clubes) renovarPlantel(w, w.jogadores, c, dia, rngJ, ep);
+    for (const li of t.pacotes.flatMap((p) => p.ligas)) for (const c of w.ligas[li].clubes) {
+      renovarPlantel(w, w.jogadores, c, dia, rngJ, ep, !w.academia);
+      w.academia?.fimDeEpoca(c, dia);
+    }
+    w.academia?.limparExterior(dia);
   }
 
   // 7. Nova época deste calendário.

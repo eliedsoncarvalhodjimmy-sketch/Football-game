@@ -61,17 +61,23 @@ export class Simulador {
     const st = this.w.jogadores;
     if (st) {
       for (let d = this.segunda; d < this.segunda + 7; d++) {
+        // Juniores (Bloco C): evoluem a meio do mês, numa semana mais leve do que a do dia 1.
+        const ac0 = this.w.academia;
+        if (ac0 && new Date(d * 86400000).getUTCDate() === 15) {
+          evoluirMes(this.w, st, d, { parteMinutos: (i) => ac0.minutos(i), desenvolvimentoTreinador: (c) => ac0.desenvolvimento(c) + (this.w.economia?.bonusTreino(c) ?? 0) }, (i) => ac0.escalao[i] !== 0);
+        }
         if (new Date(d * 86400000).getUTCDate() === 1) {
           const m = this.w.motor;
           const comMinutos = m && MOTOR.modo_forca === 'onze';
-          evoluirMes(this.w, st, d, {
-            parteMinutos: comMinutos ? (i) => Math.min(1, st.minMes[i] / EVOLUCAO.minutos_mes_referencia) : parteMinutosPorOrdem(this.w, st),
-            desenvolvimentoTreinador: m ? (c, j) => (m.treinadores[c]?.atributos.desenvolvimento ?? 10) + (this.w.economia?.bonusTreino(c) ?? 0) + (j !== undefined && st.posNat[j] === 0 && this.w.economia?.staff.porClube[c] ? this.w.economia.staff.bonusGR(c) : 0) : () => 10,
-          });
+          const ac = this.w.academia;
+          const pm = comMinutos ? (i: number) => Math.min(1, st.minMes[i] / EVOLUCAO.minutos_mes_referencia) : parteMinutosPorOrdem(this.w, st);
+          const dev = m ? (c: number, j?: number) => (m.treinadores[c]?.atributos.desenvolvimento ?? 10) + (this.w.economia?.bonusTreino(c) ?? 0) + (j !== undefined && st.posNat[j] === 0 && this.w.economia?.staff.porClube[c] ? this.w.economia.staff.bonusGR(c) : 0) : () => 10;
+          evoluirMes(this.w, st, d, { parteMinutos: pm, desenvolvimentoTreinador: dev }, ac ? (i) => ac.escalao[i] === 0 : undefined);
           st.minMes.fill(0);
           m?.cache.limpar();
           this.w.economia?.mes(d);
           this.w.mercado?.mes(d);
+          this.w.academia?.mes(d);
         }
       }
     }

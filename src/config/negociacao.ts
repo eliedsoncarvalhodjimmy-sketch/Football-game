@@ -40,7 +40,26 @@ export const IA_MERCADO = {
   /** Venda: listar excedentes (posição acima do mínimo + x) e descontentes. */
   excedente: 1,
   /** Renovações: oferece renovação no último ano aos N melhores do plantel e a jovens de potencial. */
-  renovar_melhores: 16,
+  renovar_melhores: 21,
+  /** Renovação: tendência a ficar quando o clube oferece o salário pedido (somada à ligação e ao salário). */
+  renovacao_ficar: 1.0,
+  /** Sem folga no orçamento salarial, renova-se na mesma se o pedido não passar de x × o salário actual. */
+  renovacao_aumento_sem_folga: 1.15,
+  /** A oferta de renovação é pelo menos x × o salário actual. */
+  renovacao_minimo_actual: 0.95,
+  /** Peso do descontentamento na renovação: − descontentamento / x. */
+  renovacao_descontentamento: 120,
+  /** Livres: quantos se avaliam por tentativa (amostra) e quantos dias sem clube até deixarem o futebol. */
+  amostra_livres: 30,
+  /** Plantel curto sem necessidade de posição: só livres a menos de x pontos do 11.º melhor (senão compra-se). */
+  livre_curto_margem: 5,
+  /** Necessidade de posição: livres até x pontos abaixo do 11.º melhor. */
+  livre_falta_margem: 8,
+  /** Preferência por um livre face a uma compra equivalente (pontos de OVR estimado). */
+  livre_bonus: 1.5,
+  /** Um livre não entra acima do 11.º melhor + x (os livres não são reforços de borla). */
+  livre_acima: 1,
+  livre_dias_maximo: 400,
   /** Orçamento da janela: fracção da receita × (0,5 + ambição), mais as vendas, até ao tecto (fracção da receita). */
   orcamento_receita: 0.12,
   /** Clubes com reputação < 60: probabilidade de pedir um empréstimo em cada tentativa. */

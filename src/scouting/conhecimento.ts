@@ -256,6 +256,8 @@ export class Scouting {
         for (let o = 0; o < obs; o++) {
           const alvo = L.clubes[rng.int(0, L.clubes.length - 1)];
           // Metade das observações nos titulares prováveis, metade no plantel inteiro (jovens incluídos).
+          // Uma parte das observações vai aos juniores (sub-21, sub-18, academia).
+          if (w.academia && rng.chance(S.juniores)) { const jj = w.academia.jovemAleatorio(alvo, rng); if (jj >= 0) this.conhecer(c, jj, (S.ganho_base + S.ganho_por_nivel * sc.nivel) * (0.5 + 0.7 * fam) * (1 + S.chefe * chefe), segunda); continue; }
           const t = rng.chance(0.5) ? this.topo[alvo] ?? [] : (w.plantel[alvo] ?? []);
           if (!t.length) continue;
           const j = t[rng.int(0, t.length - 1)];

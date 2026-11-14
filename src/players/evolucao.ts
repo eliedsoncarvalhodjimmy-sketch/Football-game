@@ -73,10 +73,11 @@ export function parteMinutosPorOrdem(w: World, st: PlayerStore): (i: number) => 
 }
 
 /** Evolução de um mês para todos os jogadores com clube. */
-export function evoluirMes(w: World, st: PlayerStore, dia: number, ctx: ContextoEvolucao) {
+export function evoluirMes(w: World, st: PlayerStore, dia: number, ctx: ContextoEvolucao, so?: (i: number) => boolean) {
   const rng = Rng.de(w.semente, 'evolucao', dia);
   for (let i = 0; i < st.n; i++) {
     if (st.clube[i] < 0) continue;
+    if (so && !so(i)) continue;
     const idade = st.idade(i, dia);
     const gr = st.posNat[i] === GR;
     const esperado = variacaoEsperada(idade, gr, st.ovrNat(i), st.pot[i], st.oculto(i, 'prof'), st.oculto(i, 'amb'), ctx.parteMinutos(i), ctx.desenvolvimentoTreinador(st.clube[i], i));
@@ -90,7 +91,7 @@ export function evoluirMes(w: World, st: PlayerStore, dia: number, ctx: Contexto
  * Fim de época de um clube: aposentações e reposição para manter a composição do plantel.
  * (Os novos jogadores são gerados; a academia real chega no Prompt 4.)
  */
-export function renovarPlantel(w: World, st: PlayerStore, c: number, dia: number, rng: Rng, epoca: number): { aposentados: number[]; novos: number[] } {
+export function renovarPlantel(w: World, st: PlayerStore, c: number, dia: number, rng: Rng, epoca: number, repor = true): { aposentados: number[]; novos: number[] } {
   const aposentados: number[] = [];
   const restantes: number[] = [];
   for (const j of w.plantel[c]) {
@@ -98,6 +99,8 @@ export function renovarPlantel(w: World, st: PlayerStore, c: number, dia: number
     if (st.clube[j] === c && rng.chance(E.prob_aposentacao(idade, st.posNat[j] === GR))) { st.clube[j] = -2; aposentados.push(j); }
     else if (st.clube[j] === c) restantes.push(j);
   }
+  // Com a academia (Prompt 4, Bloco C) não há reposição gerada: as vagas enchem-se com promoções e com o mercado.
+  if (!repor) { w.plantel[c] = restantes; return { aposentados, novos: [] }; }
   // Repõe as posições que faltam face à composição-modelo.
   const falta = new Map<Posicao, number>();
   for (const slot of G.composicao) { const pos = (slot === 'ED|EE' ? 'ED' : slot) as Posicao; falta.set(pos, (falta.get(pos) ?? 0) + 1); }
