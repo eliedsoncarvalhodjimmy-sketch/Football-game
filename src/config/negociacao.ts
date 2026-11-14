@@ -32,15 +32,20 @@ export const IA_MERCADO = {
   minimos: { GR: 3, DEF: 8, MED: 8, AVA: 6 } as Record<string, number>,
   tamanho_alvo: 25,
   /** Abordagens por clube por semana de janela (probabilidade). */
-  prob_abordagem: 0.35,
+  prob_abordagem: 0.7,
   /** Reforço: OVR do candidato ≥ pior titular da posição + x. */
-  melhoria_minima: 3,
+  melhoria_minima: 2,
   /** Candidatos avaliados por necessidade (listas curtas por posição). */
   candidatos: 40,
   /** Venda: listar excedentes (posição acima do mínimo + x) e descontentes. */
   excedente: 1,
   /** Renovações: oferece renovação no último ano aos N melhores do plantel e a jovens de potencial. */
   renovar_melhores: 16,
+  /** Orçamento da janela: fracção da receita × (0,5 + ambição), mais as vendas, até ao tecto (fracção da receita). */
+  orcamento_receita: 0.12,
+  /** Clubes com reputação < 60: probabilidade de pedir um empréstimo em cada tentativa. */
+  prob_emprestimo: 0.45,
+  orcamento_tecto: 0.35,
   /** Oferta inicial = fracção do preço pedido. */
   oferta_inicial: [0.65, 0.85] as [number, number],
 };

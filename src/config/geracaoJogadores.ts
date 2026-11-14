@@ -76,7 +76,7 @@ export const AFINACAO_PLANTEL = {
  * fracção da distância entre a força-alvo e a força do seu onze, limitada. Desliga-se com reversao 0.
  */
 export const DERIVA_PLANTEL = {
-  reversao: 0.7,
+  reversao: 0.45,
   /** Limite da correcção (pontos de força). */
-  limite: 8,
+  limite: 6,
 };

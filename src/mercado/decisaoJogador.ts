@@ -2,6 +2,7 @@
 // O jogador conhece os seus próprios atributos ocultos (ambição, profissionalismo); os clubes não.
 import { DECISAO as D } from '../config/decisaoJogador.ts';
 import { CONTRATO } from '../config/contratosJogador.ts';
+import { IDADE_DECISAO } from '../config/scouting.ts';
 import type { Rng } from '../core/rng.ts';
 import type { World } from '../engine/world.ts';
 import type { Mercado } from './mercado.ts';
@@ -21,10 +22,13 @@ export function pontuarProposta(w: World, m: Mercado, j: number, p: PropostaJoga
   const fd = (c: number) => (c >= 0 && w.liga[c] >= 0 ? w.ligas[w.liga[c]].regras.forca_desportiva : 0);
   const europa = (c: number) => (c >= 0 && w.liga[c] >= 0 && w.ligas[w.liga[c]].regras.nivel === 1 && rep(c) >= 70 ? 1 : 0);
   const salAct = Math.max(1, actual >= 0 ? st.salario[j] : 0.5 * p.salario);
+  // Os mais velhos pesam mais o salário e menos o prestígio.
+  const da = st.idade(j, dia) - IDADE_DECISAO.referencia;
+  const fSal = Math.max(0.5, 1 + IDADE_DECISAO.salario_por_ano * da), fPre = Math.max(0.2, 1 - IDADE_DECISAO.prestigio_por_ano * da);
   const parcelas: Record<string, number> = {
-    salario: D.salario * Math.log(Math.max(0.2, p.salario / salAct)),
+    salario: fSal * D.salario * Math.log(Math.max(0.2, p.salario / salAct)),
     projecto: D.projecto * (1 + D.ambicao * (amb - 10)) * (((e.ia?.ambicao[p.clube] ?? 0.5) - (actual >= 0 ? e.ia?.ambicao[actual] ?? 0.5 : 0)) * 1.5),
-    prestigio: D.prestigio * (1 + D.ambicao * (amb - 10)) * ((rep(p.clube) - rep(actual)) / 25 + (fd(p.clube) - fd(actual)) / 60 + 0.4 * (europa(p.clube) - europa(actual))),
+    prestigio: fPre * D.prestigio * (1 + D.ambicao * (amb - 10)) * ((rep(p.clube) - rep(actual)) / 25 + (fd(p.clube) - fd(actual)) / 60 + 0.4 * (europa(p.clube) - europa(actual))),
     minutos: D.minutos * (p.minutos - minutosEsperados(w, m, j)),
     ligacao: -D.ligacao * (1 + D.profissionalismo * (prof - 10)) * (actual >= 0 ? Math.min(1.5, (dia - m.contratos.chegada[j]) / 1460) : 0),
     descontentamento: actual >= 0 ? m.contratos.descontentamento[j] / 100 : 0,

@@ -10,6 +10,9 @@ import { NEGOCIACAO as N, JANELAS_ANO_CIVIL, INSCRICAO, IA_MERCADO as IA } from 
 import { CONFEDERACAO_PAIS } from '../config/paises.ts';
 import { VALOR } from '../config/valor.ts';
 import { Contratos } from './contratos.ts';
+import { Scouting } from '../scouting/conhecimento.ts';
+import { CONHECIMENTO, PREMIO_SALARIAL_DONO } from '../config/scouting.ts';
+import type { JogoR } from '../engine/competitions/base.ts';
 import { valorMercado, precoPedido, grupoPos } from './valor.ts';
 import { aceita, salarioPedido, actualizarDescontentamento, pontuarProposta } from './decisaoJogador.ts';
 import { salarioMercado, indiceRiqueza, fimDeEpoca } from '../economia/contratos.ts';
@@ -45,6 +48,8 @@ export interface Negocio {
 export interface Parcela { pagador: number; recebedor: number; valor: number; dia: number }
 
 const GRUPOS = ['GR', 'DEF', 'MED', 'AVA'] as const;
+/** Plantel mínimo (Prompt 3): o vendedor não vende abaixo disto. */
+const K_MIN = 22;
 const clamp = (x: number, a: number, b: number) => (x < a ? a : x > b ? b : x);
 const data = (d: number) => new Date(d * 864e5).toISOString().slice(0, 10);
 const M = (x: number) => (x >= 1e6 ? `${(x / 1e6).toFixed(1)} M€` : `${Math.round(x / 1e3)} mil €`);
@@ -59,14 +64,26 @@ export class Mercado {
   private ovrGrupo = new Map<string, Uint8Array>();
   /** Livres por grupo. */
   livres = new Map<string, number[]>();
-  /** Gasto na janela por clube. */
+  /** Gasto e vendas na janela por clube. */
   private gastoJanela = new Map<number, number>();
+  private vendasJanela = new Map<number, number>();
   private seq = 0;
+  /** Registo compacto dos negócios fechados (relatórios e calibração). */
+  registo: { dia: number; tipo: TipoNegocio; jogador: number; de: number; para: number; fee: number; valor: number; idade: number; ovr: number }[] = [];
   /** Contadores (relatórios e testes). */
   estat = { transferencias: 0, livres: 0, emprestimos: 0, clausulas: 0, preContratos: 0, renovacoes: 0, falhados: 0, faltaTempo: 0 };
 
+  /** Nevoeiro de informação e scouting (Bloco B). */
+  scouting: Scouting;
+  /** Listados para venda por grupo (propostas dos agentes) e jovens emprestáveis dos clubes grandes. */
+  private listados = new Map<string, number[]>();
+  private emprestaveis = new Map<string, number[]>();
+  private ordem = new Map<number, number>();
+  private hoje = 0;
+
   constructor(public w: World, clausulasCsv: Record<string, string>[] = []) {
     const st = w.jogadores!;
+    this.scouting = new Scouting(w);
     this.contratos.garantir(st.cap);
     for (const g of GRUPOS) this.livres.set(g, []);
     const dia = Math.floor(Date.UTC(w.epoca, 6, 1) / 864e5);
@@ -189,15 +206,20 @@ export class Mercado {
   }
 
   /** Reconstrói os índices por grupo (contratados em clubes em jogo, ordenados por OVR). */
-  reindexar() {
+  reindexar(dia = this.hoje) {
     const w = this.w, st = w.jogadores!;
+    this.hoje = dia;
     const por = new Map<string, number[]>(GRUPOS.map((g) => [g, []]));
-    for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0) for (const j of this.plantel(c)) por.get(this.grupo(j))!.push(j);
+    this.ordem.clear();
+    for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0) this.plantel(c).sort((a, b) => st.ovrNat(b) - st.ovrNat(a)).forEach((j, i) => { por.get(this.grupo(j))!.push(j); this.ordem.set(j, i); });
     for (const g of GRUPOS) {
       const a = por.get(g)!.sort((x, y) => st.ovrNat(x) - st.ovrNat(y));
       this.porGrupo.set(g, Int32Array.from(a));
       this.ovrGrupo.set(g, Uint8Array.from(a, (j) => st.ovrNat(j)));
       this.livres.set(g, this.livres.get(g)!.filter((j) => st.clube[j] === -3));
+      this.listados.set(g, a.filter((j) => this.contratos.listado[j] > 0));
+      // Emprestáveis: jovens (≤ 21) de clubes grandes que não estão entre os 18 primeiros do plantel.
+      this.emprestaveis.set(g, a.filter((j) => { const c = st.clube[j]; return w.reputacao[c] >= EMPRESTIMOS.emprestador_reputacao && st.idade(j, this.hoje) <= EMPRESTIMOS.idade_maxima && !this.contratos.emprestimo.has(j) && (this.ordem.get(j) ?? 0) >= 18; }));
     }
   }
 
@@ -210,6 +232,31 @@ export class Mercado {
     if (i1 <= i0) return out;
     for (let k = 0; k < n; k++) out.push(idx[i0 + rng.int(0, i1 - i0 - 1)]);
     return [...new Set(out)];
+  }
+
+  /** Alvos do clube: só jogadores que conhece (scouts, jogos, propostas), avaliados pela estimativa (nevoeiro). */
+  alvos(c: number, g: string, a: number, b: number, i0: number, i1: number, dia: number, rng: Rng): { j: number; est: number }[] {
+    const w = this.w, st = w.jogadores!, sc = this.scouting;
+    const out: { j: number; est: number }[] = [];
+    for (const j of sc.conhecidos(c)) {
+      const d = st.clube[j];
+      if (d < 0 || d === c || w.liga[d] < 0 || this.grupo(j) !== g || this.contratos.emprestimo.has(j)) continue;
+      const id = st.idade(j, dia);
+      if (id < i0 || id > i1) continue;
+      if (sc.nivel(c, j, dia) < CONHECIMENTO.minimo_alvo) continue;
+      const est = sc.estimarOVR(c, j, dia).estimado;
+      if (est >= a && est <= b) out.push({ j, est });
+    }
+    for (let k = out.length - 1; k > 0; k--) { const r = rng.int(0, k); [out[k], out[r]] = [out[r], out[k]]; }
+    return out.slice(0, IA.candidatos);
+  }
+
+  /** Agentes propõem jogadores listados (e livres) ao clube: o clube passa a conhecê-los. */
+  private propostasAgentes(c: number, g: string, dia: number, rng: Rng) {
+    const sc = this.scouting;
+    for (const fonte of [this.listados.get(g) ?? [], this.livres.get(g) ?? [], this.emprestaveis.get(g) ?? []]) {
+      for (let k = 0; k < 2 && fonte.length; k++) sc.conhecer(c, fonte[rng.int(0, fonte.length - 1)], CONHECIMENTO.ganho_proposta, dia);
+    }
   }
 
   // ---------------------------------------------------------------- inscrições
@@ -275,8 +322,11 @@ export class Mercado {
     const cn = w.clubes[n.comprador].nome;
     const rival = this.interessados(n.jogador);
     if (n.estado === 'oferta') {
+      if (n.tipo === 'emprestimo' && this.plantel(n.vendedor).length <= K_MIN) return this.falhar(n, `${w.clubes[n.vendedor].nome} não empresta: plantel no mínimo`);
       if (n.tipo === 'emprestimo') { n.estado = 'termos'; n.rondas.push({ dia: n.dia, texto: `${w.clubes[n.vendedor].nome} aceita emprestar` }); return; }
       if (st.clube[n.jogador] !== n.vendedor) return this.falhar(n, 'o jogador já saiu do clube');
+      // O vendedor não fica abaixo do plantel mínimo (excepto na venda forçada).
+      if (this.contratos.listado[n.jogador] !== 3 && this.plantel(n.vendedor).length <= K_MIN) return this.falhar(n, `${w.clubes[n.vendedor].nome} não vende: plantel no mínimo`);
       const pp = precoPedido(w, this, n.jogador, n.comprador, n.dia, rival.length);
       n.pedido = pp.preco;
       // Contra-proposta do vendedor igualada: aceita.
@@ -315,6 +365,9 @@ export class Mercado {
       let sal = salarioPedido(w, n.jogador, this.salarioMercado(n.jogador, n.comprador, n.dia));
       if (n.tipo === 'livre') sal *= Math.max(CONTRATO.livre_minimo, 1 - CONTRATO.livre_desconto_mes * ((n.dia - this.contratos.livreDesde[n.jogador]) / 30));
       if (n.tipo === 'emprestimo') sal = st.salario[n.jogador];
+      // Donos ricos e ambiciosos pagam acima do mercado para atrair reforços (pago com as injecções).
+      const dn = e.donos[n.comprador];
+      if (n.tipo !== 'emprestimo' && dn && PREMIO_SALARIAL_DONO[dn.tipo]) sal *= 1 + PREMIO_SALARIAL_DONO[dn.tipo] * Math.max(0, dn.atributos.ambicao - 10) / 10;
       n.salario = Math.round(sal / 1000) * 1000;
       const prop = { clube: n.comprador, salario: n.salario, minutos: CONTRATO.minutos_prometidos[n.estatuto] };
       if (n.tipo === 'emprestimo' || aceita(w, this, n.jogador, prop, n.dia, rng)) {
@@ -341,6 +394,7 @@ export class Mercado {
     if (n.estado === 'registo') {
       if (n.tipo === 'pre_contrato') { this.contratos.preContrato[n.jogador] = n.comprador; this.contratos.custo.set(n.jogador, n.salario); n.estado = 'concluido'; this.estat.preContratos++; n.rondas.push({ dia: n.dia, texto: `pré-contrato assinado: muda-se no fim do contrato (${data(st.fimContrato[n.jogador])})` }); this.concluidos.push(n); return; }
       if (n.tipo !== 'livre' && !this.janelaAberta(n.comprador, n.dia)) return this.falhar(n, 'a janela fechou');
+      if (n.vendedor >= 0 && n.tipo !== 'emprestimo' && this.contratos.listado[n.jogador] !== 3 && this.plantel(n.vendedor).length <= K_MIN) return this.falhar(n, `${w.clubes[n.vendedor].nome} ficaria abaixo do plantel mínimo`);
       const insc = this.podeInscrever(n.jogador, n.comprador);
       if (insc) return this.falhar(n, `não pode inscrever: ${insc}`);
       if (n.tipo !== 'emprestimo' && n.tipo !== 'livre' && e.clubes.caixa[n.comprador] < n.oferta * CONTRATO.parcelas_vista[0]) return this.falhar(n, 'o comprador ficou sem orçamento');
@@ -376,6 +430,7 @@ export class Mercado {
   concluir(n: Negocio, rng: Rng) {
     const w = this.w, st = w.jogadores!, e = w.economia!, s = e.clubes, k = this.contratos;
     const j = n.jogador, de = n.vendedor, para = n.comprador;
+    const valorAntes = valorMercado(w, j, n.dia, e.inflacao);
     if (n.tipo === 'emprestimo') {
       k.emprestimo.set(j, { dono: de, ate: fimDeEpoca(w, para, n.dia + 60, 1), salarioReceptor: n.emprestimo?.salario ?? 1, opcao: n.emprestimo?.opcao ?? 0, obrigacao: !!n.emprestimo?.obrigacao, minutos: 0 });
       this.mover(j, de, para, n.dia);
@@ -421,6 +476,7 @@ export class Mercado {
         k.custo.set(j, fee);
         e.clubes.orcTransferencias[para] = Math.max(0, e.clubes.orcTransferencias[para] - fee);
         this.gastoJanela.set(para, (this.gastoJanela.get(para) ?? 0) + fee);
+        this.vendasJanela.set(de, (this.vendasJanela.get(de) ?? 0) + fee);
         if (n.tipo === 'clausula') this.estat.clausulas++; else this.estat.transferencias++;
       } else {
         s.lancar(para, 'agentes', CONTRATO.agentes * n.salario);
@@ -444,6 +500,8 @@ export class Mercado {
     }
     n.estado = 'concluido';
     this.concluidos.push(n);
+    this.registo.push({ dia: n.dia, tipo: n.tipo, jogador: j, de, para, fee: n.tipo === 'livre' || n.tipo === 'emprestimo' ? 0 : n.oferta, valor: valorAntes, idade: Math.floor(st.idade(j, n.dia)), ovr: st.ovrNat(j) });
+    if (this.registo.length > 60000) this.registo = this.registo.slice(-30000);
     for (const x of this.interessados(j)) if (x !== n) this.falhar(x, `${st.nomes[j]} assinou por outro clube`);
   }
 
@@ -468,9 +526,10 @@ export class Mercado {
 
   // ---------------------------------------------------------------- ciclo semanal (chamado pelo simulador)
 
-  semana(segunda: number) {
+  semana(segunda: number, jogos: JogoR[] = []) {
     const w = this.w;
     const rng = Rng.de(w.semente, 'mercado', segunda);
+    this.scouting.semana(segunda, jogos);
     // Parcelas que vencem.
     const s = w.economia!.clubes;
     this.parcelas = this.parcelas.filter((p) => {
@@ -479,6 +538,9 @@ export class Mercado {
       s.lancar(p.recebedor, 'transferencias', p.valor);
       return false;
     });
+    // Fora das janelas europeias de Verão e de Inverno o gasto da janela recomeça.
+    const mes = new Date(segunda * 864e5).getUTCMonth();
+    if (mes === 4 || mes === 10) { this.gastoJanela.clear(); this.vendasJanela.clear(); }
     // IA: novas abordagens (compras e empréstimos na janela; livres sempre que faltam jogadores).
     this.abordagens(segunda, rng);
     // Negócios: rondas ao longo dos dias da semana.
@@ -503,7 +565,11 @@ export class Mercado {
   /** Mensal: índices, listagens, descontentamento, renovações e pré-contratos. */
   mes(dia: number) {
     const w = this.w, st = w.jogadores!, e = w.economia!;
-    this.reindexar();
+    this.reindexar(dia);
+    this.scouting.actualizarTopo();
+    // Os scouts são reatribuídos no início de cada janela (Julho e Janeiro).
+    const mes = new Date(dia * 864e5).getUTCMonth();
+    if (mes === 0 || mes === 6) for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0) this.scouting.atribuir(c, Rng.de(w.semente, 'scouts', w.clubes[c].id, dia));
     for (let c = 0; c < w.clubes.length; c++) {
       if (w.liga[c] < 0) continue;
       const rng = Rng.de(w.semente, 'mercado-mes', w.clubes[c].id, dia);
@@ -519,7 +585,8 @@ export class Mercado {
       for (const j of pl) { const g = this.grupo(j); porG.set(g, [...(porG.get(g) ?? []), j]); }
       for (const [g, js] of porG) {
         const exc = js.length - (IA.minimos[g] + IA.excedente);
-        for (const j of js.slice(-Math.max(0, exc))) if (!this.contratos.listado[j]) this.contratos.listado[j] = 1;
+        // (exc ≤ 0: nenhum excedente; slice(-0) devolveria o grupo inteiro.)
+        if (exc > 0) for (const j of js.slice(-exc)) if (!this.contratos.listado[j]) this.contratos.listado[j] = 1;
       }
       for (const j of e.controlador(c).listarParaVenda?.(w, e, c) ?? []) if (st.clube[j] === c && !this.contratos.listado[j]) this.contratos.listado[j] = 1;
       // Renovações (último ano de contrato): os melhores e os jovens de potencial.
@@ -562,17 +629,29 @@ export class Mercado {
       for (const g of GRUPOS) { const d = IA.minimos[g] - porG.get(g)!.length; if (d > fv) { fv = d; falta = g; } }
       const nivel = pl.length ? pl.map((j) => st.ovrNat(j)).sort((a, b) => b - a)[Math.min(10, pl.length - 1)] : 50;
       // Livres: a qualquer momento, só por necessidade.
-      if (falta && rng.chance(0.6)) {
-        const cand = this.livres.get(falta)!.filter((j) => st.ovrNat(j) >= nivel - 12 && st.ovrNat(j) <= nivel + 4).slice(0, IA.candidatos);
-        const melhor = cand.sort((a, b) => st.ovrNat(b) - st.ovrNat(a))[0];
+      const curto = pl.length < IA.tamanho_alvo - 1;
+      const gLivre = falta ?? (curto ? GRUPOS.reduce((m, g) => (porG.get(g)!.length - IA.minimos[g] < porG.get(m)!.length - IA.minimos[m] ? g : m), 'GR' as string) : null);
+      if (gLivre && rng.chance(0.6)) {
+        const falta = gLivre;
+        // Livres propostos pelos agentes: avaliados pela estimativa.
+        this.propostasAgentes(c, falta, segunda, rng);
+        const sc = this.scouting;
+        const cand = this.livres.get(falta)!.filter((j) => sc.nivel(c, j, segunda) >= CONHECIMENTO.minimo_alvo).map((j) => ({ j, est: sc.estimarOVR(c, j, segunda).estimado })).filter((x) => x.est >= nivel - 12 && x.est <= nivel + 4);
+        const melhor = cand.sort((a, b) => b.est - a.est)[0]?.j;
         if (melhor !== undefined) this.abrir('livre', melhor, c, segunda + rng.int(0, 4), 0, 0, rng);
       }
       if (!aberta) continue;
+      for (const gg of GRUPOS) if (falta === gg || rng.chance(0.3)) this.propostasAgentes(c, gg, segunda, rng);
       const fim = this.fimJanela(c, segunda);
       const pico = fim - segunda < 7 ? N.pico_ultima_semana : 1;
+      // Várias tentativas por semana: necessidade, plantel curto, reforço.
+      const nTent = 1 + (falta ? 1 : 0) + (pl.length < IA.tamanho_alvo ? 1 : 0);
+      for (let tent = 0; tent < nTent; tent++) {
       if (!rng.chance(Math.min(0.95, IA.prob_abordagem * pico))) continue;
       // Orçamento da janela (limitado pela caixa e pela receita).
-      const orc = Math.min(s.orcTransferencias[c], 0.35 * s.receitaPrevista[c]) - (this.gastoJanela.get(c) ?? 0);
+      // Orçamento da janela: o maior entre o da caixa e uma fracção da receita (pela ambição), mais as vendas da janela, até ao tecto.
+      const amb = e.ia?.ambicao[c] ?? 0.5;
+      const orc = Math.min(IA.orcamento_tecto * s.receitaPrevista[c], Math.max(s.orcTransferencias[c], IA.orcamento_receita * (0.5 + amb) * s.receitaPrevista[c]) + (this.vendasJanela.get(c) ?? 0)) - (this.gastoJanela.get(c) ?? 0);
       // Grupo a reforçar: o que falta; senão o de titular mais fraco face ao nível.
       let g = falta;
       if (!g) {
@@ -582,12 +661,12 @@ export class Mercado {
       if (!g) continue;
       const js = porG.get(g)!.map((j) => st.ovrNat(j)).sort((a, b) => b - a);
       const pior = js[g === 'GR' ? 0 : Math.min(2, js.length - 1)] ?? nivel - 5;
-      const alvoMin = falta ? nivel - 6 : pior + IA.melhoria_minima, alvoMax = falta ? nivel + 2 : pior + IA.melhoria_minima + 5;
+      const alvoMin = falta ? nivel - 6 : pior + IA.melhoria_minima, alvoMax = falta ? nivel + 3 : pior + IA.melhoria_minima + 8;
       // Empréstimo (pouco orçamento ou necessidade): jovens de clubes grandes.
-      if (orc < 0.02 * s.receitaPrevista[c] || (falta && rng.chance(0.4))) {
-        const cand = this.amostra(g, alvoMin - 4, alvoMax, IA.candidatos, rng).filter((j) => {
+      if (orc < 0.02 * s.receitaPrevista[c] || (falta && rng.chance(0.4)) || (w.reputacao[c] < 60 && rng.chance(IA.prob_emprestimo))) {
+        const cand = this.alvos(c, g, alvoMin - 4, alvoMax, 16, EMPRESTIMOS.idade_maxima, segunda, rng).map((x) => x.j).filter((j) => {
           const d = st.clube[j];
-          return d !== c && w.reputacao[d] >= EMPRESTIMOS.emprestador_reputacao && w.reputacao[d] > w.reputacao[c] + 10 && st.idade(j, segunda) <= EMPRESTIMOS.idade_maxima && !this.contratos.emprestimo.has(j);
+          return w.reputacao[d] >= EMPRESTIMOS.emprestador_reputacao && w.reputacao[d] > w.reputacao[c] + 10;
         });
         const j = cand[0];
         if (j !== undefined) {
@@ -602,21 +681,29 @@ export class Mercado {
       // Compra: candidatos do grupo na faixa de OVR, idade-alvo pelo arquétipo, preço dentro do orçamento.
       const arq = e.ia?.arquetipo[c];
       const [i0, i1] = arq === 'formador' || arq === 'vendedor' ? [17, 24] : arq === 'analitico' ? [20, 27] : arq === 'comprador_estrelas' || arq === 'magnata_impaciente' ? [22, 31] : [20, 30];
-      const cand = this.amostra(g, alvoMin, alvoMax, IA.candidatos, rng).filter((j) => {
-        const d = st.clube[j];
-        const id = st.idade(j, segunda);
-        return d !== c && id >= i0 && id <= i1 && !this.contratos.emprestimo.has(j);
-      });
+      const cand = this.alvos(c, g, alvoMin, alvoMax, i0, i1, segunda, rng);
       let melhor = -1, mv = -Infinity, mp = 0;
-      for (const j of cand.slice(0, 15)) {
+      for (const { j, est } of cand.slice(0, 15)) {
         const pp = precoPedido(w, this, j, c, segunda, 1);
         const clau = this.contratos.clausula[j];
         const custo = Math.min(pp.preco, clau > 0 ? clau : Infinity);
         if (custo > orc) continue;
-        const v = st.ovrNat(j) - pior - custo / Math.max(1, orc) * 3 + (this.contratos.listado[j] ? 2 : 0);
+        const v = est - pior - custo / Math.max(1, orc) * 3 + (this.contratos.listado[j] ? 2 : 0);
         if (v > mv) { mv = v; melhor = j; mp = custo; }
       }
+      // Livres conhecidos na mesma faixa: sem custo de transferência, preferidos.
+      const sc = this.scouting;
+      for (const j of this.livres.get(g) ?? []) {
+        if (sc.nivel(c, j, segunda) < CONHECIMENTO.minimo_alvo) continue;
+        const id = st.idade(j, segunda);
+        if (id < i0 - 2 || id > i1 + 3) continue;
+        const est = sc.estimarOVR(c, j, segunda).estimado;
+        if (est < alvoMin - 2 || est > alvoMax) continue;
+        const v = est - pior + 3;
+        if (v > mv) { mv = v; melhor = j; mp = 0; }
+      }
       if (melhor < 0) continue;
+      if (st.clube[melhor] === -3) { this.abrir('livre', melhor, c, segunda + rng.int(0, 4), 0, 0, rng); continue; }
       const pp = precoPedido(w, this, melhor, c, segunda, this.interessados(melhor).length + 1);
       const clau = this.contratos.clausula[melhor];
       if (clau > 0 && clau <= pp.preco && clau <= orc) { this.abrir('clausula', melhor, c, segunda + rng.int(0, 4), clau, clau, rng); continue; }
@@ -624,6 +711,7 @@ export class Mercado {
       if ((st.fimContrato[melhor] - segunda) / 30 <= CONTRATO.pre_contrato_meses && this.contratos.preContrato[melhor] < 0) { this.abrir('pre_contrato', melhor, c, segunda + rng.int(0, 4), 0, 0, rng); continue; }
       const oferta = pp.preco * (IA.oferta_inicial[0] + rng.next() * (IA.oferta_inicial[1] - IA.oferta_inicial[0]));
       this.abrir('transferencia', melhor, c, segunda + rng.int(0, 4), oferta, Math.min(orc, mp * 1.15), rng);
+      }
     }
   }
 

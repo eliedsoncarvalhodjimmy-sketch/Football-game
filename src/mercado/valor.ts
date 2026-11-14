@@ -47,6 +47,7 @@ export function precoPedido(w: World, m: Mercado, j: number, comprador: number, 
   f.liga_comprador = clamp(1 + P.liga_comprador * (fd(comprador) - fd(vend)), P.liga_limites[0], P.liga_limites[1]);
   f.concorrencia = Math.min(P.concorrencia_maximo, 1 + P.concorrencia * Math.max(0, interessados - 1));
   f.rivalidade = 1 + P.rivalidade * e.intensidadeRival(vend, comprador);
+  if (w.liga[vend] === w.liga[comprador] && w.reputacao[comprador] > w.reputacao[vend]) f.rivalidade *= P.mesma_liga;
   // Arquétipo do vendedor.
   const arq = e.ia?.arquetipo[vend];
   f.arquetipo = 1;

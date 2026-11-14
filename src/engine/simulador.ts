@@ -84,7 +84,7 @@ export class Simulador {
       if (t.semana >= 52) this.fechar(g, t);
     }
     this.w.economia?.semana(this.segunda, out);
-    this.w.mercado?.semana(this.segunda);
+    this.w.mercado?.semana(this.segunda, out);
     this.segunda += 7;
     return out;
   }
