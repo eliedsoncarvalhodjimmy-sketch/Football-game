@@ -18,6 +18,7 @@
   --aviso: #e2a33a;
   --mau: #e0565b;
   --info: #5a9be0;
+  --c-liga: #e0565b; --c-taca: #9aa1ab; --c-ucl: #4a86e8; --c-uel: #f2b632; --c-uecl: #3fb67a; --c-pausa: #d9c49a;
   --f-num: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --f-texto: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-dados: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
@@ -88,7 +89,7 @@ tr.clic { cursor: pointer; } tr.clic:hover td { background: var(--cartao-2); }
 tr.meu td { background: color-mix(in srgb, var(--acento) 16%, transparent); }
 td.r, th.r { text-align: right; }
 .ovr { display: inline-grid; place-items: center; min-width: 34px; height: 26px; border-radius: 7px; font-family: var(--f-num); font-weight: 700; font-size: 17px; background: var(--cartao-2); }
-.ovr.a { color: #7fe0a5; } .ovr.b { color: #c9e27a; } .ovr.c { color: #e8c46a; } .ovr.d { color: #e69a6a; }
+.ovr.qa { color: #7fe0a5; } .ovr.qb { color: #c9e27a; } .ovr.qc { color: #e8c46a; } .ovr.qd { color: #e69a6a; }
 .intervalo { font-family: var(--f-dados); font-size: 12px; color: var(--aviso); }
 .barra { height: 6px; border-radius: 3px; background: var(--cartao-2); overflow: hidden; }
 .barra > i { display: block; height: 100%; background: var(--acento); }
@@ -156,13 +157,13 @@ td.r, th.r { text-align: right; }
 .cal .jogo { font-size: 10px; line-height: 1.2; border-radius: 5px; padding: 2px 4px; background: color-mix(in srgb, var(--acento) 30%, transparent); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cal .jogo i { font-style: normal; font-weight: 700; }
 .cal .dia { position: relative; }
-.cal .troca { position: absolute; top: 4px; right: 4px; width: 13px; height: 13px; color: var(--aviso); }
+.cal .troca { position: absolute; top: 4px; right: 4px; width: 13px; height: 13px; color: var(--texto); opacity: .85; }
 .cal .partida { display: grid; grid-template-columns: 16px 1fr; gap: 4px; align-items: start; border-radius: 6px; padding: 3px 4px; background: var(--cartao); border-left: 3px solid var(--cor-comp); }
 .cal .partida .ci { width: 16px; height: 16px; border-radius: 4px; background: var(--cor-comp); display: grid; place-items: center; color: #0b0d10; }
 .cal .partida .ci svg { width: 11px; height: 11px; }
 .cal .partida .adv { font-size: 11px; font-weight: 600; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 3; word-break: break-word; -webkit-box-orient: vertical; overflow: hidden; }
 .cal .partida .cf { font-size: 9px; color: var(--suave); text-transform: uppercase; letter-spacing: .4px; }
-.cal .pausa { font-size: 10px; border-radius: 5px; padding: 2px 4px; background: color-mix(in srgb, var(--aviso) 28%, transparent); color: var(--texto); }
+.cal .pausa { font-size: 10px; border-radius: 5px; padding: 2px 4px; background: color-mix(in srgb, var(--c-pausa) 30%, transparent); color: var(--texto); }
 .legenda { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px; font-size: 12px; color: var(--suave); }
 .legenda span { display: inline-flex; align-items: center; gap: 6px; }
 .legenda .ci { width: 16px; height: 16px; border-radius: 4px; display: grid; place-items: center; color: #0b0d10; }
@@ -182,6 +183,30 @@ td.r, th.r { text-align: right; }
 .prof .lin-j .nm { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prof .lin-j .det { font-size: 10px; color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prof .lin-j.lesionado .nm { color: var(--mau); }
+.notas-eq { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; margin-bottom: 10px; }
+.nota-eq { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 74px; padding: 6px 10px; border-radius: 8px; background: var(--cartao-2); border-top: 3px solid currentColor; }
+.nota-eq b { font-size: 26px; line-height: 1; } .nota-eq span { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--suave); }
+.nota-eq.qa { color: #7fe0a5; } .nota-eq.qb { color: #c9e27a; } .nota-eq.qc { color: #e8c46a; } .nota-eq.qd { color: #e69a6a; }
+.dinamica { margin-left: auto; display: flex; flex-direction: column; justify-content: center; text-align: right; }
+.dinamica b { font-family: var(--f-num); font-size: 20px; } .dinamica b.pos { color: var(--bom); } .dinamica b.neg { color: var(--mau); }
+.dep { position: relative; aspect-ratio: 70/100; max-width: 640px; margin: 0 auto; border-radius: 10px; overflow: hidden; border: 2px solid #2e7a4a;
+  background: radial-gradient(circle at 50% 50%, transparent 0 13%, rgba(255,255,255,.35) 13% 13.4%, transparent 13.6%), linear-gradient(transparent 49.7%, rgba(255,255,255,.35) 49.7% 50.3%, transparent 50.3%), repeating-linear-gradient(0deg, #2a6e3e 0 7%, #2f7843 7% 14%); }
+.dep::before, .dep::after { content: ""; position: absolute; left: 30%; width: 40%; height: 11%; border: 2px solid rgba(255,255,255,.35); }
+.dep::before { top: -2px; } .dep::after { bottom: -2px; }
+.dcx { position: absolute; transform: translate(-50%, -50%); width: 27%; background: rgba(12,16,20,.9); border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,.4); z-index: 1; }
+.dcx.lado { width: 17%; }
+.dcx-cab { text-align: center; font-family: var(--f-num); font-weight: 700; font-size: 13px; letter-spacing: .5px; color: #0b0d10; padding: 1px 0; }
+.dcx.gr .dcx-cab { background: #7fd39b; } .dcx.def .dcx-cab { background: #7cc4f0; } .dcx.med .dcx-cab { background: #f2d36b; } .dcx.ata .dcx-cab { background: #f39a54; }
+.dl { display: flex; align-items: center; gap: 4px; padding: 2px 3px 2px 6px; border-top: 1px solid rgba(255,255,255,.06); cursor: pointer; min-width: 0; }
+.dl .dn { flex: 1; min-width: 0; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--suave); }
+.dl.tit .dn { color: var(--texto); font-weight: 700; }
+.dl.les .dn { color: var(--mau); }
+.dl .di { color: var(--fraco); font-weight: 400; }
+.dl .dp { margin-left: 3px; font-size: 9px; color: var(--fraco); }
+.dv { flex: none; min-width: 24px; text-align: center; font-family: var(--f-num); font-weight: 700; font-size: 13px; border-radius: 3px; color: #0b0d10; }
+.dv.qa { background: #5fcf86; } .dv.qb { background: #b9d65e; } .dv.qc { background: #e8c46a; } .dv.qd { background: #e3864f; }
+.dep-form { position: absolute; right: 8px; bottom: 8px; font-family: var(--f-num); font-weight: 700; font-size: 18px; background: rgba(12,16,20,.85); color: var(--texto); padding: 2px 10px; border-radius: 6px; z-index: 2; }
+@media (max-width: 760px) { .dcx { width: 31%; } .dcx.lado { width: 22%; } .dl .dn { font-size: 10px; } .dl .di, .dl .dp { display: none; } }
 .prof .lin-j.titular { background: color-mix(in srgb, var(--acento) 14%, transparent); border-radius: 6px; }
 .prof .lin-j:not(.titular) .nm { font-weight: 500; color: var(--suave); }
 @media (max-width: 760px) { .prof { aspect-ratio: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; } .prof .caixa { position: static; transform: none; width: auto; } .cal .dia { min-height: 52px; } .cal .jogo { font-size: 9px; } }
@@ -266,6 +291,18 @@ const plantel = POS.map((p, k) => {
     fim: 2026 + ri(1, 5), sal: Math.round((ovr - 40) ** 2 * 380 / 1000) * 1000, lesao: k === 9 ? 'Entorse (12 dias)' : k === 20 ? 'Muscular (3 dias)' : '', susp: k === 14 };
 });
 plantel[22].nome = 'Rafael Salouro'; plantel[22].idade = 19; plantel[22].ovr = 69; plantel[22].pot = 84;
+// Estatísticas por competição (titular, vindo do banco, golos, assistências, amarelos, vermelhos, nota).
+{ const ordem = [...plantel].sort((a, b) => b.ovr - a.ovr); const rank = new Map(ordem.map((p, i) => [p.n, i]));
+  const ataque = { PL: 0.45, ED: 0.25, EE: 0.25, MO: 0.22, MC: 0.1, MDC: 0.05, DC: 0.05, DD: 0.04, DE: 0.04, GR: 0 };
+  for (const p of plantel) { p.est = {}; const r = rank.get(p.n);
+    for (const [comp, jogos] of [['Liga Portugal', 12], ['Taça de Portugal', 2], ['Liga Europa', 5]]) {
+      const tit = p.pos === 'GR' ? (r === ordem.findIndex((x) => x.pos === 'GR') ? jogos : 0) : Math.max(0, Math.round(jogos * (r < 11 ? 0.85 : r < 16 ? 0.35 : 0.08)) - (p.lesao ? 2 : 0));
+      const sup = p.pos === 'GR' ? 0 : Math.min(jogos - tit, Math.round(jogos * (r < 11 ? 0.1 : r < 18 ? 0.35 : 0.15)));
+      const m = tit + sup * 0.35;
+      p.est[comp] = { tit, sup, g: Math.round(m * ataque[p.pos] * (0.6 + rnd() * 0.9)), a: Math.round(m * ataque[p.pos] * 0.7 * (0.5 + rnd())), am: Math.round(m * (p.pos === 'MDC' || p.pos === 'DC' ? 0.25 : 0.1) * rnd() * 2), vm: rnd() < 0.05 ? 1 : 0, nota: tit + sup ? 6.3 + (p.ovr - 60) / 25 + rnd() * 0.5 : 0 };
+    }
+    const t = Object.values(p.est); p.j = t.reduce((a, x) => a + x.tit + x.sup, 0); p.g = t.reduce((a, x) => a + x.g, 0); p.a = t.reduce((a, x) => a + x.a, 0); p.am = t.reduce((a, x) => a + x.am, 0); p.vm = t.reduce((a, x) => a + x.vm, 0);
+  } }
 const nomeCurto = (n) => { const p = n.split(' '); return `${p[0][0]}. ${p[p.length - 1]}`; };
 
 const LIGA = ['Real Montalvo', 'CF Alvarenga', 'Sporting de Vale Formoso', 'Atlético de Serra do Freixo', 'Desportivo das Lezírias', 'União de Rio Maior', 'Académico de Penedono', 'Vitória de Castro Marim', 'FC Barca de Marvila', 'Clube Naval da Foz', 'Estrela de Valongo', 'Juventude de Arouca', 'Boavista do Mondego', 'SC Ribeira Brava', 'Os Lusitanos de Ourém', 'Marítimo da Amieira', 'GD Penafiel Velho', 'Recreativo de Tondela'];
@@ -294,12 +331,12 @@ const JOGOS = new Map();
   while (d < Date.UTC(2027, 5, 1)) { JOGOS.set(chave(d), { tipo: 'liga', adv: adv[k % adv.length], casa: k % 2 === 0, comp: 'Liga Portugal' }); k++; d = new Date(d.getTime() + 7 * 864e5); }
   for (const [y, m, dd, a, c] of [[2026, 9, 21, 'Juventude de Arouca', 'Taça de Portugal'], [2026, 10, 25, 'GD Penafiel Velho', 'Taça de Portugal'], [2027, 0, 13, 'SC Ribeira Brava', 'Taça de Portugal']]) JOGOS.set(chave(new Date(Date.UTC(y, m, dd))), { tipo: 'taca', adv: a, casa: true, comp: c });
   const cont = [['Brackcombe Town', ['#5a2d82', '#fff']], ['SV Mühlwangen', ['#111', '#e2a33a']], ['Asteras Oristathmos', ['#1d3b6b', '#fff']], ['Fontemarino Calcio', ['#1b4fa0', '#fff']]];
-  [[2026, 8, 17], [2026, 9, 1], [2026, 9, 22], [2026, 10, 5], [2026, 10, 26], [2026, 11, 10]].forEach(([y, m, dd], k) => JOGOS.set(chave(new Date(Date.UTC(y, m, dd))), { tipo: 'cont', adv: cont[k % 4][0], cores: cont[k % 4][1], casa: k % 2 === 1, comp: 'Liga Europa · fase de liga' }));
+  [[2026, 8, 17], [2026, 9, 1], [2026, 9, 22], [2026, 10, 5], [2026, 10, 26], [2026, 11, 10]].forEach(([y, m, dd], k) => JOGOS.set(chave(new Date(Date.UTC(y, m, dd))), { tipo: 'uel', icone: 'cont', adv: cont[k % 4][0], cores: cont[k % 4][1], casa: k % 2 === 1, comp: 'Liga Europa · fase de liga' }));
 }
 function LIGA_ADV() { return ['Real Montalvo', 'CF Alvarenga', 'Sporting de Vale Formoso', 'Desportivo das Lezírias', 'União de Rio Maior', 'Académico de Penedono', 'Vitória de Castro Marim', 'FC Barca de Marvila', 'Clube Naval da Foz', 'Estrela de Valongo', 'Juventude de Arouca', 'Boavista do Mondego', 'SC Ribeira Brava', 'Os Lusitanos de Ourém', 'Marítimo da Amieira', 'GD Penafiel Velho', 'Recreativo de Tondela']; }
 const EVENTOS = new Map([['2026-11-16', 'Pausa internacional'], ['2026-11-17', 'Pausa internacional'], ['2026-11-18', 'Pausa internacional'], ['2027-03-22', 'Pausa internacional']]);
 const emJanela = (d) => { const m = d.getUTCMonth(); return m === 0 || m === 6 || m === 7; };
-const COR_COMP = { liga: 'var(--mau)', taca: 'var(--bom)', cont: 'var(--info)' };
+const COR_COMP = { liga: 'var(--c-liga)', taca: 'var(--c-taca)', ucl: 'var(--c-ucl)', uel: 'var(--c-uel)', uecl: 'var(--c-uecl)' };
 const MENSAGENS = [
   { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
   { de: 'Presidente (dono)', assunto: 'Objectivos de Janeiro', txt: 'Quero um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
@@ -311,7 +348,7 @@ let modal = null, mesCal = null;
 function proximoJogo() { for (let d = new Date(hoje); d < Date.UTC(2027, 6, 1); d = new Date(d.getTime() + 864e5)) { const j = JOGOS.get(chave(d)); if (j) return { d, j }; } return null; }
 
 // ---------- utilitários ----------
-const corOvr = (o) => (o >= 75 ? 'a' : o >= 68 ? 'b' : o >= 60 ? 'c' : 'd');
+const corOvr = (o) => (o >= 75 ? 'qa' : o >= 68 ? 'qb' : o >= 60 ? 'qc' : 'qd');
 const M = (v) => (v >= 1e6 ? `${(v / 1e6).toFixed(1).replace('.', ',')} M€` : `${Math.round(v / 1000)} mil €`);
 const escudo = (cores, w = 34) => `<svg class="escudo" viewBox="0 0 34 38" width="${w}" aria-hidden="true"><path d="M17 1 L32 6 V18 C32 28 25 34 17 37 C9 34 2 28 2 18 V6 Z" fill="${cores[0]}" stroke="${cores[1]}" stroke-width="2"/><path d="M17 1 V37" stroke="${cores[1]}" stroke-width="5" opacity=".55"/></svg>`;
 const estrelas = (a, b) => { const s = (x) => '★'.repeat(Math.floor(x)) + (x % 1 ? '½' : ''); return a === b ? s(a) : `${s(a)}–${s(b)}`; };
@@ -336,6 +373,7 @@ function inicio() {
     <section class="c s3"><h2>Orçamento de transferências</h2><div class="num grande">${M(9.5e6)}</div><div class="rot">disponível na janela de Janeiro</div></section>
     <section class="c s3"><h2>Massa salarial</h2><div class="num grande">${M(31.2e6)}</div><div class="rot">94% do orçamento salarial</div></section>
     <section class="c s3"><h2>Estado financeiro</h2><div class="num grande" style="color:var(--bom)">Saudável</div><div class="rot">Fair play: dentro do limite</div></section>
+    ${[['Mais jogos', 'j', 'jogos'], ['Melhores marcadores', 'g', 'golos'], ['Mais assistências', 'a', 'assist.']].map(([t, k, u]) => `<section class="c s4"><h2>${t}</h2>${[...plantel].sort((a, b) => b[k] - a[k] || b.ovr - a.ovr).slice(0, 5).map((p, i) => `<div class="linha-kv" style="cursor:pointer" data-jj="${p.n}"><span><span class="muted" style="display:inline-block;width:18px">${i + 1}</span><b>${p.nome}</b> <span class="muted">${p.pos}</span></span><span class="num" style="font-size:18px">${p[k]} <span class="muted" style="font-size:12px;font-family:var(--f-texto)">${u}</span></span></div>`).join('')}</section>`).join('')}
     <section class="c s6"><h2>Tarefas pendentes</h2>
       <div class="linha-kv"><span><span class="chip mau"><span class="pt"></span>Decisão</span> Oferta de 7,5 M€ do Real Montalvo por R. Salouro</span><span class="muted">expira em 2 dias</span></div>
       <div class="linha-kv"><span><span class="chip aviso"><span class="pt"></span>Contrato</span> ${plantel[5].nome} quer renovar (último ano)</span><span class="muted">ver pedido</span></div>
@@ -373,8 +411,8 @@ function plantelPrincipal() {
   return `
   <div class="filtros"><input id="f-pesq" type="search" placeholder="Pesquisar no plantel…" value="${pesquisa}" aria-label="Pesquisar no plantel"><div class="seg" role="group">${Object.keys(grupos).map((g) => `<button data-pos="${g}" class="${g === filtroPos ? 'on' : ''}">${g}</button>`).join('')}</div></div>
   <section class="c"><div class="tab-wrap"><table>
-    <thead><tr><th>N.º</th><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th>Melhor papel</th><th class="r">Adeq.</th><th class="r">Moral</th><th>Forma</th><th class="r">Condição</th><th class="r">Contrato</th><th class="r">Salário</th><th>Estado</th><th></th></tr></thead>
-    <tbody>${lista.map((p) => `<tr class="clic" data-j="${p.n}"><td class="muted">${p.n}</td><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="muted">${p.papel}</td><td class="r">${p.adq}</td><td class="r">${p.moral}</td><td>${p.forma.slice(-3).join(' · ')}</td><td class="r">${p.cond}%</td><td class="r">${p.fim}</td><td class="r">${M(p.sal)}</td><td>${p.lesao ? `<span class="chip mau">${p.lesao}</span>` : p.susp ? '<span class="chip aviso">Suspenso</span>' : '<span class="chip bom">Apto</span>'}</td><td class="r">${p.idade <= 21 ? `<button class="btn" data-mover="principal:${p.n}:sub21">↓ Sub-21</button>` : ''}</td></tr>`).join('')}</tbody>
+    <thead><tr><th>N.º</th><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th class="r">J</th><th class="r">G</th><th class="r">A</th><th class="r">Cartões</th><th>Melhor papel</th><th class="r">Adeq.</th><th class="r">Moral</th><th>Forma</th><th class="r">Condição</th><th class="r">Contrato</th><th class="r">Salário</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${lista.map((p) => `<tr class="clic" data-j="${p.n}"><td class="muted">${p.n}</td><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="r">${p.j}</td><td class="r">${p.g}</td><td class="r">${p.a}</td><td class="r"><span style="color:var(--c-uel)">▮</span>${p.am}${p.vm ? ` <span style="color:var(--mau)">▮</span>${p.vm}` : ''}</td><td class="muted">${p.papel}</td><td class="r">${p.adq}</td><td class="r">${p.moral}</td><td>${p.forma.slice(-3).join(' · ')}</td><td class="r">${p.cond}%</td><td class="r">${p.fim}</td><td class="r">${M(p.sal)}</td><td>${p.lesao ? `<span class="chip mau">${p.lesao}</span>` : p.susp ? '<span class="chip aviso">Suspenso</span>' : '<span class="chip bom">Apto</span>'}</td><td class="r">${p.idade <= 21 ? `<button class="btn" data-mover="principal:${p.n}:sub21">↓ Sub-21</button>` : ''}</td></tr>`).join('')}</tbody>
   </table></div></section>`;
 }
 
@@ -402,12 +440,15 @@ function jogadorEcra() {
     </section>
     ${Object.entries(grupos).map(([g, at]) => `<section class="c s4"><h2>${g}</h2><div class="atrib">${at.map(cel).join('')}</div></section>`).join('')}
     <section class="c s6"><h2>Adequação aos papéis (1–20)</h2><div class="papeis">${papeis.map(([r, v]) => `<div class="papel"><span>${r}</span><div class="barra"><i style="width:${v * 5}%"></i></div><b class="num" style="font-size:17px;text-align:right">${rival ? '?' : v}</b></div>`).join('')}</div></section>
+    <section class="c s12"><h2>Estatísticas da época por competição</h2><div class="tab-wrap"><table><thead><tr><th>Competição</th><th class="r">Jogos</th><th class="r">Titular</th><th class="r">Do banco</th><th class="r">Golos</th><th class="r">Assist.</th><th class="r">Amarelos</th><th class="r">Vermelhos</th><th class="r">Nota média</th></tr></thead><tbody>
+      ${Object.entries(p.est).map(([c, x]) => `<tr><td>${c}</td><td class="r">${x.tit + x.sup}</td><td class="r">${x.tit}</td><td class="r">${x.sup}</td><td class="r">${x.g}</td><td class="r">${x.a}</td><td class="r">${x.am}</td><td class="r">${x.vm}</td><td class="r">${x.nota ? x.nota.toFixed(2).replace('.', ',') : '—'}</td></tr>`).join('')}
+      <tr><td><b>Total</b></td><td class="r"><b>${p.j}</b></td><td class="r"><b>${Object.values(p.est).reduce((a, x) => a + x.tit, 0)}</b></td><td class="r"><b>${Object.values(p.est).reduce((a, x) => a + x.sup, 0)}</b></td><td class="r"><b>${p.g}</b></td><td class="r"><b>${p.a}</b></td><td class="r"><b>${p.am}</b></td><td class="r"><b>${p.vm}</b></td><td class="r"></td></tr></tbody></table></div></section>
     <section class="c s3"><h2>Estado</h2>
       <div class="linha-kv"><span class="muted">Moral</span><span>${p.moral}/20</span></div>
       <div class="linha-kv"><span class="muted">Condição</span><span>${p.cond}%</span></div>
       <div class="linha-kv"><span class="muted">Forma (5 jogos)</span><span>${p.forma.join(' ')}</span></div>
       <div class="linha-kv"><span class="muted">Lesões</span><span>${p.lesao || 'nenhuma'}</span></div>
-      <div class="linha-kv"><span class="muted">Época</span><span>12 J · 7 G · 2 A</span></div>
+      <div class="linha-kv"><span class="muted">Época</span><span>${p.j} J · ${p.g} G · ${p.a} A</span></div>
     </section>
     <section class="c s3"><h2>Contrato</h2>
       <div class="linha-kv"><span class="muted">Salário</span><span>${M(p.sal)}/ano</span></div>
@@ -419,28 +460,36 @@ function jogadorEcra() {
   </div>`;
 }
 
-let mentalidade = 'Equilibrada', formacao = '4-3-3';
+let mentalidade = 'Equilibrada', formacao = '3-4-2-1';
 const FORMACOES = {
+  '3-4-2-1': [['PL', 50, 9, ['PL']], ['MO', 30, 26, ['MO', 'MC', 'ED', 'EE']], ['MO', 70, 26, ['MO', 'MC', 'EE', 'ED']], ['ALE', 9, 47, ['DE', 'EE']], ['MDC', 33, 47, ['MDC', 'MC']], ['MDC', 67, 47, ['MDC', 'MC']], ['ALD', 91, 47, ['DD', 'ED']], ['DC', 18, 69, ['DC', 'DE']], ['DC', 50, 69, ['DC']], ['DC', 82, 69, ['DC', 'DD']], ['GR', 50, 90, ['GR']]],
   '4-3-3': [['PL', 50, 10, ['PL']], ['EE', 17, 22, ['EE', 'ED']], ['ED', 83, 22, ['ED', 'EE']], ['MC', 30, 42, ['MC', 'MO']], ['MC', 70, 42, ['MC', 'MO']], ['MDC', 50, 58, ['MDC', 'MC']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
   '4-2-3-1': [['PL', 50, 10, ['PL']], ['EE', 16, 26, ['EE', 'ED']], ['MO', 50, 28, ['MO', 'MC']], ['ED', 84, 26, ['ED', 'EE']], ['MDC', 32, 50, ['MDC', 'MC']], ['MDC', 68, 50, ['MDC', 'MC']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
   '4-4-2': [['PL', 32, 11, ['PL']], ['PL', 68, 11, ['PL', 'MO']], ['EE', 13, 38, ['EE', 'ED']], ['MC', 37, 44, ['MC', 'MDC', 'MO']], ['MC', 63, 44, ['MC', 'MDC', 'MO']], ['ED', 87, 38, ['ED', 'EE']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
 };
-const NOME_POS = { GR: 'Guarda-redes', DD: 'Lateral direito', DE: 'Lateral esquerdo', DC: 'Defesa central', MDC: 'Médio defensivo', MC: 'Médio centro', MO: 'Médio ofensivo', ED: 'Extremo direito', EE: 'Extremo esquerdo', PL: 'Ponta de lança' };
+const LINHA_POS = { GR: 'gr', DC: 'def', DD: 'def', DE: 'def', ALD: 'med', ALE: 'med', MDC: 'med', MC: 'med', MO: 'med', ED: 'ata', EE: 'ata', PL: 'ata' };
+const NOME_POS = { ALD: 'Ala direito', ALE: 'Ala esquerdo', GR: 'Guarda-redes', DD: 'Lateral direito', DE: 'Lateral esquerdo', DC: 'Defesa central', MDC: 'Médio defensivo', MC: 'Médio centro', MO: 'Médio ofensivo', ED: 'Extremo direito', EE: 'Extremo esquerdo', PL: 'Ponta de lança' };
 function tacticaConteudo() {
   const slots = FORMACOES[formacao];
   // Cada posição: titular + suplentes. Posições repetidas (2 DC, 2 MC) repartem os jogadores alternadamente.
   const usados = new Set(), caixas = slots.map(() => []);
-  for (let rodada = 0; rodada < 4; rodada++) slots.forEach(([pos, , , pool], k) => {
+  for (let rodada = 0; rodada < 3; rodada++) slots.forEach(([pos, , , pool], k) => {
     const cand = plantel.filter((p) => !usados.has(p.n) && !(rodada === 0 && (p.lesao || p.susp)) && pool.includes(p.pos)).sort((a, b) => (b.pos === pos) - (a.pos === pos) || b.ovr - a.ovr)[0];
     if (cand && (rodada === 0 || cand.pos === pos || caixas[k].length < 2)) { usados.add(cand.n); caixas[k].push(cand); }
   });
   const valor = (p) => Math.max(0.3, Math.round(((p.ovr - 45) ** 2 * 0.012 + (p.idade < 23 ? 2 : 0)) * 10) / 10);
   const fora = plantel.filter((p) => !usados.has(p.n));
+  const med = (a) => Math.round(a.reduce((x, p) => x + p.ovr, 0) / Math.max(1, a.length));
+  const mediaP = med(plantel), mediaO = med(caixas.map((c) => c[0]).filter(Boolean)), mediaS = med(caixas.map((c) => c[1]).filter(Boolean));
+  const moralMedia = plantel.reduce((x, p) => x + p.moral, 0) / plantel.length;
   return `
   <div class="filtros"><div class="seg" role="group" aria-label="Formação">${Object.keys(FORMACOES).map((f) => `<button data-form="${f}" class="${f === formacao ? 'on' : ''}">${f}</button>`).join('')}</div><span class="muted">Treinador: Hélder Quintela · perfil pressão alta</span><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div>
   <div class="grelha">
-    <section class="c s8"><h2>Onze e profundidade · titular em cima, suplentes por baixo</h2><div class="prof">${slots.map(([pos, x, y], k) => `<div class="caixa" style="left:${x}%;top:${y}%"><div class="pos">${NOME_POS[pos].toUpperCase()}</div>${caixas[k].map((p, i) => `<div class="lin-j ${i === 0 ? 'titular' : ''} ${p.lesao ? 'lesionado' : ''}" data-j="${p.n}"><b>${p.n}</b><div><div class="nm">${nomeCurto(p.nome)} '${String(2026 - p.idade).slice(2)}${p.pos !== pos ? ` <span class="muted">(${p.pos})</span>` : ''}</div><div class="det">OVR ${p.ovr} · ${valor(p).toFixed(1).replace('.', ',')} M€ · ${p.papel}${p.lesao ? ' · lesionado' : ''}</div></div></div>`).join('') || '<div class="det muted" style="padding:4px">— sem jogador —</div>'}</div>`).join('')}</div>
-    ${fora.length ? `<div class="rot" style="margin-top:10px">Fora das escolhas: ${fora.map((p) => `${nomeCurto(p.nome)} (${p.pos}${p.lesao ? ', lesionado' : ''})`).join(', ')}</div>` : ''}</section>
+    <section class="c s8">
+      <div class="notas-eq">${[['Plantel', mediaP], ['Onze', mediaO], ['Profundidade', mediaS]].map(([t, v]) => `<div class="nota-eq ${corOvr(v)}"><b class="num">${v}</b><span>${t}</span></div>`).join('')}<div class="dinamica"><span class="rot">Dinâmica do grupo</span><b class="${moralMedia >= 14 ? 'pos' : moralMedia >= 11 ? '' : 'neg'}">${moralMedia >= 14 ? 'Positiva' : moralMedia >= 11 ? 'Estável' : 'Negativa'}</b></div></div>
+      <div class="dep">${slots.map(([pos, x, y], k) => `<div class="dcx ${LINHA_POS[pos]} ${x < 12 || x > 88 ? 'lado' : ''}" style="left:${x}%;top:${y}%"><div class="dcx-cab">${pos}</div>${caixas[k].map((p, i) => `<div class="dl ${i === 0 ? 'tit' : ''} ${p.lesao ? 'les' : ''}" data-j="${p.n}"><span class="dn">${nomeCurto(p.nome)} <span class="di">(${p.idade})</span>${p.pos !== pos && !(pos === 'ALD' && p.pos === 'DD') && !(pos === 'ALE' && p.pos === 'DE') ? `<span class="dp">${p.pos}</span>` : ''}</span><span class="dv ${corOvr(p.ovr)}">${p.ovr}</span></div>`).join('') || '<div class="dl"><span class="dn muted">— vazio —</span></div>'}</div>`).join('')}
+        <span class="dep-form">${formacao}</span></div>
+      ${fora.length ? `<div class="rot" style="margin-top:10px">Fora das escolhas: ${fora.map((p) => `${nomeCurto(p.nome)} (${p.pos}${p.lesao ? ', lesionado' : ''})`).join(', ')}</div>` : ''}</section>
     <section class="c s4"><h2>Instruções de equipa</h2>
       <div class="instr">
         <label>Mentalidade<div class="seg" role="group">${['Defensiva', 'Equilibrada', 'Ofensiva'].map((m) => `<button data-ment="${m}" class="${m === mentalidade ? 'on' : ''}">${m}</button>`).join('')}</div></label>
@@ -541,7 +590,7 @@ function staffEcra() {
   return `
   <div class="topo"><h1>Staff</h1><span class="sub">11 membros · custo anual 5,4 M€ (orçamento 5,5 M€)</span><div class="direita"><button class="btn">Mercado de treinadores</button><button class="btn prim">Contratar staff</button></div></div>
   <section class="c"><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Contrato</th><th class="r"></th></tr></thead>
-  <tbody>${membros.map(([c, n, i, v, ef, f]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'a' : v >= 13 ? 'b' : v >= 11 ? 'c' : 'd'}">${v}</span></td><td>${ef}</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`).join('')}</tbody></table></div></section>
+  <tbody>${membros.map(([c, n, i, v, ef, f]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`).join('')}</tbody></table></div></section>
   <div class="grelha" style="margin-top:14px"><section class="c s6"><h2>Pedidos do treinador</h2><div class="linha-kv"><span>Quer um médio defensivo titular na janela de Janeiro</span><span class="chip aviso">pendente</span></div><div class="linha-kv"><span>Pede renovação do 1.º Adjunto</span><span class="chip">em análise</span></div></section>
   <section class="c s6"><h2>Confiança do dono no treinador</h2><div class="num grande">64</div><div class="barra" style="margin-top:10px"><i style="width:64%"></i></div><div class="rot" style="margin-top:6px">Posição esperada: 3.º · actual: 4.º</div></section></div>`;
 }
@@ -642,10 +691,10 @@ function desenharModal() {
     let cel = '';
     for (let k = 0; k < 42; k++) { const d = new Date(ini.getTime() + k * 864e5); const j = JOGOS.get(chave(d)); const ev = EVENTOS.get(chave(d));
       const cores = j ? j.cores ?? CORES[LIGA.indexOf(j.adv)] ?? ['#555', '#fff'] : null;
-      cel += `<div class="dia ${d.getUTCMonth() !== base.getUTCMonth() ? 'fora-mes' : ''} ${chave(d) === chave(hoje) ? 'hoje' : ''}" ${emJanela(d) ? 'title="Janela de transferências aberta"' : ''}><span class="n">${d.getUTCDate()}</span>${emJanela(d) ? `<svg class="troca" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-label="janela aberta"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>` : ''}${j ? `<div class="partida" style="--cor-comp:${COR_COMP[j.tipo]}" title="${j.comp}: ${j.casa ? 'em casa' : 'fora'} contra ${j.adv}"><span class="ci">${svg(j.tipo)}</span><div><div class="cf">${j.casa ? 'Casa' : 'Fora'} · vs</div><div class="adv">${escudo(cores, 10).replace('class="escudo"', 'class="escudo" style="width:10px;height:11px;vertical-align:-1px;margin-right:3px"')}${j.adv}</div></div></div>` : ''}${ev ? `<span class="pausa">${ev}</span>` : ''}</div>`; }
+      cel += `<div class="dia ${d.getUTCMonth() !== base.getUTCMonth() ? 'fora-mes' : ''} ${chave(d) === chave(hoje) ? 'hoje' : ''}" ${emJanela(d) ? 'title="Janela de transferências aberta"' : ''}><span class="n">${d.getUTCDate()}</span>${emJanela(d) ? `<svg class="troca" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-label="janela aberta"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>` : ''}${j ? `<div class="partida" style="--cor-comp:${COR_COMP[j.tipo]}" title="${j.comp}: ${j.casa ? 'em casa' : 'fora'} contra ${j.adv}"><span class="ci">${svg(j.icone ?? j.tipo)}</span><div><div class="cf">${j.casa ? 'Casa' : 'Fora'} · vs</div><div class="adv">${escudo(cores, 10).replace('class="escudo"', 'class="escudo" style="width:10px;height:11px;vertical-align:-1px;margin-right:3px"')}${j.adv}</div></div></div>` : ''}${ev ? `<span class="pausa">${ev}</span>` : ''}</div>`; }
     el.innerHTML = `<div class="modal" role="dialog" aria-label="Calendário" style="width:min(960px,100%)"><div class="modal-cab"><button class="icone-btn" id="cal-ant" aria-label="Mês anterior" style="transform:scaleX(-1)">${svg('seta')}</button><h3>${MESES[base.getUTCMonth()]} ${base.getUTCFullYear()}</h3><button class="icone-btn" id="cal-seg" aria-label="Mês seguinte">${svg('seta')}</button><button class="btn" id="fechar">Fechar</button></div>
       <div class="cal">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((x) => `<div class="dsem">${x}</div>`).join('')}${cel}</div>
-      <div class="legenda"><span><i class="ci" style="background:var(--mau)">${svg('liga')}</i>Liga</span><span><i class="ci" style="background:var(--bom)">${svg('taca')}</i>Taça</span><span><i class="ci" style="background:var(--info)">${svg('cont')}</i>Competição continental</span><span><i class="ci" style="background:var(--aviso)"></i>Pausas</span><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--aviso)" stroke-width="2.4" stroke-linecap="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>Janela de transferências aberta</span></div>
+      <div class="legenda"><span><i class="ci" style="background:var(--c-liga)">${svg('liga')}</i>Liga</span><span><i class="ci" style="background:var(--c-taca)">${svg('taca')}</i>Taça</span><span><i class="ci" style="background:var(--c-ucl)">${svg('cont')}</i>Liga dos Campeões / Libertadores / AFC Champions</span><span><i class="ci" style="background:var(--c-uel)">${svg('cont')}</i>Liga Europa</span><span><i class="ci" style="background:var(--c-uecl)">${svg('cont')}</i>Liga Conferência</span><span><i class="ci" style="background:var(--c-pausa)"></i>Pausas</span><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--texto)" stroke-width="2.4" stroke-linecap="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>Janela de transferências aberta</span></div>
       <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
     el.innerHTML = `<div class="modal" role="dialog" aria-label="Mensagens"><div class="modal-cab"><h3>Mensagens</h3><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}</span></div>`).join('')}</div>`;
@@ -664,6 +713,8 @@ function ligar(m) {
   m.querySelector('#b-cont').addEventListener('click', () => { hoje = new Date(hoje.getTime() + 864e5); desenhar(); });
   m.querySelectorAll('[data-pos]').forEach((b) => b.addEventListener('click', () => { filtroPos = b.dataset.pos; desenhar(); }));
   const f = m.querySelector('#f-pesq'); if (f) f.addEventListener('input', () => { pesquisa = f.value; const pos = f.selectionStart; desenhar(); const g = document.getElementById('f-pesq'); g.focus(); g.setSelectionRange(pos, pos); });
+  m.querySelectorAll('[data-jj]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.jj; location.hash = 'jogador'; }));
+  m.querySelectorAll('.dl[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
   m.querySelectorAll('.lin-j[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
   m.querySelectorAll('tr[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
   m.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', () => { verComo = b.dataset.ver; desenhar(); }));
