@@ -60,7 +60,7 @@ button { cursor: pointer; }
 .c { background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px; min-width: 0; }
 .c h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--suave); margin: 0 0 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 .c h2 .acao { margin-left: auto; text-transform: none; letter-spacing: 0; color: var(--acento); font-weight: 600; cursor: pointer; }
-.s3 { grid-column: span 3; } .s4 { grid-column: span 4; } .s5 { grid-column: span 5; } .s6 { grid-column: span 6; } .s7 { grid-column: span 7; } .s8 { grid-column: span 8; } .s12 { grid-column: span 12; }
+.s9 { grid-column: span 9; } .s3 { grid-column: span 3; } .s4 { grid-column: span 4; } .s5 { grid-column: span 5; } .s6 { grid-column: span 6; } .s7 { grid-column: span 7; } .s8 { grid-column: span 8; } .s12 { grid-column: span 12; }
 .num { font-family: var(--f-num); font-weight: 600; font-variant-numeric: tabular-nums; }
 .grande { font-size: 40px; line-height: 1; }
 .medio { font-size: 26px; line-height: 1; }
@@ -135,7 +135,9 @@ td.r, th.r { text-align: right; }
 .cores button { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--linha); }
 
 .inferior { display: none; }
-@media (max-width: 1100px) { .s3 { grid-column: span 6; } .s4 { grid-column: span 6; } .s5, .s7, .s8 { grid-column: span 12; } }
+.menu-mais { position: fixed; right: max(8px, env(safe-area-inset-right, 0px)); bottom: calc(70px + env(safe-area-inset-bottom, 0px)); background: #0f1216; border: 1px solid var(--linha); border-radius: 12px; padding: 8px; z-index: 6; min-width: 230px; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+@media (min-width: 761px) { .menu-mais { display: none !important; } }
+@media (max-width: 1100px) { .s3 { grid-column: span 6; } .s4 { grid-column: span 6; } .s5, .s7, .s8, .s9 { grid-column: span 12; } }
 @media (max-width: 760px) {
   .app { grid-template-columns: 1fr; }
   .lateral { display: none; }
@@ -157,18 +159,10 @@ td.r, th.r { text-align: right; }
   <nav class="lateral" aria-label="Navegação principal">
     <div class="marca"><svg class="escudo" id="escudo-marca" viewBox="0 0 34 38"></svg><div><b>FutCEO</b><small id="nome-clube-lat">Atlético de Serra do Freixo</small></div></div>
     <div id="nav-lista"></div>
-    <div class="nav-sep"></div>
-    <div class="rot" style="padding:4px 12px">Ecrãs dos próximos passos</div>
-    <a class="nav extra" aria-disabled="true">Treinador e staff</a>
-    <a class="nav extra" aria-disabled="true">Scouting</a>
-    <a class="nav extra" aria-disabled="true">Academia</a>
-    <a class="nav extra" aria-disabled="true">Infraestruturas</a>
-    <a class="nav extra" aria-disabled="true">Clube e dono</a>
-    <a class="nav extra" aria-disabled="true">Mundo e calendário</a>
-    <a class="nav extra" aria-disabled="true">Armazenamento</a>
   </nav>
   <main class="principal" id="principal"></main>
   <nav class="inferior" id="inferior" aria-label="Navegação"></nav>
+  <div class="menu-mais" id="menu-mais" hidden></div>
 </div>
 
 <script>
@@ -181,8 +175,13 @@ const ICON = {
   mercado: '<path d="M4 7h16l-1.5 12h-13z"/><path d="M8 7a4 4 0 0 1 8 0"/>',
   financas: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   classificacao: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/>',
+  infra: '<path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/>',
+  staff: '<circle cx="12" cy="6" r="3"/><path d="M6 21v-3a6 6 0 0 1 12 0v3"/><path d="M9 13l3 3 3-3"/>',
+  academia: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/>',
+  mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
 };
-const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['tactica', 'Táctica'], ['mercado', 'Mercado'], ['financas', 'Finanças'], ['classificacao', 'Classificação']];
+const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições']];
+const INFERIOR = ['inicio', 'plantel', 'mercado', 'classificacao'];
 const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 
 let sem = 2026;
@@ -261,16 +260,30 @@ function inicio() {
   </div>`;
 }
 
-let filtroPos = 'Todos', pesquisa = '';
+let filtroPos = 'Todos', pesquisa = '', tabPlantel = 'Equipa principal';
+const JUN = (n, idade0, ovr0) => Array.from({ length: n }, (_, k) => { const pos = POS[ri(0, POS.length - 1)]; const idade = idade0 + ri(0, 2); const ovr = ovr0 + ri(-8, 8); return { n: 40 + k, nome: `${PRIMEIROS[ri(0, PRIMEIROS.length - 1)]} ${APELIDOS[ri(0, APELIDOS.length - 1)]}`, pos, idade, ovr, pot: Math.min(95, ovr + ri(10, 26)), evol: ri(-1, 6) }; });
+const sub21 = JUN(16, 19, 52), sub18 = JUN(16, 15, 42);
+function listaJuniores(lista, esc) {
+  return `<div class="tab-wrap"><table><thead><tr><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th>Potencial</th><th class="r">Evolução</th><th>Conselho do gestor</th><th class="r">Gerir</th></tr></thead><tbody>${lista.map((p, i) => {
+    const c = p.ovr >= 58 ? 'Promover à equipa principal' : p.pot < 62 ? 'Libertar' : esc === 'sub18' && p.ovr >= 50 ? 'Promover ao sub-21' : 'Manter';
+    return `<tr><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="estrelas" style="font-size:13px">${estrelas(potE(p.pot), potE(p.pot))}</td><td class="r" style="color:${p.evol > 0 ? 'var(--bom)' : 'var(--suave)'}">${p.evol > 0 ? '+' : ''}${p.evol}</td><td><span class="chip ${c.startsWith('Promover') ? 'bom' : c === 'Libertar' ? 'mau' : ''}">${c}</span></td><td class="r" style="display:flex;gap:6px;justify-content:flex-end">${esc === 'sub21' ? `<button class="btn" data-mover="sub21:${i}:principal">↑ Principal</button><button class="btn" data-mover="sub21:${i}:sub18">↓ Sub-18</button>` : `<button class="btn" data-mover="sub18:${i}:sub21">↑ Sub-21</button>`}</td></tr>`; }).join('')}</tbody></table></div>`;
+}
 function plantelEcra() {
+  const tabs = ['Equipa principal', 'Táctica', `Sub-21 (${sub21.length})`, `Sub-18 (${sub18.length})`];
+  const cab = `<div class="topo"><h1>Plantel</h1><span class="sub">${plantel.length} na equipa principal · ${sub21.length} no sub-21 · ${sub18.length} no sub-18</span></div><div class="filtros"><div class="seg" role="group">${tabs.map((t) => `<button data-tabp="${t.split(' (')[0]}" class="${t.startsWith(tabPlantel) ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
+  if (tabPlantel === 'Táctica') return cab + tacticaConteudo();
+  if (tabPlantel === 'Sub-21') return cab + `<section class="c"><h2>Sub-21 · 19 a 21 anos · máximo 18</h2>${listaJuniores(sub21, 'sub21')}</section>`;
+  if (tabPlantel === 'Sub-18') return cab + `<section class="c"><h2>Sub-18 · 15 a 18 anos · máximo 18</h2>${listaJuniores(sub18, 'sub18')}</section>`;
+  return cab + plantelPrincipal();
+}
+function plantelPrincipal() {
   const grupos = { Todos: () => true, GR: (p) => p.pos === 'GR', Defesas: (p) => ['DC', 'DD', 'DE'].includes(p.pos), Médios: (p) => ['MDC', 'MC', 'MO'].includes(p.pos), Avançados: (p) => ['ED', 'EE', 'PL'].includes(p.pos) };
   const lista = plantel.filter(grupos[filtroPos]).filter((p) => p.nome.toLowerCase().includes(pesquisa.toLowerCase()));
   return `
-  <div class="topo"><h1>Plantel</h1><span class="sub">25 jogadores · média de idade 26,4 · OVR médio 63</span></div>
   <div class="filtros"><input id="f-pesq" type="search" placeholder="Pesquisar no plantel…" value="${pesquisa}" aria-label="Pesquisar no plantel"><div class="seg" role="group">${Object.keys(grupos).map((g) => `<button data-pos="${g}" class="${g === filtroPos ? 'on' : ''}">${g}</button>`).join('')}</div></div>
   <section class="c"><div class="tab-wrap"><table>
-    <thead><tr><th>N.º</th><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th>Melhor papel</th><th class="r">Adeq.</th><th class="r">Moral</th><th>Forma</th><th class="r">Condição</th><th class="r">Contrato</th><th class="r">Salário</th><th>Estado</th></tr></thead>
-    <tbody>${lista.map((p) => `<tr class="clic" data-j="${p.n}"><td class="muted">${p.n}</td><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="muted">${p.papel}</td><td class="r">${p.adq}</td><td class="r">${p.moral}</td><td>${p.forma.slice(-3).join(' · ')}</td><td class="r">${p.cond}%</td><td class="r">${p.fim}</td><td class="r">${M(p.sal)}</td><td>${p.lesao ? `<span class="chip mau">${p.lesao}</span>` : p.susp ? '<span class="chip aviso">Suspenso</span>' : '<span class="chip bom">Apto</span>'}</td></tr>`).join('')}</tbody>
+    <thead><tr><th>N.º</th><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th>Melhor papel</th><th class="r">Adeq.</th><th class="r">Moral</th><th>Forma</th><th class="r">Condição</th><th class="r">Contrato</th><th class="r">Salário</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${lista.map((p) => `<tr class="clic" data-j="${p.n}"><td class="muted">${p.n}</td><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="muted">${p.papel}</td><td class="r">${p.adq}</td><td class="r">${p.moral}</td><td>${p.forma.slice(-3).join(' · ')}</td><td class="r">${p.cond}%</td><td class="r">${p.fim}</td><td class="r">${M(p.sal)}</td><td>${p.lesao ? `<span class="chip mau">${p.lesao}</span>` : p.susp ? '<span class="chip aviso">Suspenso</span>' : '<span class="chip bom">Apto</span>'}</td><td class="r">${p.idade <= 21 ? `<button class="btn" data-mover="principal:${p.n}:sub21">↓ Sub-21</button>` : ''}</td></tr>`).join('')}</tbody>
   </table></div></section>`;
 }
 
@@ -316,12 +329,12 @@ function jogadorEcra() {
 }
 
 let mentalidade = 'Equilibrada';
-function tacticaEcra() {
+function tacticaConteudo() {
   const onze = [['GR', 50, 92], ['DD', 82, 74], ['DC', 62, 78], ['DC', 38, 78], ['DE', 18, 74], ['MDC', 50, 60], ['MC', 70, 46], ['MC', 30, 46], ['ED', 84, 24], ['PL', 50, 14], ['EE', 16, 24]];
   const usados = new Set();
   const pecas = onze.map(([pos, x, y]) => { const p = plantel.find((q) => q.pos === pos && !usados.has(q.n) && !q.lesao) ?? plantel.find((q) => !usados.has(q.n)); usados.add(p.n); return `<div class="peca" style="left:${x}%;top:${y}%"><b>${p.n}</b><span>${nomeCurto(p.nome)}</span><em>${p.papel}</em></div>`; }).join('');
   return `
-  <div class="topo"><h1>Táctica</h1><span class="sub">Treinador: Hélder Quintela · perfil pressão alta</span><div class="direita"><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div></div>
+  <div class="filtros"><span class="sub muted">Treinador: Hélder Quintela · perfil pressão alta</span><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div>
   <div class="grelha">
     <section class="c s7"><h2>4-3-3 · onze provável</h2>
       <div class="campo"><div class="lin" style="left:0;right:0;top:50%;height:0"></div><div class="lin" style="left:35%;width:30%;top:-2px;height:14%"></div><div class="lin" style="left:35%;width:30%;bottom:-2px;height:14%"></div><div class="lin" style="left:42%;width:16%;top:44%;height:12%;border-radius:50%"></div>${pecas}</div>
@@ -380,8 +393,11 @@ function financasEcra() {
 }
 
 function classificacaoEcra() {
-  return `
-  <div class="topo"><h1>Classificação</h1><span class="sub">Liga Portugal · Jornada 12 de 34</span><div class="direita"><select class="btn" aria-label="Liga"><option>Liga Portugal</option><option>Liga Portugal 2</option><option>Taça de Portugal</option><option>Liga dos Campeões</option></select></div></div>
+  const nome = COMP.find((c) => c[0] === compSel)[1];
+  const cab = `<div class="topo"><h1>Competições</h1><span class="sub">${nome}</span><div class="direita"><select class="btn" id="sel-comp" aria-label="Competição">${COMP.map(([k, n]) => `<option value="${k}" ${k === compSel ? 'selected' : ''}>${n}</option>`).join('')}</select></div></div><div class="filtros"><div class="seg" role="group">${['Classificação', 'Histórico de campeões'].map((t) => `<button data-tabc="${t}" class="${t === tabComp ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
+  if (tabComp === 'Histórico de campeões') return cab + `<div class="grelha">${historicoEcra()}</div>`;
+  if (compSel !== 'POR1') return cab + `<section class="c"><div class="rot">Classificação de ${nome}: no protótipo só a Liga Portugal tem dados; na app vêm do mundo simulado (todas as ligas, taças e fases continentais).</div></section>`;
+  return cab + `
   <section class="c"><div class="tab-wrap"><table>
     <thead><tr><th class="zona"></th><th class="r">#</th><th>Clube</th><th class="r">J</th><th class="r">V</th><th class="r">E</th><th class="r">D</th><th class="r">GM</th><th class="r">GS</th><th class="r">DG</th><th class="r">Pts</th><th>Forma</th></tr></thead>
     <tbody>${tabela.map((t, i) => `<tr class="${t.nome === CLUBE.nome ? 'meu' : ''}"><td class="zona ${i < 2 ? 'ucl' : i < 5 ? 'uel' : i >= 15 ? 'desc' : ''}"></td><td class="r">${i + 1}</td><td><span style="display:inline-flex;align-items:center;gap:8px">${escudo(t.cores, 18)}<b>${t.nome}</b></span></td><td class="r">${t.j}</td><td class="r">${t.v}</td><td class="r">${t.e}</td><td class="r">${t.d}</td><td class="r">${t.gm}</td><td class="r">${t.gs}</td><td class="r">${t.gm - t.gs > 0 ? '+' : ''}${t.gm - t.gs}</td><td class="r"><b class="num" style="font-size:17px">${t.pts}</b></td><td><span class="forma">${t.forma.map((x) => `<i class="${x}">${x}</i>`).join('')}</span></td></tr>`).join('')}</tbody>
@@ -389,13 +405,105 @@ function classificacaoEcra() {
   <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px" class="rot"><span><span class="chip info"><span class="pt"></span></span> Liga dos Campeões</span><span><span class="chip aviso"><span class="pt"></span></span> Liga Europa / Conferência</span><span><span class="chip mau"><span class="pt"></span></span> Descida</span></div></section>`;
 }
 
+
+function staffEcra() {
+  const membros = [
+    ['Treinador', 'Hélder Quintela', 54, 14, 'Pressão alta · desenvolvimento 15', '2028'],
+    ['1.º Adjunto', 'Rui Amieira', 47, 12, 'Táctica e preparação de jogo', '2027'],
+    ['2.º Adjunto', 'Paulo Carvide', 39, 10, 'Bolas paradas', '2027'],
+    ['Treinador de guarda-redes', 'Jorge Seixal', 51, 13, '+ evolução dos GR', '2028'],
+    ['Preparador físico', 'Marco Lourosa', 44, 15, 'Condição e prevenção de lesões', '2029'],
+    ['Fisioterapeuta', 'Ana Rebordão', 38, 14, '− dias de lesão', '2028'],
+    ['Gestor de academia', 'Carlos Ferrão', 58, 16, 'Qualidade do intake e evolução dos jovens', '2029'],
+    ['Olheiro principal', 'Luís Alcobia', 49, 13, 'Coordena os olheiros', '2027'],
+    ['Olheiro de jovens', 'Samuel Quintela', 33, 11, 'Juniores e prospectos', '2027'],
+    ['Olheiro internacional', 'Diego Ferraz', 41, 12, 'Brasil e Argentina', '2028'],
+    ['Analista', 'Inês Carvide', 31, 12, 'Estatísticas e relatórios', '2027'],
+  ];
+  return `
+  <div class="topo"><h1>Staff</h1><span class="sub">11 membros · custo anual 5,4 M€ (orçamento 5,5 M€)</span><div class="direita"><button class="btn">Mercado de treinadores</button><button class="btn prim">Contratar staff</button></div></div>
+  <section class="c"><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Contrato</th><th class="r"></th></tr></thead>
+  <tbody>${membros.map(([c, n, i, v, ef, f]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'a' : v >= 13 ? 'b' : v >= 11 ? 'c' : 'd'}">${v}</span></td><td>${ef}</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`).join('')}</tbody></table></div></section>
+  <div class="grelha" style="margin-top:14px"><section class="c s6"><h2>Pedidos do treinador</h2><div class="linha-kv"><span>Quer um médio defensivo titular na janela de Janeiro</span><span class="chip aviso">pendente</span></div><div class="linha-kv"><span>Pede renovação do 1.º Adjunto</span><span class="chip">em análise</span></div></section>
+  <section class="c s6"><h2>Confiança do dono no treinador</h2><div class="num grande">64</div><div class="barra" style="margin-top:10px"><i style="width:64%"></i></div><div class="rot" style="margin-top:6px">Posição esperada: 3.º · actual: 4.º</div></section></div>`;
+}
+
+let alaAcad = 'Academia';
+function academiaEcra() {
+  const alas = `<div class="filtros"><div class="seg" role="group">${['Academia', 'Departamento de scouting'].map((t) => `<button data-ala="${t}" class="${t === alaAcad ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
+  if (alaAcad === 'Academia') return `
+  <div class="topo"><h1>Academia e Recrutamento</h1></div>${alas}
+  <div class="grelha">
+    <section class="c s3"><h2>Nível da academia</h2><div class="num grande">7<span class="muted" style="font-size:20px">/10</span></div><div class="rot">Shortlist até 11 prospectos</div></section>
+    <section class="c s3"><h2>Gestor de academia</h2><div class="num medio">Carlos Ferrão</div><div class="rot" style="margin-top:6px">nível 16 · contrato até 2029</div></section>
+    <section class="c s3"><h2>Jogadores na base</h2><div class="num grande">${sub18.length + sub21.length + 11 + 19}</div><div class="rot">16 sub-21 · 16 sub-18 · 11 prospectos · 19 na academia (agregado)</div></section>
+    <section class="c s3"><h2>Intake de Junho</h2><div class="num grande">9</div><div class="rot">jovens de 15–16 anos previstos</div></section>
+    <section class="c s6"><h2>Recomendações do gestor</h2>
+      <div class="linha-kv"><span>Promover ${sub21[2].nome} à equipa principal</span><button class="btn">Aprovar</button></div>
+      <div class="linha-kv"><span>${sub18[4].nome} (16) directo ao sub-21: fora da curva</span><button class="btn">Aprovar</button></div>
+      <div class="linha-kv"><span>Oferecer contrato profissional a 3 jovens que fazem 18</span><button class="btn">Ver</button></div>
+      <div class="linha-kv"><span>Libertar 2 do sub-21 sem evolução</span><button class="btn">Ver</button></div>
+    </section>
+    <section class="c s6"><h2>Treinadores da base</h2>
+      <div class="linha-kv"><span>Treinador do sub-21 · Paulo Teiouro</span><span>nível 12</span></div>
+      <div class="linha-kv"><span>Treinador do sub-18 · Nuno Barota</span><span>nível 13</span></div>
+      <div class="linha-kv"><span>Treinador de GR da base · Tiago Salares</span><span>nível 10</span></div>
+    </section>
+    <section class="c s12"><h2>Relatório de destaques</h2><div class="tab-wrap"><table><thead><tr><th>Nome</th><th>Escalão</th><th class="r">Idade</th><th class="r">OVR</th><th>Potencial</th><th class="r">Evolução na época</th><th>Nota</th></tr></thead><tbody>
+      ${[[sub18[4], 'sub-18', 'Acima do nível do sub-21'], [sub21[2], 'sub-21', 'Pronto para a equipa principal'], [sub18[9], 'sub-18', 'Clube grande interessado (aliciamento)']].map(([p, e, n]) => `<tr><td><b>${p.nome}</b></td><td>${e}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="estrelas" style="font-size:13px">${estrelas(potE(p.pot), potE(p.pot))}</td><td class="r" style="color:var(--bom)">+${Math.max(2, p.evol)}</td><td>${n}</td></tr>`).join('')}
+    </tbody></table></div></section>
+  </div>`;
+  const olheiros = [['Olheiro principal', 'Luís Alcobia', 13, 'Coordena · Portugal'], ['Olheiro de jovens', 'Samuel Quintela', 11, 'Sub-18 e sub-21 de Portugal e Espanha'], ['Olheiro internacional', 'Diego Ferraz', 12, 'Brasileirão e Argentina'], ['Analista', 'Inês Carvide', 12, 'Estatísticas dos alvos e adversários']];
+  return `
+  <div class="topo"><h1>Academia e Recrutamento</h1></div>${alas}
+  <div class="grelha">
+    <section class="c s3"><h2>Nível do recrutamento</h2><div class="num grande">6<span class="muted" style="font-size:20px">/10</span></div><div class="rot">+60% observações por semana</div></section>
+    <section class="c s9"><h2>Equipa de scouting</h2>${olheiros.map(([c, n, v, a]) => `<div class="linha-kv"><span><b>${n}</b> <span class="muted">· ${c}</span></span><span class="muted">${a} · nível ${v}</span></div>`).join('')}</section>
+    <section class="c s6"><h2>Scouts em andamento</h2>
+      <div class="linha-kv"><span>Brasileirão · todos os escalões · avançados</span><span>familiaridade 0,73 · 4 semanas</span></div>
+      <div class="linha-kv"><span>Liga Portugal 2 · sub-23 · médios</span><span>familiaridade 0,91 · 2 semanas</span></div>
+      <div class="linha-kv"><span>Relatório pedido: Gustavo Rosilho</span><span class="chip info">conhecimento 82%</span></div>
+      <button class="btn prim" style="margin-top:12px">Nova atribuição</button>
+    </section>
+    <section class="c s6"><h2>Shortlist</h2>${MERCADO.slice(0, 5).map(([n, p, i, c, l, k, o]) => `<div class="linha-kv"><span><b>${n}</b> <span class="muted">${p} · ${i} · ${c}</span></span><span><span class="intervalo">${o[0]}–${o[1]}</span> <span class="chip ${k >= 80 ? 'bom' : k >= 50 ? 'aviso' : 'mau'}">${k}%</span></span></div>`).join('')}</section>
+  </div>`;
+}
+
+function infraEcra() {
+  const inf = [['Estádio', 6, '32 400 lugares · bilheteira e assistência', 6.8, 72], ['Centro de treino', 5, '+0 pontos de desenvolvimento dos jogadores', 2.4, 36], ['Academia', 7, 'Qualidade do intake e shortlist de 11', 3.1, 42], ['Instalações médicas', 4, '−0% dias de lesão', 0.9, 20], ['Recrutamento', 6, '+60% observações dos scouts', 0.7, 18]];
+  return `
+  <div class="topo"><h1>Infraestrutura</h1><span class="sub">Orçamento de infraestruturas: 4,1 / 6,0 M€</span></div>
+  <div class="grelha">${inf.map(([n, v, ef, custo, sem]) => `<section class="c s4"><h2>${n}${n === 'Academia' ? '<span class="chip info" style="margin-left:auto">obra em curso · 9 semanas</span>' : ''}</h2>
+    <div style="display:flex;align-items:baseline;gap:8px"><span class="num grande">${v}</span><span class="muted">/ 10</span></div>
+    <div class="barra" style="margin:10px 0"><i style="width:${v * 10}%"></i></div>
+    <div class="rot">${ef}</div>
+    <div class="linha-kv" style="margin-top:10px"><span class="muted">Subir para ${v + 1}</span><span>${custo.toFixed(1).replace('.', ',')} M€ · ${sem} semanas</span></div>
+    <div class="linha-kv"><span class="muted">Manutenção anual</span><span>${(custo * 0.1).toFixed(2).replace('.', ',')} M€</span></div>
+    <button class="btn ${n === 'Academia' ? '' : 'prim'}" style="margin-top:10px;width:100%" ${n === 'Academia' ? 'disabled' : ''}>${n === 'Academia' ? 'Obra em curso' : `Melhorar para nível ${v + 1}`}</button></section>`).join('')}</div>`;
+}
+
+const HIST = {"UCL": [["2025–26", "Liga dos Campeões", "Paris Saint-Germain", "Arsenal", "1 – 1 (pro) 4 – 3 (pen)"], ["2024–25", "Liga dos Campeões", "Paris Saint-Germain", "Internazionale", "5 – 0"], ["2023–24", "Liga dos Campeões", "Real Madrid", "Borussia Dortmund", "2 – 0"], ["2022–23", "Liga dos Campeões", "Manchester City", "Internazionale", "1 – 0"], ["2021–22", "Liga dos Campeões", "Real Madrid", "Liverpool", "1 – 0"], ["2020–21", "Liga dos Campeões", "Chelsea", "Manchester City", "1 – 0"], ["2019–20", "Liga dos Campeões", "Bayern de Munique", "Paris Saint-Germain", "1 – 0"], ["2018–19", "Liga dos Campeões", "Liverpool", "Tottenham", "2 – 0"], ["2017–18", "Liga dos Campeões", "Real Madrid", "Liverpool", "3 – 1"], ["2016–17", "Liga dos Campeões", "Real Madrid", "Juventus", "4 – 1"], ["2015–16", "Liga dos Campeões", "Real Madrid", "Atlético de Madrid", "1 – 1 (pro) 5 – 3 (pen)"], ["2014–15", "Liga dos Campeões", "Barcelona", "Juventus", "3 – 1"], ["2013–14", "Liga dos Campeões", "Real Madrid", "Atlético de Madrid", "4 – 1 (pro)"], ["2012–13", "Liga dos Campeões", "Bayern de Munique", "Borussia Dortmund", "2 – 1"], ["2011–12", "Liga dos Campeões", "Chelsea", "Bayern de Munique", "1 – 1 (pro) 4 – 3 (pen)"], ["2010–11", "Liga dos Campeões", "Barcelona", "Manchester United", "3 – 1"], ["2009–10", "Liga dos Campeões", "Internazionale", "Bayern de Munique", "2 – 0"], ["2008–09", "Liga dos Campeões", "Barcelona", "Manchester United", "2 – 0"], ["2007–08", "Liga dos Campeões", "Manchester United", "Chelsea", "1 – 1 (pro) 6 – 5 (pen)"], ["2006–07", "Liga dos Campeões", "Milan", "Liverpool", "2 – 1"], ["2005–06", "Liga dos Campeões", "Barcelona", "Arsenal", "2 – 1"], ["2004–05", "Liga dos Campeões", "Liverpool", "Milan", "3 – 3 (pro) 3 – 2 (pen)"], ["2003–04", "Liga dos Campeões", "Porto", "Monaco", "3 – 0"], ["2002–03", "Liga dos Campeões", "Milan", "Juventus", "0 – 0 (pro) 3 – 2 (pen)"], ["2001–02", "Liga dos Campeões", "Real Madrid", "Bayer Leverkusen", "2 – 1"], ["2000–01", "Liga dos Campeões", "Bayern de Munique", "Valencia", "1 – 1 (pro) 5 – 4 (pen)"], ["1999–00", "Liga dos Campeões", "Real Madrid", "Valencia", "3 – 0"], ["1998–99", "Liga dos Campeões", "Manchester United", "Bayern de Munique", "2 – 1"], ["1997–98", "Liga dos Campeões", "Real Madrid", "Juventus", "1 – 0"], ["1996–97", "Liga dos Campeões", "Borussia Dortmund", "Juventus", "3 – 1"], ["1995–96", "Liga dos Campeões", "Juventus", "Ajax", "1 – 1 (pro) 4 – 2 (pen)"], ["1994–95", "Liga dos Campeões", "Ajax", "Milan", "1 – 0"], ["1993–94", "Liga dos Campeões", "Milan", "Barcelona", "4 – 0"], ["1992–93", "Liga dos Campeões", "Olympique de Marselha", "Milan", "1 – 0"], ["1991–92", "Taça dos Clubes Campeões Europeus", "Barcelona", "Sampdoria", "1 – 0 (pro)"], ["1990–91", "Taça dos Clubes Campeões Europeus", "Estrela Vermelha", "Olympique de Marselha", "0 – 0 (pro) 5 – 3 (pen)"], ["1989–90", "Taça dos Clubes Campeões Europeus", "Milan", "Benfica", "1 – 0"], ["1988–89", "Taça dos Clubes Campeões Europeus", "Milan", "Steaua Bucareste", "4 – 0"], ["1987–88", "Taça dos Clubes Campeões Europeus", "PSV Eindhoven", "Benfica", "0 – 0 (pro) 6 – 5 (pen)"], ["1986–87", "Taça dos Clubes Campeões Europeus", "Porto", "Bayern de Munique", "2 – 1"], ["1985–86", "Taça dos Clubes Campeões Europeus", "Steaua Bucareste", "Barcelona", "0 – 0 (pro) 2 – 0 (pen)"], ["1984–85", "Taça dos Clubes Campeões Europeus", "Juventus", "Liverpool", "1 – 0"], ["1983–84", "Taça dos Clubes Campeões Europeus", "Liverpool", "Roma", "1 – 1 (pro) 4 – 2 (pen)"], ["1982–83", "Taça dos Clubes Campeões Europeus", "Hamburgo", "Juventus", "1 – 0"], ["1981–82", "Taça dos Clubes Campeões Europeus", "Aston Villa", "Bayern de Munique", "1 – 0"], ["1980–81", "Taça dos Clubes Campeões Europeus", "Liverpool", "Real Madrid", "1 – 0"], ["1979–80", "Taça dos Clubes Campeões Europeus", "Nottingham Forest", "Hamburgo", "1 – 0"], ["1978–79", "Taça dos Clubes Campeões Europeus", "Nottingham Forest", "Malmö", "1 – 0"], ["1977–78", "Taça dos Clubes Campeões Europeus", "Liverpool", "Club Brugge", "1 – 0"], ["1976–77", "Taça dos Clubes Campeões Europeus", "Liverpool", "Borussia Mönchengladbach", "3 – 1"], ["1975–76", "Taça dos Clubes Campeões Europeus", "Bayern de Munique", "Saint-Étienne", "1 – 0"], ["1974–75", "Taça dos Clubes Campeões Europeus", "Bayern de Munique", "Leeds United", "2 – 0"], ["1973–74", "Taça dos Clubes Campeões Europeus", "Bayern de Munique", "Atlético de Madrid", "1 – 1 (pro) 4 – 0"], ["1972–73", "Taça dos Clubes Campeões Europeus", "Ajax", "Juventus", "1 – 0"], ["1971–72", "Taça dos Clubes Campeões Europeus", "Ajax", "Internazionale", "2 – 0"], ["1970–71", "Taça dos Clubes Campeões Europeus", "Ajax", "Panathinaikos", "2 – 0"], ["1969–70", "Taça dos Clubes Campeões Europeus", "Feyenoord", "Celtic", "2 – 1 (pro)"], ["1968–69", "Taça dos Clubes Campeões Europeus", "Milan", "Ajax", "4 – 1"], ["1967–68", "Taça dos Clubes Campeões Europeus", "Manchester United", "Benfica", "4 – 1 (pro)"], ["1966–67", "Taça dos Clubes Campeões Europeus", "Celtic", "Internazionale", "2 – 1"], ["1965–66", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Partizan Belgrado", "2 – 1"], ["1964–65", "Taça dos Clubes Campeões Europeus", "Internazionale", "Benfica", "1 – 0"], ["1963–64", "Taça dos Clubes Campeões Europeus", "Internazionale", "Real Madrid", "3 – 1"], ["1962–63", "Taça dos Clubes Campeões Europeus", "Milan", "Benfica", "2 – 1"], ["1961–62", "Taça dos Clubes Campeões Europeus", "Benfica", "Real Madrid", "5 – 3"], ["1960–61", "Taça dos Clubes Campeões Europeus", "Benfica", "Barcelona", "3 – 2"], ["1959–60", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Eintracht Frankfurt", "7 – 3"], ["1958–59", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Stade Reims", "2 – 0"], ["1957–58", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Milan", "3 – 2 (pro)"], ["1956–57", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Fiorentina", "2 – 0"], ["1955–56", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Stade Reims", "4 – 3"]], "UEL": [["2025–26", "Liga Europa", "Aston Villa", "Freiburg", "3 – 0"], ["2024–25", "Liga Europa", "Tottenham", "Manchester United", "1 – 0"], ["2023–24", "Liga Europa", "Atalanta", "Bayer Leverkusen", "3 – 0"], ["2022–23", "Liga Europa", "Sevilla", "Roma", "1 – 1 4 – 1 (pen)"], ["2021–22", "Liga Europa", "Eintracht Frankfurt", "Rangers", "1 – 1 5 – 4 (pen)"], ["2020–21", "Liga Europa", "Villarreal", "Manchester United", "1 – 1 11 – 10 (pen)"], ["2019–20", "Liga Europa", "Sevilla", "Internazionale", "3 – 2"], ["2018–19", "Liga Europa", "Chelsea", "Arsenal", "4 – 1"], ["2017–18", "Liga Europa", "Atlético de Madrid", "Olympique de Marselha", "3 – 0"], ["2016–17", "Liga Europa", "Manchester United", "Ajax", "2 – 0"], ["2015–16", "Liga Europa", "Sevilla", "Liverpool", "3 – 1"], ["2014–15", "Liga Europa", "Sevilla", "Dnipro", "3 – 2"], ["2013–14", "Liga Europa", "Sevilla", "Benfica", "0 – 0 4 – 2 (pen)"], ["2012–13", "Liga Europa", "Chelsea", "Benfica", "2 – 1"], ["2011–12", "Liga Europa", "Atlético de Madrid", "Athletic Bilbao", "3 – 0"], ["2010–11", "Liga Europa", "Porto", "Braga", "1 – 0"], ["2009–10", "Liga Europa", "Atlético de Madrid", "Fulham", "2 – 1 (pro)"], ["2008–09", "Taça UEFA", "Shakhtar Donetsk", "Werder Bremen", "2 – 1 (pro)"], ["2007–08", "Taça UEFA", "Zenit", "Rangers", "2 – 0"], ["2006–07", "Taça UEFA", "Sevilla", "Espanyol", "2 – 2 3 – 1 (pen)"], ["2005–06", "Taça UEFA", "Sevilla", "Middlesbrough", "4 – 0"], ["2004–05", "Taça UEFA", "CSKA Moscou", "Sporting", "3 – 1"], ["2003–04", "Taça UEFA", "Valencia", "Olympique de Marselha", "2 – 0"], ["2002–03", "Taça UEFA", "Porto", "Celtic", "3 – 2 (pro)"], ["2001–02", "Taça UEFA", "Feyenoord", "Borussia Dortmund", "3 – 2"], ["2000–01", "Taça UEFA", "Liverpool", "Alavés", "5 – 4 (go)"], ["1999–00", "Taça UEFA", "Galatasaray", "Arsenal", "0 – 0 4 – 1 (pen)"], ["1998–99", "Taça UEFA", "Parma", "Olympique de Marselha", "3 – 0"], ["1997–98", "Taça UEFA", "Internazionale", "Lazio", "3 – 0"], ["1996–97", "Taça UEFA", "Schalke 04", "Internazionale", "1 – 0 0 – 1 4 – 1 (pen)"], ["1995–96", "Taça UEFA", "Bayern de Munique", "Bordeaux", "2 – 0 3 – 1"], ["1994–95", "Taça UEFA", "Parma", "Juventus", "1 – 0 1 – 1"], ["1993–94", "Taça UEFA", "Internazionale", "Red Bull Salzburg", "1 – 0 1 – 0"], ["1992–93", "Taça UEFA", "Juventus", "Borussia Dortmund", "3 – 1 3 – 0"], ["1991–92", "Taça UEFA", "Ajax", "Torino", "2 – 2 0 – 0 (gf)"], ["1990–91", "Taça UEFA", "Internazionale", "Roma", "2 – 0 0 – 1"], ["1989–90", "Taça UEFA", "Juventus", "Fiorentina", "3 – 1 0 – 0"], ["1988–89", "Taça UEFA", "Napoli", "Stuttgart", "2 – 1 3 – 3"], ["1987–88", "Taça UEFA", "Bayer Leverkusen", "Espanyol", "0 – 3 3 – 0 3 – 2 (pen)"], ["1986–87", "Taça UEFA", "Göteborg", "Dundee United", "1 – 0 1 – 1"], ["1985–86", "Taça UEFA", "Real Madrid", "Köln", "5 – 1 0 – 2"], ["1984–85", "Taça UEFA", "Real Madrid", "Fehervar", "3 – 0 0 – 1"], ["1983–84", "Taça UEFA", "Tottenham", "Anderlecht", "1 – 1 1 – 1 4 – 3 (pen)"], ["1982–83", "Taça UEFA", "Anderlecht", "Benfica", "1 – 0 1 – 1"], ["1981–82", "Taça UEFA", "Göteborg", "Hamburgo", "1 – 0 3 – 0"], ["1980–81", "Taça UEFA", "Ipswich Town", "AZ Alkmaar", "3 – 0 2 – 4"], ["1979–80", "Taça UEFA", "Eintracht Frankfurt", "Borussia Mönchengladbach", "2 – 3 1 – 0 (gf)"], ["1978–79", "Taça UEFA", "Borussia Mönchengladbach", "Estrela Vermelha", "1 – 1 1 – 0"], ["1977–78", "Taça UEFA", "PSV Eindhoven", "Bastia", "0 – 0 3 – 0"], ["1976–77", "Taça UEFA", "Juventus", "Athletic Bilbao", "1 – 0 1 – 2 (gf)"], ["1975–76", "Taça UEFA", "Liverpool", "Club Brugge", "3 – 2 1 – 1"], ["1974–75", "Taça UEFA", "Borussia Mönchengladbach", "Twente", "0 – 0 5 – 1"], ["1973–74", "Taça UEFA", "Feyenoord", "Tottenham", "2 – 2 2 – 0"], ["1972–73", "Taça UEFA", "Liverpool", "Borussia Mönchengladbach", "3 – 0 0 – 2"], ["1971–72", "Taça UEFA", "Tottenham", "Wolverhampton", "2 – 1 1 – 1"]], "UECL": [["2025–26", "Liga Conferência", "Crystal Palace", "Rayo Vallecano", "1 – 0"], ["2024–25", "Liga Conferência", "Chelsea", "Betis", "4 – 1"], ["2023–24", "Liga Conferência", "Olympiacos", "Fiorentina", "1 – 0 (pro)"], ["2022–23", "Liga Conferência", "West Ham United", "Fiorentina", "2 – 1"], ["2021–22", "Liga Conferência", "Roma", "Feyenoord", "1 – 0"]]};
+const COMP = [['POR1', 'Liga Portugal', 'liga'], ['POR2', 'Liga Portugal 2', 'liga'], ['TPOR', 'Taça de Portugal', 'taca'], ['ENG1', 'Premier League', 'liga'], ['ESP1', 'LaLiga', 'liga'], ['UCL', 'Liga dos Campeões', 'uefa'], ['UEL', 'Liga Europa', 'uefa'], ['UECL', 'Liga Conferência', 'uefa']];
+let compSel = 'POR1', tabComp = 'Classificação';
+function historicoEcra() {
+  const jogo = [['2028/29', 'Sporting de Vale Formoso', 'Real Montalvo'], ['2027/28', 'Real Montalvo', 'Atlético de Serra do Freixo'], ['2026/27', 'CF Alvarenga', 'Real Montalvo']];
+  const real = HIST[compSel];
+  return `<section class="c s12"><h2>Histórico do jogo (épocas simuladas)</h2><div class="tab-wrap"><table><thead><tr><th>Época</th><th>Campeão</th><th>Vice-campeão</th></tr></thead><tbody>${jogo.map(([e, c, v]) => `<tr><td>${e}</td><td><b>${c}</b></td><td class="muted">${v}</td></tr>`).join('')}</tbody></table></div><div class="rot" style="margin-top:8px">Exemplo: ainda não há épocas simuladas neste protótipo.</div></section>
+  ${real ? `<section class="c s12"><h2>Histórico real (até 2025–26)<span class="acao" style="color:var(--suave)">Fonte: Wikipédia, CC BY-SA</span></h2><div class="tab-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Época</th><th>Competição</th><th>Campeão</th><th>Vice-campeão</th><th>Final</th></tr></thead><tbody>${real.map(([e, c, ca, v, pl]) => `<tr><td>${e}</td><td class="muted">${c}</td><td><b>${ca}</b></td><td class="muted">${v}</td><td>${pl}</td></tr>`).join('')}</tbody></table></div></section>` : '<section class="c s12"><h2>Histórico real</h2><div class="rot">Sem dados reais para esta competição (só os três CSV da UEFA foram fornecidos).</div></section>'}`;
+}
+
 // ---------- navegação e acento ----------
-const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, tactica: tacticaEcra, mercado: mercadoEcra, financas: financasEcra, classificacao: classificacaoEcra };
+const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, staff: staffEcra, academia: academiaEcra, mercado: mercadoEcra, financas: financasEcra, infra: infraEcra, classificacao: classificacaoEcra };
 function rota() { const h = location.hash.replace('#', ''); return RENDER[h] ? h : 'inicio'; }
 function desenhar() {
   const r = rota();
   document.getElementById('nav-lista').innerHTML = ECRAS.map(([k, t]) => `<a class="nav ${k === r ? 'activo' : ''}" href="#${k}">${svg(k)}${t}</a>`).join('');
-  document.getElementById('inferior').innerHTML = ECRAS.filter(([k]) => k !== 'jogador').map(([k, t]) => `<a class="${k === r ? 'activo' : ''}" href="#${k}">${svg(k)}${t}</a>`).join('');
+  const curtos = { inicio: 'Início', plantel: 'Plantel', mercado: 'Mercado', classificacao: 'Competições' };
+  document.getElementById('inferior').innerHTML = INFERIOR.map((k) => `<a class="${k === r ? 'activo' : ''}" href="#${k}">${svg(k)}${curtos[k]}</a>`).join('') + `<a href="#" id="b-mais" class="${INFERIOR.includes(r) ? '' : 'activo'}">${svg('mais')}Mais</a>`;
+  const mais = document.getElementById('menu-mais');
+  mais.innerHTML = ECRAS.filter(([k]) => !INFERIOR.includes(k)).map(([k, t]) => `<a class="nav ${k === r ? 'activo' : ''}" href="#${k}">${svg(k)}${t}</a>`).join('');
+  mais.hidden = true;
+  document.getElementById('b-mais').addEventListener('click', (e) => { e.preventDefault(); mais.hidden = !mais.hidden; });
   const m = document.getElementById('principal');
   m.innerHTML = RENDER[r]() + `<div class="aviso-proto">Protótipo com dados fictícios do mundo gerado. Cor do clube (acento): <span class="cores">${[['#d63a3a', '#f1f1f1'], ['#2c63c9', '#ffffff'], ['#1d9a6c', '#ffffff'], ['#e2a33a', '#111111'], ['#7a3cc7', '#ffffff']].map((c) => `<button data-cor="${c[0]}" data-cor2="${c[1]}" style="background:${c[0]}" aria-label="Acento ${c[0]}"></button>`).join('')}</span></div>`;
   ligar(m);
@@ -406,6 +514,17 @@ function ligar(m) {
   m.querySelectorAll('tr[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
   m.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', () => { verComo = b.dataset.ver; desenhar(); }));
   m.querySelectorAll('[data-ment]').forEach((b) => b.addEventListener('click', () => { mentalidade = b.dataset.ment; desenhar(); }));
+  m.querySelectorAll('[data-tabp]').forEach((b) => b.addEventListener('click', () => { tabPlantel = b.dataset.tabp; desenhar(); }));
+  m.querySelectorAll('[data-ala]').forEach((b) => b.addEventListener('click', () => { alaAcad = b.dataset.ala; desenhar(); }));
+  m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
+  const sc = m.querySelector('#sel-comp'); if (sc) sc.addEventListener('change', () => { compSel = sc.value; if (['UCL', 'UEL', 'UECL'].includes(compSel) && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
+  m.querySelectorAll('[data-mover]').forEach((b) => b.addEventListener('click', (ev) => { ev.stopPropagation(); const [de, id, para] = b.dataset.mover.split(':');
+    let p;
+    if (de === 'principal') { const i = plantel.findIndex((x) => x.n === +id); p = plantel.splice(i, 1)[0]; }
+    else p = (de === 'sub21' ? sub21 : sub18).splice(+id, 1)[0];
+    if (para === 'principal') plantel.push({ ...p, n: plantel.length + 1, moral: 14, cond: 95, forma: ['6.8', '7.0', '6.9', '7.1', '7.0'], adq: 12, papel: PAPEIS[p.pos][0], fim: 2029, sal: 30000, lesao: '', susp: false });
+    else (para === 'sub21' ? sub21 : sub18).unshift(p);
+    desenhar(); }));
   m.querySelectorAll('[data-tabm]').forEach((b) => b.addEventListener('click', () => { tabMercado = b.dataset.tabm; desenhar(); }));
   m.querySelectorAll('[data-cor]').forEach((b) => b.addEventListener('click', () => { CLUBE.cores = [b.dataset.cor, b.dataset.cor2]; CORES[3] = CLUBE.cores; tabela.forEach((t) => { if (t.nome === CLUBE.nome) t.cores = CLUBE.cores; }); acento(); desenhar(); }));
 }
