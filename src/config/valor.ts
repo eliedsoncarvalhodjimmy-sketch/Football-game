@@ -36,7 +36,7 @@ export const PRECO = {
   /** Rivais não vendem barato: × (1 + x × intensidade). */
   rivalidade: 0.15,
   /** Vender a um clube mais forte da mesma liga (reforçar um concorrente directo): × x. */
-  mesma_liga: 1.3,
+  mesma_liga: 1.4,
   /** Arquétipo do vendedor: clube-vendedor vende depressa por bom preço; formador resiste a vender jovens da casa; tradicional resiste a vender ídolos. */
   arquetipo: { vendedor: 0.95, formador_jovem: 1.3, tradicional_idolo: 1.3 } as Record<string, number>,
   /** Ídolo: há 5+ anos no clube e OVR entre os 5 melhores. */

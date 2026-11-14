@@ -58,5 +58,5 @@ describe('mundo fictício', async () => {
     expect([...w2.ataque]).toEqual([...w.ataque]);
     const w3 = await mundo(7);
     expect(JSON.stringify(w3.clubes)).not.toBe(JSON.stringify(w.clubes));
-  });
+  }, 60000); // dois mundos completos (com ~35 000 juniores da academia, Prompt 4 Bloco C)
 });
