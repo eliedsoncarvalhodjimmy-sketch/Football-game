@@ -30,10 +30,14 @@ export const CONTRATO = {
   jovem_fraccao: 0.4,
   jovem_aumento_jogos: 25,
   jovem_aumento: 0.6,
-  /** Parcelas: fracção paga à cabeça e anos das restantes (transferências acima de x € podem ir em parcelas). */
+  /** Pagamento (decisão do utilizador): há sempre um valor à vista; poucos vendedores aceitam parcelas.
+   *  Esquemas: trimestral (até 4 parcelas, 90 dias), semestral (até 2, 180 dias), anual (até 2, 365 dias). */
   parcelas_acima: 5_000_000,
-  parcelas_cabeca: 0.4,
-  parcelas_anos: [1, 3] as [number, number],
+  /** Probabilidade de o vendedor aceitar parcelas (saudável / apertado / crise ou administração: quer dinheiro já). */
+  parcelas_aceita: [0.25, 0.15, 0.05],
+  /** Fracção à vista quando há parcelas. */
+  parcelas_vista: [0.3, 0.6] as [number, number],
+  esquemas: [{ nome: 'trimestral', dias: 90, max: 4, peso: 0.5 }, { nome: 'semestral', dias: 180, max: 2, peso: 0.3 }, { nome: 'anual', dias: 365, max: 2, peso: 0.2 }],
   /** Cláusulas raras (probabilidade por transferência): recompra (vendedor formador/vendedor, jovem), % de venda futura. */
   prob_recompra: 0.15,
   recompra_multiplo: 2.0,

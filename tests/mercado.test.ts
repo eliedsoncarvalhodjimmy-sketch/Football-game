@@ -33,7 +33,7 @@ describe('valor e preço', () => {
     for (const c of w.ligaPorId('POR1').clubes) for (const j of m.plantel(c).slice(0, 5)) {
       const pp = precoPedido(w, m, j, comp, dia, 3);
       expect(pp.preco / pp.valor).toBeGreaterThanOrEqual(PRECO.razao[0] - 0.01);
-      expect(pp.preco / pp.valor).toBeLessThanOrEqual(PRECO.razao[1] + 0.01);
+      expect(pp.preco / pp.valor).toBeLessThanOrEqual((pp.factores.talento ? PRECO.talento.razao_maxima : PRECO.razao[1]) + 0.01);
       expect(pp.factores.concorrencia).toBeLessThanOrEqual(PRECO.concorrencia_maximo);
       void st;
     }
@@ -152,4 +152,25 @@ describe('uma época de mercado', () => {
     expect(v.economia!.inflacao).toBeCloseTo(1 + INFLACAO.taxa, 6);
     for (const L of v.ligas) for (const c of L.clubes) expect(v.mercado!.plantel(c).length).toBeGreaterThanOrEqual(18);
   }, 240000);
+});
+
+describe('ajustes da Paragem A', () => {
+  it('jovem de potencial absurdo num clube pequeno pode sair por mais de 5× o valor', async () => {
+    const v = await mundo();
+    const st = v.jogadores!, m = v.mercado!;
+    const peq = [...v.ligaPorId('POR2').clubes].sort((a, b) => v.reputacao[a] - v.reputacao[b])[0];
+    const j = m.plantel(peq).sort((a, b) => st.idade(a, dia) - st.idade(b, dia))[0];
+    st.pot[j] = 95;
+    m.contratos.formadoClube[j] = peq;
+    const pp = precoPedido(v, m, j, v.ligaPorId('ENG1').clubes[0], dia, 3);
+    expect(st.idade(j, dia)).toBeLessThanOrEqual(PRECO.talento.idade + 1);
+    expect(pp.factores.talento).toBeGreaterThan(1);
+    expect(pp.preco / pp.valor).toBeGreaterThan(5);
+  }, 60000);
+
+  it('pagamento: sempre à vista; parcelas só trimestrais (≤ 4), semestrais (≤ 2) ou anuais (≤ 2)', () => {
+    for (const e of CONTRATO.esquemas) expect(e.max).toBeLessThanOrEqual(e.nome === 'trimestral' ? 4 : 2);
+    expect(CONTRATO.parcelas_vista[0]).toBeGreaterThan(0);
+    expect(Math.max(...CONTRATO.parcelas_aceita)).toBeLessThan(0.5);
+  });
 });

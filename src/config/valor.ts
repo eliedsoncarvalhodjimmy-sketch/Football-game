@@ -41,6 +41,9 @@ export const PRECO = {
   idolo_anos: 5,
   /** Faixa realista da razão preço/valor (os extremos ficam raros): o preço final é limitado a isto. */
   razao: [0.6, 2.5] as [number, number],
+  /** Excepção (decisão do utilizador): jovem (≤ idade) de potencial absurdo (≥ pot) num clube de menor expressão
+   *  (reputação ≥ diferença abaixo do comprador) pode sair por mais de 5× o valor: factor 1 + x × (potencial − base), razão até ao máximo. */
+  talento: { idade: 20, potencial: 88, diferenca_reputacao: 15, por_ponto: 0.25, base: 85, factor_maximo: 3, razao_maxima: 6 },
 };
 
 /** Inflação de valores e salários: 2% a cada dois anos (decisão do utilizador). */

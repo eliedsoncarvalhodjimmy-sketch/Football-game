@@ -53,8 +53,12 @@ export function precoPedido(w: World, m: Mercado, j: number, comprador: number, 
   if (arq === 'vendedor') f.arquetipo = P.arquetipo.vendedor;
   else if (arq === 'formador' && casa) f.arquetipo = P.arquetipo.formador_jovem;
   else if (arq === 'tradicional' && ordem >= 0 && ordem < 5 && dia - m.contratos.chegada[j] >= P.idolo_anos * 365) f.arquetipo = P.arquetipo.tradicional_idolo;
+  // Talento de potencial absurdo num clube de menor expressão: pode sair por mais de 5× o valor.
+  const T = P.talento;
+  const absurdo = st.idade(j, dia) <= T.idade && st.pot[j] >= T.potencial && w.reputacao[vend] <= w.reputacao[comprador] - T.diferenca_reputacao;
+  if (absurdo) f.talento = Math.min(T.factor_maximo, 1 + T.por_ponto * (st.pot[j] - T.base));
   let preco = valor;
   for (const x of Object.values(f)) preco *= x;
-  preco = clamp(preco, P.razao[0] * valor, P.razao[1] * valor);
+  preco = clamp(preco, P.razao[0] * valor, (absurdo ? T.razao_maxima : P.razao[1]) * valor);
   return { valor, preco: Math.round(preco / 10000) * 10000, factores: f };
 }

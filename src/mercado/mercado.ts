@@ -343,7 +343,7 @@ export class Mercado {
       if (n.tipo !== 'livre' && !this.janelaAberta(n.comprador, n.dia)) return this.falhar(n, 'a janela fechou');
       const insc = this.podeInscrever(n.jogador, n.comprador);
       if (insc) return this.falhar(n, `não pode inscrever: ${insc}`);
-      if (n.tipo !== 'emprestimo' && n.tipo !== 'livre' && e.clubes.caixa[n.comprador] < n.oferta * CONTRATO.parcelas_cabeca) return this.falhar(n, 'o comprador ficou sem orçamento');
+      if (n.tipo !== 'emprestimo' && n.tipo !== 'livre' && e.clubes.caixa[n.comprador] < n.oferta * CONTRATO.parcelas_vista[0]) return this.falhar(n, 'o comprador ficou sem orçamento');
       this.concluir(n, rng);
     }
   }
@@ -385,16 +385,20 @@ export class Mercado {
     } else {
       const fee = n.tipo === 'livre' ? 0 : n.oferta;
       if (fee > 0) {
-        const cabeca = fee > CONTRATO.parcelas_acima ? fee * CONTRATO.parcelas_cabeca : fee;
-        s.lancar(para, 'aquisicoes', cabeca);
-        s.lancar(de, 'transferencias', cabeca);
-        if (cabeca < fee) {
-          const anos = rng.int(CONTRATO.parcelas_anos[0], CONTRATO.parcelas_anos[1]);
-          const resto = fee - cabeca;
+        // Pagamento: sempre um valor à vista; só alguns vendedores aceitam o resto em parcelas.
+        const aceitaParcelas = fee > CONTRATO.parcelas_acima && rng.chance(CONTRATO.parcelas_aceita[Math.min(2, s.saude[de])]);
+        const vista = aceitaParcelas ? Math.round((fee * (CONTRATO.parcelas_vista[0] + rng.next() * (CONTRATO.parcelas_vista[1] - CONTRATO.parcelas_vista[0]))) / 100000) * 100000 : fee;
+        s.lancar(para, 'aquisicoes', vista);
+        s.lancar(de, 'transferencias', vista);
+        if (vista < fee) {
+          let u = rng.next() * CONTRATO.esquemas.reduce((a, x) => a + x.peso, 0);
+          const esq = CONTRATO.esquemas.find((x) => (u -= x.peso) < 0) ?? CONTRATO.esquemas[0];
+          const nP = rng.int(esq.max === 1 ? 1 : 2, esq.max);
+          const resto = fee - vista;
           s.dividaParcelas[para] += resto;
-          for (let a = 1; a <= anos; a++) this.parcelas.push({ pagador: para, recebedor: de, valor: resto / anos, dia: n.dia + a * 365 });
-          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(cabeca)} à cabeça e ${M(resto)} em ${anos} parcela(s) anual(is)` });
-        }
+          for (let a = 1; a <= nP; a++) this.parcelas.push({ pagador: para, recebedor: de, valor: resto / nP, dia: n.dia + a * esq.dias });
+          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${nP} parcela(s) ${esq.nome}(is) de ${M(resto / nP)}` });
+        } else n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(fee)} à vista` });
         s.lancar(para, 'agentes', CONTRATO.agentes * fee);
         // % de venda futura a favor de um clube anterior.
         const vf = k.vendaFutura.get(j);
