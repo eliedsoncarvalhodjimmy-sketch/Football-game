@@ -112,15 +112,63 @@ export const COMPENSACAO = {
 /** Estatísticas leves dos jovens (só no clube do utilizador): jogos por mês por escalão. */
 export const ESTATISTICAS_JUVENIS = { jogos_mes: { sub18: 3, sub21: 3, prospecto: 2 } as Record<string, number> };
 
-/** Força juvenil (0–1) e dimensão (0–1) dos países. "gerado": estimativas, editáveis. Sem entrada: 0,5 / 0,4. */
-export const FORCA_JUVENIL_PAIS: Record<string, number> = {
-  BRA: 1.0, ARG: 0.95, FRA: 0.95, ESP: 0.9, POR: 0.85, NED: 0.85, GER: 0.85, ENG: 0.85, ITA: 0.8, BEL: 0.8, CRO: 0.8, URU: 0.8,
-  SRB: 0.7, COL: 0.7, SEN: 0.7, NGA: 0.7, CIV: 0.7, DEN: 0.65, SUI: 0.6, AUT: 0.6, CZE: 0.6, MAR: 0.65, GHA: 0.6, JPN: 0.6,
-  KOR: 0.6, USA: 0.55, MEX: 0.6, ECU: 0.6, SWE: 0.6, NOR: 0.55, POL: 0.55, TUR: 0.55, SCO: 0.5, GRE: 0.5, UKR: 0.6,
-  KSA: 0.35, UAE: 0.3, QAT: 0.3, CHN: 0.35, AUS: 0.45,
+/** Força juvenil dos países (0–1), simplificada (resposta à Paragem C): deriva da força desportiva da 1.ª liga do país,
+ *  com um bónus para os grandes exportadores de talento; sem liga no jogo: valor por omissão. A dimensão do país vem do
+ *  número de clubes que tem no mundo (a maior = 1). */
+export const FORCA_JUVENIL = {
+  base: 0.2,
+  por_forca_desportiva: 0.8,
+  exportadores: ['BRA', 'ARG', 'FRA', 'POR', 'NED', 'BEL', 'CRO', 'URU', 'SEN', 'NGA', 'CIV', 'SRB', 'COL'],
+  bonus_exportador: 0.15,
+  sem_liga: 0.5,
+  dimensao_sem_liga: 0.4,
 };
-export const DIMENSAO_PAIS: Record<string, number> = {
-  BRA: 1.0, USA: 0.9, ENG: 0.9, GER: 0.9, FRA: 0.85, ESP: 0.85, ITA: 0.85, ARG: 0.8, MEX: 0.8, JPN: 0.75, TUR: 0.7, CHN: 0.8,
-  NGA: 0.7, COL: 0.65, KOR: 0.6, POL: 0.6, UKR: 0.6, KSA: 0.5, NED: 0.5, POR: 0.5, BEL: 0.45, EGY: 0.6, MAR: 0.5,
-  URU: 0.3, CRO: 0.3, DEN: 0.35, SCO: 0.35, SUI: 0.35, AUT: 0.35, NOR: 0.35, GRE: 0.4, CZE: 0.4, SRB: 0.35, UAE: 0.3,
-};
+
+/** Jovens gerados por ano no mundo (resposta do utilizador à Paragem C), na escala dele: probabilidade, OVR aos 17–18 e potencial.
+ *  Não são regras inquebráveis: os clubes melhores (nível, academia, coordenador, recrutamento, país, arquétipo) puxam a
+ *  distribuição para os escalões de cima, e a distribuição do mundo é recalibrada para bater com a tabela. */
+export const TABELA_JOVENS: { p: number; ovr: [number, number]; pot: [number, number] }[] = [
+  { p: 0.325, ovr: [50, 65], pot: [65, 75] },
+  { p: 0.225, ovr: [55, 65], pot: [70, 79] },
+  { p: 0.10, ovr: [55, 65], pot: [75, 84] },
+  { p: 0.10, ovr: [55, 65], pot: [76, 86] },
+  { p: 0.10, ovr: [58, 69], pot: [76, 90] },
+  { p: 0.05, ovr: [58, 69], pot: [80, 92] },
+  { p: 0.03, ovr: [60, 72], pot: [82, 95] },
+  { p: 0.01, ovr: [65, 74], pot: [85, 95] },
+  { p: 0.005, ovr: [68, 75], pot: [88, 97] },
+  { p: 0.005, ovr: [75, 82], pot: [96, 99] },
+];
+
+/** Conversão da escala da tabela para a do mundo (a do Prompt 2): mundo = topo − (topo − tabela) × factor (99 fica 99). */
+export const ESCALA_TABELA = { topo: 99, factor: 2.0 };
+export const daTabela = (u: number) => ESCALA_TABELA.topo - (ESCALA_TABELA.topo - u) * ESCALA_TABELA.factor;
+
+/** Distribuição por clube: p(escalão k) ∝ p_tabela × calibração × e^(inclinação × q × x_k), q = qualidade do clube (z),
+ *  x_k de −1 (escalão mais baixo) a +1 (mais alto). */
+export const INCLINACAO_TABELA = 3;
+
+/** Clubes abaixo da qualidade média do mundo: potencial e OVR do intake − x × (média − qualidade do clube) (a tabela não tem chão
+ *  abaixo de 65; as ligas mais fracas do jogo estão abaixo disso). */
+export const DESLOCAMENTO_FRACOS = 0.7;
+
+/** Nenhum jovem dos 15 aos 18 passa de 82 de OVR (escala da tabela). */
+export const TETO_JUNIOR = { idade: 19, ovr_tabela: 82 };
+
+/** OVR na entrada: a distância ao potencial encolhe ~e^(−k) por ano até aos 18 (k ≈ ritmo da evolução dos juniores). */
+export const CRESCIMENTO_ATE_18 = { k: 0.2 };
+
+/** Um jovem titular evolui mais depressa: crescimento × (1 + bónus × minutos × força do campeonato/100 × (0,8 + 0,4 × moral/20)). */
+export const JOVEM_TITULAR = { idade_maxima: 21, bonus: 0.5, minutos_minimos: 0.5 };
+
+/** Potencial dinâmico (fim de época, até aos 24): Δ ~ N(μ, σ), μ = minutos × a + força da liga × b + centro de treino × c
+ *  − (OVR acima do nível do clube) × d; |Δ| ≤ máximo. Um jovem bom num clube fraco pode perder potencial e estagnar. */
+export const POTENCIAL_DINAMICO = { idade_maxima: 24, minutos: 1.2, minutos_centro: 0.6, liga: 0.6, liga_centro: 60, treino: 0.3, acima_do_clube: 2, margem_clube: 6, desvio: 1.2, maximo: 4 };
+
+/** Contrato profissional obrigatório aos 18 (proposto pelo coordenador da academia, aprovado pelo dono/director): senão sai.
+ *  Salário mínimo da liga = base × (1 + por_riqueza × índice/100) × (1 na 1.ª divisão, divisao nas outras); dura até aos 22. */
+export const CONTRATO_JUNIOR = { idade: 18, base: 12_000, por_riqueza: 3, divisao: 0.6, ate_idade: 22 };
+
+/** Âncora da evolução dos seniores (resposta à Paragem C): numa liga cujo OVR médio derivou d pontos, cada jogador da equipa
+ *  principal tem −ganho × d de evolução por mês (d limitado como na âncora do intake). */
+export const ANCORA_EVOLUCAO = { ganho: 0.025 };

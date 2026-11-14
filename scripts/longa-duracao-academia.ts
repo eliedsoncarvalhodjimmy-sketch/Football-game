@@ -9,6 +9,7 @@ import { Simulador } from '../src/engine/simulador.ts';
 import { POSICOES } from '../src/config/papeis.ts';
 import { serializarHistorico } from '../src/storage/serializar.ts';
 import { NOME_ESCALAO } from '../src/academia/academia.ts';
+import { ovrAlvoClube } from '../src/players/gerador.ts';
 
 const N = Number(process.argv[2] ?? 20);
 const semente = Number(process.argv[3] ?? 2026);
@@ -78,6 +79,9 @@ for (const j of geracao) percurso.get(j)!.push(estadoJ(j));
 
 const resumo0 = ac.resumoProspectos(clubeG, dia0).slice(0, 10);
 const inicio = ovrLiga();
+// Nível esperado (reputação × força desportiva) de cada liga, no início: para separar a deriva de uma subida real de reputação.
+const nivelLiga = () => Object.fromEntries(ligas.map((l) => [l.regras.id, l.clubes.reduce((a, c) => a + ovrAlvoClube(w, c), 0) / Math.max(1, l.clubes.length)]));
+const nivel0 = nivelLiga();
 const linhas: { epoca: number; ovr: Record<string, number>; faltas: number; tamanhoMin: number; idade: number; jogadores: number; individuais: number; agregado: number; n: number }[] = [];
 const sim = new Simulador(w, true);
 const semanas: number[] = [];
@@ -123,6 +127,7 @@ const k0 = linhas[0], kN = linhas[linhas.length - 1];
 p('## 1. Estabilidade', '', '| Medida | Resultado | Alvo | |', '|---|---|---|---|');
 p(`| Deriva do OVR médio por liga (máx. ao longo das épocas, ${ligas.length} ligas principais) | ${maxDeriva.toFixed(2)} | ≤ 3 | ${ok(maxDeriva <= 3)} |`);
 p(`| Ligas com maior deriva (liga: máx. na época) | ${piores.slice(0, 5).map((x) => `${x.id} ${x.m > 0 ? '+' : ''}${x.m.toFixed(1)} (${x.ep})`).join(', ')} | | |`);
+{ const n1 = nivelLiga(); p(`| Nível esperado (reputação) dessas ligas, início → fim | ${piores.slice(0, 5).map((x) => `${x.id} ${nivel0[x.id].toFixed(1)} → ${n1[x.id].toFixed(1)}`).join(', ')} | | |`); }
 p(`| Posições em falta (clubes × grupo abaixo de GR 2, DEF 6, MED 6, AVA 4), pior época, medidas no fim de Setembro | ${Math.max(...linhas.map((l) => l.faltas))} | 0 | ${ok(Math.max(...linhas.map((l) => l.faltas)) === 0)} |`);
 p(`| Plantel mais curto (pior época) | ${Math.min(...linhas.map((l) => l.tamanhoMin))} | ≥ 18 | ${ok(Math.min(...linhas.map((l) => l.tamanhoMin)) >= 18)} |`);
 const idades = linhas.map((l) => l.idade);

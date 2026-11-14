@@ -26,11 +26,15 @@ export interface ContextoEvolucao {
   parteMinutos: (i: number) => number;
   /** Desenvolvimento de jovens do treinador principal do clube (1–20). */
   desenvolvimentoTreinador: (clube: number, jogador?: number) => number;
+  /** Multiplicador do crescimento (ex.: jovem titular numa liga competitiva, Bloco C). */
+  multCrescimento?: (i: number) => number;
+  /** Ajuste aditivo mensal (ex.: âncora da liga, Bloco C). */
+  ajuste?: (i: number) => number;
 }
 
 /** Variação mensal esperada de OVR (sem ruído), exposta para os testes e as curvas. */
-export function variacaoEsperada(idade: number, gr: boolean, ovr: number, pot: number, prof: number, amb: number, parte: number, dev: number): number {
-  const cresc = E.taxa_crescimento(idade) * Math.max(0, pot - ovr) * E.factor_minutos(parte) * E.factor_treinador(dev) * E.factor_personalidade(prof, amb);
+export function variacaoEsperada(idade: number, gr: boolean, ovr: number, pot: number, prof: number, amb: number, parte: number, dev: number, mult = 1): number {
+  const cresc = mult * E.taxa_crescimento(idade) * Math.max(0, pot - ovr) * E.factor_minutos(parte) * E.factor_treinador(dev) * E.factor_personalidade(prof, amb);
   const decl = E.declinio(gr ? idade - E.atraso_gr : idade) * E.protecao_prof(prof);
   return cresc - decl;
 }
@@ -80,7 +84,7 @@ export function evoluirMes(w: World, st: PlayerStore, dia: number, ctx: Contexto
     if (so && !so(i)) continue;
     const idade = st.idade(i, dia);
     const gr = st.posNat[i] === GR;
-    const esperado = variacaoEsperada(idade, gr, st.ovrNat(i), st.pot[i], st.oculto(i, 'prof'), st.oculto(i, 'amb'), ctx.parteMinutos(i), ctx.desenvolvimentoTreinador(st.clube[i], i));
+    const esperado = variacaoEsperada(idade, gr, st.ovrNat(i), st.pot[i], st.oculto(i, 'prof'), st.oculto(i, 'amb'), ctx.parteMinutos(i), ctx.desenvolvimentoTreinador(st.clube[i], i), ctx.multCrescimento?.(i) ?? 1) + (ctx.ajuste?.(i) ?? 0);
     const delta = esperado + rng.normal(0, E.ruido);
     if (Math.abs(delta) < 0.01) continue;
     aplicarVariacao(st, i, delta, idade, rng);

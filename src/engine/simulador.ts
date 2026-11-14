@@ -2,6 +2,7 @@
 // (segundas-feiras). Cada calendário ("ago_mai", "ano_civil") tem a sua época a
 // decorrer; quando uma termina, fecha-se (passagem de época desse calendário) e
 // abre-se a seguinte. As ligas de ano civil começam em 2027 (decisão do utilizador).
+import { JOVEM_TITULAR, ANCORA_EVOLUCAO } from '../config/academia.ts';
 import type { World } from './world.ts';
 import { Temporada } from './season/temporada.ts';
 import { fecharEpoca } from './season/rollover.ts';
@@ -65,18 +66,28 @@ export class Simulador {
         const ac0 = this.w.academia;
         if (ac0 && new Date(d * 86400000).getUTCDate() === 15) {
           evoluirMes(this.w, st, d, { parteMinutos: (i) => ac0.minutos(i), desenvolvimentoTreinador: (c) => ac0.desenvolvimento(c) + (this.w.economia?.bonusTreino(c) ?? 0) }, (i) => ac0.escalao[i] !== 0);
+          ac0.aplicarTeto(d);
         }
+        // Mercado mensal (renovações, listagens, índices) no dia 8: não se soma à evolução e à economia do dia 1.
+        if (new Date(d * 86400000).getUTCDate() === 8) this.w.mercado?.mes(d);
         if (new Date(d * 86400000).getUTCDate() === 1) {
           const m = this.w.motor;
           const comMinutos = m && MOTOR.modo_forca === 'onze';
           const ac = this.w.academia;
           const pm = comMinutos ? (i: number) => Math.min(1, st.minMes[i] / EVOLUCAO.minutos_mes_referencia) : parteMinutosPorOrdem(this.w, st);
           const dev = m ? (c: number, j?: number) => (m.treinadores[c]?.atributos.desenvolvimento ?? 10) + (this.w.economia?.bonusTreino(c) ?? 0) + (j !== undefined && st.posNat[j] === 0 && this.w.economia?.staff.porClube[c] ? this.w.economia.staff.bonusGR(c) : 0) : () => 10;
-          evoluirMes(this.w, st, d, { parteMinutos: pm, desenvolvimentoTreinador: dev }, ac ? (i) => ac.escalao[i] === 0 : undefined);
+          // Bloco C: o jovem titular numa liga competitiva evolui mais depressa; a âncora da liga trava a deriva dos seniores.
+          const w = this.w;
+          const fdL = (c: number) => (w.liga[c] >= 0 ? w.ligas[w.liga[c]].regras.forca_desportiva : 30);
+          evoluirMes(this.w, st, d, {
+            parteMinutos: pm, desenvolvimentoTreinador: dev,
+            multCrescimento: (i) => { const p = pm(i); if (p < JOVEM_TITULAR.minutos_minimos || st.idade(i, d) > JOVEM_TITULAR.idade_maxima) return 1; return 1 + JOVEM_TITULAR.bonus * p * (fdL(st.clube[i]) / 100) * (0.8 + (0.4 * st.moral[i]) / 20); },
+            ajuste: ac ? (i) => -ANCORA_EVOLUCAO.ganho * ac.derivaLiga(st.clube[i], d) : undefined,
+          }, ac ? (i) => ac.escalao[i] === 0 : undefined);
+          ac?.aplicarTeto(d);
           st.minMes.fill(0);
           m?.cache.limpar();
           this.w.economia?.mes(d);
-          this.w.mercado?.mes(d);
           this.w.academia?.mes(d);
         }
       }

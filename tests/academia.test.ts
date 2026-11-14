@@ -57,15 +57,15 @@ describe('passagem de época', () => {
   it('promove sub-21 com nível, passa os sub-18 de 19 anos ao sub-21, enche o sub-18 com prospectos, faz o intake', () => {
     const ac = w.academia!, st = w.jogadores!;
     const c = w.ligaPorId('NED1').clubes[3];
-    // Abre duas vagas na equipa principal.
+    // Abre vagas na equipa principal (abaixo do mínimo: alguns arquétipos deixam as vagas acima do mínimo para o mercado).
     const pl = w.plantel[c].filter((j) => st.clube[j] === c);
-    for (const j of pl.slice(-3)) st.clube[j] = -2;
+    for (const j of pl.slice(-4)) st.clube[j] = -2;
     w.plantel[c] = w.plantel[c].filter((j) => st.clube[j] === c);
     // Um sub-21 claramente com nível.
     const j = ac.sub21[c][0];
-    for (let k = 0; k < 39; k++) st.atr[j * 39 + k] = Math.min(20, st.atr[j * 39 + k] + 4);
+    for (let k = 0; k < 39; k++) st.atr[j * 39 + k] = Math.min(20, st.atr[j * 39 + k] + 7);
     st.recalcular(j);
-    st.pot[j] = Math.max(st.pot[j], st.ovrNat(j));
+    st.pot[j] = 95;
     const p0 = ac.promovidos.length, n0 = st.n;
     ac.fimDeEpoca(c, dia - 40);
     expect(ac.promovidos.length).toBeGreaterThan(p0);
@@ -158,5 +158,41 @@ describe('dados para a interface', () => {
     expect(ac.jovens(outro).some((j) => ac.estat.has(j))).toBe(false);
     delete e.controladores[c];
     void ovrAlvoClube;
+  });
+});
+
+describe('respostas à Paragem C', () => {
+  it('intake pela tabela do utilizador (convertida): ~49% com potencial 65–75, extremos (95+) raríssimos; tecto de OVR até aos 18', async () => {
+    const { Rng } = await import('../src/core/rng.ts');
+    const ac = w.academia!, st = w.jogadores!;
+    const inv = (x: number) => 99 - (99 - x) / 1.6;
+    const rng = Rng.de(5, 'teste');
+    const ps: number[] = [];
+    for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0) for (let k = 0; k < ac.volumeIntake(c); k++) ps.push(inv(ac.sortearJovem(c, rng).pot));
+    const frac = (a: number, b: number) => ps.filter((x) => x >= a && x < b).length / ps.length;
+    expect(frac(0, 75.5)).toBeGreaterThan(0.35);
+    expect(frac(95, 100)).toBeLessThan(0.02);
+    expect(frac(90, 100)).toBeLessThan(0.07);
+    // (os testes anteriores puxaram alguns juniores para cima: o tecto aplica-se todos os meses depois da evolução)
+    ac.aplicarTeto(dia);
+    for (let j = 0; j < st.n; j++) if (st.clube[j] >= 0 && st.idade(j, dia) < 19) expect(st.ovrNat(j)).toBeLessThanOrEqual(ac.teto);
+  });
+
+  it('contrato profissional obrigatório aos 18 (salário mínimo da liga), senão sai', () => {
+    const ac = w.academia!, st = w.jogadores!;
+    const c = w.ligaPorId('ESP1').clubes[8];
+    ac.fimDeEpoca(c, dia - 40);
+    for (const j of ac.jovens(c)) if (st.idade(j, dia + 20) >= 18) { expect(st.salario[j]).toBeGreaterThan(0); expect(st.fimContrato[j]).toBeGreaterThan(dia); }
+    for (const j of ac.jovens(c)) if (st.idade(j, dia + 20) < 17.9) expect(st.salario[j]).toBe(0);
+  });
+
+  it('potencial dinâmico: muito acima do nível do clube e sem minutos perde potencial em média', () => {
+    const ac = w.academia!, st = w.jogadores!;
+    const c = w.ligaPorId('ENG4').clubes[0];
+    const js = w.plantel[c].filter((j) => st.clube[j] === c && st.idade(j, dia) <= 24).slice(0, 6);
+    for (const j of js) { st.pot[j] = 95; for (let k = 0; k < 39; k++) st.atr[j * 39 + k] = Math.min(20, st.atr[j * 39 + k] + 4); st.recalcular(j); st.eMinutos[j] = 0; }
+    const antes = js.map((j) => st.pot[j]);
+    ac.ajustarPotenciais([c], dia);
+    expect(js.reduce((a, j, k) => a + st.pot[j] - antes[k], 0)).toBeLessThan(0);
   });
 });

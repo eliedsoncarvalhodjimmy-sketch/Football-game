@@ -228,6 +228,8 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
   if (w.jogadores) {
     const dia = t.base + 51 * 7;
     const st = w.jogadores;
+    // Potencial dinâmico (Bloco C), com os minutos da época que acaba.
+    w.academia?.ajustarPotenciais([...t.ligas.values()].flatMap((c) => c.clubes), dia);
     for (const [id, c] of t.ligas) {
       const js = c.clubes.flatMap((x) => w.plantel[x] ?? []);
       reg.jogadores[id] = js.filter((j) => st.eJogos[j] > 0).sort((a, b) => st.eGolos[b] - st.eGolos[a] || st.eAssist[b] - st.eAssist[a]).slice(0, 10)
