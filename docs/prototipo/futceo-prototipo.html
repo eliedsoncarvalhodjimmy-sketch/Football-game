@@ -215,6 +215,7 @@ td.r, th.r { text-align: right; }
 .capa-rel { position: relative; aspect-ratio: 736/300; overflow: hidden; border-radius: 16px 16px 0 0; }
 .capa-rel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
 .capa-rel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,0) 35%, rgba(11,13,16,.88) 100%); }
+.capa-alta { aspect-ratio: 736/400; } .capa-alta img { object-position: center 30%; }
 .cr-txt { position: absolute; left: 18px; right: 18px; bottom: 12px; z-index: 1; }
 .cr-txt h3 { margin: 0; font-family: var(--f-num); font-size: 26px; font-weight: 600; color: #fff; }
 .cr-txt span { color: #cfd3da; font-size: 13px; }
@@ -418,6 +419,7 @@ const emJanela = (d) => { const m = d.getUTCMonth(); return m === 0 || m === 6 |
 const COR_COMP = { liga: 'var(--c-liga)', taca: 'var(--c-taca)', ucl: 'var(--c-ucl)', uel: 'var(--c-uel)', uecl: 'var(--c-uecl)' };
 const MENSAGENS = [
   { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
+  { de: 'Treinador (Hélder Quintela)', assunto: 'Pedido de reforço: médio defensivo', txt: 'Preciso de um médio defensivo titular para Janeiro. Prioridade alta.', dia: '14 Nov', lida: false, rel: 'reforco' },
   { de: 'Presidente (dono)', assunto: 'Objectivos de Janeiro', txt: 'Quero um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
   { de: 'Gestor de academia', assunto: '2 prospectos prontos para o sub-18', txt: 'Recomendo promover Kevin SmitVries e Gonçalo Valota.', dia: '12 Nov', lida: false },
   { de: 'Director financeiro', assunto: 'Relatório financeiro: Outubro', txt: 'Resultado do mês +0,6 M€; massa salarial a 94% do orçamento.', dia: '11 Nov', lida: false, rel: 'fin' },
@@ -425,13 +427,16 @@ const MENSAGENS = [
   { de: 'Departamento médico', assunto: 'Relatório médico: entorse no tornozelo', txt: 'Fora 12 dias. Regressa a 26 de Novembro.', dia: '9 Nov', lida: true, rel: 'med' },
 ];
 let modal = null, mesCal = null, msgAberta = null;
-const capaRelatorio = (titulo, sub) => `<div class="capa-rel"><img src="relatorio.jpg" alt=""><div class="cr-txt"><h3>${titulo}</h3>${sub ? `<span>${sub}</span>` : ''}</div></div>`;
+const capaRelatorio = (titulo, sub, img = 'relatorio.jpg') => `<div class="capa-rel ${img === 'pedido-treinador.jpg' ? 'capa-alta' : ''}"><img src="${img}" alt=""><div class="cr-txt"><h3>${titulo}</h3>${sub ? `<span>${sub}</span>` : ''}</div></div>`;
 const kv = (l) => l.map(([a, b]) => `<div class="linha-kv"><span class="muted">${a}</span><span>${b}</span></div>`).join('');
 const RELATORIOS = {
   scout: () => `<div class="grelha-rel"><div><div class="rot">Avançado · 20 anos · CA Puerto Lirio (ARG) · contrato até 2028</div>${kv([['OVR estimado', '73–81'], ['Potencial', 'Muito alto (86–92)'], ['Conhecimento', '82% · 3 observações'], ['Melhor papel', 'Avançado móvel (17/20)'], ['Valor estimado', '9–12 M€'], ['Salário pedido', '1,1–1,4 M€/ano']])}</div>
     <div><b>Pontos fortes</b><ul class="lista-rel"><li>Desmarcação e finalização no primeiro toque</li><li>Aceleração (16–18)</li><li>Pressão alta incansável</li></ul><b>Pontos fracos</b><ul class="lista-rel"><li>Jogo aéreo (8–10)</li><li>Decisão sob pressão ainda irregular</li></ul><div class="chip bom">Recomendação: avançar com proposta</div></div></div>`,
   fin: () => `<div class="grelha-rel"><div><b>Outubro</b>${kv([['Receitas', '+4,9 M€'], ['Despesas', '−4,3 M€'], ['Resultado do mês', '<b style="color:var(--bom)">+0,6 M€</b>'], ['Caixa no fim do mês', '18,4 M€'], ['Dívida', '12,0 M€']])}</div>
     <div><b>Orçamentos</b>${kv([['Massa salarial', '31,2 / 33,0 M€ (94%)'], ['Transferências', '4,1 / 9,5 M€'], ['Infraestruturas', '4,1 / 6,0 M€'], ['Fair play financeiro', '<span class="chip bom">Cumprido</span>']])}<div class="rot" style="margin-top:8px">A bilheteira do dérbi (+0,9 M€) compensou a eliminação na Taça da Liga.</div></div></div>`,
+  reforco: () => `<div class="grelha-rel"><div>${kv([['Posição', 'Médio defensivo (MDC)'], ['Papel', 'Médio recuperador / trinco'], ['Nível pretendido', 'Titular · OVR ≥ 72'], ['Idade', '22–28 anos'], ['Prioridade', '<span class="chip mau">Alta</span>'], ['Prazo', 'Janela de Janeiro']])}</div>
+    <div><b>Porquê</b><ul class="lista-rel"><li>Só 1 médio defensivo apto (Hugo Teiouro lesionado)</li><li>Sofremos 61% dos golos em transições</li><li>A pressão alta precisa de cobertura atrás</li></ul><b>Sugestões do treinador</b>${kv([['Yusuf Taşsoy · Kızılpınarspor', '6,8 M€'], ['Bruno Lourosa · CF Alvarenga', '4,5 M€'], ['Nuno Carvide · livre', 'sem custo']])}</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><span class="rot" style="flex:1">Orçamento disponível para Janeiro: 9,5 M€. Recusar o pedido baixa a confiança do treinador.</span><button class="btn" data-ref="recusar">Recusar</button><button class="btn prim" data-ref="mercado">Procurar no Mercado</button></div>`,
   med: () => `<div class="grelha-rel"><div>${kv([['Jogador', 'Hugo Teiouro (DC)'], ['Lesão', 'Entorse no tornozelo (grau II)'], ['Tempo de paragem', '12 dias'], ['Regresso previsto', '26 de Novembro'], ['Risco de recaída', 'Baixo']])}</div>
     <div><b>Plano</b><ul class="lista-rel"><li>Dias 1–5: repouso e fisioterapia</li><li>Dias 6–10: ginásio e piscina</li><li>Dias 11–12: treino condicionado</li></ul><div class="rot">Instalações médicas nível 4: −1,5% de dias de lesão.</div></div></div>`,
 };
@@ -829,7 +834,7 @@ function staffEcra() {
   <div class="topo"><h1>Staff</h1><span class="sub">11 membros · custo anual 5,4 M€ (orçamento 5,5 M€)</span><div class="direita"><button class="btn">Mercado de treinadores</button><button class="btn prim">Contratar staff</button></div></div>
   <section class="c"><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Contrato</th><th class="r"></th></tr></thead>
   <tbody>${membros.map(([c, n, i, v, ef, f]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`).join('')}</tbody></table></div></section>
-  <div class="grelha" style="margin-top:14px"><section class="c s6"><h2>Pedidos do treinador</h2><div class="linha-kv"><span>Quer um médio defensivo titular na janela de Janeiro</span><span class="chip aviso">pendente</span></div><div class="linha-kv"><span>Pede renovação do 1.º Adjunto</span><span class="chip">em análise</span></div></section>
+  <div class="grelha" style="margin-top:14px"><section class="c s6"><h2>Pedidos do treinador</h2><div class="linha-kv clic" data-pedido="reforco" role="button" tabindex="0"><span>Quer um médio defensivo titular na janela de Janeiro</span><span style="display:flex;gap:6px;align-items:center"><span class="chip aviso">pendente</span><span class="muted">abrir ›</span></span></div><div class="linha-kv"><span>Pede renovação do 1.º Adjunto</span><span class="chip">em análise</span></div></section>
   <section class="c s6"><h2>Confiança do dono no treinador</h2><div class="num grande">64</div><div class="barra" style="margin-top:10px"><i style="width:64%"></i></div><div class="rot" style="margin-top:6px">Posição esperada: 3.º · actual: 4.º</div></section></div>`;
 }
 
@@ -1157,12 +1162,13 @@ function desenharModal() {
     if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
     else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else
-    if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`)}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
+    if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`, ab.rel === 'reforco' ? 'pedido-treinador.jpg' : 'relatorio.jpg')}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
     else el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="modal-cab" style="justify-content:flex-end"><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</div></div>`;
   }
   document.body.appendChild(el);
   el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
   el.querySelector('#fechar').addEventListener('click', () => { modal = null; mesCal = null; msgAberta = null; desenhar(); });
+  el.querySelectorAll('[data-ref]').forEach((b) => b.addEventListener('click', () => { modal = null; msgAberta = null; if (b.dataset.ref === 'mercado') { tabMercado = 'Transferências'; location.hash = 'mercado'; } desenhar(); }));
   el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };
   el.querySelector('#cal-ant')?.addEventListener('click', () => mv(-1));
@@ -1194,6 +1200,7 @@ function ligar(m) {
   m.querySelectorAll('[data-tabe]').forEach((b) => b.addEventListener('click', () => { tabEst = b.dataset.tabe; desenhar(); }));
   m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
   const sp = m.querySelector('#sel-pais'); if (sp) sp.addEventListener('change', () => { compSel = COMP.find(([k]) => PAIS_COMP[k] === sp.value)[0]; if (sp.value === 'UEFA' && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
+  m.querySelectorAll('[data-pedido]').forEach((x) => x.addEventListener('click', () => { modal = 'msg'; msgAberta = MENSAGENS.findIndex((y) => y.rel === x.dataset.pedido); MENSAGENS[msgAberta].lida = true; desenhar(); desenharModal(); }));
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
   m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
   const sc = m.querySelector('#sel-comp'); if (sc) sc.addEventListener('change', () => { compSel = sc.value; if (['UCL', 'UEL', 'UECL'].includes(compSel) && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
