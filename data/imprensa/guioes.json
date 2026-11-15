@@ -1,0 +1,2919 @@
+[
+ {
+  "id": "IMP-001",
+  "titulo": "Apresentação do novo Director de Futebol",
+  "seccao": "Apresentação e início de ciclo",
+  "quando": "primeira conferência da carreira, modo DIR",
+  "modo": "DIR",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "Seja bem-vindo ao {clube}. Qual é a primeira mensagem que quer deixar aos adeptos?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "humilde",
+    "texto": "Venho trabalhar, ouvir e aprender com quem conhece este clube melhor do que eu. Os resultados vêm depois.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "ambiciosa",
+    "texto": "Este clube merece estar mais acima. Vou lutar para que isso aconteça já nesta época.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1
+    },
+    "promessa": "prazo: fim da época, tipo: subir de patamar"
+   },
+   {
+    "letra": "C",
+    "tom": "directa",
+    "texto": "Prefiro não prometer nada. Digo que o projecto é sério e que vão ver o trabalho nos relvados.",
+    "efeitos": {
+     "DN": 1,
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "clube"
+  ]
+ },
+ {
+  "id": "IMP-002",
+  "titulo": "Apresentação do novo Dono",
+  "seccao": "Apresentação e início de ciclo",
+  "quando": "primeira conferência da carreira, modo DONO",
+  "modo": "DONO",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Muitos clubes foram mal geridos por donos que chegaram com grandes promessas. Porque é que {clube} seria diferente?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "transparente",
+    "texto": "Porque vou mostrar as contas todos os anos e responder pelas decisões. Se falhar, os adeptos saberão logo.",
+    "efeitos": {
+     "AD": 2,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "confiante",
+    "texto": "Porque não estou aqui para vender ilusões. Estou a investir o meu dinheiro e o meu nome.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "IM": 1
+    },
+    "promessa": "finanças estáveis, 1 época"
+   },
+   {
+    "letra": "C",
+    "tom": "defensiva",
+    "texto": "Não vou comparar com outros. Julguem-me pelo que fizer, não pelo que outros fizeram.",
+    "efeitos": {
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "clube"
+  ]
+ },
+ {
+  "id": "IMP-003",
+  "titulo": "Sucessor de uma figura querida",
+  "seccao": "Apresentação e início de ciclo",
+  "quando": "o Director anterior ou o treinador anterior era muito querido pelos adeptos (reputação do saído acima de 70)",
+  "modo": "AMBOS",
+  "jornalista": "blogue de adeptos",
+  "tipoJornalista": "blogue",
+  "pergunta": "Está a substituir {ex_jogador}, uma figura histórica. Sente a pressão da comparação?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "respeitosa",
+    "texto": "Sinto, e é um privilégio. Ele deixou um legado que respeito, e vou construir o meu caminho.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "confiante",
+    "texto": "Não vou entrar em comparações. Cada tempo tem as suas decisões, e eu tomarei as minhas.",
+    "efeitos": {
+     "AD": -1,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "humorística",
+    "texto": "A comparação é inevitável, mas eu prometo que não vou usar as chuteiras dele.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1,
+     "EQ": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "ex_jogador"
+  ]
+ },
+ {
+  "id": "IMP-004",
+  "titulo": "Clube recém-promovido",
+  "seccao": "Apresentação e início de ciclo",
+  "quando": "clube acabou de subir de divisão",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "A subida foi festejada, mas muitos clubes recém-promovidos descem logo. Qual é o plano?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "realista",
+    "texto": "Primeiro, não descer. Cada ponto conta, e vamos competir em cada jogo como se fosse o último.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1
+    },
+    "promessa": "não descer"
+   },
+   {
+    "letra": "B",
+    "tom": "ambiciosa",
+    "texto": "Subimos para competir, não para sobreviver. Estamos aqui para surpreender.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1,
+     "DN": -1
+    },
+    "promessa": "metade superior da tabela"
+   },
+   {
+    "letra": "C",
+    "tom": "prudente",
+    "texto": "Estamos focados no dia-a-dia. Os objectivos vão-se definindo à medida que a época avança.",
+    "efeitos": {
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-005",
+  "titulo": "Clube rebaixado",
+  "seccao": "Apresentação e início de ciclo",
+  "quando": "primeira conferência depois de uma descida",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "A descida deixou feridas profundas. O que vai fazer para recuperar a confiança dos sócios?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "assumindo",
+    "texto": "Falhámos, e assumo a minha parte. Vou reconstruir com honestidade e trabalho, começando por pedir desculpa aos adeptos.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "ambiciosa",
+    "texto": "A subida é o único objectivo. Quero um plantel pronto para voltar já na próxima época.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1
+    },
+    "promessa": "subir nesta época"
+   },
+   {
+    "letra": "C",
+    "tom": "cuidadosa",
+    "texto": "É cedo para falar de objectivos. Primeiro, estabilizar o clube e perceber o que correu mal.",
+    "efeitos": {
+     "AD": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-006",
+  "titulo": "Reunião de objectivos (início de época)",
+  "seccao": "Objectivos e ambição",
+  "quando": "primeira conferência da época, depois da reunião de objectivos",
+  "modo": "AMBOS",
+  "jornalista": null,
+  "tipoJornalista": "qualquer",
+  "pergunta": "O objectivo declarado é {objectivo}. Acha que o plantel tem qualidade para isso?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "Acho que sim, e confio neste grupo. Se acontecerem lesões, o plano mantém-se.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "cautelosa",
+    "texto": "O objectivo é exigente, mas realista. Dependemos de manter os jogadores-chave em forma.",
+    "efeitos": {
+     "DN": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Se quiserem mais, terão de me dar mais orçamento. Com o que tenho, é isto.",
+    "efeitos": {
+     "DN": -2,
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "objectivo"
+  ]
+ },
+ {
+  "id": "IMP-007",
+  "titulo": "Objectivo mais ambicioso do que o plantel",
+  "seccao": "Objectivos e ambição",
+  "quando": "o objectivo está acima do que o OVR médio do plantel sugere",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Os números dizem que {clube} está abaixo de {rival}. Como se explica a ambição?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "firme",
+    "texto": "Os números não jogam. O que conta é a vontade, e este grupo tem fome.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1,
+     "DN": 1
+    },
+    "promessa": "cumprir {objectivo}"
+   },
+   {
+    "letra": "B",
+    "tom": "analítica",
+    "texto": "Concordo, estamos abaixo. Mas há margem de crescimento, e vamos usar o mercado e a academia.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "humilde",
+    "texto": "É verdade, somos o mais fraco desta lista. Mas os pequenos também ganham, e vamos tentar.",
+    "efeitos": {
+     "AD": 1,
+     "DN": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "clube",
+   "rival"
+  ]
+ },
+ {
+  "id": "IMP-008",
+  "titulo": "Falhar o objectivo a meio da época",
+  "seccao": "Objectivos e ambição",
+  "quando": "a meio da época, com o clube em risco de falhar o {objectivo}",
+  "modo": "AMBOS",
+  "jornalista": null,
+  "tipoJornalista": "qualquer",
+  "pergunta": "Estão a {posicao} lugares do objectivo. Já se pode dizer que a época está comprometida?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "combativa",
+    "texto": "Nem pensar. Faltam muitos jogos e acredito que o grupo reage.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    },
+    "promessa": "recuperar até ao fim"
+   },
+   {
+    "letra": "B",
+    "tom": "honesta",
+    "texto": "Está difícil, não vou mentir. Mas enquanto houver hipóteses, vamos lutar.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "evasiva",
+    "texto": "Prefiro não responder a essa pergunta. Vamos jogo a jogo.",
+    "efeitos": {
+     "AD": -1,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "posicao"
+  ]
+ },
+ {
+  "id": "IMP-009",
+  "titulo": "Mudança de objectivo",
+  "seccao": "Objectivos e ambição",
+  "quando": "o conselho ou o dono baixou o objectivo",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Baixaram o objectivo a meio da época. Isso é um sinal de desistência?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "justificando",
+    "texto": "É um ajuste realista à nossa situação. Preferimos metas claras a sonhos que depois desiludem.",
+    "efeitos": {
+     "DN": 1,
+     "AD": -1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "firme",
+    "texto": "De forma nenhuma. Os objectivos mudam com a realidade, mas a ambição fica.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "assumindo",
+    "texto": "Reconheço que as coisas não correram como esperado. Mudar a meta é uma decisão difícil mas honesta.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-010",
+  "titulo": "Derbi",
+  "seccao": "Antes dos jogos",
+  "quando": "jogo contra {rival} (rivalidade 2 ou 3)",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "É o derbi. O que significa este jogo para o clube?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "emotiva",
+    "texto": "Significa tudo para esta cidade. Jogamos por quem está nas bancadas.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "comedida",
+    "texto": "É um jogo de três pontos, como os outros. O ambiente é especial, mas mantemos a cabeça fria.",
+    "efeitos": {
+     "EQ": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Eles falam muito, nós jogamos. Vemos no domingo quem ri.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1,
+     "IM": -1
+    },
+    "notas": "Aumenta a intensidade do jogo (rivalidade +1 por este jogo)"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-011",
+  "titulo": "Jogo contra um grande",
+  "seccao": "Antes dos jogos",
+  "quando": "o adversário tem reputação muito acima",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "O {adversario} chega como grande favorito. Têm alguma hipótese?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "No futebol tudo é possível. Vamos ao campo para ganhar.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "humilde",
+    "texto": "Reconheço que eles são melhores no papel, mas já houve surpresas e queremos provocar mais uma.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "descontraída",
+    "texto": "Se calhar, a pressão está toda do lado deles. Nós só temos a ganhar.",
+    "efeitos": {
+     "EQ": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "adversario"
+  ]
+ },
+ {
+  "id": "IMP-012",
+  "titulo": "Final",
+  "seccao": "Antes dos jogos",
+  "quando": "véspera de uma final (taça ou continental)",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Uma final decide épocas inteiras. Como estão os nervos no balneário?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "calma",
+    "texto": "Estão tranquilos. Já passámos por muita coisa, e este grupo sabe lidar com a pressão.",
+    "efeitos": {
+     "EQ": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "honesta",
+    "texto": "Há ansiedade, claro. É normal numa final. O importante é transformá-la em energia.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ambiciosa",
+    "texto": "Estamos aqui para ganhar o troféu. Não viemos passear.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1
+    },
+    "promessa": "ganhar a final"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-013",
+  "titulo": "Jogo logo a seguir a uma eliminação",
+  "seccao": "Antes dos jogos",
+  "quando": "primeiro jogo depois de uma eliminação numa taça ou competição continental",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "A eliminação foi dura. O grupo está preparado para reagir já no próximo jogo?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "Está. Os jogadores já viraram a página. A resposta vai dar-se no campo.",
+    "efeitos": {
+     "EQ": 1,
+     "AD": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "admitindo",
+    "texto": "A pancada foi grande e não vou fingir o contrário. Mas temos de nos levantar.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "evasiva",
+    "texto": "Prefiro não falar do jogo anterior. Está esquecido.",
+    "efeitos": {
+     "AD": -1,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-014",
+  "titulo": "Jogo após pausa internacional",
+  "seccao": "Antes dos jogos",
+  "quando": "primeira jornada depois de uma pausa FIFA com jogadores lesionados ou cansados",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Voltou com vários jogadores lesionados da selecção. Isso é um problema para o clube?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "crítica",
+    "texto": "É sempre um risco. Gostava que as selecções respeitassem mais os clubes que pagam os salários.",
+    "efeitos": {
+     "IM": -1,
+     "AD": 1,
+     "BL": -1
+    },
+    "notas": "(jogadores)"
+   },
+   {
+    "letra": "B",
+    "tom": "diplomática",
+    "texto": "Faz parte do jogo. Temos um plantel largo e confiamos em quem está disponível.",
+    "efeitos": {
+     "IM": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "humorística",
+    "texto": "Os jogadores adoram os clubes e as selecções. Eu adoro quando regressam inteiros.",
+    "efeitos": {
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-015",
+  "titulo": "Goleada",
+  "seccao": "Depois de vitórias",
+  "quando": "vitória por 4 ou mais golos de diferença",
+  "modo": "AMBOS",
+  "jornalista": "canal do clube",
+  "tipoJornalista": "canal",
+  "pergunta": "Foi uma exibição imponente. Qual foi a chave da noite?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "colectiva",
+    "texto": "O grupo. Todos fizeram a sua parte e o resultado reflecte isso.",
+    "efeitos": {
+     "EQ": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "comedida",
+    "texto": "Foi um bom resultado, mas não vamos entusiasmar. O próximo jogo é outro desafio.",
+    "efeitos": {
+     "TR": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Há quem dissesse que não tínhamos qualidade. Hoje o campo respondeu.",
+    "efeitos": {
+     "AD": 1,
+     "IM": -1,
+     "EQ": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-016",
+  "titulo": "Vitória tardia",
+  "seccao": "Depois de vitórias",
+  "quando": "golo decisivo depois dos 85 minutos",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "O golo tardio salvou três pontos. Sente que a sorte esteve ao seu lado?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "humilde",
+    "texto": "Um pouco de sorte ajuda sempre. Mas persistimos até ao fim, e isso também conta.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "orgulhosa",
+    "texto": "Sorte não: carácter. Este grupo nunca desiste.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "honesta",
+    "texto": "Reconheço que não jogámos bem. Mas ganhar sem jogar bem é uma qualidade de campeão.",
+    "efeitos": {
+     "IM": 1,
+     "TR": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-017",
+  "titulo": "Sequência de vitórias",
+  "seccao": "Depois de vitórias",
+  "quando": "5 vitórias seguidas",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Cinco vitórias seguidas. Já podemos sonhar com mais do que o objectivo inicial?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "sonhadora",
+    "texto": "Sonhar é de graça, mas só se ganha o próximo jogo. Estamos a viver um bom momento.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "prudente",
+    "texto": "Tudo isso é prematuro. Vamos manter o foco e os pés assentes na terra.",
+    "efeitos": {
+     "EQ": 1,
+     "DN": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "firme",
+    "texto": "Sim, o novo objectivo é mais alto. Quero ver este grupo a lutar pelo título.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1,
+     "DN": -1
+    },
+    "promessa": "nova meta superior"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-018",
+  "titulo": "Título conquistado",
+  "seccao": "Depois de vitórias",
+  "quando": "o clube é campeão da liga ou da taça",
+  "modo": "AMBOS",
+  "jornalista": "todos",
+  "tipoJornalista": "todos",
+  "pergunta": "É campeão! Qual é o sentimento neste momento?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "emotiva",
+    "texto": "Não há palavras. É o culminar de um trabalho enorme e dedico-o a todos os adeptos.",
+    "efeitos": {
+     "AD": 3,
+     "EQ": 2,
+     "DN": 2,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "agradecida",
+    "texto": "Quero agradecer a toda a estrutura: treinador, jogadores, funcionários. Sem eles nada era possível.",
+    "efeitos": {
+     "EQ": 2,
+     "TR": 2,
+     "BL": 2
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ambiciosa",
+    "texto": "Estamos felizes, mas já pensamos no próximo. Um campeão não pode dormir.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1,
+     "IM": 1
+    },
+    "promessa": "defender o título"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-019",
+  "titulo": "Vitória do clube pequeno contra um grande",
+  "seccao": "Depois de vitórias",
+  "quando": "clube de reputação baixa vence um grande",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "David bateu Golias. Foi o melhor dia da vossa época?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "orgulhosa",
+    "texto": "Foi um dia para recordar. Mostra que, com organização e vontade, tudo é possível.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 2,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "modesta",
+    "texto": "Foi um bom dia, mas a época é longa. Não nos devemos deixar deslumbrar.",
+    "efeitos": {
+     "EQ": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "O mérito é todo nosso. Eles vieram cá com a mão no bolso e saíram sem pontos.",
+    "efeitos": {
+     "AD": 1,
+     "IM": -1,
+     "EQ": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-020",
+  "titulo": "Derrota pesada",
+  "seccao": "Depois de derrotas e empates",
+  "quando": "derrota por 3 ou mais golos de diferença",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Foi uma derrota humilhante. Quem é o responsável?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "assumindo",
+    "texto": "Sou eu, em última instância. Assumo as falhas e vamos corrigi-las.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "EQ": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "colectiva",
+    "texto": "Falhámos todos. Esta noite doeu, mas o grupo vai responder.",
+    "efeitos": {
+     "EQ": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "reactiva",
+    "texto": "Não vou procurar culpados. A análise faz-se internamente, não nos jornais.",
+    "efeitos": {
+     "AD": -1,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-021",
+  "titulo": "Sequência negativa",
+  "seccao": "Depois de derrotas e empates",
+  "quando": "4 jogos sem vencer",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "Quatro jogos sem ganhar. O {treinador} está em risco?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiança",
+    "texto": "O treinador tem a minha confiança total. Nas más fases, é quando mais precisamos de estabilidade.",
+    "efeitos": {
+     "TR": 2,
+     "DN": -1,
+     "AD": -1
+    },
+    "notas": "(aumenta a pressão sobre o treinador)"
+   },
+   {
+    "letra": "B",
+    "tom": "cautelosa",
+    "texto": "Estamos a analisar tudo, como em todas as fases. Não vou comentar situações individuais.",
+    "efeitos": {}
+   },
+   {
+    "letra": "C",
+    "tom": "firme",
+    "texto": "Todos estão em avaliação, incluindo eu. Quem não render, sai.",
+    "efeitos": {
+     "DN": 1,
+     "TR": -2,
+     "EQ": -1,
+     "BL": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "treinador"
+  ]
+ },
+ {
+  "id": "IMP-022",
+  "titulo": "Derrota num derbi",
+  "seccao": "Depois de derrotas e empates",
+  "quando": "derrota contra {rival}",
+  "modo": "AMBOS",
+  "jornalista": "blogue de adeptos",
+  "tipoJornalista": "blogue",
+  "pergunta": "Perder o derbi é inaceitável. Os adeptos esperavam mais. O que lhes diz?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "humilde",
+    "texto": "Têm razão em estar zangados. Pedimos desculpa e prometemos trabalhar mais.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": -1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "equilibrada",
+    "texto": "Perdemos um jogo, não uma guerra. A época continua e vamos recuperar.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Os adeptos que vêm cá sabem que o clube é maior do que um resultado.",
+    "efeitos": {
+     "AD": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-023",
+  "titulo": "Empate com polémica de arbitragem",
+  "seccao": "Depois de derrotas e empates",
+  "quando": "golo anulado ou penálti polémico num empate ou derrota",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "O árbitro anulou um golo que parecia legal. Está indignado com a arbitragem?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "calma",
+    "texto": "Não comento arbitragem. O que posso dizer é que não fomos beneficiados.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "indignada",
+    "texto": "Foi uma decisão escandalosa. Vamos apresentar queixa formal.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1,
+     "IM": -1
+    },
+    "multa": 0.3,
+    "notas": "Risco de multa (probabilidade 30%)"
+   },
+   {
+    "letra": "C",
+    "tom": "irónica",
+    "texto": "Se calhar os árbitros também precisam de treinar mais, como os jogadores.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    },
+    "multa": 0.15,
+    "notas": "risco de multa (probabilidade 15%)"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-024",
+  "titulo": "Empate sem golos",
+  "seccao": "Depois de derrotas e empates",
+  "quando": "0-0 em casa",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "Foi um jogo sem emoção. Faltou ousadia?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "autocrítica",
+    "texto": "Concordo, faltou ousadia. Vamos trabalhar para o ataque ter mais ideias.",
+    "efeitos": {
+     "AD": 1,
+     "TR": -1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "defendendo",
+    "texto": "O equilíbrio defensivo foi bom. O resultado foi justo para o que se viu.",
+    "efeitos": {
+     "TR": 1,
+     "AD": -1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "humorística",
+    "texto": "A equipa estava tão focada em não sofrer que se esqueceu do outro lado.",
+    "efeitos": {
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-025",
+  "titulo": "Rumor de saída da estrela",
+  "seccao": "Mercado e transferências",
+  "quando": "jogador com valor no top 3 do plantel tem proposta de outro clube",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "O {jogador} tem uma oferta do {adversario}. Vai sair?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "firme",
+    "texto": "O {jogador} não está à venda. É uma peça fundamental no nosso projecto.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1,
+     "DN": -1
+    },
+    "mentira": "Se vender depois, penaliza AD e DN (MENTIRA)",
+    "notas": "Aumenta o preço pedido. Se vender depois, penaliza AD e DN (MENTIRA)"
+   },
+   {
+    "letra": "B",
+    "tom": "aberta",
+    "texto": "Se houver uma proposta à altura, o clube tem de a analisar. Todos têm um preço.",
+    "efeitos": {
+     "AD": -1,
+     "EQ": -1,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "evasiva",
+    "texto": "Não comento rumores. Quando houver novidades, comunicamos.",
+    "efeitos": {
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "jogador",
+   "adversario"
+  ]
+ },
+ {
+  "id": "IMP-026",
+  "titulo": "Contratação cara",
+  "seccao": "Mercado e transferências",
+  "quando": "contratação acima de 20% do orçamento de transferências",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "{valor} milhões por {jogador}. Não é um valor excessivo?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "Não. É um investimento no futuro. Se olhar para a qualidade e para a idade, é um negócio que se paga.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "defensiva",
+    "texto": "O mercado está inflacionado, mas só se contrata quem se quer. O {jogador} era a prioridade.",
+    "efeitos": {}
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Se acha caro, venha negociar no meu lugar.",
+    "efeitos": {
+     "IM": -1,
+     "EQ": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "valor",
+   "jogador"
+  ]
+ },
+ {
+  "id": "IMP-027",
+  "titulo": "Falta de reforços",
+  "seccao": "Mercado e transferências",
+  "quando": "última semana da janela e orçamento de transferências por usar, ou posição sem cobertura",
+  "modo": "AMBOS",
+  "jornalista": "blogue de adeptos",
+  "tipoJornalista": "blogue",
+  "pergunta": "A janela fecha e o plantel continua curto na posição de {posicao}. Os adeptos sentem-se enganados?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "honesta",
+    "texto": "Entendo a frustração. Tentámos, mas o mercado não ajudou. Vamos confiar nos que cá estão.",
+    "efeitos": {
+     "AD": -1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "compromisso",
+    "texto": "Estamos a trabalhar até ao último minuto. Pode ainda haver surpresas.",
+    "efeitos": {
+     "AD": 1
+    },
+    "promessa": "reforço até ao fecho da janela"
+   },
+   {
+    "letra": "C",
+    "tom": "ofensiva",
+    "texto": "Os adeptos têm direito de opinar, mas quem gere o clube sou eu.",
+    "efeitos": {
+     "AD": -2,
+     "DN": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "posicao"
+  ]
+ },
+ {
+  "id": "IMP-028",
+  "titulo": "Venda de um ídolo",
+  "seccao": "Mercado e transferências",
+  "quando": "venda do jogador mais querido (capitão ou ídolo)",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "Vendeu o {jogador}, símbolo do clube. Traiu os adeptos?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "justificando",
+    "texto": "Foi uma decisão difícil, mas necessária para a sustentabilidade do clube. Os adeptos vão perceber.",
+    "efeitos": {
+     "AD": -1,
+     "DN": 2
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "emocional",
+    "texto": "Foi doloroso. O {jogador} sai com a nossa gratidão eterna, e a porta está sempre aberta.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "firme",
+    "texto": "Não tomo decisões para agradar. Tomo-as pelo que é melhor para o clube.",
+    "efeitos": {
+     "AD": -2,
+     "DN": 1,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "jogador"
+  ]
+ },
+ {
+  "id": "IMP-029",
+  "titulo": "Último dia da janela",
+  "seccao": "Mercado e transferências",
+  "quando": "último dia da janela",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Estamos nas últimas horas. Há algum negócio na calha?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "misteriosa",
+    "texto": "Há conversas, mas nada garantido. Vamos ver até ao último minuto.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "directa",
+    "texto": "Não. O plantel está fechado, e confio nele.",
+    "efeitos": {
+     "EQ": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Os adversários que estejam atentos. Podemos fazer barulho.",
+    "efeitos": {
+     "AD": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-030",
+  "titulo": "Jogador livre",
+  "seccao": "Mercado e transferências",
+  "quando": "contratação de um jogador livre (sem custo de transferência) ou jogador veterano",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Contratou um jogador aos {idade} anos. É uma aposta de risco?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "A experiência é valiosa, e o jogador tem muito para dar. Não é risco, é equilíbrio.",
+    "efeitos": {
+     "AD": 1,
+     "BL": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "cuidadosa",
+    "texto": "É uma opção com baixo custo e potencial alto. Se não correr bem, o prejuízo é pequeno.",
+    "efeitos": {
+     "DN": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "irónica",
+    "texto": "A idade é só um número, e os números não correm. Os jogadores sim.",
+    "efeitos": {
+     "IM": 1,
+     "AD": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "idade"
+  ]
+ },
+ {
+  "id": "IMP-031",
+  "titulo": "Voto de confiança",
+  "seccao": "Treinador",
+  "quando": "pressão sobre o treinador (3 jogos sem vencer e rumores de despedimento)",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Garante que o {treinador} continua?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "garantia",
+    "texto": "Garanto. Tem a nossa confiança total.",
+    "efeitos": {
+     "TR": 2,
+     "EQ": 1,
+     "AD": -1
+    },
+    "promessa": "manter o treinador; se despedir nos próximos 30 dias: MENTIRA, DN −2, IM −2, BL −1",
+    "mentira": "se despedir nos próximos 30 dias: MENTIRA, DN −2, IM −2, BL −1"
+   },
+   {
+    "letra": "B",
+    "tom": "prudente",
+    "texto": "Não faço garantias. Avaliamos o trabalho em cada momento.",
+    "efeitos": {
+     "TR": -1,
+     "EQ": -1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "firme",
+    "texto": "Ninguém tem a vida garantida no futebol. Nem ele, nem eu.",
+    "efeitos": {
+     "TR": -1,
+     "DN": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "treinador"
+  ]
+ },
+ {
+  "id": "IMP-032",
+  "titulo": "Despedimento do treinador",
+  "seccao": "Treinador",
+  "quando": "despedimento do treinador",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Despediu o {treinador}. Como justifica a decisão?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "respeitosa",
+    "texto": "É uma decisão difícil. Agradeço-lhe o trabalho, mas era preciso mudar o rumo.",
+    "efeitos": {
+     "IM": 1,
+     "TR": 1
+    },
+    "notas": "(reputação junto de outros treinadores)"
+   },
+   {
+    "letra": "B",
+    "tom": "directa",
+    "texto": "Os resultados falaram. O clube precisa de resultados, e foi essa a razão.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "TR": -1
+    },
+    "notas": "(reputação)"
+   },
+   {
+    "letra": "C",
+    "tom": "reservada",
+    "texto": "Prefiro não entrar em pormenores. É uma decisão interna.",
+    "efeitos": {
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "treinador"
+  ]
+ },
+ {
+  "id": "IMP-033",
+  "titulo": "Apresentação do novo treinador",
+  "seccao": "Treinador",
+  "quando": "contratação de novo treinador",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "Porquê o {treinador}? Que perfil procuravam?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "filosofia",
+    "texto": "Procurávamos um treinador que se alinhasse com a nossa filosofia, e ele encaixa perfeitamente.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "resultados",
+    "texto": "Procurávamos resultados. E os resultados do {treinador} falam por si.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "honesta",
+    "texto": "Era a opção possível dentro do nosso orçamento, e estamos confiantes.",
+    "efeitos": {
+     "AD": -1,
+     "TR": -1,
+     "DN": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "treinador"
+  ]
+ },
+ {
+  "id": "IMP-034",
+  "titulo": "Conflito de filosofia",
+  "seccao": "Treinador",
+  "quando": "filosofia do clube (ex.: jovens) contraria o estilo do treinador",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Corre que o treinador não quer apostar nos jovens, ao contrário do que o clube defende. Há tensão?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "negar",
+    "texto": "Nenhuma. Estamos todos alinhados.",
+    "efeitos": {
+     "TR": 1,
+     "IM": -1
+    },
+    "mentira": "MENTIRA se a tensão for pública",
+    "notas": "MENTIRA se a tensão for pública"
+   },
+   {
+    "letra": "B",
+    "tom": "reconhecer",
+    "texto": "Há debate saudável. Mas o rumo é do clube, e ele vai cumpri-lo.",
+    "efeitos": {
+     "TR": -1,
+     "DN": 1,
+     "AD": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "dividir",
+    "texto": "Discordamos em algumas coisas, mas respeitamo-nos. Vamos chegar a um meio-termo.",
+    "efeitos": {
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-035",
+  "titulo": "Renovação do treinador",
+  "seccao": "Treinador",
+  "quando": "treinador com bons resultados e contrato a terminar",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "O contrato do {treinador} acaba no fim da época. Vão renovar?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "comprometida",
+    "texto": "Quero renovar e já estamos em conversas. É uma peça fundamental.",
+    "efeitos": {
+     "TR": 2,
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "cautelosa",
+    "texto": "Há tempo para tudo. Primeiro, concentração na época.",
+    "efeitos": {}
+   },
+   {
+    "letra": "C",
+    "tom": "negociadora",
+    "texto": "Quem tem sucesso aumenta o seu preço. Veremos o que o clube pode oferecer.",
+    "efeitos": {
+     "TR": -1,
+     "DN": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "treinador"
+  ]
+ },
+ {
+  "id": "IMP-036",
+  "titulo": "Dívida elevada",
+  "seccao": "Finanças, dono e fair play",
+  "quando": "dívida acima de um limiar (config)",
+  "modo": "AMBOS",
+  "jornalista": "imprensa económica",
+  "tipoJornalista": "economica",
+  "pergunta": "A dívida do clube cresceu. Qual é o plano para a reduzir?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "transparente",
+    "texto": "Temos um plano de amortização e vamos publicar os números. A dívida é gerível.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "IM": 1
+    },
+    "promessa": "reduzir a dívida"
+   },
+   {
+    "letra": "B",
+    "tom": "minimizando",
+    "texto": "A dívida está dentro do normal para um clube do nosso tamanho. Não há motivo para alarme.",
+    "efeitos": {
+     "IM": -1
+    },
+    "mentira": "MENTIRA se o estado financeiro for \"crise\"",
+    "notas": "MENTIRA se o estado financeiro for \"crise\""
+   },
+   {
+    "letra": "C",
+    "tom": "ofensiva",
+    "texto": "A dívida é consequência de más gestões passadas. Estou a resolver o que me deixaram.",
+    "efeitos": {
+     "DN": -1,
+     "AD": 1
+    },
+    "notas": "(se o dono anterior era impopular)"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-037",
+  "titulo": "Sanção de fair play",
+  "seccao": "Finanças, dono e fair play",
+  "quando": "o clube é sancionado por fair play financeiro",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "O clube foi sancionado por violar o fair play. Como é que isto aconteceu?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "assumindo",
+    "texto": "Assumimos o erro e vamos cumprir a sanção. Já ajustámos a política salarial.",
+    "efeitos": {
+     "DN": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "contestando",
+    "texto": "Discordamos da leitura das regras e vamos recorrer.",
+    "efeitos": {
+     "AD": 1,
+     "IM": -1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "relativizando",
+    "texto": "Todos os clubes grandes são multados. É o preço de competir.",
+    "efeitos": {
+     "AD": 1,
+     "DN": -1,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-038",
+  "titulo": "Injecção de capital do dono",
+  "seccao": "Finanças, dono e fair play",
+  "quando": "o dono injectou capital ou emprestou dinheiro ao clube",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "O dono voltou a pôr dinheiro no clube. É sustentável depender dele?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "agradecida",
+    "texto": "O dono acredita no projecto, e é graças a ele que temos condições. Mas queremos ser autossustentáveis.",
+    "efeitos": {
+     "DN": 2,
+     "AD": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "realista",
+    "texto": "Não é o ideal. Estamos a trabalhar para equilibrar receitas e despesas.",
+    "efeitos": {
+     "DN": -1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "evasiva",
+    "texto": "Não comento negócios entre accionistas.",
+    "efeitos": {
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-039",
+  "titulo": "Rumores de venda do clube",
+  "seccao": "Finanças, dono e fair play",
+  "quando": "modo DONO com satisfação dos adeptos baixa (crise) ou investidor interessado",
+  "modo": "DONO",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Corre que investidores estão interessados em comprar o clube. Está disposto a vender?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "firme",
+    "texto": "O clube não está à venda. Quero continuar o projecto.",
+    "efeitos": {
+     "AD": 2,
+     "DN": -1
+    },
+    "promessa": "não vender nesta época; se vender: MENTIRA, AD −3",
+    "mentira": "se vender: MENTIRA, AD −3"
+   },
+   {
+    "letra": "B",
+    "tom": "aberta",
+    "texto": "Se aparecer uma proposta boa para o clube, eu ouço. Mas não vendo por vender.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ambígua",
+    "texto": "Neste momento não há nada. O futuro logo se vê.",
+    "efeitos": {
+     "AD": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-040",
+  "titulo": "Patrocinador a sair",
+  "seccao": "Finanças, dono e fair play",
+  "quando": "patrocinador principal rescinde ou não renova",
+  "modo": "AMBOS",
+  "jornalista": "imprensa económica",
+  "tipoJornalista": "economica",
+  "pergunta": "O principal patrocinador abandona o clube. Isso é um sinal de crise?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "calma",
+    "texto": "Não. Há muito interesse de outras marcas, e vamos encontrar uma solução.",
+    "efeitos": {
+     "DN": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "honesta",
+    "texto": "É um golpe, não nego. Mas o clube é maior do que um patrocinador.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "recriminadora",
+    "texto": "Quem sai agora não merece voltar. Os adeptos sabem quem esteve ao nosso lado.",
+    "efeitos": {
+     "AD": 1,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-041",
+  "titulo": "Resultados financeiros anuais",
+  "seccao": "Finanças, dono e fair play",
+  "quando": "fecho do ano financeiro",
+  "modo": "AMBOS",
+  "jornalista": "imprensa económica",
+  "tipoJornalista": "economica",
+  "pergunta": "As contas anuais saíram. {clube} teve {lucro_ou_prejuizo}. Como as analisa?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "satisfeita",
+    "texto": "Estamos no caminho certo. Os resultados reflectem a disciplina da gestão.",
+    "efeitos": {
+     "DN": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "autocrítica",
+    "texto": "Podíamos ter feito melhor, e vamos corrigir. A sustentabilidade é uma prioridade.",
+    "efeitos": {
+     "DN": 1,
+     "AD": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "distraída",
+    "texto": "As contas são só um instrumento. O que conta é o que acontece em campo.",
+    "efeitos": {
+     "IM": -1,
+     "DN": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "clube",
+   "lucro_ou_prejuizo"
+  ]
+ },
+ {
+  "id": "IMP-042",
+  "titulo": "Lesão grave de uma estrela",
+  "seccao": "Jogadores, balneário e academia",
+  "quando": "lesão grave (acima de 3 meses) de um titular importante",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "A lesão do {jogador} é um golpe. Como vai compensar a ausência?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "Temos um grupo forte, e outros vão assumir esse papel. Vamos suportar a ausência.",
+    "efeitos": {
+     "EQ": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "realista",
+    "texto": "É uma perda enorme, e não vamos encontrar um substituto igual. Vamos olhar para o mercado.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "solidária",
+    "texto": "O {jogador} vai ter todo o apoio do clube durante a recuperação. Está em primeiro lugar.",
+    "efeitos": {
+     "EQ": 1,
+     "BL": 2
+    }
+   }
+  ],
+  "variaveis": [
+   "jogador"
+  ]
+ },
+ {
+  "id": "IMP-043",
+  "titulo": "Jogador descontente",
+  "seccao": "Jogadores, balneário e academia",
+  "quando": "jogador titular ou ex-titular com moral baixa, pediu para sair",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "O {jogador} não está feliz e quer sair. O que vai fazer?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "firme",
+    "texto": "Tem contrato e vai cumpri-lo. Aqui não se trocam jogadores por birras.",
+    "efeitos": {
+     "AD": 1,
+     "BL": -1,
+     "EQ": -1,
+     "DN": 1
+    },
+    "notas": "Jogador mantém-se descontente (moral continua baixa)"
+   },
+   {
+    "letra": "B",
+    "tom": "dialogante",
+    "texto": "Vamos falar com ele e perceber os motivos. Todos têm direito a ser ouvidos.",
+    "efeitos": {
+     "BL": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "aberta",
+    "texto": "Se for o desejo dele e a proposta for justa, avaliamos a saída.",
+    "efeitos": {
+     "BL": 1,
+     "AD": -1,
+     "DN": 1
+    },
+    "notas": "(do jogador),  . Abre a porta a negociações"
+   }
+  ],
+  "variaveis": [
+   "jogador"
+  ]
+ },
+ {
+  "id": "IMP-044",
+  "titulo": "Promoção de um jovem da academia",
+  "seccao": "Jogadores, balneário e academia",
+  "quando": "jovem sub-18 ou sub-21 promovido à equipa principal com bom rendimento",
+  "modo": "AMBOS",
+  "jornalista": "blogue de adeptos",
+  "tipoJornalista": "blogue",
+  "pergunta": "O {jovem} brilhou. A academia vai ser a base do futuro do clube?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "orgulhosa",
+    "texto": "A academia é o nosso orgulho. Vamos continuar a investir nela e a dar oportunidades.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "cuidadosa",
+    "texto": "É cedo para o dizer. O {jovem} tem talento, mas tem de continuar a crescer.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "comercial",
+    "texto": "Um jovem que brilha também atrai olhares. Estamos atentos ao valor de mercado.",
+    "efeitos": {
+     "AD": -1,
+     "DN": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "jovem"
+  ]
+ },
+ {
+  "id": "IMP-045",
+  "titulo": "Indisciplina",
+  "seccao": "Jogadores, balneário e academia",
+  "quando": "jogador expulso ou com polémica fora de campo",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "O {jogador} foi expulso/envolveu-se em polémica. Que medidas vão tomar?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "rigorosa",
+    "texto": "Haverá sanção interna. Ninguém está acima do clube.",
+    "efeitos": {
+     "BL": -1,
+     "EQ": -1,
+     "AD": 1,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "compreensiva",
+    "texto": "Foi um deslize isolado e vamos falar com ele. Conhecemos o carácter do jogador.",
+    "efeitos": {
+     "BL": 1,
+     "IM": -1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "silenciosa",
+    "texto": "Assuntos internos tratam-se internamente. Não vou comentar mais.",
+    "efeitos": {
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "jogador"
+  ]
+ },
+ {
+  "id": "IMP-046",
+  "titulo": "Capitão e liderança",
+  "seccao": "Jogadores, balneário e academia",
+  "quando": "o {capitao} tem moral baixa ou forma má",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "O capitão {capitao} tem estado abaixo do esperado. Mantém-lhe a braçadeira?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "Mantenho. A liderança não se mede só pelos golos, e ele continua a ser uma referência.",
+    "efeitos": {
+     "BL": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "exigente",
+    "texto": "A braçadeira exige exemplo. Se não melhorar, teremos de reavaliar.",
+    "efeitos": {
+     "EQ": -1,
+     "BL": -1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "protectora",
+    "texto": "Os jogadores passam por fases, e o capitão tem todo o meu apoio.",
+    "efeitos": {
+     "BL": 1,
+     "AD": -1
+    }
+   }
+  ],
+  "variaveis": [
+   "capitao"
+  ]
+ },
+ {
+  "id": "IMP-047",
+  "titulo": "Cláusula de rescisão",
+  "seccao": "Jogadores, balneário e academia",
+  "quando": "jogador com cláusula de rescisão activada por outro clube",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "O {adversario} pagou a cláusula de rescisão do {jogador}. Estão impotentes?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "resignada",
+    "texto": "A cláusula existe para isto. É um direito do jogador, e vamos usar o dinheiro de forma inteligente.",
+    "efeitos": {
+     "DN": 1,
+     "AD": -1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "queixosa",
+    "texto": "É um valor muito abaixo do que ele vale. Foi um erro negociá-la naquele patamar.",
+    "efeitos": {
+     "AD": -1,
+     "DN": -1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "orgulhosa",
+    "texto": "Formámos um jogador que vale tanto dinheiro. Isso é uma vitória do clube.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "adversario",
+   "jogador"
+  ]
+ },
+ {
+  "id": "IMP-048",
+  "titulo": "Preço dos bilhetes",
+  "seccao": "Adeptos, estádio e infraestruturas",
+  "quando": "o clube subiu os preços dos bilhetes ou das quotas",
+  "modo": "AMBOS",
+  "jornalista": "blogue de adeptos",
+  "tipoJornalista": "blogue",
+  "pergunta": "Os bilhetes subiram. Os adeptos já pagam muito. Isso é justo?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "justificando",
+    "texto": "Os custos subiram e queremos manter a qualidade do plantel. Acreditamos que vale a pena.",
+    "efeitos": {
+     "AD": -2,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "compensando",
+    "texto": "Percebemos a revolta. Vamos criar descontos para jovens e sócios históricos.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "recuando",
+    "texto": "Ouvimos e vamos baixar os preços.",
+    "efeitos": {
+     "AD": 2,
+     "DN": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-049",
+  "titulo": "Protestos dos adeptos",
+  "seccao": "Adeptos, estádio e infraestruturas",
+  "quando": "modo DONO com satisfação dos adeptos abaixo de 40",
+  "modo": "DONO",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Os adeptos protestaram à porta do estádio. Entende o descontentamento?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "compreensiva",
+    "texto": "Entendo, e peço desculpa pelo sofrimento. Vou ouvir uma delegação de adeptos esta semana.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1
+    },
+    "promessa": "reunião em 7 dias"
+   },
+   {
+    "letra": "B",
+    "tom": "firme",
+    "texto": "Entendo, mas protestar à porta não ajuda ninguém. O diálogo é a via.",
+    "efeitos": {
+     "AD": -1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Os adeptos que protestam são uma minoria. A grande maioria apoia-nos.",
+    "efeitos": {
+     "AD": -3,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-050",
+  "titulo": "Obras no estádio",
+  "seccao": "Adeptos, estádio e infraestruturas",
+  "quando": "obra de infraestrutura concluída ou anunciada",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "As obras no {estadio} avançaram. O que vão ganhar os adeptos?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "entusiasmada",
+    "texto": "Mais conforto, mais capacidade e mais ambiente. Vai ser uma casa à altura do clube.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "cautelosa",
+    "texto": "As obras trazem incómodos, mas o resultado final compensa. Pedimos paciência.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "comercial",
+    "texto": "É também um investimento: mais capacidade significa mais receitas e mais competitividade.",
+    "efeitos": {
+     "DN": 2,
+     "AD": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "estadio"
+  ]
+ },
+ {
+  "id": "IMP-051",
+  "titulo": "Estádio vazio",
+  "seccao": "Adeptos, estádio e infraestruturas",
+  "quando": "ocupação do estádio abaixo de 60% durante três jogos",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "O estádio está meio vazio. Os adeptos desistiram do clube?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "compreensiva",
+    "texto": "Não desistiram. Estão desiludidos, e é a nós que cabe reconquistá-los com resultados.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "apelativa",
+    "texto": "Peço a todos que venham apoiar. Os jogadores precisam do vosso calor.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ofendida",
+    "texto": "Os adeptos de verdade estão connosco, e os outros não fazem falta.",
+    "efeitos": {
+     "AD": -3,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-052",
+  "titulo": "Sorteio continental",
+  "seccao": "Competições continentais e selecções",
+  "quando": "sorteio da fase de liga ou de eliminatórias",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "O sorteio colocou-vos {adversario}. É um sorteio difícil?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "confiante",
+    "texto": "Contra os melhores é que se mede a nossa capacidade. Estamos prontos.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "realista",
+    "texto": "É um sorteio duro. Mas ninguém disse que seria fácil.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "descontraída",
+    "texto": "Preferíamos outro, mas não escolhemos. Vamos dar o nosso melhor.",
+    "efeitos": {}
+   }
+  ],
+  "variaveis": [
+   "adversario"
+  ]
+ },
+ {
+  "id": "IMP-053",
+  "titulo": "Qualificação para a competição europeia",
+  "seccao": "Competições continentais e selecções",
+  "quando": "o clube garante uma vaga europeia (Champions, Liga Europa ou Conferência)",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "O clube vai jogar na Europa. Qual é o objectivo na competição?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "ambiciosa",
+    "texto": "Passar a fase de liga e fazer história. Temos qualidade para isso.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1
+    },
+    "promessa": "passar a fase de liga"
+   },
+   {
+    "letra": "B",
+    "tom": "prudente",
+    "texto": "Primeiro, experiência. Queremos competir e aprender com os melhores.",
+    "efeitos": {
+     "DN": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "financeira",
+    "texto": "Cada jogo europeu traz receitas importantes. É uma oportunidade para a saúde financeira do clube.",
+    "efeitos": {
+     "DN": 2
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-054",
+  "titulo": "Eliminação europeia",
+  "seccao": "Competições continentais e selecções",
+  "quando": "eliminação numa competição continental",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "O clube ficou pelo caminho na Europa. Foi uma desilusão?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "autocrítica",
+    "texto": "Sim, esperávamos mais. Mas aprendemos, e a experiência vai servir no futuro.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "positiva",
+    "texto": "Honrámos o clube e os adeptos. Competimos com os melhores, e isso conta.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "crítica",
+    "texto": "A eliminação mostra que o plantel é curto. É preciso reforçar nas próximas janelas.",
+    "efeitos": {
+     "AD": 1,
+     "DN": -1,
+     "TR": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-055",
+  "titulo": "Convocatórias das selecções",
+  "seccao": "Competições continentais e selecções",
+  "quando": "vários jogadores do plantel são convocados",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Seis jogadores seus foram convocados. Orgulho ou preocupação com o desgaste?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "orgulho",
+    "texto": "Orgulho. É o reconhecimento do trabalho que fazem aqui, e é bom para o clube.",
+    "efeitos": {
+     "AD": 1,
+     "BL": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "preocupação",
+    "texto": "Orgulho e preocupação em partes iguais. Os minutos pesam, e quero os jogadores inteiros.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "crítica",
+    "texto": "As selecções deviam pagar os salários se querem usar os jogadores tantos dias.",
+    "efeitos": {
+     "AD": 1,
+     "IM": -1,
+     "BL": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-056",
+  "titulo": "Balanço da época (objectivo cumprido)",
+  "seccao": "Fim de época e rescaldo",
+  "quando": "fim de época com o objectivo cumprido",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "A época terminou com o objectivo cumprido. Que balanço faz?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "satisfeita",
+    "texto": "Muito positivo. O grupo trabalhou, e os resultados chegaram. Mas queremos mais.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 2,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "modesta",
+    "texto": "Foi uma boa época, com margem para crescer. Não vamos descansar.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ambiciosa",
+    "texto": "Cumprimos, mas o próximo objectivo já é mais alto. Quero lutar por outro patamar.",
+    "efeitos": {
+     "AD": 1
+    },
+    "promessa": "meta superior na próxima época"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-057",
+  "titulo": "Balanço da época (objectivo falhado)",
+  "seccao": "Fim de época e rescaldo",
+  "quando": "fim de época com o objectivo falhado",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Falharam o objectivo. Quem é o responsável?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "assumindo",
+    "texto": "Sou o primeiro responsável. Assumo a falha e vou trabalhar para corrigir.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "colectiva",
+    "texto": "Falhámos todos, do plantel à direcção. Temos de aprender e reerguer.",
+    "efeitos": {
+     "BL": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "defensiva",
+    "texto": "As lesões e a falta de sorte ajudaram. Mas assumo o resultado final.",
+    "efeitos": {
+     "AD": -1,
+     "IM": -1,
+     "DN": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-058",
+  "titulo": "Descida",
+  "seccao": "Fim de época e rescaldo",
+  "quando": "o clube desce de divisão",
+  "modo": "AMBOS",
+  "jornalista": "todos",
+  "tipoJornalista": "todos",
+  "pergunta": "O {clube} desceu. É o pior momento da história recente?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "humilde",
+    "texto": "É um dos momentos mais tristes. Peço desculpa aos adeptos e prometo trabalhar para voltar.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "digna",
+    "texto": "É doloroso, mas o clube é maior do que uma descida. Vamos levantar a cabeça.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "silenciosa",
+    "texto": "Não tenho palavras. Prefiro falar com os adeptos num outro momento.",
+    "efeitos": {
+     "AD": -2,
+     "IM": -2
+    }
+   }
+  ],
+  "variaveis": [
+   "clube"
+  ]
+ },
+ {
+  "id": "IMP-059",
+  "titulo": "Subida",
+  "seccao": "Fim de época e rescaldo",
+  "quando": "o clube sobe de divisão",
+  "modo": "AMBOS",
+  "jornalista": "todos",
+  "tipoJornalista": "todos",
+  "pergunta": "O {clube} voltou! O que significa esta subida?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "emotiva",
+    "texto": "É a recompensa de um trabalho enorme, e a festa é de todos os adeptos.",
+    "efeitos": {
+     "AD": 3,
+     "EQ": 2,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "focada",
+    "texto": "Estamos felizes, mas o trabalho não acabou. O próximo nível exige muito mais.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ambiciosa",
+    "texto": "Subimos para ficar e para lutar por mais. Não vamos ser figuras de corpo presente.",
+    "efeitos": {
+     "AD": 2,
+     "EQ": 1
+    },
+    "promessa": "metade superior da tabela"
+   }
+  ],
+  "variaveis": [
+   "clube"
+  ]
+ },
+ {
+  "id": "IMP-060",
+  "titulo": "Clube de adeptos (tipo 50+1)",
+  "seccao": "Clubes e contextos específicos",
+  "quando": "o clube pertence aos sócios",
+  "modo": "AMBOS",
+  "jornalista": "blogue de adeptos",
+  "tipoJornalista": "blogue",
+  "pergunta": "O clube é dos sócios. Como equilibra os desejos deles com as realidades financeiras?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "democrática",
+    "texto": "Ouvindo-os sempre, mas explicando os números. Os sócios merecem transparência.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "pragmática",
+    "texto": "Os sócios elegem a direcção para decidir, não para gerir todos os pormenores.",
+    "efeitos": {
+     "AD": -1,
+     "DN": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "aberta",
+    "texto": "Vamos fazer mais assembleias e consultas. A voz dos sócios é o nosso maior activo.",
+    "efeitos": {
+     "AD": 2
+    },
+    "promessa": "assembleia aberta"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-061",
+  "titulo": "Clube de dono bilionário",
+  "seccao": "Clubes e contextos específicos",
+  "quando": "o dono é do tipo bilionário ou fundo estatal",
+  "modo": "AMBOS",
+  "jornalista": "imprensa estrangeira",
+  "tipoJornalista": "estrangeira",
+  "pergunta": "O clube tem um dono muito rico. Isso torna a competição injusta para os outros?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "defensiva",
+    "texto": "O dinheiro ajuda, mas não ganha jogos sozinho. Trabalhamos com as mesmas regras que os outros.",
+    "efeitos": {
+     "IM": 1,
+     "AD": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "compreensiva",
+    "texto": "Percebo a crítica. Mas investimento significa emprego, infraestruturas e desenvolvimento do futebol.",
+    "efeitos": {
+     "DN": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "irónica",
+    "texto": "Se o dinheiro ganhasse sozinho, os jogos nem precisavam de ser disputados.",
+    "efeitos": {
+     "IM": -1,
+     "AD": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-062",
+  "titulo": "Clube formador",
+  "seccao": "Clubes e contextos específicos",
+  "quando": "arquétipo formador, com muitos jovens no plantel",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Apostam muito nos jovens. Isso não limita a ambição de ganhar?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "convicta",
+    "texto": "Não. Os jovens também ganham jogos, e dão-nos identidade e futuro.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "equilibrada",
+    "texto": "Misturamos jovens e experiência. O equilíbrio é a chave.",
+    "efeitos": {
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Os jovens mostram mais vontade do que muitos que ganham dez vezes mais.",
+    "efeitos": {
+     "AD": 1,
+     "BL": -1,
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-063",
+  "titulo": "Clube em administração",
+  "seccao": "Clubes e contextos específicos",
+  "quando": "clube em administração por insolvência",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "O clube está em administração. Ainda há esperança?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "esperançosa",
+    "texto": "Há. Estamos a trabalhar num plano de recuperação e vamos sair desta situação.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1
+    },
+    "promessa": "recuperação em 2 épocas"
+   },
+   {
+    "letra": "B",
+    "tom": "realista",
+    "texto": "É difícil, e vamos precisar de sacrifícios de todos. Mas o clube resiste.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ofensiva",
+    "texto": "Não entro em jogos de culpas. O que interessa é salvar o clube.",
+    "efeitos": {
+     "AD": -1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-064",
+  "titulo": "Rivalidade entre vizinhos",
+  "seccao": "Clubes e contextos específicos",
+  "quando": "clube tem rival na mesma cidade ou região",
+  "modo": "AMBOS",
+  "jornalista": "imprensa local",
+  "tipoJornalista": "local",
+  "pergunta": "A cidade está dividida. Que mensagem deixa aos adeptos rivais?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "cordial",
+    "texto": "Rivalidade, sim, violência, nunca. Que o futebol una em vez de dividir.",
+    "efeitos": {
+     "AD": 1,
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "competitiva",
+    "texto": "Eles são adversários, não inimigos. Mas queremos ganhar-lhes sempre.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Os adeptos deles sabem o que esperar. A cidade é nossa.",
+    "efeitos": {
+     "AD": 2,
+     "IM": -2,
+     "EQ": 1
+    },
+    "notas": "Aumenta a intensidade do próximo derbi"
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-065",
+  "titulo": "Pergunta \"inocente\" sobre estilo de jogo",
+  "seccao": "Perguntas curtas, de curiosidade e de memória",
+  "quando": "qualquer momento calmo",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "Que estilo de jogo quer ver neste clube?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "ofensivo",
+    "texto": "Futebol ofensivo, com posse e golos. É assim que se conquistam adeptos.",
+    "efeitos": {
+     "AD": 1,
+     "EQ": 1,
+     "TR": 1
+    },
+    "notas": "se o treinador for ofensivo (−1 se defensivo)"
+   },
+   {
+    "letra": "B",
+    "tom": "pragmático",
+    "texto": "O que dá resultados. O estilo é um meio, não um fim.",
+    "efeitos": {
+     "DN": 1,
+     "TR": 1
+    },
+    "notas": "se o treinador for pragmático"
+   },
+   {
+    "letra": "C",
+    "tom": "equilibrado",
+    "texto": "Um jogo organizado, adaptado ao adversário. Sem dogmas.",
+    "efeitos": {
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-066",
+  "titulo": "Promessa do passado",
+  "seccao": "Perguntas curtas, de curiosidade e de memória",
+  "quando": "existe uma promessa registada (PROMESSA) por cumprir ou cumprida",
+  "modo": "AMBOS",
+  "jornalista": "o mesmo que recebeu a promessa original",
+  "tipoJornalista": "mesmo",
+  "pergunta": "Há uns meses prometeu {promessa}. Como está esse compromisso?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "cumprida",
+    "texto": "Cumprimos, como disse. E vamos continuar a cumprir.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1,
+     "IM": 1
+    },
+    "disponivel": "cumprida"
+   },
+   {
+    "letra": "B",
+    "tom": "em curso",
+    "texto": "Estamos a caminho. Falta um pouco, mas vamos chegar lá.",
+    "efeitos": {
+     "IM": 1
+    },
+    "disponivel": "em-curso"
+   },
+   {
+    "letra": "C",
+    "tom": "desculpa",
+    "texto": "As circunstâncias mudaram. Prometer é fácil, mas o futebol é imprevisível.",
+    "efeitos": {
+     "AD": -2,
+     "DN": -1,
+     "IM": -1
+    },
+    "disponivel": "falhada"
+   }
+  ],
+  "variaveis": [
+   "promessa"
+  ]
+ },
+ {
+  "id": "IMP-067",
+  "titulo": "Pergunta pessoal",
+  "seccao": "Perguntas curtas, de curiosidade e de memória",
+  "quando": "qualquer momento calmo (cooldown alto)",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Fora do futebol, o que faz para desligar?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "pessoal",
+    "texto": "Estar com a família e ler. É importante ter um refúgio longe dos relvados.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "humorística",
+    "texto": "Desligar? Esse verbo não existe na minha vida. Ando sempre a pensar em reforços.",
+    "efeitos": {
+     "IM": 1,
+     "AD": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "reservada",
+    "texto": "Prefiro manter a vida privada fora dos jornais.",
+    "efeitos": {}
+   }
+  ],
+  "variaveis": []
+ },
+ {
+  "id": "IMP-068",
+  "titulo": "Pergunta de imprensa estrangeira",
+  "seccao": "Perguntas curtas, de curiosidade e de memória",
+  "quando": "clube com reputação acima de 70 ou com jogador estrangeiro de topo",
+  "modo": "AMBOS",
+  "jornalista": "imprensa estrangeira",
+  "tipoJornalista": "estrangeira",
+  "pergunta": "Fora do país, {clube} é visto como um clube em crescimento. Concorda?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "orgulhosa",
+    "texto": "Fico feliz. Trabalhamos para que o clube seja reconhecido além-fronteiras.",
+    "efeitos": {
+     "AD": 1,
+     "DN": 1,
+     "IM": 2
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "modesta",
+    "texto": "Ainda há muito caminho por fazer. Não nos queremos deslumbrar.",
+    "efeitos": {
+     "IM": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "comercial",
+    "texto": "É importante para a marca e para os patrocínios. O crescimento internacional faz parte do plano.",
+    "efeitos": {
+     "DN": 2,
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "clube"
+  ]
+ },
+ {
+  "id": "IMP-069",
+  "titulo": "Pergunta sobre rivalidade com um treinador adversário",
+  "seccao": "Perguntas curtas, de curiosidade e de memória",
+  "quando": "o treinador adversário fez uma crítica pública",
+  "modo": "AMBOS",
+  "jornalista": "imprensa desportiva",
+  "tipoJornalista": "desportiva",
+  "pergunta": "O treinador do {adversario} disse que {clube} joga um futebol feio. Responde?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "educada",
+    "texto": "Respeito a opinião dele, mas os resultados mostram que o nosso modelo funciona.",
+    "efeitos": {
+     "IM": 1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "afiada",
+    "texto": "Quem vive de vidro não deve atirar pedras. Que olhe para a classificação dele.",
+    "efeitos": {
+     "AD": 1,
+     "IM": -1,
+     "TR": 1
+    }
+   },
+   {
+    "letra": "C",
+    "tom": "ignorando",
+    "texto": "Não respondo a provocações. Concentro-me no meu trabalho.",
+    "efeitos": {
+     "IM": 1
+    }
+   }
+  ],
+  "variaveis": [
+   "adversario",
+   "clube"
+  ]
+ },
+ {
+  "id": "IMP-070",
+  "titulo": "Fim de ciclo",
+  "seccao": "Perguntas curtas, de curiosidade e de memória",
+  "quando": "o utilizador está há 5 ou mais épocas no clube",
+  "modo": "AMBOS",
+  "jornalista": "imprensa nacional",
+  "tipoJornalista": "nacional",
+  "pergunta": "Está há muito tempo no clube. Já se vê a sair, ou o ciclo continua?",
+  "respostas": [
+   {
+    "letra": "A",
+    "tom": "comprometida",
+    "texto": "O meu projecto aqui ainda não acabou. Há muito para construir.",
+    "efeitos": {
+     "AD": 2,
+     "DN": 1
+    }
+   },
+   {
+    "letra": "B",
+    "tom": "aberta",
+    "texto": "Ninguém é eterno. Quando sentir que é altura, serei o primeiro a saber.",
+    "efeitos": {
+     "AD": -1,
+     "IM": 1
+    },
+    "notas": "Aumenta a probabilidade de propostas de outros clubes (modo DIR)"
+   },
+   {
+    "letra": "C",
+    "tom": "provocadora",
+    "texto": "Se me quiserem despedir, que o façam. Mas vão ter de explicar aos adeptos.",
+    "efeitos": {
+     "AD": 1,
+     "DN": -2,
+     "IM": -1
+    }
+   }
+  ],
+  "variaveis": []
+ }
+]
