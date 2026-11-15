@@ -569,72 +569,18 @@ function mercadoEcra() {
     ${negoc}</div>`;
 }
 
-// Sala do conselho em perspectiva (ponto de fuga central); cadeiras, luz LED e bancadas na cor do clube.
+// Sala do conselho: a fotografia enviada pelo utilizador, sem estilização. Os verdes (bancadas, cadeiras, luz) passam
+// para a cor do clube com um filtro; o relvado e o ecrã da televisão ficam com as cores originais.
 function salaConselho() {
-  const cor = CLUBE.cores[0], id = `sala${++ISO_ID}`;
-  const VX = 400, VY = 150, W = 800, H = 330;
-  // Quadro do fundo (parede com as portas de vidro).
-  const bx0 = 300, bx1 = 500, by0 = 92, by1 = 212;
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const o = [];
-  o.push(`<defs>
-    <pattern id="${id}-bolha" width="14" height="12" patternUnits="userSpaceOnUse"><rect width="14" height="12" fill="#17191c"/><ellipse cx="7" cy="6" rx="5.2" ry="4.4" fill="#1e2125"/><ellipse cx="6" cy="5" rx="2.4" ry="1.8" fill="#24282d"/><ellipse cx="0" cy="0" rx="5.2" ry="4.4" fill="#1e2125"/><ellipse cx="14" cy="0" rx="5.2" ry="4.4" fill="#1e2125"/><ellipse cx="0" cy="12" rx="5.2" ry="4.4" fill="#1e2125"/><ellipse cx="14" cy="12" rx="5.2" ry="4.4" fill="#1e2125"/></pattern>
-    <pattern id="${id}-tecto" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#cfccc4"/><circle cx="3.5" cy="3.5" r="1" fill="#b3b0a8"/></pattern>
-    <pattern id="${id}-alcatifa" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#585c61"/><circle cx="2" cy="3" r=".6" fill="#63676d"/><circle cx="5" cy="1" r=".5" fill="#4f5358"/></pattern>
-    <linearGradient id="${id}-madeira" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a5f31"/><stop offset=".5" stop-color="#c4834b"/><stop offset="1" stop-color="#8d562c"/></linearGradient>
-    <linearGradient id="${id}-luzc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset="1" stop-color="#fff" stop-opacity=".18"/></linearGradient>
-    <linearGradient id="${id}-ecra" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d3324"/><stop offset="1" stop-color="#0c1610"/></linearGradient>
-    <filter id="${id}-brilho"><feGaussianBlur stdDeviation="2.2"/></filter>
-  </defs>`);
-  // Tecto, paredes, chão.
-  o.push(`<polygon points="0,0 ${W},0 ${bx1},${by0} ${bx0},${by0}" fill="url(#${id}-tecto)"/>`);
-  o.push(`<polygon points="0,0 ${bx0},${by0} ${bx0},${by1} 0,${H}" fill="url(#${id}-bolha)"/>`);
-  o.push(`<polygon points="${W},0 ${bx1},${by0} ${bx1},${by1} ${W},${H}" fill="url(#${id}-bolha)"/>`);
-  o.push(`<polygon points="0,${H} ${bx0},${by1} ${bx1},${by1} ${W},${H}" fill="url(#${id}-alcatifa)"/>`);
-  o.push(`<polygon points="0,0 ${bx0},${by0} ${bx0},${by1} 0,${H}" fill="rgba(0,0,0,.25)"/>`);
-  // Faixas de luz no tecto (convergem para o ponto de fuga).
-  for (const t of [0.12, 0.3, 0.5, 0.7, 0.88]) { const x0 = lerp(0, W, t), x1 = lerp(bx0, bx1, t); o.push(`<line x1="${x0}" y1="0" x2="${x1}" y2="${by0}" stroke="#fffdf2" stroke-width="2.2" stroke-dasharray="46 10" opacity=".95"/>`); }
-  for (const [cx, cy, r] of [[250, 34, 42], [560, 48, 34], [330, 74, 16], [455, 76, 14]]) { o.push(`<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r * 0.32}" fill="#e6e3dc" stroke="#9c998f" stroke-width="1"/>`); for (let k = 1; k < 5; k++) o.push(`<ellipse cx="${cx}" cy="${cy}" rx="${r * (1 - k * 0.17)}" ry="${r * 0.32 * (1 - k * 0.17)}" fill="none" stroke="#a9a69e" stroke-width="1"/>`); }
-  // Portas de vidro com vista para o estádio (bancadas na cor do clube, relvado).
-  o.push(`<rect x="${bx0}" y="${by0}" width="${bx1 - bx0}" height="${by1 - by0}" fill="#222"/>`);
-  const vx0 = bx0 + 18, vx1 = bx1 - 30, vy0 = by0 + 10, vy1 = by1;
-  for (let k = 0; k < 9; k++) { const y = vy0 + k * 7; o.push(`<rect x="${vx0}" y="${y}" width="${vx1 - vx0}" height="5.4" fill="${k % 3 === 2 ? tom(cor, 0.35) : k % 2 ? cor : tom(cor, -0.18)}"/>`); }
-  o.push(`<rect x="${vx0}" y="${vy0 + 63}" width="${vx1 - vx0}" height="${vy1 - vy0 - 63}" fill="#3f9a4f"/>`);
-  for (let k = 0; k < 4; k++) o.push(`<rect x="${vx0}" y="${vy0 + 63 + k * 8}" width="${vx1 - vx0}" height="4" fill="#47a656"/>`);
-  o.push(`<line x1="${vx0}" y1="${vy0 + 74}" x2="${vx1}" y2="${vy0 + 74}" stroke="#fff" stroke-width="1" opacity=".8"/>`);
-  o.push(`<rect x="${vx0}" y="${vy0}" width="${vx1 - vx0}" height="${vy1 - vy0}" fill="url(#${id}-luzc)"/>`);
-  for (const t of [0, 0.33, 0.66, 1]) o.push(`<rect x="${lerp(vx0, vx1, t) - 2}" y="${vy0 - 4}" width="4" height="${vy1 - vy0 + 4}" fill="#121417"/>`);
-  o.push(`<rect x="${vx0 - 2}" y="${vy0 - 4}" width="${vx1 - vx0 + 4}" height="4" fill="#121417"/>`);
-  o.push(`<rect x="${vx1 + 4}" y="${by0}" width="${bx1 - vx1 - 4}" height="${by1 - by0}" fill="#b9a891"/>`);
-  for (let k = 0; k < 8; k++) o.push(`<line x1="${vx1 + 4}" y1="${by0 + 6 + k * 15}" x2="${bx1}" y2="${by0 + 6 + k * 15}" stroke="#a3927b" stroke-width="1"/>`);
-  // Parede direita: ecrã, faixa de luz na cor do clube, relógio.
-  const pr = (t, y) => [lerp(W, bx1, t), lerp(y, VY + (y - VY) * ((bx1 - VX) / (W - VX)), t)];
-  const quad = (t0, t1, ya, yb) => { const [a1, a2] = pr(t0, ya), [b1, b2] = pr(t1, ya), [c1, c2] = pr(t1, yb), [d1, d2] = pr(t0, yb); return `${a1},${a2} ${b1},${b2} ${c1},${c2} ${d1},${d2}`; };
-  o.push(`<polygon points="${quad(0.25, 0.62, 92, 210)}" fill="#0c0d0f"/><polygon points="${quad(0.27, 0.6, 98, 204)}" fill="url(#${id}-ecra)"/>`);
-  { const [x1, y1] = pr(0.05, 262), [x2, y2] = pr(0.98, 262); o.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${cor}" stroke-width="7" filter="url(#${id}-brilho)" opacity=".9"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${tom(cor, 0.35)}" stroke-width="2.5"/>`); }
-  { const [x1, y1] = pr(0.05, 275), [x2, y2] = pr(0.98, 275); o.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#101113" stroke-width="9"/>`); }
-  { const [cx, cy] = pr(0.5, 60); o.push(`<ellipse cx="${cx}" cy="${cy}" rx="12" ry="14" fill="#e9e9e6" stroke="#888" stroke-width="1.5"/><line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - 9}" stroke="#222" stroke-width="1.4"/><line x1="${cx}" y1="${cy}" x2="${cx + 6}" y2="${cy + 2}" stroke="#222" stroke-width="1.2"/>`); }
-  // Mesa (trapézio em perspectiva) e cadeiras na cor do clube.
-  const mesa = { yn: 312, yf: 208, xnL: 320, xnR: 480, xfL: 384, xfR: 416 };
-  const cadeira = (x, y, esc, lado) => { const c = cor, w = 32 * esc, h = 44 * esc;
-    const sy = y + h * 0.62;
-    o.push(`<ellipse cx="${x}" cy="${y + h}" rx="${w * 0.55}" ry="${w * 0.14}" fill="rgba(0,0,0,.35)"/>`);
-    for (const dx of [-0.32, 0.32]) o.push(`<line x1="${x + dx * w}" y1="${sy}" x2="${x + dx * w * 1.15}" y2="${y + h * 0.98}" stroke="#2a2d31" stroke-width="${1.6 * esc}"/>`);
-    // Encosto (concha) do lado de fora da mesa, inclinado para trás.
-    const bx = x + lado * w * 0.42;
-    o.push(`<path d="M ${bx - lado * w * 0.05} ${sy} C ${bx + lado * w * 0.05} ${sy - h * 0.3}, ${bx + lado * w * 0.22} ${y + h * 0.05}, ${bx + lado * w * 0.12} ${y} C ${bx - lado * w * 0.05} ${y - h * 0.04}, ${bx - lado * w * 0.28} ${y + h * 0.05}, ${bx - lado * w * 0.3} ${y + h * 0.22} C ${bx - lado * w * 0.33} ${sy - h * 0.2}, ${bx - lado * w * 0.3} ${sy - h * 0.05}, ${bx - lado * w * 0.25} ${sy} Z" fill="${tom(c, -0.12)}"/>`);
-    o.push(`<path d="M ${bx - lado * w * 0.22} ${y + h * 0.18} C ${bx - lado * w * 0.2} ${y + h * 0.05}, ${bx} ${y + h * 0.02}, ${bx + lado * w * 0.08} ${y + h * 0.06}" stroke="${tom(c, 0.35)}" stroke-width="${1.4 * esc}" fill="none"/>`);
-    // Assento.
-    o.push(`<ellipse cx="${x}" cy="${sy}" rx="${w * 0.5}" ry="${w * 0.17}" fill="${c}"/><ellipse cx="${x}" cy="${sy - w * 0.03}" rx="${w * 0.38}" ry="${w * 0.1}" fill="${tom(c, 0.15)}"/>`); };
-  const lugares = [];
-  for (let k = 0; k < 6; k++) { const t = k / 5.4; const y = lerp(mesa.yf - 4, mesa.yn - 34, 1 - t), esc = lerp(0.42, 1.25, 1 - t); const xl = lerp(mesa.xfL - 14, mesa.xnL - 46, 1 - t), xr = lerp(mesa.xfR + 14, mesa.xnR + 46, 1 - t); lugares.push([xl, y, esc, -1], [xr, y, esc, 1]); }
-  lugares.sort((a, b) => a[1] - b[1]);
-  for (const l of lugares.filter((l) => l[1] < 240)) cadeira(...l);
-  o.push(`<polygon points="${mesa.xfL},${mesa.yf} ${mesa.xfR},${mesa.yf} ${mesa.xnR},${mesa.yn} ${mesa.xnL},${mesa.yn}" fill="url(#${id}-madeira)"/>`);
-  o.push(`<polygon points="${mesa.xnL},${mesa.yn} ${mesa.xnR},${mesa.yn} ${mesa.xnR},${mesa.yn + 8} ${mesa.xnL},${mesa.yn + 8}" fill="#6b4022"/>`);
-  o.push(`<line x1="${(mesa.xfL + mesa.xfR) / 2}" y1="${mesa.yf}" x2="${(mesa.xnL + mesa.xnR) / 2}" y2="${mesa.yn}" stroke="rgba(255,255,255,.12)" stroke-width="18"/>`);
-  for (const l of lugares.filter((l) => l[1] >= 240)) cadeira(...l);
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sala do conselho" style="width:100%;height:auto;display:block">${o.join('')}</svg>`;
+  const cor = CLUBE.cores[0];
+  const fid = 'recolor-sala';
+  let f = document.getElementById(fid);
+  if (!f) { const d = document.createElement('div'); d.innerHTML = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="${fid}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.2 4.4 -2.2 0 0" result="mascara"/><feFlood id="${fid}-cor" flood-color="${cor}" result="cor"/><feComposite in="cor" in2="mascara" operator="in" result="tinta"/><feBlend in="tinta" in2="SourceGraphic" mode="color"/></filter></svg>`; document.body.appendChild(d.firstChild); f = document.getElementById(fid); }
+  document.getElementById(`${fid}-cor`).setAttribute('flood-color', cor);
+  const camada = (estilo) => `<img src="sala-conselho.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;${estilo}">`;
+  // Moldura que corta só a parte de cima do tecto; a fotografia inteira fica alinhada ao fundo (mesa e cadeiras visíveis).
+  return `<div style="position:relative;width:100%;aspect-ratio:736/440;overflow:hidden"><div style="position:absolute;left:0;right:0;bottom:0;aspect-ratio:736/552">
+    ${camada('')}${camada(`filter:url(#${fid})`)}${camada('clip-path:inset(62.7% 56.5% 29% 11.5%)')}${camada('clip-path:inset(46.2% 26% 32.8% 59.8%)')}</div></div>`;
 }
 
 const OBJECTIVOS = [
