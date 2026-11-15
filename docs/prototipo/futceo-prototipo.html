@@ -694,104 +694,197 @@ function academiaEcra() {
 }
 
 // ---------- ilustrações isométricas das infraestruturas (geradas pelo nível e pelo tamanho do clube) ----------
+let ISO_ID = 0;
+const hexRgb = (h) => { const v = parseInt(h.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; };
+const tom = (h, f) => { if (!h.startsWith('#')) return h; const [r, g, b] = hexRgb(h); const c = (x) => Math.max(0, Math.min(255, Math.round(f >= 0 ? x + (255 - x) * f : x * (1 + f)))); return `rgb(${c(r)},${c(g)},${c(b)})`; };
+const faces = (h) => [tom(h, 0.12), tom(h, -0.38), tom(h, -0.2)];
 function Iso(w, h, esc, ox, oy) {
+  const id = `iso${++ISO_ID}`;
   const out = [];
   const P = (x, y, z = 0) => [ox + (x - y) * 0.866 * esc, oy + (x + y) * 0.5 * esc - z * esc];
   const pts = (a) => a.map((q) => P(...q).map((v) => v.toFixed(1)).join(',')).join(' ');
+  const defs = `<defs>
+    <pattern id="${id}-relva" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#4f7a43"/><circle cx="1" cy="2" r=".7" fill="#5d8a4f"/><circle cx="4" cy="4.5" r=".6" fill="#456d3b"/><circle cx="4.5" cy="1" r=".5" fill="#6a9659"/></pattern>
+    <pattern id="${id}-betao" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#9a9c98"/><path d="M0 8L8 0" stroke="#8d8f8b" stroke-width=".6"/><circle cx="2" cy="5" r=".5" fill="#a9aba7"/></pattern>
+    <pattern id="${id}-asfalto" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#3e4248"/><circle cx="1.2" cy="1.5" r=".45" fill="#4a4e55"/><circle cx="3.6" cy="3.8" r=".4" fill="#363a40"/></pattern>
+    <linearGradient id="${id}-ceu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22362c"/><stop offset="1" stop-color="#121c17"/></linearGradient>
+    <linearGradient id="${id}-vidro" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe6f2" stop-opacity=".75"/><stop offset="1" stop-color="#8fb6cc" stop-opacity=".45"/></linearGradient>
+    <radialGradient id="${id}-luz" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe0" stop-opacity=".9"/><stop offset="1" stop-color="#fffbe0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="${id}-copa" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#5f9a55"/><stop offset=".6" stop-color="#2f6b3a"/><stop offset="1" stop-color="#1f4a28"/></radialGradient>
+  </defs>`;
   const api = {
+    id, P,
     poly: (a, fill, extra = '') => out.push(`<polygon points="${pts(a)}" fill="${fill}" ${extra}/>`),
-    line: (a, b, cor, lw = 1) => { const [x1, y1] = P(...a), [x2, y2] = P(...b); out.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${cor}" stroke-width="${lw}" stroke-linecap="round"/>`); },
-    // Caixa: topo + as duas faces visíveis (frente-esquerda em y+d e frente-direita em x+w).
-    caixa: (x, y, z, w, d, h, [topo, esq, dir], extra = '') => {
+    plano: (x, y, w, d, z, fill, extra = '') => api.poly([[x, y, z], [x + w, y, z], [x + w, y + d, z], [x, y + d, z]], fill, extra),
+    line: (a, b, cor, lw = 1, extra = '') => { const [x1, y1] = P(...a), [x2, y2] = P(...b); out.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${cor}" stroke-width="${lw}" stroke-linecap="round" ${extra}/>`); },
+    sombra: (x, y, w, d, h) => { const k = h * 0.7; api.poly([[x, y + d, 0.01], [x + w, y + d, 0.01], [x + w + k, y + d + k * 0.35, 0.01], [x + k, y + d + k * 0.35, 0.01]], 'rgba(0,0,0,.28)'); api.poly([[x + w, y, 0.01], [x + w + k, y + k * 0.35, 0.01], [x + w + k, y + d + k * 0.35, 0.01], [x + w, y + d, 0.01]], 'rgba(0,0,0,.28)'); },
+    caixa: (x, y, z, w, d, h, cores, extra = '') => {
+      const [topo, esq, dir] = typeof cores === 'string' ? faces(cores) : cores;
       api.poly([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]], esq, extra);
       api.poly([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]], dir, extra);
       api.poly([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]], topo, extra);
     },
-    relvado: (x, y, w, d, riscas = 10) => {
-      for (let k = 0; k < riscas; k++) api.poly([[x + (w * k) / riscas, y, 0.05], [x + (w * (k + 1)) / riscas, y, 0.05], [x + (w * (k + 1)) / riscas, y + d, 0.05], [x + (w * k) / riscas, y + d, 0.05]], k % 2 ? '#3f9a4f' : '#46a657');
-      const L = (a, b) => api.line([a[0], a[1], 0.1], [b[0], b[1], 0.1], 'rgba(255,255,255,.85)', 0.9);
-      const r = (x0, y0, x1, y1) => { L([x0, y0], [x1, y0]); L([x1, y0], [x1, y1]); L([x1, y1], [x0, y1]); L([x0, y1], [x0, y0]); };
-      r(x + 2, y + 2, x + w - 2, y + d - 2); L([x + w / 2, y + 2], [x + w / 2, y + d - 2]);
-      const pa = Math.min(16, w * 0.16), pl = d * 0.6; r(x + 2, y + (d - pl) / 2, x + 2 + pa, y + (d + pl) / 2); r(x + w - 2 - pa, y + (d - pl) / 2, x + w - 2, y + (d + pl) / 2);
-      const c = []; for (let k = 0; k <= 24; k++) { const a = (k / 24) * Math.PI * 2; c.push([x + w / 2 + Math.cos(a) * d * 0.13, y + d / 2 + Math.sin(a) * d * 0.13, 0.1]); }
-      out.push(`<polyline points="${pts(c)}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="0.9"/>`);
-    },
-    bancada: (x, y, w, d, h, cor, coberta, eixo) => {
-      // Degraus: bancada como cunha (mais alta atrás); eixo 'x' = ao longo do comprimento.
-      const passos = Math.max(2, Math.round(h / 3));
-      for (let k = 0; k < passos; k++) {
-        const f = k / passos, hh = h * (1 - f);
-        if (eixo === 'x') api.caixa(x, y + d * f, 0, w, d / passos, hh, [k % 2 ? cor : clarear(cor, 12), '#2b3038', '#363c46']);
-        else api.caixa(x + w * f, y, 0, w / passos, d, hh, [k % 2 ? cor : clarear(cor, 12), '#2b3038', '#363c46']);
+    // Edifício com janelas nas duas fachadas visíveis e equipamento no telhado.
+    edificio: (x, y, w, d, andares, cor, janela = '#9fd3f0') => {
+      const h = andares * 4.2; api.sombra(x, y, w, d, h); api.caixa(x, y, 0, w, d, h, cor);
+      for (let a = 0; a < andares; a++) {
+        for (let k = 1.5; k < w - 2; k += 3.4) api.plano(0, 0, 0, 0, 0, 'none') , api.poly([[x + k, y + d + 0.05, a * 4.2 + 1.2], [x + k + 2, y + d + 0.05, a * 4.2 + 1.2], [x + k + 2, y + d + 0.05, a * 4.2 + 3.1], [x + k, y + d + 0.05, a * 4.2 + 3.1]], janela, 'opacity=".85"');
+        for (let k = 1.5; k < d - 2; k += 3.4) api.poly([[x + w + 0.05, y + k, a * 4.2 + 1.2], [x + w + 0.05, y + k + 2, a * 4.2 + 1.2], [x + w + 0.05, y + k + 2, a * 4.2 + 3.1], [x + w + 0.05, y + k, a * 4.2 + 3.1]], tom(janela, -0.15), 'opacity=".85"');
       }
-      if (coberta) api.caixa(x - 1, y - 1, h + 5, w + 2, d + 2, 1.2, ['rgba(225,228,233,.5)', 'rgba(150,155,165,.55)', 'rgba(175,180,190,.55)']);
+      api.caixa(x + 2, y + 2, h, 4, 3, 1.6, '#b9bec6'); if (w > 14) api.caixa(x + w - 7, y + d - 6, h, 4, 4, 1.2, '#a3a9b2');
     },
-    holofote: (x, y, h) => { api.line([x, y, 0], [x, y, h], '#9aa1ab', 1.3); api.caixa(x - 1.5, y - 1.5, h, 3, 3, 2, ['#f4f1d0', '#b9b48a', '#cfc99c']); },
-    arvore: (x, y) => { const [cx, cy] = P(x, y, 5); out.push(`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(3.4 * esc).toFixed(1)}" ry="${(4 * esc).toFixed(1)}" fill="#2f6b3a"/>`); },
-    estac: (x, y, w, d) => { api.poly([[x, y, 0.02], [x + w, y, 0.02], [x + w, y + d, 0.02], [x, y + d, 0.02]], '#4a4f57'); for (let k = 4; k < w; k += 4) api.line([x + k, y + 1, 0.05], [x + k, y + d * 0.45, 0.05], 'rgba(255,255,255,.55)', 0.6); },
-    texto: (x, y, z, t) => { const [cx, cy] = P(x, y, z); out.push(`<text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" font-size="9" fill="#fff" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700">${t}</text>`); },
-    svg: () => `<svg viewBox="0 0 ${w} ${h}" role="img" style="width:100%;height:auto;display:block;border-radius:10px;background:linear-gradient(#1b2a22,#14201a)">${out.join('')}</svg>`,
+    relvado: (x, y, w, d, opts = {}) => {
+      const n = opts.riscas ?? 12;
+      api.plano(x - 3, y - 3, w + 6, d + 6, 0.02, '#3d7a44');
+      for (let k = 0; k < n; k++) api.poly([[x + (w * k) / n, y, 0.04], [x + (w * (k + 1)) / n, y, 0.04], [x + (w * (k + 1)) / n, y + d, 0.04], [x + (w * k) / n, y + d, 0.04]], k % 2 ? '#47a052' : '#53b05d');
+      // Corte cruzado (xadrez subtil).
+      const m = Math.max(3, Math.round(n * d / w));
+      for (let k = 0; k < m; k += 2) api.poly([[x, y + (d * k) / m, 0.05], [x + w, y + (d * k) / m, 0.05], [x + w, y + (d * (k + 1)) / m, 0.05], [x, y + (d * (k + 1)) / m, 0.05]], 'rgba(255,255,255,.05)');
+      const L = (a, b) => api.line([a[0], a[1], 0.1], [b[0], b[1], 0.1], 'rgba(255,255,255,.92)', 0.8);
+      const r = (x0, y0, x1, y1) => { L([x0, y0], [x1, y0]); L([x1, y0], [x1, y1]); L([x1, y1], [x0, y1]); L([x0, y1], [x0, y0]); };
+      const mg = 1.5;
+      r(x + mg, y + mg, x + w - mg, y + d - mg); L([x + w / 2, y + mg], [x + w / 2, y + d - mg]);
+      const pa = Math.min(16, w * 0.16), pl = d * 0.58, pq = pa * 0.38, ql = d * 0.28;
+      r(x + mg, y + (d - pl) / 2, x + mg + pa, y + (d + pl) / 2); r(x + w - mg - pa, y + (d - pl) / 2, x + w - mg, y + (d + pl) / 2);
+      r(x + mg, y + (d - ql) / 2, x + mg + pq, y + (d + ql) / 2); r(x + w - mg - pq, y + (d - ql) / 2, x + w - mg, y + (d + ql) / 2);
+      const c = []; for (let k = 0; k <= 28; k++) { const a = (k / 28) * Math.PI * 2; c.push([x + w / 2 + Math.cos(a) * d * 0.13, y + d / 2 + Math.sin(a) * d * 0.13, 0.1]); }
+      out.push(`<polyline points="${pts(c)}" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="0.8"/>`);
+      // Balizas.
+      for (const gx of [x + mg, x + w - mg]) { const g0 = y + d / 2 - 3.6, g1 = y + d / 2 + 3.6; api.line([gx, g0, 0], [gx, g0, 2.4], '#fff', 0.9); api.line([gx, g1, 0], [gx, g1, 2.4], '#fff', 0.9); api.line([gx, g0, 2.4], [gx, g1, 2.4], '#fff', 0.9); }
+      if (opts.publicidade) { const cor = opts.publicidade; api.caixa(x - 2.4, y + d + 1.2, 0, w + 4.8, 0.4, 1.3, [cor, tom(cor, -0.1), tom(cor, -0.2)]); api.caixa(x + w + 1.2, y - 2.4, 0, 0.4, d + 4.8, 1.3, ['#eceff3', '#c9ced6', '#dfe3e8']); api.caixa(x - 2.4, y - 2.4, 0, w + 4.8, 0.4, 1.3, ['#eceff3', '#c9ced6', '#dfe3e8']); }
+      if (opts.bancos) { api.caixa(x + w / 2 - 12, y + d + 2.5, 0, 6, 1.6, 1.6, '#3a4250'); api.caixa(x + w / 2 + 6, y + d + 2.5, 0, 6, 1.6, 1.6, '#3a4250'); }
+    },
+    // Bancada em degraus com filas de cadeiras, corredores de acesso e faixa na cor do clube.
+    bancada: (x, y, w, d, h, cor, coberta, eixo, frente = true) => {
+      const passos = Math.max(3, Math.round(h / 1.6));
+      api.sombra(x, y, w, d, h * 0.4);
+      for (let k = 0; k < passos; k++) {
+        const f = frente ? k / passos : 1 - (k + 1) / passos, hh = h * (frente ? 1 - f : f + 1 / passos);
+        const banda = k % 5 === 2 ? '#e9ecf0' : k % 2 ? cor : tom(cor, 0.12);
+        const c3 = [banda, tom(banda.startsWith('#') ? banda : cor, -0.42), tom(banda.startsWith('#') ? banda : cor, -0.3)];
+        if (eixo === 'x') api.caixa(x, y + d * f, 0, w, d / passos, hh, c3); else api.caixa(x + w * f, y, 0, w / passos, d, hh, c3);
+      }
+      // Corredores de acesso (vomitórios): linhas escuras perpendiculares às filas.
+      const nv = Math.max(2, Math.round((eixo === 'x' ? w : d) / 16));
+      const [ha, hb] = frente ? [h + 0.1, 0.6] : [0.6, h + 0.1];
+      for (let v = 1; v < nv; v++) { const t = v / nv; if (eixo === 'x') api.line([x + w * t, y, ha], [x + w * t, y + d, hb], 'rgba(20,22,26,.75)', 1.1); else api.line([x, y + d * t, ha], [x + w, y + d * t, hb], 'rgba(20,22,26,.75)', 1.1); }
+      if (coberta) {
+        api.poly([[x - 1, y - 1, h + 5], [x + w + 1, y - 1, h + 5], [x + w + 1, y + d + 1, h + 5], [x - 1, y + d + 1, h + 5]], `url(#${id}-vidro)`);
+        const nr = Math.max(3, Math.round((eixo === 'x' ? w : d) / 8));
+        for (let v = 0; v <= nr; v++) { const t = v / nr; if (eixo === 'x') api.line([x + w * t, y - 1, h + 5.05], [x + w * t, y + d + 1, h + 5.05], 'rgba(235,238,242,.9)', 0.7); else api.line([x - 1, y + d * t, h + 5.05], [x + w + 1, y + d * t, h + 5.05], 'rgba(235,238,242,.9)', 0.7); }
+        api.line([x - 1, y + d + 1, h + 5], [x + w + 1, y + d + 1, h + 5], '#f2f4f6', 1);
+      }
+    },
+    holofote: (x, y, h, ligado = true) => { api.line([x, y, 0], [x, y, h], '#9aa1ab', 1.4); api.caixa(x - 1.6, y - 1.6, h, 3.2, 3.2, 2.2, ['#fbf8dc', '#b9b48a', '#d4cfa3']); if (ligado) { const [cx, cy] = P(x, y, h + 1); out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(6 * esc).toFixed(1)}" fill="url(#${id}-luz)"/>`); } },
+    arvore: (x, y, r = 3.4) => { const [sx, sy] = P(x + 2.5, y + 1.5, 0); out.push(`<ellipse cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" rx="${(r * esc).toFixed(1)}" ry="${(r * 0.45 * esc).toFixed(1)}" fill="rgba(0,0,0,.3)"/>`); api.line([x, y, 0], [x, y, 3], '#5a4030', 1.2); const [cx, cy] = P(x, y, 5.5); out.push(`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(r * esc).toFixed(1)}" ry="${(r * 1.15 * esc).toFixed(1)}" fill="url(#${id}-copa)"/>`); },
+    estac: (x, y, w, d) => { api.plano(x, y, w, d, 0.02, `url(#${id}-asfalto)`); for (let k = 3; k < w; k += 3.2) api.line([x + k, y + 1, 0.05], [x + k, y + d * 0.42, 0.05], 'rgba(255,255,255,.6)', 0.5); for (let k = 3; k < w; k += 3.2) api.line([x + k, y + d * 0.58, 0.05], [x + k, y + d - 1, 0.05], 'rgba(255,255,255,.6)', 0.5); const cores = ['#c0392b', '#2c63c9', '#e8e8e8', '#222', '#7a8088']; for (let k = 0; k < Math.floor(w / 7); k++) { const cx = x + 4 + k * 6.4 + ((k * 37) % 3); api.caixa(cx, y + 1.6, 0, 2.2, 4, 1.4, cores[k % cores.length]); } },
+    vedacao: (x, y, w, d) => { const c = 'rgba(200,205,212,.5)'; api.line([x, y + d, 1.6], [x + w, y + d, 1.6], c, 0.5); api.line([x + w, y, 1.6], [x + w, y + d, 1.6], c, 0.5); for (let k = 0; k <= w; k += 6) api.line([x + k, y + d, 0], [x + k, y + d, 1.6], c, 0.5); for (let k = 0; k <= d; k += 6) api.line([x + w, y + k, 0], [x + w, y + k, 1.6], c, 0.5); },
+    texto: (x, y, z, t, cor = '#fff') => { const [cx, cy] = P(x, y, z); out.push(`<text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" font-size="7" fill="${cor}" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700">${t}</text>`); },
+    cru: (s) => out.push(s),
+    svg: () => `<svg viewBox="0 0 ${w} ${h}" role="img" style="width:100%;height:auto;display:block;border-radius:10px">${defs}<rect width="${w}" height="${h}" fill="url(#${id}-ceu)"/>${out.join('')}</svg>`,
   };
   return api;
 }
-const clarear = (hex, n) => { if (!hex.startsWith('#')) return hex; const v = parseInt(hex.slice(1), 16); const c = (k) => Math.min(255, ((v >> k) & 255) + n); return `rgb(${c(16)},${c(8)},${c(0)})`; };
-const CHAO = (g, w, d) => g.poly([[-6, -6, 0], [w + 6, -6, 0], [w + 6, d + 6, 0], [-6, d + 6, 0]], '#5b6a5a');
+const CHAO = (g, w, d, betao = 0.35) => { g.plano(-8, -8, w + 16, d + 16, 0, `url(#${g.id}-relva)`); g.plano(-2, -2, w + 4, d * betao + 2, 0.01, `url(#${g.id}-betao)`); };
 
 function desenhoEstadio(nivel, tam) {
-  const g = Iso(340, 230, 1.15, 150, 30);
-  const W = 150, D = 105; CHAO(g, W, D);
+  const g = Iso(340, 240, 1.12, 150, 34);
+  const W = 150, D = 108; CHAO(g, W, D, 0.25);
   const cor = CLUBE.cores[0];
   const lugaresBase = (1500 + nivel * nivel * 420) * (0.6 + 0.4 * tam);
-  const h = 4 + nivel * 1.6 * (0.7 + 0.3 * tam);
-  g.estac(0, 0, 30 + nivel * 3, 16);
-  const px = 32, py = 22, pw = 82, pd = 56;
-  // Bancadas: 1 lateral (nível 1-2), 2 laterais (3-4), 4 lados (5-7), 4 lados com cantos (8-9), anel fechado (10).
+  const h = 3 + nivel * 1.5 * (0.7 + 0.3 * tam);
+  g.estac(2, 0, 26 + nivel * 3.5, 15);
+  const px = 34, py = 26, pw = 80, pd = 52;
   const costas = nivel >= 5, frente = nivel >= 3, topos = nivel >= 5, cantos = nivel >= 8, coberta = (k) => nivel >= 7 || (nivel >= 4 && k === 'principal');
-  const dd = 6 + nivel * 1.2;
-  if (costas) g.bancada(px, py - dd - 1, pw, dd, h * 0.95, cor, coberta('fundo'), 'x');
-  if (topos) g.bancada(px - dd - 1, py, dd, pd, h * 0.8, '#6c7380', coberta('topo'), 'y');
-  if (cantos) { g.bancada(px - dd - 1, py - dd - 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); }
-  g.relvado(px, py, pw, pd, 12);
-  if (topos) g.bancada(px + pw + 1, py, dd, pd, h * 0.8, '#6c7380', coberta('topo'), 'y');
-  if (cantos) { g.bancada(px + pw + 1, py - dd - 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); g.bancada(px - dd - 1, py + pd + 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); g.bancada(px + pw + 1, py + pd + 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); }
-  g.bancada(px, py + pd + 1, pw, nivel >= 3 ? dd : 5, nivel >= 3 ? h : 4, cor, coberta('principal'), 'x');
-  if (nivel >= 2 && nivel < 8) for (const [x, y] of [[px - 4, py - 4], [px + pw + 4, py - 4], [px - 4, py + pd + 4], [px + pw + 4, py + pd + 4]]) g.holofote(x, y, 18 + nivel * 2);
-  for (let k = 0; k < 4; k++) g.arvore(W - 4 - k * 9, D + 2);
+  const dd = 5 + nivel * 1.25;
+  const cinza = '#6d7482';
+  if (costas) g.bancada(px, py - dd - 1.5, pw, dd, h * 0.95, cor, coberta('fundo'), 'x', false);
+  if (topos) g.bancada(px - dd - 1.5, py, dd, pd, h * 0.8, cinza, coberta('topo'), 'y', false);
+  if (cantos) g.bancada(px - dd - 1.5, py - dd - 1.5, dd, dd, h * 0.7, cinza, true, 'y', false);
+  if (nivel >= 2 && nivel < 8) for (const [x, y] of [[px - 5, py - 5], [px + pw + 5, py - 5]]) g.holofote(x, y, 16 + nivel * 2);
+  g.relvado(px, py, pw, pd, { riscas: 14, publicidade: nivel >= 3 ? cor : null, bancos: true });
+  if (topos) g.bancada(px + pw + 1.5, py, dd, pd, h * 0.8, cinza, coberta('topo'), 'y', true);
+  if (cantos) { g.bancada(px + pw + 1.5, py - dd - 1.5, dd, dd, h * 0.7, cinza, true, 'y', true); g.bancada(px - dd - 1.5, py + pd + 1.5, dd, dd, h * 0.7, cinza, true, 'x', true); g.bancada(px + pw + 1.5, py + pd + 1.5, dd, dd, h * 0.7, cinza, true, 'x', true); }
+  g.bancada(px, py + pd + 1.5, pw, frente ? dd : 4, frente ? h : 3, cor, coberta('principal'), 'x', true);
+  if (nivel >= 2 && nivel < 8) for (const [x, y] of [[px - 5, py + pd + 5], [px + pw + 5, py + pd + 5]]) g.holofote(x, y, 16 + nivel * 2);
+  if (nivel >= 6) g.edificio(px + pw / 2 - 8, py + pd + dd + 3, 16, 6, 2, '#c9ced6');
+  g.vedacao(-4, -4, W + 8, D + 8);
+  for (let k = 0; k < 5; k++) g.arvore(W - 2 - k * 9, D + 5);
+  for (let k = 0; k < 3; k++) g.arvore(-3, 40 + k * 12);
   return { svg: g.svg(), lugares: Math.round(lugaresBase / 100) * 100 };
 }
 function desenhoTreino(nivel) {
-  const g = Iso(340, 230, 1.05, 150, 40); const W = 160, D = 110; CHAO(g, W, D);
+  const g = Iso(340, 240, 1.02, 150, 42); const W = 160, D = 112; CHAO(g, W, D, 0.12);
   const nRelvados = Math.min(5, 1 + Math.floor(nivel / 2));
-  const pos = [[6, 6], [72, 6], [6, 56], [72, 56], [118, 30]];
-  g.estac(124, 74, 30, 18);
-  for (let k = 0; k < nRelvados; k++) { const [x, y] = pos[k]; const w = k === 4 ? 36 : 60, d = k === 4 ? 26 : 44; g.relvado(x, y, w, d, 8); if (nivel >= 4) for (const [hx, hy] of [[x, y], [x + w, y + d]]) g.holofote(hx, hy, 14); }
-  if (nivel >= 4) g.caixa(118, 6, 0, 30, 18, 0.4, ['#3b6fd1', '#2a4f99', '#3260b5']);
-  g.caixa(132, 32, 0, 22, 18 + nivel, 6 + nivel * 1.4, ['#d8dce2', '#a7adb6', '#bcc2ca']);
-  if (nivel >= 6) g.caixa(100, 92, 0, 22, 14, 9, ['#c9ced6', '#8f96a1', '#a7aeb8']);
-  if (nivel >= 8) g.caixa(6, 100, 0, 40, 14, 10, ['#e3e6ea', '#9ba2ad', '#b5bbc4']);
+  const pos = [[6, 8], [72, 8], [6, 58], [72, 58], [124, 36]];
+  g.estac(124, 78, 32, 16);
+  for (let k = 0; k < nRelvados; k++) { const [x, y] = pos[k]; const w = k === 4 ? 30 : 58, d = k === 4 ? 22 : 42; g.relvado(x, y, w, d, { riscas: k === 4 ? 6 : 10 }); }
+  for (let k = 0; k < nRelvados; k++) { const [x, y] = pos[k]; const w = k === 4 ? 30 : 58, d = k === 4 ? 22 : 42; if (nivel >= 4) for (const [hx, hy] of [[x - 2, y - 2], [x + w + 2, y + d + 2]]) g.holofote(hx, hy, 13, false); }
+  if (nivel >= 4) { g.plano(124, 6, 30, 18, 0.03, '#3b6fd1'); g.plano(126, 8, 26, 14, 0.04, '#4a7fe0'); g.line([139, 8, 0.05], [139, 22, 0.05], 'rgba(255,255,255,.8)', 0.6); }
+  g.edificio(134, 32, 22, 16 + nivel, 1 + Math.floor(nivel / 3), '#d9dde3');
+  if (nivel >= 6) g.edificio(98, 96, 24, 13, 2, '#bfc5ce', '#7fb6e0');
+  if (nivel >= 8) { g.sombra(6, 100, 40, 14, 10); g.caixa(6, 100, 0, 40, 14, 9, '#e3e6ea'); g.poly([[6, 100, 9], [46, 100, 9], [46, 107, 12], [6, 107, 12]], '#f1f3f5'); g.poly([[6, 107, 12], [46, 107, 12], [46, 114, 9], [6, 114, 9]], '#d1d6dc'); }
+  g.vedacao(-4, -4, W + 8, D + 8);
+  for (let k = 0; k < 4; k++) g.arvore(150 - k * 10, D + 5);
   return g.svg();
 }
 function desenhoAcademia(nivel) {
-  const g = Iso(340, 230, 1.1, 150, 40); const W = 150, D = 105; CHAO(g, W, D);
+  const g = Iso(340, 240, 1.08, 150, 42); const W = 150, D = 108; CHAO(g, W, D, 0.12);
   const n = Math.min(4, 1 + Math.floor(nivel / 3));
-  const pos = [[6, 6], [62, 6], [6, 50], [62, 50]];
-  for (let k = 0; k < n; k++) { const [x, y] = pos[k]; g.relvado(x, y, 50, 36, 6); }
-  g.caixa(118, 8, 0, 26, 20, 8 + nivel, ['#e7e2d6', '#aea79a', '#c7c0b2']);
-  g.texto(131, 18, 10 + nivel, 'ESCOLA');
-  if (nivel >= 5) g.caixa(118, 40, 0, 26, 18, 6 + nivel * 1.2, ['#d9cdb8', '#a39784', '#bcae98']);
-  if (nivel >= 7) g.caixa(118, 70, 0, 26, 22, 5, ['#3b6fd1', '#2a4f99', '#3260b5']);
-  for (let k = 0; k < 3 + Math.floor(nivel / 2); k++) g.arvore(8 + k * 11, D + 2);
+  const pos = [[6, 8], [62, 8], [6, 52], [62, 52]];
+  for (let k = 0; k < n; k++) { const [x, y] = pos[k]; g.relvado(x, y, 50, 36, { riscas: 8 }); }
+  g.edificio(118, 8, 26, 20, 1 + Math.floor(nivel / 3), '#e9e1cf', '#9fd3f0');
+  g.texto(131, 18, 3 + (1 + Math.floor(nivel / 3)) * 4.2 + 3, 'ESCOLA', '#20242a');
+  if (nivel >= 5) g.edificio(118, 40, 26, 18, 2 + Math.floor((nivel - 5) / 2), '#d8c8ad', '#f3d98a');
+  if (nivel >= 7) { g.sombra(118, 70, 26, 22, 6); g.caixa(118, 70, 0, 26, 22, 6, '#3b6fd1'); }
+  for (let k = 0; k < 3 + Math.floor(nivel / 2); k++) g.arvore(8 + k * 11, D + 5);
+  g.vedacao(-4, -4, W + 8, D + 8);
   return g.svg();
 }
-function desenhoEdificio(nivel, cor, cruz) {
-  const g = Iso(340, 230, 1.3, 150, 50); const W = 110, D = 80; CHAO(g, W, D);
+function desenhoMedico(nivel) {
+  const g = Iso(340, 240, 1.3, 150, 52); const W = 110, D = 80; CHAO(g, W, D, 0.5);
   g.estac(4, 50, 40, 22);
   const andares = 1 + Math.floor(nivel / 2);
-  g.caixa(40, 12, 0, 46, 30, andares * 5, cor);
-  for (let a = 0; a < andares; a++) for (let k = 0; k < 6; k++) g.caixa(42 + k * 7, 42, a * 5 + 1.5, 4, 0.3, 2.2, ['#8fd0ff', '#5c8fb5', '#6fa5cc']);
-  if (cruz) { g.caixa(58, 22, andares * 5, 10, 3, 0.5, ['#e0565b', '#a33', '#b44']); g.caixa(61.5, 18.5, andares * 5, 3, 10, 0.5, ['#e0565b', '#a33', '#b44']); }
-  else if (nivel >= 4) { g.line([80, 18, andares * 5], [80, 18, andares * 5 + 12], '#cfd5dd', 1.2); g.caixa(77, 15, andares * 5 + 12, 6, 6, 1, ['#dfe4ea', '#9aa1ab', '#b5bcc6']); }
-  for (let k = 0; k < 3; k++) g.arvore(96, 10 + k * 14);
+  g.edificio(40, 12, 46, 30, andares, '#f1f3f5', '#9fd3f0');
+  const z = andares * 4.2;
+  g.caixa(58, 22, z + 1.6, 10, 3, 0.6, '#e0565b'); g.caixa(61.5, 18.5, z + 1.6, 3, 10, 0.6, '#e0565b');
+  if (nivel >= 6) { g.plano(14, 10, 18, 18, 0.03, '#3e4248'); g.texto(23, 19, 0.5, 'H', '#f2f4f6'); }
+  for (let k = 0; k < 3; k++) g.arvore(98, 10 + k * 14);
+  return g.svg();
+}
+// Escritório de scouting (interior em corte isométrico): postos de trabalho, monitores, mapa, quadro táctico, arquivos.
+function desenhoScout(nivel) {
+  const g = Iso(340, 240, 2.75, 140, 76); const W = 64, D = 48;
+  g.plano(0, 0, W, D, 0, '#5b4a3e');
+  for (let k = 0; k < W; k += 4) g.line([k, 0, 0.01], [k, D, 0.01], 'rgba(0,0,0,.12)', 0.5);
+  // Paredes (fundo e esquerda).
+  g.poly([[0, 0, 0], [W, 0, 0], [W, 0, 26], [0, 0, 26]], '#2f3a47');
+  g.poly([[0, 0, 0], [0, D, 0], [0, D, 26], [0, 0, 26]], '#273039');
+  // Mapa-mundo com marcações (parede do fundo).
+  const mx = 6, mw = 28;
+  g.poly([[mx, 0.1, 9], [mx + mw, 0.1, 9], [mx + mw, 0.1, 22], [mx, 0.1, 22]], '#1d4d6b');
+  for (const [a, b, c] of [[0.15, 0.3, 0.35], [0.45, 0.2, 0.3], [0.62, 0.45, 0.25], [0.3, 0.65, 0.2], [0.8, 0.6, 0.15]]) g.poly([[mx + mw * a, 0.15, 9 + 13 * (1 - b)], [mx + mw * (a + c), 0.15, 9 + 13 * (1 - b)], [mx + mw * (a + c * 0.8), 0.15, 9 + 13 * (1 - b - 0.18)], [mx + mw * (a + 0.05), 0.15, 9 + 13 * (1 - b - 0.2)]], '#3f8a5a');
+  const pins = Math.min(12, 3 + nivel);
+  for (let k = 0; k < pins; k++) { const px = mx + 2 + ((k * 7.3) % (mw - 4)), pz = 11 + ((k * 5.7) % 9); const [cx, cy] = g.P(px, 0.2, pz); g.cru(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="1.6" fill="${k % 3 ? '#f2b632' : '#e0565b'}" stroke="#111" stroke-width=".4"/>`); }
+  // Quadro táctico (parede esquerda).
+  g.poly([[0.1, 8, 9], [0.1, 30, 9], [0.1, 30, 21], [0.1, 8, 21]], '#e9ecef');
+  g.poly([[0.15, 9, 10], [0.15, 29, 10], [0.15, 29, 20], [0.15, 9, 20]], '#2f7a45');
+  g.line([0.2, 19, 10], [0.2, 19, 20], '#fff', 0.5);
+  for (const [yy, zz] of [[12, 15], [15, 18], [15, 12], [23, 13], [24, 17], [27, 15]]) { const [cx, cy] = g.P(0.2, yy, zz); g.cru(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="1.3" fill="${yy < 19 ? '#d63a3a' : '#2c63c9'}"/>`); }
+  // Arquivos e janela.
+  for (let k = 0; k < 2 + Math.floor(nivel / 4); k++) g.caixa(W - 7 - k * 6, 1, 0, 5, 4, 11, '#6b7480');
+  g.poly([[40, 0.1, 10], [56, 0.1, 10], [56, 0.1, 22], [40, 0.1, 22]], 'url(#' + g.id + '-vidro)');
+  // Postos de trabalho: secretária + monitores + cadeira; mais postos e ecrãs com o nível.
+  const postos = Math.min(6, 1 + Math.floor(nivel / 2));
+  const lugares = [[14, 16], [34, 16], [14, 32], [34, 32], [50, 24], [50, 38]];
+  for (let k = postos - 1; k >= 0; k--) {
+    const [x, y] = lugares[k];
+    g.caixa(x, y, 0, 13, 7, 5, '#8a6a4f');
+    const ecras = nivel >= 7 ? 3 : nivel >= 4 ? 2 : 1;
+    for (let e = 0; e < ecras; e++) { const ex = x + 1.5 + e * 4; g.caixa(ex + 1.2, y + 1.4, 5, 0.6, 0.6, 1.2, '#222'); g.caixa(ex, y + 1, 6, 3.6, 0.5, 2.6, ['#1b2028', '#10141a', '#141920']); g.poly([[ex + 0.2, y + 1.55, 6.3], [ex + 3.4, y + 1.55, 6.3], [ex + 3.4, y + 1.55, 8.3], [ex + 0.2, y + 1.55, 8.3]], e % 2 ? '#2f7a45' : '#3b6fd1'); }
+    g.caixa(x + 4, y + 8.5, 0, 4, 4, 3, '#2a2f37'); g.caixa(x + 4, y + 12, 3, 4, 0.8, 4, '#1f242b');
+  }
+  if (nivel >= 8) { g.caixa(22, 40, 0, 18, 6, 4.5, '#d9dde3'); g.texto(31, 43, 6, 'ANÁLISE', '#20242a'); }
   return g.svg();
 }
 
@@ -801,8 +894,8 @@ function infraEcra() {
     ['treino', 'Centro de treino', 5, (v) => `${Math.min(5, 1 + Math.floor(v / 2))} relvados · ${v >= 6 ? 'pavilhão e ginásio' : 'balneários'} · ${v >= 5 ? '+' : ''}${((v - 5) * 0.4).toFixed(1).replace('.', ',')} de desenvolvimento`, 2.4, 36],
     ['academia', 'Academia', 7, (v) => `${Math.min(4, 1 + Math.floor(v / 3))} campos · ${v >= 5 ? 'residência' : 'sem residência'} · shortlist de ${Math.min(12, Math.round(7 + 0.5 * v))}`, 3.1, 42],
     ['medico', 'Instalações médicas', 4, (v) => `${1 + Math.floor(v / 2)} piso(s) · ${v >= 5 ? '−' : '+'}${Math.abs((v - 5) * 1.5).toFixed(1).replace('.', ',')}% dias de lesão`, 0.9, 20],
-    ['recrutamento', 'Recrutamento', 6, (v) => `${1 + Math.floor(v / 2)} piso(s) · +${v * 10}% observações dos scouts`, 0.7, 18]];
-  const des = (k, v) => k === 'estadio' ? desenhoEstadio(v, tamClube).svg : k === 'treino' ? desenhoTreino(v) : k === 'academia' ? desenhoAcademia(v) : k === 'medico' ? desenhoEdificio(v, ['#eef1f4', '#b3bac4', '#cbd1d9'], true) : desenhoEdificio(v, ['#d6dbe2', '#9aa1ab', '#b2b9c3'], false);
+    ['recrutamento', 'Recrutamento', 6, (v) => `${Math.min(6, 1 + Math.floor(v / 2))} postos de scouting · ${v >= 7 ? 3 : v >= 4 ? 2 : 1} ecrã(s) por posto · +${v * 10}% observações`, 0.7, 18]];
+  const des = (k, v) => k === 'estadio' ? desenhoEstadio(v, tamClube).svg : k === 'treino' ? desenhoTreino(v) : k === 'academia' ? desenhoAcademia(v) : k === 'medico' ? desenhoMedico(v) : desenhoScout(v);
   return `
   <div class="topo"><h1>Infraestrutura</h1><span class="sub">Orçamento de infraestruturas: 4,1 / 6,0 M€</span><div class="direita"><label class="rot" style="display:flex;gap:8px;align-items:center">Tamanho do clube (protótipo)<select class="btn" id="sel-tam">${[['1', 'Pequeno'], ['2', 'Médio'], ['3', 'Grande']].map(([v, t]) => `<option value="${v}" ${+v === tamClube ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div></div>
   <div class="grelha">${inf.map(([k, n, v0, ef, custo, sem]) => { const v = previa[k] ?? v0; const vendo = v !== v0;
