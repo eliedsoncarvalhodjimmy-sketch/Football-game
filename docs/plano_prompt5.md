@@ -58,5 +58,6 @@ Interface (main thread)          Web Worker (motor puro, determinístico)
 ## Blocos seguintes (resumo)
 
 - **B — jogo em campo**: pré-jogo (onzes, conversa de equipa, sugestões), replay 2D em Canvas (campo vertical, nomes nas bolinhas, cronologia de eventos, velocidades), resumo, jornada com paragens de decisão e notícias.
+  - **Cut-scene de entrada** (pedido do utilizador): transição do pré-jogo para a simulação com uma das imagens de `docs/prototipo/cutscenes/` (`entrada-1.jpg` túnel nocturno, `entrada-2.jpg` subida para o relvado de dia), **alternadas** de jogo para jogo; ecrã inteiro, curta (≈2–3 s, com opção de saltar), sem bloquear o worker, que já simula enquanto ela corre. As imagens são usadas tal como foram enviadas.
 - **C — modos e carreira**: Director (avaliação, pressão, despedimento) e Dono (adeptos 0–100 e pressão em 4 níveis, compra e venda de clubes), objectivos por época, conquistas e Hall da Fama.
 - **D — optimização, armazenamento, PWA e 50 épocas**: perfis no tablet, poda de detalhe, offline, exportar/importar saves e pacotes, teste de 50 épocas com 6 sementes.
