@@ -173,6 +173,17 @@ td.r, th.r { text-align: right; }
 .barra-topo .continuar { margin-left: auto; }
 .fundo-modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 20; display: grid; place-items: center; padding: 16px; }
 .modal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; width: min(560px, 100%); max-height: 90%; overflow: auto; padding: 18px; }
+.modal-rel { padding: 0; width: min(720px, 100%); }
+.modal-corpo { padding: 14px 18px 18px; }
+.capa-rel { position: relative; aspect-ratio: 736/300; overflow: hidden; border-radius: 16px 16px 0 0; }
+.capa-rel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.capa-rel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,0) 35%, rgba(11,13,16,.88) 100%); }
+.cr-txt { position: absolute; left: 18px; right: 18px; bottom: 12px; z-index: 1; }
+.cr-txt h3 { margin: 0; font-family: var(--f-num); font-size: 26px; font-weight: 600; color: #fff; }
+.cr-txt span { color: #cfd3da; font-size: 13px; }
+.grelha-rel { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 640px) { .grelha-rel { grid-template-columns: 1fr; } .cr-txt h3 { font-size: 20px; } }
+.lista-rel { margin: 6px 0 12px; padding-left: 18px; color: var(--texto); }
 .modal-cab { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .modal-cab h3 { margin: 0; font-family: var(--f-num); font-size: 24px; font-weight: 600; flex: 1; }
 .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
@@ -372,10 +383,21 @@ const MENSAGENS = [
   { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
   { de: 'Presidente (dono)', assunto: 'Objectivos de Janeiro', txt: 'Quero um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
   { de: 'Gestor de academia', assunto: '2 prospectos prontos para o sub-18', txt: 'Recomendo promover Kevin SmitVries e Gonçalo Valota.', dia: '12 Nov', lida: false },
-  { de: 'Olheiro internacional', assunto: 'Relatório: Gustavo Rosilho (82%)', txt: 'Avançado de 20 anos, OVR 73–81, potencial muito alto.', dia: '11 Nov', lida: true },
-  { de: 'Departamento médico', assunto: 'Lesão: entorse no tornozelo', txt: 'Fora 12 dias. Regressa a 26 de Novembro.', dia: '9 Nov', lida: true },
+  { de: 'Director financeiro', assunto: 'Relatório financeiro: Outubro', txt: 'Resultado do mês +0,6 M€; massa salarial a 94% do orçamento.', dia: '11 Nov', lida: false, rel: 'fin' },
+  { de: 'Olheiro internacional', assunto: 'Relatório: Gustavo Rosilho (82%)', txt: 'Avançado de 20 anos, OVR 73–81, potencial muito alto.', dia: '11 Nov', lida: true, rel: 'scout' },
+  { de: 'Departamento médico', assunto: 'Relatório médico: entorse no tornozelo', txt: 'Fora 12 dias. Regressa a 26 de Novembro.', dia: '9 Nov', lida: true, rel: 'med' },
 ];
-let modal = null, mesCal = null;
+let modal = null, mesCal = null, msgAberta = null;
+const capaRelatorio = (titulo, sub) => `<div class="capa-rel"><img src="relatorio.jpg" alt=""><div class="cr-txt"><h3>${titulo}</h3>${sub ? `<span>${sub}</span>` : ''}</div></div>`;
+const kv = (l) => l.map(([a, b]) => `<div class="linha-kv"><span class="muted">${a}</span><span>${b}</span></div>`).join('');
+const RELATORIOS = {
+  scout: () => `<div class="grelha-rel"><div><div class="rot">Avançado · 20 anos · CA Puerto Lirio (ARG) · contrato até 2028</div>${kv([['OVR estimado', '73–81'], ['Potencial', 'Muito alto (86–92)'], ['Conhecimento', '82% · 3 observações'], ['Melhor papel', 'Avançado móvel (17/20)'], ['Valor estimado', '9–12 M€'], ['Salário pedido', '1,1–1,4 M€/ano']])}</div>
+    <div><b>Pontos fortes</b><ul class="lista-rel"><li>Desmarcação e finalização no primeiro toque</li><li>Aceleração (16–18)</li><li>Pressão alta incansável</li></ul><b>Pontos fracos</b><ul class="lista-rel"><li>Jogo aéreo (8–10)</li><li>Decisão sob pressão ainda irregular</li></ul><div class="chip bom">Recomendação: avançar com proposta</div></div></div>`,
+  fin: () => `<div class="grelha-rel"><div><b>Outubro</b>${kv([['Receitas', '+4,9 M€'], ['Despesas', '−4,3 M€'], ['Resultado do mês', '<b style="color:var(--bom)">+0,6 M€</b>'], ['Caixa no fim do mês', '18,4 M€'], ['Dívida', '12,0 M€']])}</div>
+    <div><b>Orçamentos</b>${kv([['Massa salarial', '31,2 / 33,0 M€ (94%)'], ['Transferências', '4,1 / 9,5 M€'], ['Infraestruturas', '4,1 / 6,0 M€'], ['Fair play financeiro', '<span class="chip bom">Cumprido</span>']])}<div class="rot" style="margin-top:8px">A bilheteira do dérbi (+0,9 M€) compensou a eliminação na Taça da Liga.</div></div></div>`,
+  med: () => `<div class="grelha-rel"><div>${kv([['Jogador', 'Hugo Teiouro (DC)'], ['Lesão', 'Entorse no tornozelo (grau II)'], ['Tempo de paragem', '12 dias'], ['Regresso previsto', '26 de Novembro'], ['Risco de recaída', 'Baixo']])}</div>
+    <div><b>Plano</b><ul class="lista-rel"><li>Dias 1–5: repouso e fisioterapia</li><li>Dias 6–10: ginásio e piscina</li><li>Dias 11–12: treino condicionado</li></ul><div class="rot">Instalações médicas nível 4: −1,5% de dias de lesão.</div></div></div>`,
+};
 function proximoJogo() { for (let d = new Date(hoje); d < Date.UTC(2027, 6, 1); d = new Date(d.getTime() + 864e5)) { const j = JOGOS.get(chave(d)); if (j) return { d, j }; } return null; }
 
 // ---------- utilitários ----------
@@ -1063,15 +1085,18 @@ function desenharModal() {
       <div class="legenda"><span><i class="ci" style="background:var(--c-liga)">${svg('liga')}</i>Liga</span><span><i class="ci" style="background:var(--c-taca)">${svg('taca')}</i>Taça</span><span><i class="ci" style="background:var(--c-ucl)">${svg('cont')}</i>Liga dos Campeões / Libertadores / AFC Champions</span><span><i class="ci" style="background:var(--c-uel)">${svg('cont')}</i>Liga Europa</span><span><i class="ci" style="background:var(--c-uecl)">${svg('cont')}</i>Liga Conferência</span><span><i class="ci" style="background:var(--c-pausa)"></i>Pausas</span><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--aviso)" stroke-width="2.4" stroke-linecap="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>Janela de transferências aberta</span></div>
       <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
-    el.innerHTML = `<div class="modal" role="dialog" aria-label="Mensagens"><div class="modal-cab"><h3>Mensagens</h3><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}</span></div>`).join('')}</div>`;
+    const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
+    if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`)}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
+    else el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="modal-cab" style="justify-content:flex-end"><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</div></div>`;
   }
   document.body.appendChild(el);
-  el.addEventListener('click', (e) => { if (e.target === el) { modal = null; desenhar(); } });
-  el.querySelector('#fechar').addEventListener('click', () => { modal = null; mesCal = null; desenhar(); });
+  el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
+  el.querySelector('#fechar').addEventListener('click', () => { modal = null; mesCal = null; msgAberta = null; desenhar(); });
+  el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };
   el.querySelector('#cal-ant')?.addEventListener('click', () => mv(-1));
   el.querySelector('#cal-seg')?.addEventListener('click', () => mv(1));
-  el.querySelectorAll('[data-msg]').forEach((x) => x.addEventListener('click', () => { MENSAGENS[+x.dataset.msg].lida = true; desenharModal(); const b = document.querySelector('#b-msg .badge'); const n = MENSAGENS.filter((y) => !y.lida).length; if (b) { if (n) b.textContent = n; else b.remove(); } }));
+  el.querySelectorAll('[data-msg]').forEach((x) => x.addEventListener('click', () => { MENSAGENS[+x.dataset.msg].lida = true; if (MENSAGENS[+x.dataset.msg].rel) msgAberta = +x.dataset.msg; desenharModal(); const b = document.querySelector('#b-msg .badge'); const n = MENSAGENS.filter((y) => !y.lida).length; if (b) { if (n) b.textContent = n; else b.remove(); } }));
 }
 function ligar(m) {
   m.querySelector('#b-cal').addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
