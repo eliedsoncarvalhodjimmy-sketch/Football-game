@@ -215,6 +215,17 @@ td.r, th.r { text-align: right; }
 .capa-rel { position: relative; aspect-ratio: 736/300; overflow: hidden; border-radius: 16px 16px 0 0; }
 .capa-rel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
 .capa-rel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,0) 35%, rgba(11,13,16,.88) 100%); }
+.banner-imprensa img { object-position: center 45%; }
+.noticia { display: grid; grid-template-columns: 78px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--linha); align-items: start; }
+.noticia .chip { justify-self: start; }
+.ent-foto { position: relative; aspect-ratio: 736/260; border-radius: 10px; overflow: hidden; }
+.ent-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
+.respostas { display: grid; gap: 8px; }
+.resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
+.resposta:hover { border-color: var(--acento); }
+.resposta .chip { justify-self: start; text-transform: capitalize; }
+@media (max-width: 640px) { .noticia { grid-template-columns: 1fr; gap: 4px; } .resposta { grid-template-columns: 1fr; } .pergunta { font-size: 19px; } }
 .capa-alta { aspect-ratio: 736/400; } .capa-alta img { object-position: center 30%; }
 .cr-txt { position: absolute; left: 18px; right: 18px; bottom: 12px; z-index: 1; }
 .cr-txt h3 { margin: 0; font-family: var(--f-num); font-size: 26px; font-weight: 600; color: #fff; }
@@ -334,6 +345,7 @@ const ICON = {
   tactica: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="3"/>',
   mercado: '<path d="M4 7h16l-1.5 12h-13z"/><path d="M8 7a4 4 0 0 1 8 0"/>',
   financas: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  imprensa: '<rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
   classificacao: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/>',
   infra: '<path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/>',
   staff: '<circle cx="12" cy="6" r="3"/><path d="M6 21v-3a6 6 0 0 1 12 0v3"/><path d="M9 13l3 3 3-3"/>',
@@ -348,7 +360,7 @@ const ICON = {
   cont: '<path d="M12 2l2.9 6.2 6.6.6-5 4.5 1.5 6.6L12 16.6 6 19.9l1.5-6.6-5-4.5 6.6-.6z"/>',
   mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
 };
-const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças e Conselho'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições']];
+const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças e Conselho'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições'], ['imprensa', 'Imprensa']];
 const INFERIOR = ['inicio', 'plantel', 'mercado', 'classificacao'];
 const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 
@@ -816,6 +828,105 @@ function classificacaoEcra() {
 }
 
 
+// ---------- Imprensa (protótipo) ----------
+// Meios fictícios. Relação 0–100: sobe com entrevistas dadas e respostas cordiais, desce com recusas e ataques.
+const MEIOS = [
+  { nome: 'Tribuna Desportiva', tipo: 'Jornal', rel: 62, linha: 'Exigente, mas justo' },
+  { nome: 'Diário do Golo', tipo: 'Jornal', rel: 48, linha: 'Sensacionalista' },
+  { nome: 'Canal Futebol 24', tipo: 'Televisão', rel: 71, linha: 'Análise táctica' },
+  { nome: 'Mesa Redonda TV', tipo: 'Debate', rel: 39, linha: 'Polémica e paixão' },
+  { nome: 'Rádio Bancada', tipo: 'Rádio', rel: 66, linha: 'Próxima dos adeptos' },
+  { nome: 'Lance Directo', tipo: 'Online', rel: 55, linha: 'Rumores de mercado' },
+];
+let pressaoMedia = 46, semanaImprensa = 0;
+const TOM = { elogio: ['bom', 'Elogio'], critica: ['mau', 'Crítica'], analise: ['info', 'Análise'], rumor: ['aviso', 'Rumor'], pressao: ['mau', 'Pressão'] };
+const tomChip = (t) => `<span class="chip ${TOM[t][0]}">${TOM[t][1]}</span>`;
+// Destaques semanais (no protótipo, dois conjuntos que alternam; na app vêm dos acontecimentos da semana).
+const DESTAQUES = [
+  [
+    ['elogio', 'Tribuna Desportiva', 'Serra do Freixo vence o dérbi e cola-se ao pódio', 'Exibição de autoridade: 2–0 e uma pressão alta que asfixiou o rival durante 70 minutos.'],
+    ['analise', 'Canal Futebol 24', 'Como a saída a três mudou o Serra do Freixo', 'O recuo do médio defensivo entre os centrais libertou os laterais: 8 cruzamentos por jogo, mais 3 do que em Setembro.'],
+    ['rumor', 'Lance Directo', 'Real Montalvo prepara 7,5 M€ por Rafael Salouro', 'O avançado de 21 anos estará na lista do líder; o clube não quer vender antes do Verão.'],
+    ['critica', 'Mesa Redonda TV', '"Sem médio defensivo, este plantel não aguenta Janeiro"', 'Os comentadores apontam a lesão de Hugo Teiouro e a falta de alternativas no meio-campo.'],
+    ['pressao', 'Diário do Golo', 'Dono quer a Europa: treinador sem margem para escorregar', 'Fonte próxima do conselho fala em "ultimato discreto" até ao fim da primeira volta.'],
+  ],
+  [
+    ['critica', 'Diário do Golo', 'Desastre em Alvarenga: três golos sofridos em 20 minutos', 'A defesa voltou a mostrar fragilidade nas bolas paradas; quarto jogo seguido a sofrer de canto.'],
+    ['analise', 'Canal Futebol 24', 'Os números de Salouro: 9 golos e 0,61 de golos esperados por jogo', 'Finaliza acima do esperado desde Outubro e é o avançado que mais pressiona na liga.'],
+    ['elogio', 'Rádio Bancada', 'Academia em destaque: dois sub-18 chamados à selecção', 'Kevin SmitVries e Gonçalo Valota foram convocados para o estágio de Dezembro.'],
+    ['rumor', 'Lance Directo', 'Médio turco na mira para Janeiro', 'Yusuf Taşsoy, do Kızılpınarspor, terá sido observado três vezes pelo departamento de scouting.'],
+    ['pressao', 'Mesa Redonda TV', '"Mais uma derrota e a Europa fica longe"', 'Debate aceso sobre o futuro do treinador; 58% dos telespectadores dizem que deve continuar.'],
+  ],
+];
+const CAPAS_SEMANA = ['imprensa/estudio.jpg', 'imprensa/analise.jpg', 'imprensa/debate.jpg'];
+const OPINIOES = [
+  ['Rui Calado', 'Tribuna Desportiva', 'elogio', 'O treinador encontrou o onze. A dúvida é se o plantel tem banco para três competições.'],
+  ['Marta Seixas', 'Canal Futebol 24', 'analise', 'A equipa recupera a bola 4 segundos mais depressa do que a média da liga. É aí que ganha os jogos.'],
+  ['Zé Bancada', 'Rádio Bancada', 'critica', 'Os adeptos não percebem porque é que os miúdos da academia não jogam na Taça.'],
+];
+// Guião de entrevista (formato em docs/imprensa_guioes.md). Os guiões definitivos são enviados pelo utilizador.
+const GUIOES = [{
+  id: 'pos-jogo-derbi-vitoria', contexto: 'Pós-jogo', meio: 'Tribuna Desportiva', capa: 'imprensa/microfone-relvado.jpg',
+  titulo: 'Flash interview depois do dérbi',
+  perguntas: [
+    { texto: 'Vitória clara no dérbi. Esta equipa já é candidata ao título?', respostas: [
+      { texto: 'Pensamos jogo a jogo. O título decide-se em Maio.', tom: 'calmo', efeitos: { pressao: -3, adeptos: 0 } },
+      { texto: 'Sim. Viemos para ganhar tudo e não escondemos isso.', tom: 'confiante', efeitos: { pressao: 6, adeptos: 4, moral: 2 } },
+      { texto: 'Candidatos são os que gastam mais. Nós trabalhamos.', tom: 'provocador', efeitos: { pressao: 3, adeptos: 2, rel: -4 } },
+    ] },
+    { texto: 'O Real Montalvo quer o Rafael Salouro. Ele vai sair em Janeiro?', respostas: [
+      { texto: 'O Rafael tem contrato e é muito importante para nós.', tom: 'calmo', efeitos: { moral: 1 } },
+      { texto: 'Não falo de jogadores de outros clubes nem de rumores.', tom: 'evasivo', efeitos: { rel: -2 } },
+      { texto: 'Só sai pela cláusula. Quem o quiser, que pague.', tom: 'firme', efeitos: { adeptos: 3, moral: 2, pressao: 2 } },
+    ] },
+    { texto: 'Pediu um médio defensivo à direcção. Vai chegar?', respostas: [
+      { texto: 'Estamos a trabalhar com o director desportivo, há confiança.', tom: 'calmo', efeitos: { dono: 2 } },
+      { texto: 'Se não chegar, vai ser muito difícil manter este ritmo.', tom: 'exigente', efeitos: { pressao: 5, dono: -4 } },
+      { texto: 'Temos soluções em casa. A academia está a trabalhar bem.', tom: 'confiante', efeitos: { adeptos: 2, moral: 1 } },
+    ] },
+  ],
+}];
+const PEDIDOS_ENTREVISTA = [{ guiao: 0, meio: 'Tribuna Desportiva', quando: 'Hoje · depois do dérbi', estado: 'pendente' }, { guiao: null, meio: 'Mesa Redonda TV', quando: 'Quinta-feira · programa de debate', estado: 'pendente' }];
+let entrevista = null; // { g, passo, respostas: [] }
+const NOME_EFEITO = { pressao: 'Pressão mediática', adeptos: 'Adeptos', moral: 'Moral do plantel', dono: 'Confiança do dono', rel: 'Relação com o meio' };
+function efeitosTxt(e) { return Object.entries(e).filter(([, v]) => v).map(([k, v]) => `<span class="chip ${k === 'pressao' ? (v > 0 ? 'aviso' : 'bom') : v > 0 ? 'bom' : 'mau'}">${NOME_EFEITO[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}</span>`).join(' '); }
+function medidorPressao(v) { const cor = v >= 70 ? 'var(--mau)' : v >= 45 ? 'var(--aviso)' : 'var(--bom)'; const txt = v >= 70 ? 'Muito alta' : v >= 45 ? 'Moderada' : 'Baixa'; return `<div class="num" style="font-size:40px;line-height:1">${v}<span class="muted" style="font-size:16px">/100</span></div><div class="barra" style="margin:8px 0 4px"><i style="width:${v}%;background:${cor}"></i></div><div class="rot">${txt}</div>`; }
+function imprensaEcra() {
+  const sem = DESTAQUES[semanaImprensa % DESTAQUES.length];
+  return `<section class="banner-mercado banner-imprensa"><img src="imprensa/estudio.jpg" alt=""><div class="bm-topo"><h1>Imprensa</h1><span>Opinião, análise, pressão e entrevistas</span></div></section>
+  <div class="grelha">
+    <section class="c s8"><h2>Destaques desta semana<span class="acao"><button class="btn" id="b-semana">Ver resumo da semana</button></span></h2>
+      ${sem.map(([t, meio, tit, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${tit}</b><div class="rot">${meio}</div><div style="margin-top:4px;color:var(--texto-2,#cfd3da)">${txt}</div></div></div>`).join('')}</section>
+    <section class="c s4"><h2>Pressão mediática</h2>${medidorPressao(pressaoMedia)}
+      <div style="margin-top:12px">${kv([['Resultados recentes', '<span class="chip bom">a aliviar</span>'], ['Expectativa do dono', '<span class="chip aviso">Europa</span>'], ['Rumores de mercado', '<span class="chip aviso">3 activos</span>'], ['Polémicas', '<span class="chip">nenhuma</span>']])}</div></section>
+    <section class="c s6 entrevistas"><div class="ent-foto"><img src="imprensa/microfone.jpg" alt=""></div><h2 style="margin-top:12px">Pedidos de entrevista</h2>
+      ${PEDIDOS_ENTREVISTA.map((x, i) => `<div class="linha-kv"><span><b>${x.meio}</b><div class="rot">${x.quando}${x.guiao == null ? ' · guião por chegar' : ''}</div></span><span style="display:flex;gap:6px;align-items:center">${x.estado === 'pendente' ? `<button class="btn" data-recusa="${i}">Recusar</button><button class="btn prim" data-entrev="${i}" ${x.guiao == null ? 'disabled' : ''}>Dar entrevista</button>` : `<span class="chip ${x.estado === 'dada' ? 'bom' : 'mau'}">${x.estado === 'dada' ? 'Dada' : 'Recusada'}</span>`}</span></div>`).join('')}
+      <div class="rot" style="margin-top:8px">Recusar uma entrevista baixa a relação com o meio (−5) e pode virar notícia.</div></section>
+    <section class="c s6"><h2>Opinião</h2>${OPINIOES.map(([quem, meio, t, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${quem}</b> <span class="rot">· ${meio}</span><div style="margin-top:4px">"${txt}"</div></div></div>`).join('')}</section>
+    <section class="c s12"><h2>Relação com os meios</h2><div class="tab-wrap"><table><thead><tr><th>Meio</th><th>Tipo</th><th>Linha editorial</th><th>Relação</th></tr></thead><tbody>${MEIOS.map((x) => `<tr><td><b>${x.nome}</b></td><td>${x.tipo}</td><td class="muted">${x.linha}</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:8px"><div class="barra" style="flex:1"><i style="width:${x.rel}%;background:${x.rel >= 60 ? 'var(--bom)' : x.rel >= 45 ? 'var(--aviso)' : 'var(--mau)'}"></i></div><b>${x.rel}</b></div></td></tr>`).join('')}</tbody></table></div></section>
+  </div>`;
+}
+function modalSemana() {
+  const sem = DESTAQUES[semanaImprensa % DESTAQUES.length], capa = CAPAS_SEMANA[semanaImprensa % CAPAS_SEMANA.length];
+  return `<div class="modal modal-rel" role="dialog" aria-label="Destaques da semana na imprensa">${capaRelatorio('Destaques da semana na imprensa', `Semana ${46 + semanaImprensa} · pressão mediática ${pressaoMedia}/100`, capa)}<div class="modal-corpo">
+    ${sem.map(([t, meio, tit, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${tit}</b><div class="rot">${meio}</div><div style="margin-top:4px">${txt}</div></div></div>`).join('')}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" data-ir="imprensa">Abrir Imprensa</button><button class="btn prim" id="fechar">Continuar</button></div></div></div>`;
+}
+function modalEntrevista() {
+  const g = GUIOES[entrevista.g];
+  if (entrevista.passo >= g.perguntas.length) {
+    const tot = {}; entrevista.respostas.forEach((r) => Object.entries(r.efeitos).forEach(([k, v]) => (tot[k] = (tot[k] ?? 0) + v)));
+    const tons = entrevista.respostas.map((r) => r.tom);
+    const manchete = tons.includes('provocador') ? `"Candidatos são os que gastam mais": treinador do ${CLUBE.curto} atira-se aos rivais` : tons.includes('confiante') ? `Treinador do ${CLUBE.curto} assume: "Viemos para ganhar tudo"` : tons.includes('exigente') ? `Treinador pressiona a direcção: "Sem reforço vai ser difícil"` : `Treinador do ${CLUBE.curto} de pés no chão: "O título decide-se em Maio"`;
+    return `<div class="modal modal-rel" role="dialog" aria-label="Entrevista terminada">${capaRelatorio('Entrevista terminada', `${g.meio} · ${g.contexto}`, g.capa)}<div class="modal-corpo"><div class="rot">Manchete prevista amanhã</div><h3 style="margin:4px 0 12px;font-family:var(--f-num);font-size:22px">${manchete}</h3><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(tot)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
+  }
+  const q = g.perguntas[entrevista.passo];
+  return `<div class="modal modal-rel" role="dialog" aria-label="Entrevista">${capaRelatorio(g.titulo, `${g.meio} · ${g.contexto} · pergunta ${entrevista.passo + 1} de ${g.perguntas.length}`, g.capa)}<div class="modal-corpo"><div class="pergunta">${q.texto}</div>
+    <div class="respostas">${q.respostas.map((r, i) => `<button class="resposta" data-resp="${i}"><span class="chip">${r.tom}</span><span>${r.texto}</span></button>`).join('')}</div>
+    <div class="rot" style="margin-top:10px">Cada tom tem efeitos diferentes na pressão mediática, nos adeptos, na moral e na confiança do dono.</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn" id="fechar">Sair da entrevista</button></div></div></div>`;
+}
+
 function staffEcra() {
   const membros = [
     ['Treinador', 'Hélder Quintela', 54, 14, 'Pressão alta · desenvolvimento 15', '2028'],
@@ -1121,7 +1232,7 @@ function historicoEcra() {
 }
 
 // ---------- navegação e acento ----------
-const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, staff: staffEcra, academia: academiaEcra, mercado: mercadoEcra, financas: financasEcra, infra: infraEcra, classificacao: classificacaoEcra };
+const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, staff: staffEcra, academia: academiaEcra, mercado: mercadoEcra, financas: financasEcra, infra: infraEcra, classificacao: classificacaoEcra, imprensa: imprensaEcra };
 function rota() { const h = location.hash.replace('#', ''); return RENDER[h] ? h : 'inicio'; }
 function desenhar() {
   const r = rota();
@@ -1159,7 +1270,9 @@ function desenharModal() {
       <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
     const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
-    if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
+    if (modal === 'semana') el.innerHTML = modalSemana();
+    else if (modal === 'entrev') el.innerHTML = modalEntrevista();
+    else if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
     else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else
     if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`, ab.rel === 'reforco' ? 'pedido-treinador.jpg' : 'relatorio.jpg')}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
@@ -1169,6 +1282,10 @@ function desenharModal() {
   el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
   el.querySelector('#fechar').addEventListener('click', () => { modal = null; mesCal = null; msgAberta = null; desenhar(); });
   el.querySelectorAll('[data-ref]').forEach((b) => b.addEventListener('click', () => { modal = null; msgAberta = null; if (b.dataset.ref === 'mercado') { tabMercado = 'Transferências'; location.hash = 'mercado'; } desenhar(); }));
+  el.querySelectorAll('[data-ir]').forEach((b) => b.addEventListener('click', () => { modal = null; location.hash = b.dataset.ir; desenhar(); }));
+  el.querySelectorAll('[data-resp]').forEach((b) => b.addEventListener('click', () => { const g = GUIOES[entrevista.g], r = g.perguntas[entrevista.passo].respostas[+b.dataset.resp]; entrevista.respostas.push(r); entrevista.passo++;
+    if (entrevista.passo >= g.perguntas.length) { const p = PEDIDOS_ENTREVISTA.find((x) => x.guiao === entrevista.g); if (p) p.estado = 'dada'; entrevista.respostas.forEach((x) => { pressaoMedia = Math.max(0, Math.min(100, pressaoMedia + (x.efeitos.pressao ?? 0))); const m = MEIOS.find((y) => y.nome === g.meio); m.rel = Math.max(0, Math.min(100, m.rel + 2 + (x.efeitos.rel ?? 0))); }); desenhar(); }
+    desenharModal(); }));
   el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };
   el.querySelector('#cal-ant')?.addEventListener('click', () => mv(-1));
@@ -1178,7 +1295,7 @@ function desenharModal() {
 function ligar(m) {
   m.querySelector('#b-cal').addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
   m.querySelector('#b-msg').addEventListener('click', () => { modal = 'msg'; desenharModal(); });
-  m.querySelector('#b-cont').addEventListener('click', () => { hoje = new Date(hoje.getTime() + 864e5); desenhar(); });
+  m.querySelector('#b-cont').addEventListener('click', () => { hoje = new Date(hoje.getTime() + 864e5); if (hoje.getUTCDay() === 1) { semanaImprensa++; modal = 'semana'; } desenhar(); if (modal === 'semana') desenharModal(); });
   m.querySelectorAll('[data-pos]').forEach((b) => b.addEventListener('click', () => { filtroPos = b.dataset.pos; desenhar(); }));
   const f = m.querySelector('#f-pesq'); if (f) f.addEventListener('input', () => { pesquisa = f.value; const pos = f.selectionStart; desenhar(); const g = document.getElementById('f-pesq'); g.focus(); g.setSelectionRange(pos, pos); });
   m.querySelectorAll('[data-jj]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.jj; location.hash = 'jogador'; }));
@@ -1201,6 +1318,9 @@ function ligar(m) {
   m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
   const sp = m.querySelector('#sel-pais'); if (sp) sp.addEventListener('change', () => { compSel = COMP.find(([k]) => PAIS_COMP[k] === sp.value)[0]; if (sp.value === 'UEFA' && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
   m.querySelectorAll('[data-pedido]').forEach((x) => x.addEventListener('click', () => { modal = 'msg'; msgAberta = MENSAGENS.findIndex((y) => y.rel === x.dataset.pedido); MENSAGENS[msgAberta].lida = true; desenhar(); desenharModal(); }));
+  m.querySelector('#b-semana')?.addEventListener('click', () => { modal = 'semana'; desenharModal(); });
+  m.querySelectorAll('[data-entrev]').forEach((b) => b.addEventListener('click', () => { entrevista = { g: PEDIDOS_ENTREVISTA[+b.dataset.entrev].guiao, passo: 0, respostas: [] }; modal = 'entrev'; desenharModal(); }));
+  m.querySelectorAll('[data-recusa]').forEach((b) => b.addEventListener('click', () => { const p = PEDIDOS_ENTREVISTA[+b.dataset.recusa]; p.estado = 'recusada'; const x = MEIOS.find((y) => y.nome === p.meio); x.rel = Math.max(0, x.rel - 5); desenhar(); }));
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
   m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
   const sc = m.querySelector('#sel-comp'); if (sc) sc.addEventListener('change', () => { compSel = sc.value; if (['UCL', 'UEL', 'UECL'].includes(compSel) && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
