@@ -146,6 +146,8 @@ td.r, th.r { text-align: right; }
 .ad-linhas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 18px; }
 .ad-linhas > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ad-linhas b { font-family: var(--f-num); font-size: 22px; color: #fff; }
+.ad-preco .btn { min-height: 32px; min-width: 32px; padding: 2px 8px; background: rgba(29,33,40,.85); }
+.ad-efeito { background: rgba(11,13,16,.7); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: #e8eaee; }
 @media (max-width: 760px) { .ad-linhas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .adeptos::after { background: linear-gradient(180deg, rgba(11,13,16,.85), rgba(11,13,16,.7)); } }
 .banner-mercado { position: relative; border-radius: var(--raio); overflow: hidden; margin-bottom: 14px; aspect-ratio: 588/250; max-height: 300px; width: 100%; border: 1px solid var(--linha); }
 .banner-mercado img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
@@ -624,6 +626,20 @@ function salaConselho() {
     ${camada('')}${camada(`filter:url(#${fid})`)}${camada('clip-path:inset(62.7% 56.5% 29% 11.5%)')}${camada('clip-path:inset(46.2% 26% 32.8% 59.8%)')}</div></div>`;
 }
 
+// Preço do bilhete (protótipo): procura com elasticidade; a satisfação reage a preços acima do de referência.
+let precoBilhete = 24;
+function efeitoBilhete(p) {
+  const lugares = 32500, ref = 24;
+  const ocup = Math.max(35, Math.min(99, Math.round(86 * Math.pow(ref / p, 0.55))));
+  const assist = Math.round((lugares * ocup) / 100 / 50) * 50;
+  const receita = Math.round(assist * p * 0.96);
+  const satisf = Math.max(5, Math.min(95, Math.round(68 - (p - ref) * 1.4)));
+  return { ocup, assist, receita, satisf };
+}
+
+const BIL_BASE = efeitoBilhete(24);
+const sinal = (n) => (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n);
+
 const OBJECTIVOS = [
   ['Liga', 'Terminar nos 5 primeiros (Europa)', 'Top 5', () => `${tabela.findIndex((t) => t.nome === CLUBE.nome) + 1}.º`, 'bom', 'Dentro do objectivo'],
   ['Taça de Portugal', 'Chegar às meias-finais', 'Meias-finais', () => '4.ª eliminatória', 'aviso', 'Em curso'],
@@ -634,6 +650,7 @@ const OBJECTIVOS = [
 ];
 const tabelaObjectivos = (curta) => `<div class="tab-wrap"><table><thead><tr><th>Área</th><th>Objectivo do dono</th>${curta ? '' : '<th>Meta</th>'}<th>Desempenho</th><th>Estado</th></tr></thead><tbody>${OBJECTIVOS.slice(0, curta ? 4 : 99).map(([a, o, m, d, c, e]) => `<tr><td class="muted">${a}</td><td>${o}</td>${curta ? '' : `<td>${m}</td>`}<td><b>${d()}</b></td><td><span class="chip ${c}"><span class="pt"></span>${e}</span></td></tr>`).join('')}</tbody></table></div>`;
 function financasEcra() {
+  const bil = efeitoBilhete(precoBilhete);
   const fluxo = [['Receitas', null], ['Bilheteira', 0.92, 7.4], ['Direitos de TV', 1.46, 11.7], ['Patrocínios', 0.55, 4.4], ['Merchandising', 0.24, 1.9], ['Prémios (Liga Europa)', 0, 3.8], ['Venda de jogadores', 0, 4.5], ['Despesas', null], ['Salários dos jogadores', -1.20, -9.6], ['Salários dos juniores', -0.03, -0.24], ['Staff técnico', -0.21, -1.7], ['Compra de jogadores (parcelas)', 0, -3.0], ['Infraestruturas e obras', -0.16, -1.3], ['Juros', -0.05, -0.4], ['Outras despesas', -0.14, -1.1]];
   const linhas = fluxo.filter((x) => x[1] !== null);
   const tSem = linhas.reduce((a, x) => a + x[1], 0), tEp = linhas.reduce((a, x) => a + x[2], 0);
@@ -661,13 +678,14 @@ function financasEcra() {
         <h2 style="color:#e8eaee">Adeptos</h2>
         <div class="ad-grandes"><div><span class="num">1,2 M</span><span class="rot">Base de adeptos estimada</span></div><div><span class="num">48 300</span><span class="rot">Sócios</span></div></div>
         <div class="ad-linhas">
-          <div><span class="rot">Satisfação dos adeptos</span><b>68/100</b><div class="barra"><i style="width:68%;background:var(--bom)"></i></div></div>
-          <div><span class="rot">Assistência média</span><b>27 950</b></div>
-          <div><span class="rot">Taxa de ocupação</span><b>86%</b></div>
+          <div><span class="rot">Satisfação dos adeptos</span><b>${bil.satisf}/100</b><div class="barra"><i style="width:${bil.satisf}%;background:${bil.satisf >= 60 ? 'var(--bom)' : bil.satisf >= 40 ? 'var(--aviso)' : 'var(--mau)'}"></i></div></div>
+          <div><span class="rot">Assistência média</span><b>${bil.assist.toLocaleString('pt-PT')}</b></div>
+          <div><span class="rot">Taxa de ocupação</span><b>${bil.ocup}%</b></div>
           <div><span class="rot">Lugares anuais</span><b>19 400</b></div>
-          <div><span class="rot">Preço médio do bilhete</span><b>24 €</b></div>
+          <div class="ad-preco"><span class="rot">Preço médio do bilhete</span><div style="display:flex;align-items:center;gap:6px"><button class="btn" data-bil="-1" aria-label="Baixar o preço">−</button><b style="min-width:52px;text-align:center">${precoBilhete} €</b><button class="btn" data-bil="1" aria-label="Subir o preço">+</button></div></div>
           <div><span class="rot">Quota de sócio (ano)</span><b>96 €</b></div>
         </div>
+        ${precoBilhete !== 24 ? `<div class="ad-efeito"><b>Efeito previsto do novo preço</b> (antes: 24 €) · ocupação ${bil.ocup}% (${sinal(bil.ocup - 86)} pp) · bilheteira por jogo ${(bil.receita / 1e6).toFixed(2).replace('.', ',')} M€ (${bil.receita >= BIL_BASE.receita ? '+' : '−'}${Math.abs((bil.receita - BIL_BASE.receita) / 1e3).toFixed(0)} mil €) · satisfação ${sinal(bil.satisf - 68)} <button class="btn" data-bil="0" style="margin-left:8px;min-height:30px;padding:3px 10px">Repor 24 €</button></div>` : ''}
         <div class="rot" style="color:#cfd3da">Tendência: +2 300 sócios desde Julho · a vitória no dérbi subiu a satisfação</div>
       </div>
     </section>
@@ -1074,6 +1092,7 @@ function ligar(m) {
   m.querySelectorAll('[data-ala]').forEach((b) => b.addEventListener('click', () => { alaAcad = b.dataset.ala; desenhar(); }));
   m.querySelectorAll('[data-prev]').forEach((b) => b.addEventListener('click', () => { const [k, v] = b.dataset.prev.split(':'); previa[k] = +v; desenhar(); }));
   m.querySelector('#sel-tam')?.addEventListener('change', (e) => { tamClube = +e.target.value; desenhar(); });
+  m.querySelectorAll('[data-bil]').forEach((b) => b.addEventListener('click', () => { const d = +b.dataset.bil; precoBilhete = d === 0 ? 24 : Math.max(5, Math.min(120, precoBilhete + d)); const y = document.getElementById('principal').scrollTop; desenhar(); document.getElementById('principal').scrollTop = y; }));
   m.querySelectorAll('[data-tabe]').forEach((b) => b.addEventListener('click', () => { tabEst = b.dataset.tabe; desenhar(); }));
   m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
   const sc = m.querySelector('#sel-comp'); if (sc) sc.addEventListener('change', () => { compSel = sc.value; if (['UCL', 'UEL', 'UECL'].includes(compSel) && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
