@@ -222,6 +222,16 @@ td.r, th.r { text-align: right; }
 .noticia .chip { justify-self: start; }
 .ent-foto { position: relative; aspect-ratio: 736/260; border-radius: 10px; overflow: hidden; }
 .ent-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.chip.acento { background: color-mix(in srgb, var(--acento) 22%, transparent); color: #fff; }
+.noticia.com-foto { grid-template-columns: 78px 1fr 96px; }
+.noticia-foto { width: 96px; height: 64px; object-fit: cover; border-radius: 8px; }
+.reagir { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+.reagir-foto { position: relative; border-radius: 10px; overflow: hidden; min-height: 180px; }
+.reagir-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.tema-reacao { display: grid; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--linha); }
+.op-reacao { display: flex; flex-wrap: wrap; gap: 6px; }
+.tema-reacao .chip { justify-self: start; }
+@media (max-width: 640px) { .reagir { grid-template-columns: 1fr; } .reagir-foto { min-height: 160px; } .noticia.com-foto { grid-template-columns: 1fr; } .noticia-foto { width: 100%; height: 120px; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -841,7 +851,7 @@ const MEIOS = [
   { nome: 'Lance Directo', tipo: 'Online', rel: 55, linha: 'Rumores de mercado' },
 ];
 let pressaoMedia = 46, semanaImprensa = 0;
-const TOM = { elogio: ['bom', 'Elogio'], critica: ['mau', 'Crítica'], analise: ['info', 'Análise'], rumor: ['aviso', 'Rumor'], pressao: ['mau', 'Pressão'] };
+const TOM = { declaracao: ['acento', 'Declaração'], elogio: ['bom', 'Elogio'], critica: ['mau', 'Crítica'], analise: ['info', 'Análise'], rumor: ['aviso', 'Rumor'], pressao: ['mau', 'Pressão'] };
 const tomChip = (t) => `<span class="chip ${TOM[t][0]}">${TOM[t][1]}</span>`;
 // Destaques semanais (no protótipo, dois conjuntos que alternam; na app vêm dos acontecimentos da semana).
 const DESTAQUES = [
@@ -889,7 +899,27 @@ const GUIOES = [{
   ],
 }];
 const PEDIDOS_ENTREVISTA = [{ guiao: 0, meio: 'Tribuna Desportiva', quando: 'Hoje · depois do dérbi', estado: 'pendente' }, { guiao: null, meio: 'Mesa Redonda TV', quando: 'Quinta-feira · programa de debate', estado: 'pendente' }];
-let entrevista = null, daImprensa = false; // { g, passo, respostas: [] }
+let entrevista = null, daImprensa = false, reacao = null;
+// As respostas e reacções do utilizador viram notícia: entram nos destaques desta semana e no resumo da semana seguinte.
+const DECLARACOES = []; // { semana, tom: 'declaracao', meio, titulo, texto, img }
+const TEMAS_REACAO = [
+  { tema: '"Sem médio defensivo, este plantel não aguenta Janeiro"', origem: 'Mesa Redonda TV · crítica', opcoes: [
+    { texto: 'Pedir calma: "Este grupo merece confiança"', tom: 'calmo', img: 'imprensa/reacao-relvado.jpg', titulo: `Treinador pede calma: "Este grupo merece confiança"`, efeitos: { pressao: -4, moral: 2 } },
+    { texto: 'Responder aos comentadores: "Falam sem ver os treinos"', tom: 'provocador', img: 'imprensa/declaracoes.jpg', titulo: `Resposta seca à Mesa Redonda: "Falam sem ver os treinos"`, efeitos: { pressao: 5, adeptos: 3, rel: -6 } },
+    { texto: 'Ignorar', tom: 'silêncio', img: null, titulo: null, efeitos: {} },
+  ] },
+  { tema: 'Real Montalvo prepara 7,5 M€ por Rafael Salouro', origem: 'Lance Directo · rumor', opcoes: [
+    { texto: 'Comunicado da direcção: "O Rafael não está à venda"', tom: 'firme', img: 'imprensa/reacao-camarote.jpg', titulo: `Direcção fecha a porta: "O Rafael não está à venda"`, efeitos: { adeptos: 4, moral: 2, dono: 1 } },
+    { texto: 'Deixar em aberto: "Só sai pela cláusula"', tom: 'negociador', img: 'imprensa/declaracoes.jpg', titulo: `${CLUBE.curto} abre a porta: Salouro só sai pela cláusula de 35 M€`, efeitos: { adeptos: -2, pressao: 2 } },
+    { texto: 'Ignorar', tom: 'silêncio', img: null, titulo: null, efeitos: {} },
+  ] },
+];
+function declarar(meio, titulo, texto, img, efeitos) {
+  DECLARACOES.push({ semana: semanaImprensa, tom: 'declaracao', meio, titulo, texto, img });
+  pressaoMedia = Math.max(0, Math.min(100, pressaoMedia + (efeitos.pressao ?? 0)));
+}
+const linhaNoticia = ([t, meio, tit, txt, img]) => `<div class="noticia ${img ? 'com-foto' : ''}">${tomChip(t)}<div><b>${tit}</b><div class="rot">${meio}</div><div style="margin-top:4px">${txt}</div></div>${img ? `<img class="noticia-foto" src="${img}" alt="">` : ''}</div>`;
+const declDaSemana = (k) => DECLARACOES.filter((d) => d.semana === k).map((d) => [d.tom, d.meio, d.titulo, d.texto, d.img]); // { g, passo, respostas: [] }
 const NOME_EFEITO = { pressao: 'Pressão mediática', adeptos: 'Adeptos', moral: 'Moral do plantel', dono: 'Confiança do dono', rel: 'Relação com o meio' };
 function efeitosTxt(e) { return Object.entries(e).filter(([, v]) => v).map(([k, v]) => `<span class="chip ${k === 'pressao' ? (v > 0 ? 'aviso' : 'bom') : v > 0 ? 'bom' : 'mau'}">${NOME_EFEITO[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}</span>`).join(' '); }
 function medidorPressao(v) { const cor = v >= 70 ? 'var(--mau)' : v >= 45 ? 'var(--aviso)' : 'var(--bom)'; const txt = v >= 70 ? 'Muito alta' : v >= 45 ? 'Moderada' : 'Baixa'; return `<div class="num" style="font-size:40px;line-height:1">${v}<span class="muted" style="font-size:16px">/100</span></div><div class="barra" style="margin:8px 0 4px"><i style="width:${v}%;background:${cor}"></i></div><div class="rot">${txt}</div>`; }
@@ -898,12 +928,14 @@ function imprensaEcra() {
   return `<section class="banner-mercado banner-imprensa"><img src="imprensa/estudio.jpg" alt=""><div class="bm-topo"><h1>Imprensa</h1><span>Opinião, análise, pressão e entrevistas</span></div><button class="btn imp-fechar" id="fechar">Fechar</button></section>
   <div class="grelha">
     <section class="c s8"><h2>Destaques desta semana<span class="acao"><button class="btn" id="b-semana">Ver resumo da semana</button></span></h2>
-      ${sem.map(([t, meio, tit, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${tit}</b><div class="rot">${meio}</div><div style="margin-top:4px;color:var(--texto-2,#cfd3da)">${txt}</div></div></div>`).join('')}</section>
+      ${[...declDaSemana(semanaImprensa), ...sem].map(linhaNoticia).join('')}</section>
     <section class="c s4"><h2>Pressão mediática</h2>${medidorPressao(pressaoMedia)}
       <div style="margin-top:12px">${kv([['Resultados recentes', '<span class="chip bom">a aliviar</span>'], ['Expectativa do dono', '<span class="chip aviso">Europa</span>'], ['Rumores de mercado', '<span class="chip aviso">3 activos</span>'], ['Polémicas', '<span class="chip">nenhuma</span>']])}</div></section>
     <section class="c s6 entrevistas"><div class="ent-foto"><img src="imprensa/microfone.jpg" alt=""></div><h2 style="margin-top:12px">Pedidos de entrevista</h2>
       ${PEDIDOS_ENTREVISTA.map((x, i) => `<div class="linha-kv"><span><b>${x.meio}</b><div class="rot">${x.quando}${x.guiao == null ? ' · guião por chegar' : ''}</div></span><span style="display:flex;gap:6px;align-items:center">${x.estado === 'pendente' ? `<button class="btn" data-recusa="${i}">Recusar</button><button class="btn prim" data-entrev="${i}" ${x.guiao == null ? 'disabled' : ''}>Dar entrevista</button>` : `<span class="chip ${x.estado === 'dada' ? 'bom' : 'mau'}">${x.estado === 'dada' ? 'Dada' : 'Recusada'}</span>`}</span></div>`).join('')}
       <div class="rot" style="margin-top:8px">Recusar uma entrevista baixa a relação com o meio (−5) e pode virar notícia.</div></section>
+    <section class="c s12 reagir"><div class="reagir-foto"><img src="imprensa/reacao-relvado.jpg" alt=""></div><div><h2>Reagir</h2><div class="rot" style="margin-bottom:6px">As tuas respostas e reacções viram notícia.</div>
+      ${TEMAS_REACAO.map((t, i) => `<div class="tema-reacao"><div><b>${t.tema}</b><div class="rot">${t.origem}</div></div>${t.feito ? `<span class="chip ${t.feito === 'silêncio' ? '' : 'info'}">${t.feito === 'silêncio' ? 'Ignorado' : 'Respondido'}</span>` : `<div class="op-reacao">${t.opcoes.map((o, j) => `<button class="btn" data-reagir="${i}:${j}">${o.texto}</button>`).join('')}</div>`}</div>`).join('')}</div></section>
     <section class="c s6"><h2>Opinião</h2>${OPINIOES.map(([quem, meio, t, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${quem}</b> <span class="rot">· ${meio}</span><div style="margin-top:4px">"${txt}"</div></div></div>`).join('')}</section>
     <section class="c s12"><h2>Relação com os meios</h2><div class="tab-wrap"><table><thead><tr><th>Meio</th><th>Tipo</th><th>Linha editorial</th><th>Relação</th></tr></thead><tbody>${MEIOS.map((x) => `<tr><td><b>${x.nome}</b></td><td>${x.tipo}</td><td class="muted">${x.linha}</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:8px"><div class="barra" style="flex:1"><i style="width:${x.rel}%;background:${x.rel >= 60 ? 'var(--bom)' : x.rel >= 45 ? 'var(--aviso)' : 'var(--mau)'}"></i></div><b>${x.rel}</b></div></td></tr>`).join('')}</tbody></table></div></section>
   </div>`;
@@ -911,7 +943,7 @@ function imprensaEcra() {
 function modalSemana() {
   const sem = DESTAQUES[semanaImprensa % DESTAQUES.length], capa = CAPAS_SEMANA[semanaImprensa % CAPAS_SEMANA.length];
   return `<div class="modal modal-rel" role="dialog" aria-label="Destaques da semana na imprensa">${capaRelatorio('Destaques da semana na imprensa', `Semana ${46 + semanaImprensa} · pressão mediática ${pressaoMedia}/100`, capa)}<div class="modal-corpo">
-    ${sem.map(([t, meio, tit, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${tit}</b><div class="rot">${meio}</div><div style="margin-top:4px">${txt}</div></div></div>`).join('')}
+    ${[...declDaSemana(semanaImprensa - 1), ...sem].map(linhaNoticia).join('')}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" data-ir="imprensa">Abrir Imprensa</button><button class="btn prim" id="fechar">Continuar</button></div></div></div>`;
 }
 function modalEntrevista() {
@@ -920,7 +952,7 @@ function modalEntrevista() {
     const tot = {}; entrevista.respostas.forEach((r) => Object.entries(r.efeitos).forEach(([k, v]) => (tot[k] = (tot[k] ?? 0) + v)));
     const tons = entrevista.respostas.map((r) => r.tom);
     const manchete = tons.includes('provocador') ? `"Candidatos são os que gastam mais": treinador do ${CLUBE.curto} atira-se aos rivais` : tons.includes('confiante') ? `Treinador do ${CLUBE.curto} assume: "Viemos para ganhar tudo"` : tons.includes('exigente') ? `Treinador pressiona a direcção: "Sem reforço vai ser difícil"` : `Treinador do ${CLUBE.curto} de pés no chão: "O título decide-se em Maio"`;
-    return `<div class="modal modal-rel" role="dialog" aria-label="Entrevista terminada">${capaRelatorio('Entrevista terminada', `${g.meio} · ${g.contexto}`, g.capa)}<div class="modal-corpo"><div class="rot">Manchete prevista amanhã</div><h3 style="margin:4px 0 12px;font-family:var(--f-num);font-size:22px">${manchete}</h3><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(tot)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
+    return `<div class="modal modal-rel" role="dialog" aria-label="Entrevista terminada">${capaRelatorio('Entrevista terminada', `${g.meio} · ${g.contexto}`, 'imprensa/declaracoes.jpg')}<div class="modal-corpo"><div class="rot">Manchete prevista amanhã</div><h3 style="margin:4px 0 12px;font-family:var(--f-num);font-size:22px">${manchete}</h3><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(tot)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
   }
   const q = g.perguntas[entrevista.passo];
   return `<div class="modal modal-rel" role="dialog" aria-label="Entrevista">${capaRelatorio(g.titulo, `${g.meio} · ${g.contexto} · pergunta ${entrevista.passo + 1} de ${g.perguntas.length}`, g.capa)}<div class="modal-corpo"><div class="pergunta">${q.texto}</div>
@@ -1275,6 +1307,7 @@ function desenharModal() {
     const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
     if (modal === 'imprensa') el.innerHTML = `<div class="modal modal-imp" role="dialog" aria-label="Imprensa">${imprensaEcra()}</div>`;
     else if (modal === 'semana') el.innerHTML = modalSemana();
+    else if (modal === 'reacao') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="A tua reacção">${capaRelatorio('A tua reacção é notícia', reacao.t.origem, reacao.o.img)}<div class="modal-corpo"><div class="rot">Amanhã nos jornais</div><h3 style="margin:4px 0 8px;font-family:var(--f-num);font-size:22px">${reacao.o.titulo}</h3><div class="rot" style="margin-bottom:10px">Em resposta a: ${reacao.t.tema}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(reacao.o.efeitos)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else if (modal === 'entrev') el.innerHTML = modalEntrevista();
     else if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
     else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
@@ -1284,14 +1317,16 @@ function desenharModal() {
   }
   document.body.appendChild(el);
   el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
-  el.querySelector('#fechar').addEventListener('click', () => { if (daImprensa && (modal === 'entrev' || modal === 'semana')) { daImprensa = false; modal = 'imprensa'; desenhar(); desenharModal(); return; } daImprensa = false; modal = null; mesCal = null; msgAberta = null; desenhar(); });
+  el.querySelector('#fechar').addEventListener('click', () => { if (daImprensa && (modal === 'entrev' || modal === 'semana' || modal === 'reacao')) { daImprensa = false; modal = 'imprensa'; desenhar(); desenharModal(); return; } daImprensa = false; modal = null; mesCal = null; msgAberta = null; desenhar(); });
   el.querySelectorAll('[data-ref]').forEach((b) => b.addEventListener('click', () => { modal = null; msgAberta = null; if (b.dataset.ref === 'mercado') { tabMercado = 'Transferências'; location.hash = 'mercado'; } desenhar(); }));
   el.querySelectorAll('[data-ir]').forEach((b) => b.addEventListener('click', () => { modal = 'imprensa'; desenharModal(); }));
+  el.querySelectorAll('[data-reagir]').forEach((b) => b.addEventListener('click', () => { const [i, j] = b.dataset.reagir.split(':').map(Number), t = TEMAS_REACAO[i], o = t.opcoes[j]; t.feito = o.tom;
+    if (o.titulo) { declarar(t.origem.split(' · ')[0], o.titulo, `Reacção a: ${t.tema}`, o.img, o.efeitos); reacao = { t, o }; modal = 'reacao'; daImprensa = true; desenhar(); desenharModal(); } else { const y = el.querySelector('.modal').scrollTop; desenharModal(); document.querySelector('.modal').scrollTop = y; } }));
   el.querySelector('#b-semana')?.addEventListener('click', () => { modal = 'semana'; daImprensa = true; desenharModal(); });
   el.querySelectorAll('[data-entrev]').forEach((b) => b.addEventListener('click', () => { entrevista = { g: PEDIDOS_ENTREVISTA[+b.dataset.entrev].guiao, passo: 0, respostas: [] }; modal = 'entrev'; daImprensa = true; desenharModal(); }));
   el.querySelectorAll('[data-recusa]').forEach((b) => b.addEventListener('click', () => { const p = PEDIDOS_ENTREVISTA[+b.dataset.recusa]; p.estado = 'recusada'; const x = MEIOS.find((y) => y.nome === p.meio); x.rel = Math.max(0, x.rel - 5); const y = el.querySelector('.modal').scrollTop; desenhar(); desenharModal(); document.querySelector('.modal').scrollTop = y; }));
   el.querySelectorAll('[data-resp]').forEach((b) => b.addEventListener('click', () => { const g = GUIOES[entrevista.g], r = g.perguntas[entrevista.passo].respostas[+b.dataset.resp]; entrevista.respostas.push(r); entrevista.passo++;
-    if (entrevista.passo >= g.perguntas.length) { const p = PEDIDOS_ENTREVISTA.find((x) => x.guiao === entrevista.g); if (p) p.estado = 'dada'; entrevista.respostas.forEach((x) => { pressaoMedia = Math.max(0, Math.min(100, pressaoMedia + (x.efeitos.pressao ?? 0))); const m = MEIOS.find((y) => y.nome === g.meio); m.rel = Math.max(0, Math.min(100, m.rel + 2 + (x.efeitos.rel ?? 0))); }); desenhar(); }
+    if (entrevista.passo >= g.perguntas.length) { const p = PEDIDOS_ENTREVISTA.find((x) => x.guiao === entrevista.g); if (p) p.estado = 'dada'; const tons = entrevista.respostas.map((r) => r.tom); DECLARACOES.push({ semana: semanaImprensa, tom: 'declaracao', meio: g.meio, titulo: tons.includes('provocador') ? `"Candidatos são os que gastam mais": treinador do ${CLUBE.curto} atira-se aos rivais` : tons.includes('confiante') ? `Treinador do ${CLUBE.curto} assume: "Viemos para ganhar tudo"` : tons.includes('exigente') ? 'Treinador pressiona a direcção: "Sem reforço vai ser difícil"' : `Treinador do ${CLUBE.curto} de pés no chão: "O título decide-se em Maio"`, texto: `${g.titulo}: ${entrevista.respostas.length} respostas, tom ${tons.join(', ')}.`, img: 'imprensa/declaracoes.jpg' }); entrevista.respostas.forEach((x) => { pressaoMedia = Math.max(0, Math.min(100, pressaoMedia + (x.efeitos.pressao ?? 0))); const m = MEIOS.find((y) => y.nome === g.meio); m.rel = Math.max(0, Math.min(100, m.rel + 2 + (x.efeitos.rel ?? 0))); }); desenhar(); }
     desenharModal(); }));
   el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };
