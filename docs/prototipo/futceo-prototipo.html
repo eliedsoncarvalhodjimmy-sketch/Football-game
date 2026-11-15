@@ -841,6 +841,9 @@ function classificacaoEcra() {
 
 
 // ---------- Imprensa (protótipo) ----------
+// Quem fala à imprensa é o utilizador: Director (modo Director) ou Presidente (modo Dono).
+const MODO = 'director';
+const CARGO = MODO === 'dono' ? 'Presidente' : 'Director';
 // Meios fictícios. Relação 0–100: sobe com entrevistas dadas e respostas cordiais, desce com recusas e ataques.
 const MEIOS = [
   { nome: 'Tribuna Desportiva', tipo: 'Jornal', rel: 62, linha: 'Exigente, mas justo' },
@@ -860,14 +863,14 @@ const DESTAQUES = [
     ['analise', 'Canal Futebol 24', 'Como a saída a três mudou o Serra do Freixo', 'O recuo do médio defensivo entre os centrais libertou os laterais: 8 cruzamentos por jogo, mais 3 do que em Setembro.'],
     ['rumor', 'Lance Directo', 'Real Montalvo prepara 7,5 M€ por Rafael Salouro', 'O avançado de 21 anos estará na lista do líder; o clube não quer vender antes do Verão.'],
     ['critica', 'Mesa Redonda TV', '"Sem médio defensivo, este plantel não aguenta Janeiro"', 'Os comentadores apontam a lesão de Hugo Teiouro e a falta de alternativas no meio-campo.'],
-    ['pressao', 'Diário do Golo', 'Dono quer a Europa: treinador sem margem para escorregar', 'Fonte próxima do conselho fala em "ultimato discreto" até ao fim da primeira volta.'],
+    ['pressao', 'Diário do Golo', `Dono quer a Europa: ${MODO === 'dono' ? 'adeptos' : 'director'} sem margem para escorregar`, 'Fonte próxima do conselho fala em "ultimato discreto" até ao fim da primeira volta.'],
   ],
   [
     ['critica', 'Diário do Golo', 'Desastre em Alvarenga: três golos sofridos em 20 minutos', 'A defesa voltou a mostrar fragilidade nas bolas paradas; quarto jogo seguido a sofrer de canto.'],
     ['analise', 'Canal Futebol 24', 'Os números de Salouro: 9 golos e 0,61 de golos esperados por jogo', 'Finaliza acima do esperado desde Outubro e é o avançado que mais pressiona na liga.'],
     ['elogio', 'Rádio Bancada', 'Academia em destaque: dois sub-18 chamados à selecção', 'Kevin SmitVries e Gonçalo Valota foram convocados para o estágio de Dezembro.'],
     ['rumor', 'Lance Directo', 'Médio turco na mira para Janeiro', 'Yusuf Taşsoy, do Kızılpınarspor, terá sido observado três vezes pelo departamento de scouting.'],
-    ['pressao', 'Mesa Redonda TV', '"Mais uma derrota e a Europa fica longe"', 'Debate aceso sobre o futuro do treinador; 58% dos telespectadores dizem que deve continuar.'],
+    ['pressao', 'Mesa Redonda TV', '"Mais uma derrota e a Europa fica longe"', 'Debate aceso sobre o rumo do clube; 58% dos telespectadores dizem que deve continuar.'],
   ],
 ];
 const CAPAS_SEMANA = ['imprensa/estudio.jpg', 'imprensa/analise.jpg', 'imprensa/debate.jpg'];
@@ -891,9 +894,9 @@ const GUIOES = [{
       { texto: 'Não falo de jogadores de outros clubes nem de rumores.', tom: 'evasivo', efeitos: { rel: -2 } },
       { texto: 'Só sai pela cláusula. Quem o quiser, que pague.', tom: 'firme', efeitos: { adeptos: 3, moral: 2, pressao: 2 } },
     ] },
-    { texto: 'Pediu um médio defensivo à direcção. Vai chegar?', respostas: [
-      { texto: 'Estamos a trabalhar com o director desportivo, há confiança.', tom: 'calmo', efeitos: { dono: 2 } },
-      { texto: 'Se não chegar, vai ser muito difícil manter este ritmo.', tom: 'exigente', efeitos: { pressao: 5, dono: -4 } },
+    { texto: 'O treinador pediu um médio defensivo. Vai chegar?', respostas: [
+      { texto: 'Estamos a trabalhar com o treinador, há confiança.', tom: 'calmo', efeitos: { dono: 1 } },
+      { texto: 'Vai chegar. Já estamos a negociar e não vamos falhar.', tom: 'exigente', efeitos: { pressao: 5, adeptos: 3, dono: -2 } },
       { texto: 'Temos soluções em casa. A academia está a trabalhar bem.', tom: 'confiante', efeitos: { adeptos: 2, moral: 1 } },
     ] },
   ],
@@ -904,7 +907,7 @@ let entrevista = null, daImprensa = false, reacao = null;
 const DECLARACOES = []; // { semana, tom: 'declaracao', meio, titulo, texto, img }
 const TEMAS_REACAO = [
   { tema: '"Sem médio defensivo, este plantel não aguenta Janeiro"', origem: 'Mesa Redonda TV · crítica', opcoes: [
-    { texto: 'Pedir calma: "Este grupo merece confiança"', tom: 'calmo', img: 'imprensa/reacao-relvado.jpg', titulo: `Treinador pede calma: "Este grupo merece confiança"`, efeitos: { pressao: -4, moral: 2 } },
+    { texto: 'Pedir calma: "Este grupo merece confiança"', tom: 'calmo', img: 'imprensa/reacao-relvado.jpg', titulo: `${CARGO} pede calma: "Este grupo merece confiança"`, efeitos: { pressao: -4, moral: 2 } },
     { texto: 'Responder aos comentadores: "Falam sem ver os treinos"', tom: 'provocador', img: 'imprensa/declaracoes.jpg', titulo: `Resposta seca à Mesa Redonda: "Falam sem ver os treinos"`, efeitos: { pressao: 5, adeptos: 3, rel: -6 } },
     { texto: 'Ignorar', tom: 'silêncio', img: null, titulo: null, efeitos: {} },
   ] },
@@ -951,7 +954,7 @@ function modalEntrevista() {
   if (entrevista.passo >= g.perguntas.length) {
     const tot = {}; entrevista.respostas.forEach((r) => Object.entries(r.efeitos).forEach(([k, v]) => (tot[k] = (tot[k] ?? 0) + v)));
     const tons = entrevista.respostas.map((r) => r.tom);
-    const manchete = tons.includes('provocador') ? `"Candidatos são os que gastam mais": treinador do ${CLUBE.curto} atira-se aos rivais` : tons.includes('confiante') ? `Treinador do ${CLUBE.curto} assume: "Viemos para ganhar tudo"` : tons.includes('exigente') ? `Treinador pressiona a direcção: "Sem reforço vai ser difícil"` : `Treinador do ${CLUBE.curto} de pés no chão: "O título decide-se em Maio"`;
+    const manchete = tons.includes('provocador') ? `"Candidatos são os que gastam mais": ${CARGO.toLowerCase()} do ${CLUBE.curto} atira-se aos rivais` : tons.includes('confiante') ? `${CARGO} do ${CLUBE.curto} assume: "Viemos para ganhar tudo"` : tons.includes('exigente') ? `${CARGO} garante: "O médio defensivo chega em Janeiro"` : `${CARGO} do ${CLUBE.curto} de pés no chão: "O título decide-se em Maio"`;
     return `<div class="modal modal-rel" role="dialog" aria-label="Entrevista terminada">${capaRelatorio('Entrevista terminada', `${g.meio} · ${g.contexto}`, 'imprensa/declaracoes.jpg')}<div class="modal-corpo"><div class="rot">Manchete prevista amanhã</div><h3 style="margin:4px 0 12px;font-family:var(--f-num);font-size:22px">${manchete}</h3><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(tot)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
   }
   const q = g.perguntas[entrevista.passo];
@@ -1326,7 +1329,7 @@ function desenharModal() {
   el.querySelectorAll('[data-entrev]').forEach((b) => b.addEventListener('click', () => { entrevista = { g: PEDIDOS_ENTREVISTA[+b.dataset.entrev].guiao, passo: 0, respostas: [] }; modal = 'entrev'; daImprensa = true; desenharModal(); }));
   el.querySelectorAll('[data-recusa]').forEach((b) => b.addEventListener('click', () => { const p = PEDIDOS_ENTREVISTA[+b.dataset.recusa]; p.estado = 'recusada'; const x = MEIOS.find((y) => y.nome === p.meio); x.rel = Math.max(0, x.rel - 5); const y = el.querySelector('.modal').scrollTop; desenhar(); desenharModal(); document.querySelector('.modal').scrollTop = y; }));
   el.querySelectorAll('[data-resp]').forEach((b) => b.addEventListener('click', () => { const g = GUIOES[entrevista.g], r = g.perguntas[entrevista.passo].respostas[+b.dataset.resp]; entrevista.respostas.push(r); entrevista.passo++;
-    if (entrevista.passo >= g.perguntas.length) { const p = PEDIDOS_ENTREVISTA.find((x) => x.guiao === entrevista.g); if (p) p.estado = 'dada'; const tons = entrevista.respostas.map((r) => r.tom); DECLARACOES.push({ semana: semanaImprensa, tom: 'declaracao', meio: g.meio, titulo: tons.includes('provocador') ? `"Candidatos são os que gastam mais": treinador do ${CLUBE.curto} atira-se aos rivais` : tons.includes('confiante') ? `Treinador do ${CLUBE.curto} assume: "Viemos para ganhar tudo"` : tons.includes('exigente') ? 'Treinador pressiona a direcção: "Sem reforço vai ser difícil"' : `Treinador do ${CLUBE.curto} de pés no chão: "O título decide-se em Maio"`, texto: `${g.titulo}: ${entrevista.respostas.length} respostas, tom ${tons.join(', ')}.`, img: 'imprensa/declaracoes.jpg' }); entrevista.respostas.forEach((x) => { pressaoMedia = Math.max(0, Math.min(100, pressaoMedia + (x.efeitos.pressao ?? 0))); const m = MEIOS.find((y) => y.nome === g.meio); m.rel = Math.max(0, Math.min(100, m.rel + 2 + (x.efeitos.rel ?? 0))); }); desenhar(); }
+    if (entrevista.passo >= g.perguntas.length) { const p = PEDIDOS_ENTREVISTA.find((x) => x.guiao === entrevista.g); if (p) p.estado = 'dada'; const tons = entrevista.respostas.map((r) => r.tom); DECLARACOES.push({ semana: semanaImprensa, tom: 'declaracao', meio: g.meio, titulo: tons.includes('provocador') ? `"Candidatos são os que gastam mais": ${CARGO.toLowerCase()} do ${CLUBE.curto} atira-se aos rivais` : tons.includes('confiante') ? `${CARGO} do ${CLUBE.curto} assume: "Viemos para ganhar tudo"` : tons.includes('exigente') ? `${CARGO} garante: "O médio defensivo chega em Janeiro"` : `${CARGO} do ${CLUBE.curto} de pés no chão: "O título decide-se em Maio"`, texto: `${g.titulo}: ${entrevista.respostas.length} respostas, tom ${tons.join(', ')}.`, img: 'imprensa/declaracoes.jpg' }); entrevista.respostas.forEach((x) => { pressaoMedia = Math.max(0, Math.min(100, pressaoMedia + (x.efeitos.pressao ?? 0))); const m = MEIOS.find((y) => y.nome === g.meio); m.rel = Math.max(0, Math.min(100, m.rel + 2 + (x.efeitos.rel ?? 0))); }); desenhar(); }
     desenharModal(); }));
   el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };

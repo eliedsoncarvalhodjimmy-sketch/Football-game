@@ -17,7 +17,7 @@ perguntas e respostas pré-definidas; cada resposta tem um **tom** e **efeitos**
 | `resposta.efeitos` | não | números (de −10 a +10) em: `pressao` (pressão mediática), `adeptos`, `moral` (plantel), `dono` (confiança do dono), `rel` (relação com o meio), `treinador` (confiança do treinador, no modo Dono) |
 | `manchete` | não | por tom: o título do jornal do dia seguinte. Pode usar `{clube}`, `{adversario}`, `{jogador}`, `{treinador}` |
 
-Os nomes entre chavetas são substituídos pelo jogo (`{clube}` = nome curto do clube do utilizador).
+Os nomes entre chavetas são substituídos pelo jogo (`{clube}` = nome curto do clube do utilizador; `{cargo}` = Director no modo Director, Presidente no modo Dono). Quem responde às entrevistas é sempre o utilizador (Director ou Presidente), nunca o treinador.
 
 ## Exemplo
 
@@ -39,8 +39,8 @@ Os nomes entre chavetas são substituídos pelo jogo (`{clube}` = nome curto do 
     }
   ],
   "manchete": {
-    "calmo": "Treinador do {clube} de pés no chão: \"O título decide-se em Maio\"",
-    "confiante": "Treinador do {clube} assume: \"Viemos para ganhar tudo\"",
+    "calmo": "{cargo} do {clube} de pés no chão: \"O título decide-se em Maio\"",
+    "confiante": "{cargo} do {clube} assume: \"Viemos para ganhar tudo\"",
     "provocador": "\"Candidatos são os que gastam mais\": {clube} atira-se aos rivais"
   }
 }
