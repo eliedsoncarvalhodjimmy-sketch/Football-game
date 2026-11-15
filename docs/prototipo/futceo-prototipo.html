@@ -215,6 +215,8 @@ td.r, th.r { text-align: right; }
 .capa-rel { position: relative; aspect-ratio: 736/300; overflow: hidden; border-radius: 16px 16px 0 0; }
 .capa-rel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
 .capa-rel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,0) 35%, rgba(11,13,16,.88) 100%); }
+.modal-imp { width: min(1120px, 100%); padding: 12px; } .modal-imp .banner-imprensa { margin-bottom: 12px; }
+.imp-fechar { position: absolute; top: 12px; right: 12px; z-index: 2; background: rgba(11,13,16,.75); }
 .banner-imprensa img { object-position: center 45%; }
 .noticia { display: grid; grid-template-columns: 78px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--linha); align-items: start; }
 .noticia .chip { justify-self: start; }
@@ -360,7 +362,7 @@ const ICON = {
   cont: '<path d="M12 2l2.9 6.2 6.6.6-5 4.5 1.5 6.6L12 16.6 6 19.9l1.5-6.6-5-4.5 6.6-.6z"/>',
   mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
 };
-const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças e Conselho'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições'], ['imprensa', 'Imprensa']];
+const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças e Conselho'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições']];
 const INFERIOR = ['inicio', 'plantel', 'mercado', 'classificacao'];
 const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 
@@ -887,13 +889,13 @@ const GUIOES = [{
   ],
 }];
 const PEDIDOS_ENTREVISTA = [{ guiao: 0, meio: 'Tribuna Desportiva', quando: 'Hoje · depois do dérbi', estado: 'pendente' }, { guiao: null, meio: 'Mesa Redonda TV', quando: 'Quinta-feira · programa de debate', estado: 'pendente' }];
-let entrevista = null; // { g, passo, respostas: [] }
+let entrevista = null, daImprensa = false; // { g, passo, respostas: [] }
 const NOME_EFEITO = { pressao: 'Pressão mediática', adeptos: 'Adeptos', moral: 'Moral do plantel', dono: 'Confiança do dono', rel: 'Relação com o meio' };
 function efeitosTxt(e) { return Object.entries(e).filter(([, v]) => v).map(([k, v]) => `<span class="chip ${k === 'pressao' ? (v > 0 ? 'aviso' : 'bom') : v > 0 ? 'bom' : 'mau'}">${NOME_EFEITO[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}</span>`).join(' '); }
 function medidorPressao(v) { const cor = v >= 70 ? 'var(--mau)' : v >= 45 ? 'var(--aviso)' : 'var(--bom)'; const txt = v >= 70 ? 'Muito alta' : v >= 45 ? 'Moderada' : 'Baixa'; return `<div class="num" style="font-size:40px;line-height:1">${v}<span class="muted" style="font-size:16px">/100</span></div><div class="barra" style="margin:8px 0 4px"><i style="width:${v}%;background:${cor}"></i></div><div class="rot">${txt}</div>`; }
 function imprensaEcra() {
   const sem = DESTAQUES[semanaImprensa % DESTAQUES.length];
-  return `<section class="banner-mercado banner-imprensa"><img src="imprensa/estudio.jpg" alt=""><div class="bm-topo"><h1>Imprensa</h1><span>Opinião, análise, pressão e entrevistas</span></div></section>
+  return `<section class="banner-mercado banner-imprensa"><img src="imprensa/estudio.jpg" alt=""><div class="bm-topo"><h1>Imprensa</h1><span>Opinião, análise, pressão e entrevistas</span></div><button class="btn imp-fechar" id="fechar">Fechar</button></section>
   <div class="grelha">
     <section class="c s8"><h2>Destaques desta semana<span class="acao"><button class="btn" id="b-semana">Ver resumo da semana</button></span></h2>
       ${sem.map(([t, meio, tit, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${tit}</b><div class="rot">${meio}</div><div style="margin-top:4px;color:var(--texto-2,#cfd3da)">${txt}</div></div></div>`).join('')}</section>
@@ -1232,7 +1234,7 @@ function historicoEcra() {
 }
 
 // ---------- navegação e acento ----------
-const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, staff: staffEcra, academia: academiaEcra, mercado: mercadoEcra, financas: financasEcra, infra: infraEcra, classificacao: classificacaoEcra, imprensa: imprensaEcra };
+const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, staff: staffEcra, academia: academiaEcra, mercado: mercadoEcra, financas: financasEcra, infra: infraEcra, classificacao: classificacaoEcra };
 function rota() { const h = location.hash.replace('#', ''); return RENDER[h] ? h : 'inicio'; }
 function desenhar() {
   const r = rota();
@@ -1248,6 +1250,7 @@ function desenhar() {
   const topo = `<div class="barra-topo"><div class="data"><b>${hoje.getUTCDate()} ${MESES[hoje.getUTCMonth()].slice(0, 3)} ${hoje.getUTCFullYear()}</b><span>${DSEM[hoje.getUTCDay()]} · Época 2026/27</span></div>
     <button class="icone-btn" id="b-cal" aria-label="Calendário">${svg('cal')}</button>
     <button class="icone-btn" id="b-msg" aria-label="Mensagens">${svg('env')}${naoLidas ? `<span class="badge">${naoLidas}</span>` : ''}</button>
+    <button class="icone-btn" id="b-imp" aria-label="Imprensa" title="Imprensa">${svg('imprensa')}${PEDIDOS_ENTREVISTA.some((x) => x.estado === 'pendente' && x.guiao != null) ? '<span class="badge">!</span>' : ''}</button>
     <button class="btn prim continuar" id="b-cont">Continuar ${svg('seta').replace('<svg', '<svg style="width:16px;height:16px;vertical-align:-3px"')}</button></div>`;
   m.innerHTML = topo + RENDER[r]() + `<div class="aviso-proto">Protótipo com dados fictícios do mundo gerado. <button class="btn" id="demo-pos" style="min-height:30px;padding:4px 10px">Exemplo: o meu clube em 14.º</button> Cor do clube (acento): <span class="cores">${[['#d63a3a', '#f1f1f1'], ['#2c63c9', '#ffffff'], ['#1d9a6c', '#ffffff'], ['#e2a33a', '#111111'], ['#7a3cc7', '#ffffff']].map((c) => `<button data-cor="${c[0]}" data-cor2="${c[1]}" style="background:${c[0]}" aria-label="Acento ${c[0]}"></button>`).join('')}</span></div>`;
   ligar(m);
@@ -1270,7 +1273,8 @@ function desenharModal() {
       <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
     const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
-    if (modal === 'semana') el.innerHTML = modalSemana();
+    if (modal === 'imprensa') el.innerHTML = `<div class="modal modal-imp" role="dialog" aria-label="Imprensa">${imprensaEcra()}</div>`;
+    else if (modal === 'semana') el.innerHTML = modalSemana();
     else if (modal === 'entrev') el.innerHTML = modalEntrevista();
     else if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
     else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
@@ -1280,9 +1284,12 @@ function desenharModal() {
   }
   document.body.appendChild(el);
   el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
-  el.querySelector('#fechar').addEventListener('click', () => { modal = null; mesCal = null; msgAberta = null; desenhar(); });
+  el.querySelector('#fechar').addEventListener('click', () => { if (daImprensa && (modal === 'entrev' || modal === 'semana')) { daImprensa = false; modal = 'imprensa'; desenhar(); desenharModal(); return; } daImprensa = false; modal = null; mesCal = null; msgAberta = null; desenhar(); });
   el.querySelectorAll('[data-ref]').forEach((b) => b.addEventListener('click', () => { modal = null; msgAberta = null; if (b.dataset.ref === 'mercado') { tabMercado = 'Transferências'; location.hash = 'mercado'; } desenhar(); }));
-  el.querySelectorAll('[data-ir]').forEach((b) => b.addEventListener('click', () => { modal = null; location.hash = b.dataset.ir; desenhar(); }));
+  el.querySelectorAll('[data-ir]').forEach((b) => b.addEventListener('click', () => { modal = 'imprensa'; desenharModal(); }));
+  el.querySelector('#b-semana')?.addEventListener('click', () => { modal = 'semana'; daImprensa = true; desenharModal(); });
+  el.querySelectorAll('[data-entrev]').forEach((b) => b.addEventListener('click', () => { entrevista = { g: PEDIDOS_ENTREVISTA[+b.dataset.entrev].guiao, passo: 0, respostas: [] }; modal = 'entrev'; daImprensa = true; desenharModal(); }));
+  el.querySelectorAll('[data-recusa]').forEach((b) => b.addEventListener('click', () => { const p = PEDIDOS_ENTREVISTA[+b.dataset.recusa]; p.estado = 'recusada'; const x = MEIOS.find((y) => y.nome === p.meio); x.rel = Math.max(0, x.rel - 5); const y = el.querySelector('.modal').scrollTop; desenhar(); desenharModal(); document.querySelector('.modal').scrollTop = y; }));
   el.querySelectorAll('[data-resp]').forEach((b) => b.addEventListener('click', () => { const g = GUIOES[entrevista.g], r = g.perguntas[entrevista.passo].respostas[+b.dataset.resp]; entrevista.respostas.push(r); entrevista.passo++;
     if (entrevista.passo >= g.perguntas.length) { const p = PEDIDOS_ENTREVISTA.find((x) => x.guiao === entrevista.g); if (p) p.estado = 'dada'; entrevista.respostas.forEach((x) => { pressaoMedia = Math.max(0, Math.min(100, pressaoMedia + (x.efeitos.pressao ?? 0))); const m = MEIOS.find((y) => y.nome === g.meio); m.rel = Math.max(0, Math.min(100, m.rel + 2 + (x.efeitos.rel ?? 0))); }); desenhar(); }
     desenharModal(); }));
@@ -1318,9 +1325,7 @@ function ligar(m) {
   m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
   const sp = m.querySelector('#sel-pais'); if (sp) sp.addEventListener('change', () => { compSel = COMP.find(([k]) => PAIS_COMP[k] === sp.value)[0]; if (sp.value === 'UEFA' && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
   m.querySelectorAll('[data-pedido]').forEach((x) => x.addEventListener('click', () => { modal = 'msg'; msgAberta = MENSAGENS.findIndex((y) => y.rel === x.dataset.pedido); MENSAGENS[msgAberta].lida = true; desenhar(); desenharModal(); }));
-  m.querySelector('#b-semana')?.addEventListener('click', () => { modal = 'semana'; desenharModal(); });
-  m.querySelectorAll('[data-entrev]').forEach((b) => b.addEventListener('click', () => { entrevista = { g: PEDIDOS_ENTREVISTA[+b.dataset.entrev].guiao, passo: 0, respostas: [] }; modal = 'entrev'; desenharModal(); }));
-  m.querySelectorAll('[data-recusa]').forEach((b) => b.addEventListener('click', () => { const p = PEDIDOS_ENTREVISTA[+b.dataset.recusa]; p.estado = 'recusada'; const x = MEIOS.find((y) => y.nome === p.meio); x.rel = Math.max(0, x.rel - 5); desenhar(); }));
+  m.querySelector('#b-imp').addEventListener('click', () => { modal = 'imprensa'; desenharModal(); });
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
   m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
   const sc = m.querySelector('#sel-comp'); if (sc) sc.addEventListener('change', () => { compSel = sc.value; if (['UCL', 'UEL', 'UECL'].includes(compSel) && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
