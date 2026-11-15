@@ -367,6 +367,19 @@ const zonaSvg = (z) => {
 const zonaIcone = (i, n) => (i < 2 ? zonaSvg('ucl') : i === 2 ? zonaSvg('uel') : i === 3 ? zonaSvg('uecl') : i >= n - 2 ? zonaSvg('desc') : i === n - 3 ? zonaSvg('playoff') : '');
 
 // ---------- ecrãs ----------
+function miniTabela() {
+  const meu = tabela.findIndex((t) => t.nome === CLUBE.nome);
+  const idx = [0, 1, 2, 3, 4];
+  if (meu > 4) idx.push(meu); else idx.push(5);
+  let html = '', ant = -1;
+  for (const i of idx) {
+    const t = tabela[i];
+    if (i - ant > 1) html += `<tr><td colspan="6" class="muted" style="text-align:center;padding:2px">⋯</td></tr>`;
+    html += `<tr class="clic ${i === meu ? 'meu' : ''}" data-tab="1"><td class="r">${i + 1}</td><td class="zi">${zonaIcone(i, tabela.length)}</td><td><span style="display:inline-flex;align-items:center;gap:8px">${escudo(t.cores, 18)}<b>${t.nome}</b></span></td><td class="r">${t.j}</td><td class="r">${t.gm - t.gs > 0 ? '+' : ''}${t.gm - t.gs}</td><td class="r"><b class="num" style="font-size:17px">${t.pts}</b></td></tr>`;
+    ant = i;
+  }
+  return `<div class="tab-wrap"><table><thead><tr><th class="r">#</th><th class="zi"></th><th>Clube</th><th class="r">J</th><th class="r">DG</th><th class="r">Pts</th></tr></thead><tbody>${html}</tbody></table></div>`;
+}
 function inicio() {
   const pj = proximoJogo();
   const pos = tabela.findIndex((t) => t.nome === CLUBE.nome) + 1;
@@ -381,11 +394,14 @@ function inicio() {
       </div>
     </section>
     <section class="c s12"><h2>Objectivos da época<span class="acao" id="ver-obj">Ver todos</span></h2>${tabelaObjectivos(true)}</section>
-    <section class="c s4"><h2>Posição na liga</h2><div class="num grande">${pos}.º</div><div class="rot" style="margin-top:6px">${tabela[pos - 1].pts} pontos · objectivo do dono: Europa (top 5)</div><div class="barra" style="margin-top:12px"><i style="width:72%"></i></div><div class="rot" style="margin-top:6px">Confiança do dono 72/100</div></section>
-    <section class="c s3"><h2>Caixa</h2><div class="num grande">${M(18.4e6)}</div><div class="rot">+2,1 M€ este mês</div></section>
-    <section class="c s3"><h2>Orçamento de transferências</h2><div class="num grande">${M(9.5e6)}</div><div class="rot">disponível na janela de Janeiro</div></section>
-    <section class="c s3"><h2>Massa salarial</h2><div class="num grande">${M(31.2e6)}</div><div class="rot">94% do orçamento salarial</div></section>
-    <section class="c s3"><h2>Estado financeiro</h2><div class="num grande" style="color:var(--bom)">Saudável</div><div class="rot">Fair play: dentro do limite</div></section>
+    <section class="c s7"><h2>Liga Portugal<span class="acao" id="ver-tab">Ver tabela completa</span></h2>${miniTabela()}</section>
+    <section class="c s5"><h2>Estado financeiro<span class="acao" id="ver-fin">Finanças e Conselho</span></h2>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span class="num grande" style="color:var(--bom)">Saudável</span><span class="chip"><span class="pt"></span>Fair play: 61% do limite</span></div>
+      <div class="linha-kv" style="margin-top:10px"><span class="muted">Caixa</span><span><b>${M(18.4e6)}</b> <span class="muted">(+2,1 M€ este mês)</span></span></div>
+      <div class="linha-kv"><span class="muted">Orçamento de transferências</span><span><b>${M(9.5e6)}</b> <span class="muted">para Janeiro</span></span></div>
+      <div class="linha-kv" style="display:block"><div style="display:flex;justify-content:space-between"><span class="muted">Massa salarial</span><span><b>${M(31.2e6)}</b> <span class="muted">de 33,0 M€</span></span></div><div class="barra" style="margin-top:6px"><i style="width:94%;background:var(--aviso)"></i></div></div>
+      <div class="linha-kv"><span class="muted">Dívida</span><span>12,0 M€ <span class="muted">(0,12× a receita)</span></span></div>
+    </section>
     ${[['Mais jogos', 'j', 'jogos'], ['Melhores marcadores', 'g', 'golos'], ['Mais assistências', 'a', 'assist.']].map(([t, k, u]) => `<section class="c s4"><h2>${t}</h2>${[...plantel].sort((a, b) => b[k] - a[k] || b.ovr - a.ovr).slice(0, 5).map((p, i) => `<div class="linha-kv" style="cursor:pointer" data-jj="${p.n}"><span><span class="muted" style="display:inline-block;width:18px">${i + 1}</span><b>${p.nome}</b> <span class="muted">${p.pos}</span></span><span class="num" style="font-size:18px">${p[k]} <span class="muted" style="font-size:12px;font-family:var(--f-texto)">${u}</span></span></div>`).join('')}</section>`).join('')}
     <section class="c s6"><h2>Tarefas pendentes</h2>
       <div class="linha-kv"><span><span class="chip mau"><span class="pt"></span>Decisão</span> Oferta de 7,5 M€ do Real Montalvo por R. Salouro</span><span class="muted">expira em 2 dias</span></div>
@@ -730,7 +746,7 @@ function desenhar() {
     <button class="icone-btn" id="b-cal" aria-label="Calendário">${svg('cal')}</button>
     <button class="icone-btn" id="b-msg" aria-label="Mensagens">${svg('env')}${naoLidas ? `<span class="badge">${naoLidas}</span>` : ''}</button>
     <button class="btn prim continuar" id="b-cont">Continuar ${svg('seta').replace('<svg', '<svg style="width:16px;height:16px;vertical-align:-3px"')}</button></div>`;
-  m.innerHTML = topo + RENDER[r]() + `<div class="aviso-proto">Protótipo com dados fictícios do mundo gerado. Cor do clube (acento): <span class="cores">${[['#d63a3a', '#f1f1f1'], ['#2c63c9', '#ffffff'], ['#1d9a6c', '#ffffff'], ['#e2a33a', '#111111'], ['#7a3cc7', '#ffffff']].map((c) => `<button data-cor="${c[0]}" data-cor2="${c[1]}" style="background:${c[0]}" aria-label="Acento ${c[0]}"></button>`).join('')}</span></div>`;
+  m.innerHTML = topo + RENDER[r]() + `<div class="aviso-proto">Protótipo com dados fictícios do mundo gerado. <button class="btn" id="demo-pos" style="min-height:30px;padding:4px 10px">Exemplo: o meu clube em 14.º</button> Cor do clube (acento): <span class="cores">${[['#d63a3a', '#f1f1f1'], ['#2c63c9', '#ffffff'], ['#1d9a6c', '#ffffff'], ['#e2a33a', '#111111'], ['#7a3cc7', '#ffffff']].map((c) => `<button data-cor="${c[0]}" data-cor2="${c[1]}" style="background:${c[0]}" aria-label="Acento ${c[0]}"></button>`).join('')}</span></div>`;
   ligar(m);
   desenharModal();
 }
@@ -773,6 +789,8 @@ function ligar(m) {
   m.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', () => { verComo = b.dataset.ver; desenhar(); }));
   m.querySelectorAll('[data-form]').forEach((b) => b.addEventListener('click', () => { formacao = b.dataset.form; desenhar(); }));
   m.querySelectorAll('[data-ment]').forEach((b) => b.addEventListener('click', () => { mentalidade = b.dataset.ment; desenhar(); }));
+  m.querySelectorAll('[data-tab], #ver-tab').forEach((x) => x.addEventListener('click', () => { compSel = 'POR1'; tabComp = 'Classificação'; location.hash = 'classificacao'; }));
+  m.querySelector('#ver-fin')?.addEventListener('click', () => { location.hash = 'financas'; });
   m.querySelector('#ver-obj')?.addEventListener('click', () => { location.hash = 'financas'; });
   m.querySelector('#ver-cal')?.addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
   m.querySelectorAll('[data-tabp]').forEach((b) => b.addEventListener('click', () => { tabPlantel = b.dataset.tabp; desenhar(); }));
@@ -789,6 +807,7 @@ function ligar(m) {
     desenhar(); }));
   m.querySelector('#sel-parc')?.addEventListener('change', (e) => { parcelas = e.target.value; desenhar(); });
   m.querySelectorAll('[data-tabm]').forEach((b) => b.addEventListener('click', () => { tabMercado = b.dataset.tabm; desenhar(); }));
+  m.querySelector('#demo-pos')?.addEventListener('click', () => { const i = tabela.findIndex((t) => t.nome === CLUBE.nome); const [t] = tabela.splice(i, 1); const alvo = i === 13 ? 2 : 13; Object.assign(t, alvo === 13 ? { v: 3, e: 4, d: 5, gm: 13, gs: 16, pts: 13 } : { v: 9, e: 2, d: 1, gm: 21, gs: 7, pts: 29 }); tabela.splice(alvo, 0, t); desenhar(); });
   m.querySelectorAll('[data-cor]').forEach((b) => b.addEventListener('click', () => { CLUBE.cores = [b.dataset.cor, b.dataset.cor2]; CORES[3] = CLUBE.cores; tabela.forEach((t) => { if (t.nome === CLUBE.nome) t.cores = CLUBE.cores; }); acento(); desenhar(); }));
 }
 function acento() {
