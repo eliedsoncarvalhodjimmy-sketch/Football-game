@@ -693,17 +693,127 @@ function academiaEcra() {
   </div>`;
 }
 
+// ---------- ilustrações isométricas das infraestruturas (geradas pelo nível e pelo tamanho do clube) ----------
+function Iso(w, h, esc, ox, oy) {
+  const out = [];
+  const P = (x, y, z = 0) => [ox + (x - y) * 0.866 * esc, oy + (x + y) * 0.5 * esc - z * esc];
+  const pts = (a) => a.map((q) => P(...q).map((v) => v.toFixed(1)).join(',')).join(' ');
+  const api = {
+    poly: (a, fill, extra = '') => out.push(`<polygon points="${pts(a)}" fill="${fill}" ${extra}/>`),
+    line: (a, b, cor, lw = 1) => { const [x1, y1] = P(...a), [x2, y2] = P(...b); out.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${cor}" stroke-width="${lw}" stroke-linecap="round"/>`); },
+    // Caixa: topo + as duas faces visíveis (frente-esquerda em y+d e frente-direita em x+w).
+    caixa: (x, y, z, w, d, h, [topo, esq, dir], extra = '') => {
+      api.poly([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]], esq, extra);
+      api.poly([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]], dir, extra);
+      api.poly([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]], topo, extra);
+    },
+    relvado: (x, y, w, d, riscas = 10) => {
+      for (let k = 0; k < riscas; k++) api.poly([[x + (w * k) / riscas, y, 0.05], [x + (w * (k + 1)) / riscas, y, 0.05], [x + (w * (k + 1)) / riscas, y + d, 0.05], [x + (w * k) / riscas, y + d, 0.05]], k % 2 ? '#3f9a4f' : '#46a657');
+      const L = (a, b) => api.line([a[0], a[1], 0.1], [b[0], b[1], 0.1], 'rgba(255,255,255,.85)', 0.9);
+      const r = (x0, y0, x1, y1) => { L([x0, y0], [x1, y0]); L([x1, y0], [x1, y1]); L([x1, y1], [x0, y1]); L([x0, y1], [x0, y0]); };
+      r(x + 2, y + 2, x + w - 2, y + d - 2); L([x + w / 2, y + 2], [x + w / 2, y + d - 2]);
+      const pa = Math.min(16, w * 0.16), pl = d * 0.6; r(x + 2, y + (d - pl) / 2, x + 2 + pa, y + (d + pl) / 2); r(x + w - 2 - pa, y + (d - pl) / 2, x + w - 2, y + (d + pl) / 2);
+      const c = []; for (let k = 0; k <= 24; k++) { const a = (k / 24) * Math.PI * 2; c.push([x + w / 2 + Math.cos(a) * d * 0.13, y + d / 2 + Math.sin(a) * d * 0.13, 0.1]); }
+      out.push(`<polyline points="${pts(c)}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="0.9"/>`);
+    },
+    bancada: (x, y, w, d, h, cor, coberta, eixo) => {
+      // Degraus: bancada como cunha (mais alta atrás); eixo 'x' = ao longo do comprimento.
+      const passos = Math.max(2, Math.round(h / 3));
+      for (let k = 0; k < passos; k++) {
+        const f = k / passos, hh = h * (1 - f);
+        if (eixo === 'x') api.caixa(x, y + d * f, 0, w, d / passos, hh, [k % 2 ? cor : clarear(cor, 12), '#2b3038', '#363c46']);
+        else api.caixa(x + w * f, y, 0, w / passos, d, hh, [k % 2 ? cor : clarear(cor, 12), '#2b3038', '#363c46']);
+      }
+      if (coberta) api.caixa(x - 1, y - 1, h + 5, w + 2, d + 2, 1.2, ['rgba(225,228,233,.5)', 'rgba(150,155,165,.55)', 'rgba(175,180,190,.55)']);
+    },
+    holofote: (x, y, h) => { api.line([x, y, 0], [x, y, h], '#9aa1ab', 1.3); api.caixa(x - 1.5, y - 1.5, h, 3, 3, 2, ['#f4f1d0', '#b9b48a', '#cfc99c']); },
+    arvore: (x, y) => { const [cx, cy] = P(x, y, 5); out.push(`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(3.4 * esc).toFixed(1)}" ry="${(4 * esc).toFixed(1)}" fill="#2f6b3a"/>`); },
+    estac: (x, y, w, d) => { api.poly([[x, y, 0.02], [x + w, y, 0.02], [x + w, y + d, 0.02], [x, y + d, 0.02]], '#4a4f57'); for (let k = 4; k < w; k += 4) api.line([x + k, y + 1, 0.05], [x + k, y + d * 0.45, 0.05], 'rgba(255,255,255,.55)', 0.6); },
+    texto: (x, y, z, t) => { const [cx, cy] = P(x, y, z); out.push(`<text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" font-size="9" fill="#fff" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700">${t}</text>`); },
+    svg: () => `<svg viewBox="0 0 ${w} ${h}" role="img" style="width:100%;height:auto;display:block;border-radius:10px;background:linear-gradient(#1b2a22,#14201a)">${out.join('')}</svg>`,
+  };
+  return api;
+}
+const clarear = (hex, n) => { if (!hex.startsWith('#')) return hex; const v = parseInt(hex.slice(1), 16); const c = (k) => Math.min(255, ((v >> k) & 255) + n); return `rgb(${c(16)},${c(8)},${c(0)})`; };
+const CHAO = (g, w, d) => g.poly([[-6, -6, 0], [w + 6, -6, 0], [w + 6, d + 6, 0], [-6, d + 6, 0]], '#5b6a5a');
+
+function desenhoEstadio(nivel, tam) {
+  const g = Iso(340, 230, 1.15, 150, 30);
+  const W = 150, D = 105; CHAO(g, W, D);
+  const cor = CLUBE.cores[0];
+  const lugaresBase = (1500 + nivel * nivel * 420) * (0.6 + 0.4 * tam);
+  const h = 4 + nivel * 1.6 * (0.7 + 0.3 * tam);
+  g.estac(0, 0, 30 + nivel * 3, 16);
+  const px = 32, py = 22, pw = 82, pd = 56;
+  // Bancadas: 1 lateral (nível 1-2), 2 laterais (3-4), 4 lados (5-7), 4 lados com cantos (8-9), anel fechado (10).
+  const costas = nivel >= 5, frente = nivel >= 3, topos = nivel >= 5, cantos = nivel >= 8, coberta = (k) => nivel >= 7 || (nivel >= 4 && k === 'principal');
+  const dd = 6 + nivel * 1.2;
+  if (costas) g.bancada(px, py - dd - 1, pw, dd, h * 0.95, cor, coberta('fundo'), 'x');
+  if (topos) g.bancada(px - dd - 1, py, dd, pd, h * 0.8, '#6c7380', coberta('topo'), 'y');
+  if (cantos) { g.bancada(px - dd - 1, py - dd - 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); }
+  g.relvado(px, py, pw, pd, 12);
+  if (topos) g.bancada(px + pw + 1, py, dd, pd, h * 0.8, '#6c7380', coberta('topo'), 'y');
+  if (cantos) { g.bancada(px + pw + 1, py - dd - 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); g.bancada(px - dd - 1, py + pd + 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); g.bancada(px + pw + 1, py + pd + 1, dd, dd, h * 0.7, '#6c7380', true, 'y'); }
+  g.bancada(px, py + pd + 1, pw, nivel >= 3 ? dd : 5, nivel >= 3 ? h : 4, cor, coberta('principal'), 'x');
+  if (nivel >= 2 && nivel < 8) for (const [x, y] of [[px - 4, py - 4], [px + pw + 4, py - 4], [px - 4, py + pd + 4], [px + pw + 4, py + pd + 4]]) g.holofote(x, y, 18 + nivel * 2);
+  for (let k = 0; k < 4; k++) g.arvore(W - 4 - k * 9, D + 2);
+  return { svg: g.svg(), lugares: Math.round(lugaresBase / 100) * 100 };
+}
+function desenhoTreino(nivel) {
+  const g = Iso(340, 230, 1.05, 150, 40); const W = 160, D = 110; CHAO(g, W, D);
+  const nRelvados = Math.min(5, 1 + Math.floor(nivel / 2));
+  const pos = [[6, 6], [72, 6], [6, 56], [72, 56], [118, 30]];
+  g.estac(124, 74, 30, 18);
+  for (let k = 0; k < nRelvados; k++) { const [x, y] = pos[k]; const w = k === 4 ? 36 : 60, d = k === 4 ? 26 : 44; g.relvado(x, y, w, d, 8); if (nivel >= 4) for (const [hx, hy] of [[x, y], [x + w, y + d]]) g.holofote(hx, hy, 14); }
+  if (nivel >= 4) g.caixa(118, 6, 0, 30, 18, 0.4, ['#3b6fd1', '#2a4f99', '#3260b5']);
+  g.caixa(132, 32, 0, 22, 18 + nivel, 6 + nivel * 1.4, ['#d8dce2', '#a7adb6', '#bcc2ca']);
+  if (nivel >= 6) g.caixa(100, 92, 0, 22, 14, 9, ['#c9ced6', '#8f96a1', '#a7aeb8']);
+  if (nivel >= 8) g.caixa(6, 100, 0, 40, 14, 10, ['#e3e6ea', '#9ba2ad', '#b5bbc4']);
+  return g.svg();
+}
+function desenhoAcademia(nivel) {
+  const g = Iso(340, 230, 1.1, 150, 40); const W = 150, D = 105; CHAO(g, W, D);
+  const n = Math.min(4, 1 + Math.floor(nivel / 3));
+  const pos = [[6, 6], [62, 6], [6, 50], [62, 50]];
+  for (let k = 0; k < n; k++) { const [x, y] = pos[k]; g.relvado(x, y, 50, 36, 6); }
+  g.caixa(118, 8, 0, 26, 20, 8 + nivel, ['#e7e2d6', '#aea79a', '#c7c0b2']);
+  g.texto(131, 18, 10 + nivel, 'ESCOLA');
+  if (nivel >= 5) g.caixa(118, 40, 0, 26, 18, 6 + nivel * 1.2, ['#d9cdb8', '#a39784', '#bcae98']);
+  if (nivel >= 7) g.caixa(118, 70, 0, 26, 22, 5, ['#3b6fd1', '#2a4f99', '#3260b5']);
+  for (let k = 0; k < 3 + Math.floor(nivel / 2); k++) g.arvore(8 + k * 11, D + 2);
+  return g.svg();
+}
+function desenhoEdificio(nivel, cor, cruz) {
+  const g = Iso(340, 230, 1.3, 150, 50); const W = 110, D = 80; CHAO(g, W, D);
+  g.estac(4, 50, 40, 22);
+  const andares = 1 + Math.floor(nivel / 2);
+  g.caixa(40, 12, 0, 46, 30, andares * 5, cor);
+  for (let a = 0; a < andares; a++) for (let k = 0; k < 6; k++) g.caixa(42 + k * 7, 42, a * 5 + 1.5, 4, 0.3, 2.2, ['#8fd0ff', '#5c8fb5', '#6fa5cc']);
+  if (cruz) { g.caixa(58, 22, andares * 5, 10, 3, 0.5, ['#e0565b', '#a33', '#b44']); g.caixa(61.5, 18.5, andares * 5, 3, 10, 0.5, ['#e0565b', '#a33', '#b44']); }
+  else if (nivel >= 4) { g.line([80, 18, andares * 5], [80, 18, andares * 5 + 12], '#cfd5dd', 1.2); g.caixa(77, 15, andares * 5 + 12, 6, 6, 1, ['#dfe4ea', '#9aa1ab', '#b5bcc6']); }
+  for (let k = 0; k < 3; k++) g.arvore(96, 10 + k * 14);
+  return g.svg();
+}
+
+let tamClube = 2, previa = {};
 function infraEcra() {
-  const inf = [['Estádio', 6, '32 400 lugares · bilheteira e assistência', 6.8, 72], ['Centro de treino', 5, '+0 pontos de desenvolvimento dos jogadores', 2.4, 36], ['Academia', 7, 'Qualidade do intake e shortlist de 11', 3.1, 42], ['Instalações médicas', 4, '−0% dias de lesão', 0.9, 20], ['Recrutamento', 6, '+60% observações dos scouts', 0.7, 18]];
+  const inf = [['estadio', 'Estádio', 6, (v) => `${desenhoEstadio(v, tamClube).lugares.toLocaleString('pt-PT')} lugares · bilheteira e assistência`, 6.8, 72],
+    ['treino', 'Centro de treino', 5, (v) => `${Math.min(5, 1 + Math.floor(v / 2))} relvados · ${v >= 6 ? 'pavilhão e ginásio' : 'balneários'} · ${v >= 5 ? '+' : ''}${((v - 5) * 0.4).toFixed(1).replace('.', ',')} de desenvolvimento`, 2.4, 36],
+    ['academia', 'Academia', 7, (v) => `${Math.min(4, 1 + Math.floor(v / 3))} campos · ${v >= 5 ? 'residência' : 'sem residência'} · shortlist de ${Math.min(12, Math.round(7 + 0.5 * v))}`, 3.1, 42],
+    ['medico', 'Instalações médicas', 4, (v) => `${1 + Math.floor(v / 2)} piso(s) · ${v >= 5 ? '−' : '+'}${Math.abs((v - 5) * 1.5).toFixed(1).replace('.', ',')}% dias de lesão`, 0.9, 20],
+    ['recrutamento', 'Recrutamento', 6, (v) => `${1 + Math.floor(v / 2)} piso(s) · +${v * 10}% observações dos scouts`, 0.7, 18]];
+  const des = (k, v) => k === 'estadio' ? desenhoEstadio(v, tamClube).svg : k === 'treino' ? desenhoTreino(v) : k === 'academia' ? desenhoAcademia(v) : k === 'medico' ? desenhoEdificio(v, ['#eef1f4', '#b3bac4', '#cbd1d9'], true) : desenhoEdificio(v, ['#d6dbe2', '#9aa1ab', '#b2b9c3'], false);
   return `
-  <div class="topo"><h1>Infraestrutura</h1><span class="sub">Orçamento de infraestruturas: 4,1 / 6,0 M€</span></div>
-  <div class="grelha">${inf.map(([n, v, ef, custo, sem]) => `<section class="c s4"><h2>${n}${n === 'Academia' ? '<span class="chip info" style="margin-left:auto">obra em curso · 9 semanas</span>' : ''}</h2>
-    <div style="display:flex;align-items:baseline;gap:8px"><span class="num grande">${v}</span><span class="muted">/ 10</span></div>
-    <div class="barra" style="margin:10px 0"><i style="width:${v * 10}%"></i></div>
-    <div class="rot">${ef}</div>
-    <div class="linha-kv" style="margin-top:10px"><span class="muted">Subir para ${v + 1}</span><span>${custo.toFixed(1).replace('.', ',')} M€ · ${sem} semanas</span></div>
+  <div class="topo"><h1>Infraestrutura</h1><span class="sub">Orçamento de infraestruturas: 4,1 / 6,0 M€</span><div class="direita"><label class="rot" style="display:flex;gap:8px;align-items:center">Tamanho do clube (protótipo)<select class="btn" id="sel-tam">${[['1', 'Pequeno'], ['2', 'Médio'], ['3', 'Grande']].map(([v, t]) => `<option value="${v}" ${+v === tamClube ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div></div>
+  <div class="grelha">${inf.map(([k, n, v0, ef, custo, sem]) => { const v = previa[k] ?? v0; const vendo = v !== v0;
+    return `<section class="c ${k === 'estadio' ? 's8' : 's4'}"><h2>${n}${k === 'academia' ? '<span class="chip info" style="margin-left:auto">obra em curso · 9 semanas</span>' : ''}</h2>
+    ${des(k, v)}
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap"><span class="num grande">${v}</span><span class="muted">/ 10</span>${vendo ? `<span class="chip aviso">pré-visualização (actual: ${v0})</span>` : ''}
+      <span style="margin-left:auto;display:flex;gap:6px"><button class="btn" data-prev="${k}:${Math.max(1, v - 1)}" aria-label="Nível anterior">−</button><button class="btn" data-prev="${k}:${Math.min(10, v + 1)}" aria-label="Nível seguinte">+</button>${vendo ? `<button class="btn" data-prev="${k}:${v0}">Actual</button>` : ''}</span></div>
+    <div class="rot" style="margin-top:6px">${ef(v)}</div>
+    <div class="linha-kv" style="margin-top:10px"><span class="muted">Subir para ${v0 + 1}</span><span>${custo.toFixed(1).replace('.', ',')} M€ · ${sem} semanas</span></div>
     <div class="linha-kv"><span class="muted">Manutenção anual</span><span>${(custo * 0.1).toFixed(2).replace('.', ',')} M€</span></div>
-    <button class="btn ${n === 'Academia' ? '' : 'prim'}" style="margin-top:10px;width:100%" ${n === 'Academia' ? 'disabled' : ''}>${n === 'Academia' ? 'Obra em curso' : `Melhorar para nível ${v + 1}`}</button></section>`).join('')}</div>`;
+    <button class="btn ${k === 'academia' ? '' : 'prim'}" style="margin-top:10px;width:100%" ${k === 'academia' ? 'disabled' : ''}>${k === 'academia' ? 'Obra em curso' : `Melhorar para nível ${v0 + 1}`}</button></section>`; }).join('')}</div>`;
 }
 
 const HIST = {"UCL": [["2025–26", "Liga dos Campeões", "Paris Saint-Germain", "Arsenal", "1 – 1 (pro) 4 – 3 (pen)"], ["2024–25", "Liga dos Campeões", "Paris Saint-Germain", "Internazionale", "5 – 0"], ["2023–24", "Liga dos Campeões", "Real Madrid", "Borussia Dortmund", "2 – 0"], ["2022–23", "Liga dos Campeões", "Manchester City", "Internazionale", "1 – 0"], ["2021–22", "Liga dos Campeões", "Real Madrid", "Liverpool", "1 – 0"], ["2020–21", "Liga dos Campeões", "Chelsea", "Manchester City", "1 – 0"], ["2019–20", "Liga dos Campeões", "Bayern de Munique", "Paris Saint-Germain", "1 – 0"], ["2018–19", "Liga dos Campeões", "Liverpool", "Tottenham", "2 – 0"], ["2017–18", "Liga dos Campeões", "Real Madrid", "Liverpool", "3 – 1"], ["2016–17", "Liga dos Campeões", "Real Madrid", "Juventus", "4 – 1"], ["2015–16", "Liga dos Campeões", "Real Madrid", "Atlético de Madrid", "1 – 1 (pro) 5 – 3 (pen)"], ["2014–15", "Liga dos Campeões", "Barcelona", "Juventus", "3 – 1"], ["2013–14", "Liga dos Campeões", "Real Madrid", "Atlético de Madrid", "4 – 1 (pro)"], ["2012–13", "Liga dos Campeões", "Bayern de Munique", "Borussia Dortmund", "2 – 1"], ["2011–12", "Liga dos Campeões", "Chelsea", "Bayern de Munique", "1 – 1 (pro) 4 – 3 (pen)"], ["2010–11", "Liga dos Campeões", "Barcelona", "Manchester United", "3 – 1"], ["2009–10", "Liga dos Campeões", "Internazionale", "Bayern de Munique", "2 – 0"], ["2008–09", "Liga dos Campeões", "Barcelona", "Manchester United", "2 – 0"], ["2007–08", "Liga dos Campeões", "Manchester United", "Chelsea", "1 – 1 (pro) 6 – 5 (pen)"], ["2006–07", "Liga dos Campeões", "Milan", "Liverpool", "2 – 1"], ["2005–06", "Liga dos Campeões", "Barcelona", "Arsenal", "2 – 1"], ["2004–05", "Liga dos Campeões", "Liverpool", "Milan", "3 – 3 (pro) 3 – 2 (pen)"], ["2003–04", "Liga dos Campeões", "Porto", "Monaco", "3 – 0"], ["2002–03", "Liga dos Campeões", "Milan", "Juventus", "0 – 0 (pro) 3 – 2 (pen)"], ["2001–02", "Liga dos Campeões", "Real Madrid", "Bayer Leverkusen", "2 – 1"], ["2000–01", "Liga dos Campeões", "Bayern de Munique", "Valencia", "1 – 1 (pro) 5 – 4 (pen)"], ["1999–00", "Liga dos Campeões", "Real Madrid", "Valencia", "3 – 0"], ["1998–99", "Liga dos Campeões", "Manchester United", "Bayern de Munique", "2 – 1"], ["1997–98", "Liga dos Campeões", "Real Madrid", "Juventus", "1 – 0"], ["1996–97", "Liga dos Campeões", "Borussia Dortmund", "Juventus", "3 – 1"], ["1995–96", "Liga dos Campeões", "Juventus", "Ajax", "1 – 1 (pro) 4 – 2 (pen)"], ["1994–95", "Liga dos Campeões", "Ajax", "Milan", "1 – 0"], ["1993–94", "Liga dos Campeões", "Milan", "Barcelona", "4 – 0"], ["1992–93", "Liga dos Campeões", "Olympique de Marselha", "Milan", "1 – 0"], ["1991–92", "Taça dos Clubes Campeões Europeus", "Barcelona", "Sampdoria", "1 – 0 (pro)"], ["1990–91", "Taça dos Clubes Campeões Europeus", "Estrela Vermelha", "Olympique de Marselha", "0 – 0 (pro) 5 – 3 (pen)"], ["1989–90", "Taça dos Clubes Campeões Europeus", "Milan", "Benfica", "1 – 0"], ["1988–89", "Taça dos Clubes Campeões Europeus", "Milan", "Steaua Bucareste", "4 – 0"], ["1987–88", "Taça dos Clubes Campeões Europeus", "PSV Eindhoven", "Benfica", "0 – 0 (pro) 6 – 5 (pen)"], ["1986–87", "Taça dos Clubes Campeões Europeus", "Porto", "Bayern de Munique", "2 – 1"], ["1985–86", "Taça dos Clubes Campeões Europeus", "Steaua Bucareste", "Barcelona", "0 – 0 (pro) 2 – 0 (pen)"], ["1984–85", "Taça dos Clubes Campeões Europeus", "Juventus", "Liverpool", "1 – 0"], ["1983–84", "Taça dos Clubes Campeões Europeus", "Liverpool", "Roma", "1 – 1 (pro) 4 – 2 (pen)"], ["1982–83", "Taça dos Clubes Campeões Europeus", "Hamburgo", "Juventus", "1 – 0"], ["1981–82", "Taça dos Clubes Campeões Europeus", "Aston Villa", "Bayern de Munique", "1 – 0"], ["1980–81", "Taça dos Clubes Campeões Europeus", "Liverpool", "Real Madrid", "1 – 0"], ["1979–80", "Taça dos Clubes Campeões Europeus", "Nottingham Forest", "Hamburgo", "1 – 0"], ["1978–79", "Taça dos Clubes Campeões Europeus", "Nottingham Forest", "Malmö", "1 – 0"], ["1977–78", "Taça dos Clubes Campeões Europeus", "Liverpool", "Club Brugge", "1 – 0"], ["1976–77", "Taça dos Clubes Campeões Europeus", "Liverpool", "Borussia Mönchengladbach", "3 – 1"], ["1975–76", "Taça dos Clubes Campeões Europeus", "Bayern de Munique", "Saint-Étienne", "1 – 0"], ["1974–75", "Taça dos Clubes Campeões Europeus", "Bayern de Munique", "Leeds United", "2 – 0"], ["1973–74", "Taça dos Clubes Campeões Europeus", "Bayern de Munique", "Atlético de Madrid", "1 – 1 (pro) 4 – 0"], ["1972–73", "Taça dos Clubes Campeões Europeus", "Ajax", "Juventus", "1 – 0"], ["1971–72", "Taça dos Clubes Campeões Europeus", "Ajax", "Internazionale", "2 – 0"], ["1970–71", "Taça dos Clubes Campeões Europeus", "Ajax", "Panathinaikos", "2 – 0"], ["1969–70", "Taça dos Clubes Campeões Europeus", "Feyenoord", "Celtic", "2 – 1 (pro)"], ["1968–69", "Taça dos Clubes Campeões Europeus", "Milan", "Ajax", "4 – 1"], ["1967–68", "Taça dos Clubes Campeões Europeus", "Manchester United", "Benfica", "4 – 1 (pro)"], ["1966–67", "Taça dos Clubes Campeões Europeus", "Celtic", "Internazionale", "2 – 1"], ["1965–66", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Partizan Belgrado", "2 – 1"], ["1964–65", "Taça dos Clubes Campeões Europeus", "Internazionale", "Benfica", "1 – 0"], ["1963–64", "Taça dos Clubes Campeões Europeus", "Internazionale", "Real Madrid", "3 – 1"], ["1962–63", "Taça dos Clubes Campeões Europeus", "Milan", "Benfica", "2 – 1"], ["1961–62", "Taça dos Clubes Campeões Europeus", "Benfica", "Real Madrid", "5 – 3"], ["1960–61", "Taça dos Clubes Campeões Europeus", "Benfica", "Barcelona", "3 – 2"], ["1959–60", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Eintracht Frankfurt", "7 – 3"], ["1958–59", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Stade Reims", "2 – 0"], ["1957–58", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Milan", "3 – 2 (pro)"], ["1956–57", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Fiorentina", "2 – 0"], ["1955–56", "Taça dos Clubes Campeões Europeus", "Real Madrid", "Stade Reims", "4 – 3"]], "UEL": [["2025–26", "Liga Europa", "Aston Villa", "Freiburg", "3 – 0"], ["2024–25", "Liga Europa", "Tottenham", "Manchester United", "1 – 0"], ["2023–24", "Liga Europa", "Atalanta", "Bayer Leverkusen", "3 – 0"], ["2022–23", "Liga Europa", "Sevilla", "Roma", "1 – 1 4 – 1 (pen)"], ["2021–22", "Liga Europa", "Eintracht Frankfurt", "Rangers", "1 – 1 5 – 4 (pen)"], ["2020–21", "Liga Europa", "Villarreal", "Manchester United", "1 – 1 11 – 10 (pen)"], ["2019–20", "Liga Europa", "Sevilla", "Internazionale", "3 – 2"], ["2018–19", "Liga Europa", "Chelsea", "Arsenal", "4 – 1"], ["2017–18", "Liga Europa", "Atlético de Madrid", "Olympique de Marselha", "3 – 0"], ["2016–17", "Liga Europa", "Manchester United", "Ajax", "2 – 0"], ["2015–16", "Liga Europa", "Sevilla", "Liverpool", "3 – 1"], ["2014–15", "Liga Europa", "Sevilla", "Dnipro", "3 – 2"], ["2013–14", "Liga Europa", "Sevilla", "Benfica", "0 – 0 4 – 2 (pen)"], ["2012–13", "Liga Europa", "Chelsea", "Benfica", "2 – 1"], ["2011–12", "Liga Europa", "Atlético de Madrid", "Athletic Bilbao", "3 – 0"], ["2010–11", "Liga Europa", "Porto", "Braga", "1 – 0"], ["2009–10", "Liga Europa", "Atlético de Madrid", "Fulham", "2 – 1 (pro)"], ["2008–09", "Taça UEFA", "Shakhtar Donetsk", "Werder Bremen", "2 – 1 (pro)"], ["2007–08", "Taça UEFA", "Zenit", "Rangers", "2 – 0"], ["2006–07", "Taça UEFA", "Sevilla", "Espanyol", "2 – 2 3 – 1 (pen)"], ["2005–06", "Taça UEFA", "Sevilla", "Middlesbrough", "4 – 0"], ["2004–05", "Taça UEFA", "CSKA Moscou", "Sporting", "3 – 1"], ["2003–04", "Taça UEFA", "Valencia", "Olympique de Marselha", "2 – 0"], ["2002–03", "Taça UEFA", "Porto", "Celtic", "3 – 2 (pro)"], ["2001–02", "Taça UEFA", "Feyenoord", "Borussia Dortmund", "3 – 2"], ["2000–01", "Taça UEFA", "Liverpool", "Alavés", "5 – 4 (go)"], ["1999–00", "Taça UEFA", "Galatasaray", "Arsenal", "0 – 0 4 – 1 (pen)"], ["1998–99", "Taça UEFA", "Parma", "Olympique de Marselha", "3 – 0"], ["1997–98", "Taça UEFA", "Internazionale", "Lazio", "3 – 0"], ["1996–97", "Taça UEFA", "Schalke 04", "Internazionale", "1 – 0 0 – 1 4 – 1 (pen)"], ["1995–96", "Taça UEFA", "Bayern de Munique", "Bordeaux", "2 – 0 3 – 1"], ["1994–95", "Taça UEFA", "Parma", "Juventus", "1 – 0 1 – 1"], ["1993–94", "Taça UEFA", "Internazionale", "Red Bull Salzburg", "1 – 0 1 – 0"], ["1992–93", "Taça UEFA", "Juventus", "Borussia Dortmund", "3 – 1 3 – 0"], ["1991–92", "Taça UEFA", "Ajax", "Torino", "2 – 2 0 – 0 (gf)"], ["1990–91", "Taça UEFA", "Internazionale", "Roma", "2 – 0 0 – 1"], ["1989–90", "Taça UEFA", "Juventus", "Fiorentina", "3 – 1 0 – 0"], ["1988–89", "Taça UEFA", "Napoli", "Stuttgart", "2 – 1 3 – 3"], ["1987–88", "Taça UEFA", "Bayer Leverkusen", "Espanyol", "0 – 3 3 – 0 3 – 2 (pen)"], ["1986–87", "Taça UEFA", "Göteborg", "Dundee United", "1 – 0 1 – 1"], ["1985–86", "Taça UEFA", "Real Madrid", "Köln", "5 – 1 0 – 2"], ["1984–85", "Taça UEFA", "Real Madrid", "Fehervar", "3 – 0 0 – 1"], ["1983–84", "Taça UEFA", "Tottenham", "Anderlecht", "1 – 1 1 – 1 4 – 3 (pen)"], ["1982–83", "Taça UEFA", "Anderlecht", "Benfica", "1 – 0 1 – 1"], ["1981–82", "Taça UEFA", "Göteborg", "Hamburgo", "1 – 0 3 – 0"], ["1980–81", "Taça UEFA", "Ipswich Town", "AZ Alkmaar", "3 – 0 2 – 4"], ["1979–80", "Taça UEFA", "Eintracht Frankfurt", "Borussia Mönchengladbach", "2 – 3 1 – 0 (gf)"], ["1978–79", "Taça UEFA", "Borussia Mönchengladbach", "Estrela Vermelha", "1 – 1 1 – 0"], ["1977–78", "Taça UEFA", "PSV Eindhoven", "Bastia", "0 – 0 3 – 0"], ["1976–77", "Taça UEFA", "Juventus", "Athletic Bilbao", "1 – 0 1 – 2 (gf)"], ["1975–76", "Taça UEFA", "Liverpool", "Club Brugge", "3 – 2 1 – 1"], ["1974–75", "Taça UEFA", "Borussia Mönchengladbach", "Twente", "0 – 0 5 – 1"], ["1973–74", "Taça UEFA", "Feyenoord", "Tottenham", "2 – 2 2 – 0"], ["1972–73", "Taça UEFA", "Liverpool", "Borussia Mönchengladbach", "3 – 0 0 – 2"], ["1971–72", "Taça UEFA", "Tottenham", "Wolverhampton", "2 – 1 1 – 1"]], "UECL": [["2025–26", "Liga Conferência", "Crystal Palace", "Rayo Vallecano", "1 – 0"], ["2024–25", "Liga Conferência", "Chelsea", "Betis", "4 – 1"], ["2023–24", "Liga Conferência", "Olympiacos", "Fiorentina", "1 – 0 (pro)"], ["2022–23", "Liga Conferência", "West Ham United", "Fiorentina", "2 – 1"], ["2021–22", "Liga Conferência", "Roma", "Feyenoord", "1 – 0"]]};
@@ -795,6 +905,8 @@ function ligar(m) {
   m.querySelector('#ver-cal')?.addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
   m.querySelectorAll('[data-tabp]').forEach((b) => b.addEventListener('click', () => { tabPlantel = b.dataset.tabp; desenhar(); }));
   m.querySelectorAll('[data-ala]').forEach((b) => b.addEventListener('click', () => { alaAcad = b.dataset.ala; desenhar(); }));
+  m.querySelectorAll('[data-prev]').forEach((b) => b.addEventListener('click', () => { const [k, v] = b.dataset.prev.split(':'); previa[k] = +v; desenhar(); }));
+  m.querySelector('#sel-tam')?.addEventListener('change', (e) => { tamClube = +e.target.value; desenhar(); });
   m.querySelectorAll('[data-tabe]').forEach((b) => b.addEventListener('click', () => { tabEst = b.dataset.tabe; desenhar(); }));
   m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
   const sc = m.querySelector('#sel-comp'); if (sc) sc.addEventListener('change', () => { compSel = sc.value; if (['UCL', 'UEL', 'UECL'].includes(compSel) && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
