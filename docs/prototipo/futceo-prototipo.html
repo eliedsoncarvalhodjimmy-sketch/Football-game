@@ -173,6 +173,13 @@ td.r, th.r { text-align: right; }
 .barra-topo .continuar { margin-left: auto; }
 .fundo-modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 20; display: grid; place-items: center; padding: 16px; }
 .modal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; width: min(560px, 100%); max-height: 90%; overflow: auto; padding: 18px; }
+.negociacao { padding: 12px; }
+.neg-foto { position: relative; aspect-ratio: 736/240; border-radius: 10px; overflow: hidden; }
+.neg-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.neg-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,13,16,.85) 0%, rgba(11,13,16,.35) 55%, rgba(11,13,16,0) 100%); }
+.neg-txt { position: absolute; left: 16px; bottom: 14px; right: 16px; z-index: 1; display: grid; gap: 4px; justify-items: start; color: #cfd3da; font-size: 13px; }
+.neg-txt h3 { margin: 0; font-family: var(--f-num); font-size: 24px; font-weight: 600; color: #fff; }
+@media (max-width: 640px) { .neg-foto { aspect-ratio: 736/360; } .neg-txt h3 { font-size: 19px; } }
 .modal-rel { padding: 0; width: min(720px, 100%); }
 .modal-corpo { padding: 14px 18px 18px; }
 .capa-rel { position: relative; aspect-ratio: 736/300; overflow: hidden; border-radius: 16px 16px 0 0; }
@@ -583,6 +590,9 @@ function tacticaConteudo() {
 }
 
 let tabMercado = 'Visão geral', parcelas = 'À vista';
+// Negociação (protótipo): o clube vendedor contra-propõe a meio caminho; aceita quando a proposta chega ao pedido.
+const NEG = { ronda: 4, pedido: 6.8, inicial: 7.2, proposta: 6.4, estado: 'aberta', piso: 6.3 };
+const fM = (v) => v.toFixed(1).replace('.', ',') + ' M€';
 const nomeJ = () => `${PRIMEIROS[ri(0, PRIMEIROS.length - 1)]} ${APELIDOS[ri(0, APELIDOS.length - 1)]}`;
 const CLUBES_M = [['Real Montalvo', 'POR1', CORES[0]], ['CF Alvarenga', 'POR1', CORES[1]], ['Kızılpınarspor', 'TUR1', ['#c8102e', '#ffd100']], ['Asteras Oristathmos', 'GRE1', ['#1d3b6b', '#fff']], ['Brackcombe Town', 'ENG1', ['#5a2d82', '#fff']], ['SV Mühlwangen', 'GER1', ['#111', '#e2a33a']], ['Atlético Pouso das Pedras', 'BRA1', ['#0a7a3a', '#fff']], ['Fontemarino Calcio', 'ITA1', ['#1b4fa0', '#fff']]];
 const gerarLista = (n, f) => Array.from({ length: n }, (_, k) => f(k));
@@ -609,11 +619,15 @@ function mercadoEcra() {
     <div class="bm-contagem ${aberta ? 'aberta' : ''}"><span class="bm-estado">${aberta ? 'Janela aberta' : 'Janela fechada'}</span><span class="bm-dias num">${dias}</span><span class="bm-texto">${dias === 1 ? 'dia' : 'dias'} para a janela ${nomeJ} ${aberta ? 'fechar' : 'abrir'}</span></div></section>
   <div class="filtros"><div class="seg" role="group">${tabs.map((t) => `<button data-tabm="${t}" class="${t === tabMercado ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
   const filtros = `<div class="filtros"><input type="search" placeholder="Pesquisar…" aria-label="Pesquisar"><select aria-label="Posição"><option>Todas as posições</option><option>Defesas</option><option>Médios</option><option>Avançados</option></select><select aria-label="Idade"><option>Idade: todas</option><option>Até 23</option><option>24–29</option><option>30+</option></select><select aria-label="Liga"><option>Todas as ligas</option><option>Liga Portugal</option><option>Brasileirão</option></select><select aria-label="Conhecimento"><option>Conhecimento: todos</option><option>≥ 50%</option><option>≥ 80%</option></select></div>`;
-  const negoc = `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Negociação em curso · Yusuf Taşsoy (Kızılpınarspor)</h3><div class="rot">Ronda 4 · contra-proposta de 6,8 M€ · pedido inicial 7,2 M€</div></div></div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><label class="rot" style="display:flex;gap:8px;align-items:center">Pagamento<select class="btn" id="sel-parc">${['À vista', 'À vista + 4 parcelas trimestrais', 'À vista + 2 parcelas semestrais', 'À vista + 2 parcelas anuais'].map((o) => `<option ${o === parcelas ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
-    <span class="muted">${parcelas === 'À vista' ? 'Pagamento total: 6,8 M€ agora' : parcelas.includes('4') ? '2,8 M€ agora + 4 × 1,0 M€ (de 3 em 3 meses)' : parcelas.includes('semestrais') ? '3,4 M€ agora + 2 × 1,7 M€ (de 6 em 6 meses)' : '3,4 M€ agora + 2 × 1,7 M€ (por ano)'}</span>
+  const parcTxt = (v) => parcelas === 'À vista' ? `Pagamento total: ${fM(v)} agora` : parcelas.includes('4') ? `${fM(v - 4)} agora + 4 × 1,0 M€ (de 3 em 3 meses)` : parcelas.includes('semestrais') ? `${fM(v / 2)} agora + 2 × ${fM(v / 4)} (de 6 em 6 meses)` : `${fM(v / 2)} agora + 2 × ${fM(v / 4)} (por ano)`;
+  const negoc = NEG.estado === 'assinado' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><div class="rot">${fM(NEG.pedido)} · contrato até 2031</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Repetir a negociação (protótipo)</button></div></section>`
+    : NEG.estado === 'desistiu' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Negociação terminada · Yusuf Taşsoy</h3><div class="rot">Desististe na ronda ${NEG.ronda}. O Kızılpınarspor fica à espera de outras propostas.</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Retomar (protótipo)</button></div></section>`
+    : `<section class="c s12 negociacao"><div class="neg-foto"><img src="negociacao-${NEG.ronda % 2 ? 2 : 1}.jpg" alt="Negociação com o clube"><div class="neg-txt"><span class="chip info">Ronda ${NEG.ronda}</span><h3>Negociação em curso · Yusuf Taşsoy (Kızılpınarspor)</h3><span>Pedido do clube: <b>${fM(NEG.pedido)}</b> · pedido inicial ${fM(NEG.inicial)}</span></div></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:12px"><span class="rot">A tua proposta</span><button class="btn" data-neg="-0.1" aria-label="Baixar a proposta">−</button><b class="num" style="font-size:22px;min-width:84px;text-align:center">${fM(NEG.proposta)}</b><button class="btn" data-neg="0.1" aria-label="Subir a proposta">+</button>
+    <label class="rot" style="display:flex;gap:8px;align-items:center">Pagamento<select class="btn" id="sel-parc">${['À vista', 'À vista + 4 parcelas trimestrais', 'À vista + 2 parcelas semestrais', 'À vista + 2 parcelas anuais'].map((o) => `<option ${o === parcelas ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
+    <span class="muted">${parcTxt(NEG.proposta)}</span>
     <span class="chip aviso">Poucos clubes aceitam parcelas</span>
-    <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap"><button class="btn">Desistir</button><button class="btn">Contra-propor</button><button class="btn prim">Enviar proposta</button></span></div></section>`;
+    <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-neg="desistir">Desistir</button><button class="btn prim" data-neg="enviar">Enviar proposta</button></span></div></section>`;
   if (tabMercado === 'Transferências') return cab + filtros + `<section class="c">${painel('troca', 'Transferências', 'Jogadores que outros clubes puseram à venda (que conheces)', `${LISTADOS.length} jogadores`)}${tabelaTransf(LISTADOS.slice(0, 40))}</section>`;
   if (tabMercado === 'Empréstimos') return cab + filtros + `<section class="c">${painel('troca', 'Empréstimos', 'Jogadores disponíveis para empréstimo', `${EMPREST.length} jogadores`)}${tabelaEmpr(EMPREST.slice(0, 40))}</section>`;
   if (tabMercado === 'Jogadores livres') return cab + filtros + `<section class="c">${painel('livre', 'Jogadores livres', 'Sem custo de transferência; o salário pedido desce com os meses sem clube', `${LIVRES.length} jogadores`)}${tabelaLivres(LIVRES.slice(0, 40))}</section>`;
@@ -1086,6 +1100,8 @@ function desenharModal() {
       <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
     const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
+    if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
+    else
     if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`)}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
     else el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="modal-cab" style="justify-content:flex-end"><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</div></div>`;
   }
@@ -1130,6 +1146,14 @@ function ligar(m) {
     if (para === 'principal') plantel.push({ ...p, n: plantel.length + 1, moral: 14, cond: 95, forma: ['6.8', '7.0', '6.9', '7.1', '7.0'], adq: 12, papel: PAPEIS[p.pos][0], fim: 2029, sal: 30000, lesao: '', susp: false });
     else (para === 'sub21' ? sub21 : sub18).unshift(p);
     desenhar(); }));
+  m.querySelectorAll('[data-neg]').forEach((b) => b.addEventListener('click', () => {
+    const a = b.dataset.neg, y = document.getElementById('principal').scrollTop;
+    if (a === 'enviar') { if (NEG.proposta >= NEG.pedido - 1e-9) { NEG.estado = 'assinado'; modal = 'assin'; } else { NEG.ronda++; NEG.pedido = Math.max(NEG.piso, Math.round(((NEG.pedido + NEG.proposta) / 2) * 10) / 10); } }
+    else if (a === 'desistir') NEG.estado = 'desistiu';
+    else if (a === 'reiniciar') Object.assign(NEG, { ronda: 4, pedido: 6.8, proposta: 6.4, estado: 'aberta' });
+    else NEG.proposta = Math.max(1, Math.round((NEG.proposta + +a) * 10) / 10);
+    desenhar(); document.getElementById('principal').scrollTop = y; if (modal === 'assin') desenharModal();
+  }));
   m.querySelector('#sel-parc')?.addEventListener('change', (e) => { parcelas = e.target.value; desenhar(); });
   m.querySelectorAll('[data-tabm]').forEach((b) => b.addEventListener('click', () => { tabMercado = b.dataset.tabm; desenhar(); }));
   m.querySelector('#demo-pos')?.addEventListener('click', () => { const i = tabela.findIndex((t) => t.nome === CLUBE.nome); const [t] = tabela.splice(i, 1); const alvo = i === 13 ? 2 : 13; Object.assign(t, alvo === 13 ? { v: 3, e: 4, d: 5, gm: 13, gs: 16, pts: 13 } : { v: 9, e: 2, d: 1, gm: 21, gs: 7, pts: 29 }); tabela.splice(alvo, 0, t); desenhar(); });
