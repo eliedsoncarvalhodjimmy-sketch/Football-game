@@ -232,6 +232,26 @@ td.r, th.r { text-align: right; }
 .op-reacao { display: flex; flex-wrap: wrap; gap: 6px; }
 .tema-reacao .chip { justify-self: start; }
 @media (max-width: 640px) { .reagir { grid-template-columns: 1fr; } .reagir-foto { min-height: 160px; } .noticia.com-foto { grid-template-columns: 1fr; } .noticia-foto { width: 100%; height: 120px; } }
+.modal-premios { width: min(820px, 100%); }
+.pr-banner { position: relative; padding: 0; overflow: hidden; min-height: 240px; }
+.pr-banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pr-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,13,16,.9) 0%, rgba(11,13,16,.55) 55%, rgba(11,13,16,.1) 100%); }
+.pr-banner-txt { position: relative; z-index: 1; padding: 20px; max-width: 560px; color: #e8eaee; display: grid; gap: 4px; }
+.pr-linha { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--cartao-2); margin-bottom: 6px; animation: pr-entra .35s ease-out; }
+.pr-linha.meu { box-shadow: inset 0 0 0 1px var(--acento); }
+.pr-lugar { font-family: var(--f-num); font-size: 22px; color: var(--suave); text-align: center; }
+.pr-podio { background: linear-gradient(90deg, rgba(212,175,55,.22), var(--cartao-2) 70%); }
+.pr-podio .pr-lugar { color: #e6c35c; font-size: 28px; }
+.pr-podio b { font-size: 18px; }
+.pr-sub { color: #cfd3da; font-size: 13px; } .pr-est { color: var(--suave); font-size: 12px; margin-top: 2px; }
+.pr-suspense { animation: pr-pulso 1s ease-in-out infinite; }
+.pr-botoes { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.pr-tit { font-family: var(--f-num); font-weight: 600; font-size: 20px; margin: 14px 0 8px; }
+.pr-grelha { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+.pr-fin { display: grid; background: var(--cartao-2); border-radius: 8px; padding: 6px 10px; font-size: 13px; } .pr-fin span { color: var(--suave); font-size: 12px; } .pr-fin.meu { box-shadow: inset 0 0 0 1px var(--acento); }
+@keyframes pr-entra { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes pr-pulso { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .pr-linha, .pr-suspense { animation: none; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -438,7 +458,7 @@ const JOGOS = new Map();
   [[2026, 8, 17], [2026, 9, 1], [2026, 9, 22], [2026, 10, 5], [2026, 10, 26], [2026, 11, 10]].forEach(([y, m, dd], k) => JOGOS.set(chave(new Date(Date.UTC(y, m, dd))), { tipo: 'uel', icone: 'cont', adv: cont[k % 4][0], cores: cont[k % 4][1], casa: k % 2 === 1, comp: 'Liga Europa · fase de liga' }));
 }
 function LIGA_ADV() { return ['Real Montalvo', 'CF Alvarenga', 'Sporting de Vale Formoso', 'Desportivo das Lezírias', 'União de Rio Maior', 'Académico de Penedono', 'Vitória de Castro Marim', 'FC Barca de Marvila', 'Clube Naval da Foz', 'Estrela de Valongo', 'Juventude de Arouca', 'Boavista do Mondego', 'SC Ribeira Brava', 'Os Lusitanos de Ourém', 'Marítimo da Amieira', 'GD Penafiel Velho', 'Recreativo de Tondela']; }
-const EVENTOS = new Map([['2026-11-16', 'Pausa internacional'], ['2026-11-17', 'Pausa internacional'], ['2026-11-18', 'Pausa internacional'], ['2027-03-22', 'Pausa internacional']]);
+const EVENTOS = new Map([['2026-11-16', 'Pausa internacional'], ['2026-11-17', 'Pausa internacional'], ['2026-11-18', 'Pausa internacional'], ['2027-03-22', 'Pausa internacional'], ['2027-07-16', 'Prémios: finalistas'], ['2027-07-30', 'Cerimónia dos prémios']]);
 const emJanela = (d) => { const m = d.getUTCMonth(); return m === 0 || m === 6 || m === 7; };
 const COR_COMP = { liga: 'var(--c-liga)', taca: 'var(--c-taca)', ucl: 'var(--c-ucl)', uel: 'var(--c-uel)', uecl: 'var(--c-uecl)' };
 const MENSAGENS = [
@@ -825,8 +845,9 @@ function classificacaoEcra() {
   const sels = `<div class="sel-comp">
     <label class="sel-am">${bandeira(pais)}<select id="sel-pais" aria-label="País">${PAISES_COMP.map(([k, n]) => `<option value="${k}" ${k === pais ? 'selected' : ''}>${n}</option>`).join('')}</select><span class="seta">▼</span></label>
     <label class="sel-am"><span class="ci" style="background:${pais === 'UEFA' ? 'var(--c-ucl)' : 'var(--c-liga)'}">${svg(pais === 'UEFA' ? 'cont' : COMP.find((c) => c[0] === compSel)[2] === 'taca' ? 'taca' : 'liga')}</span><select id="sel-comp" aria-label="Competição">${COMP.filter(([k]) => PAIS_COMP[k] === pais).map(([k, n]) => `<option value="${k}" ${k === compSel ? 'selected' : ''}>${n}</option>`).join('')}</select><span class="seta">▼</span></label></div>`;
-  const cab = `<div class="topo"><h1>Competições</h1><span class="sub">${nome}</span></div>${sels}<div class="filtros"><div class="seg" role="group">${['Classificação', 'Estatísticas', 'Histórico de campeões'].map((t) => `<button data-tabc="${t}" class="${t === tabComp ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
+  const cab = `<div class="topo"><h1>Competições</h1><span class="sub">${nome}</span></div>${sels}<div class="filtros"><div class="seg" role="group">${['Classificação', 'Estatísticas', 'Histórico de campeões', 'Prémios'].map((t) => `<button data-tabc="${t}" class="${t === tabComp ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
   if (tabComp === 'Histórico de campeões') return cab + `<div class="grelha">${historicoEcra()}</div>`;
+  if (tabComp === 'Prémios') return cab + premiosEcra();
   if (tabComp === 'Estatísticas') return cab + (compSel === 'POR1' ? estatisticasEcra() : `<section class="c"><div class="rot">No protótipo só a Liga Portugal tem estatísticas; na app vêm do mundo simulado para todas as competições.</div></section>`);
   if (compSel !== 'POR1') return cab + `<section class="c"><div class="rot">Classificação de ${nome}: no protótipo só a Liga Portugal tem dados; na app vêm do mundo simulado (todas as ligas, taças e fases continentais).</div></section>`;
   const lista = tabelaVista(), n = lista.length;
@@ -973,6 +994,73 @@ function modalEntrevista() {
     <div class="respostas">${ops.map((r) => `<button class="resposta" data-resp="${r.letra}"><span style="display:grid;gap:4px;justify-items:start"><span class="chip">${r.tom}</span>${r.promessa ? '<span class="chip aviso">Promessa</span>' : ''}</span><span>${preencher(r.texto)}</span></button>`).join('')}</div>
     <div class="rot" style="margin-top:10px">${q.id} · os efeitos são pequenos (−3 a +3) e as promessas ficam registadas, com prazo.</div>
     <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn" id="fechar">Sair da entrevista</button></div></div></div>`;
+}
+
+// ---------- Prémios anuais (protótipo): Golden Boy, Melhor guarda-redes, Melhor do Mundo ----------
+// Época de avaliação 1 Ago – 15 Jul; finalistas a 16 Jul; cerimónia a 30 Jul (números em src/config/premios.ts).
+const PREMIOS = (() => {
+  let s0 = 20270730; const r = () => { s0 = (s0 + 0x6d2b79f5) >>> 0; let t = s0; t = Math.imul(t ^ (t >>> 15), 1 | t); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const ra = (a, b) => a + Math.floor(r() * (b - a + 1)), pk = (a) => a[Math.floor(r() * a.length)];
+  const nomes = ['Lucas', 'Matías', 'Jonas', 'Kofi', 'Emre', 'Luka', 'Théo', 'Mateo', 'Ívar', 'Ricardo', 'Yusuf', 'Diego', 'Kenji', 'Sander', 'Adama', 'Nico', 'Joel', 'Arthur', 'Milan', 'Ousmane', 'Fede', 'Rafa', 'Tomás', 'Leon', 'Pablo', 'Ismael', 'Bruno', 'Elias'];
+  const apelidos = ['Varenne', 'Okonkwo', 'Brandvik', 'Delacroix', 'Mertens', 'Kovačić', 'Aldana', 'Tassoy', 'Ferreyra', 'Lindqvist', 'Moreau', 'Baptista', 'Haddad', 'Novak', 'Esposito', 'Calderón', 'Okafor', 'Rossetti', 'Van Daal', 'Sorensen', 'Duarte', 'Ilunga', 'Petrov', 'Castaño', 'Hendricks', 'Albuquerque', 'Marchetti', 'Diallo'];
+  const clubes = ['Real Montalvo', 'CF Alvarenga', 'Kızılpınarspor', 'SV Mühlwangen', 'Asteras Oristathmos', 'Fontemarino Calcio', 'Brackcombe Town', 'CA Puerto Lirio', 'Olympique Valbrune', 'Ajax Veldhoven', 'Athletic Ondarreta', 'Borussia Kaltental'];
+  const titulosP = ['Liga dos Campeões', 'Campeonato', 'Taça', 'Liga Europa', 'Mundial', 'Copa América', 'Europeu de selecções', 'Supertaça'];
+  const pos = ['PL', 'PL', 'PL', 'ED', 'EE', 'MO', 'MO', 'MC', 'MC', 'MDC', 'DC', 'DC', 'DD', 'DE'];
+  const usados = new Set();
+  const nomeUnico = () => { let x; do x = `${pk(nomes)} ${pk(apelidos)}`; while (usados.has(x)); usados.add(x); return x; };
+  // Pontuação de exemplo (na app: src/config/premios.ts): golos e assistências pesam mais nos médios e defesas; títulos pesam muito.
+  const ptos = (x) => x.pos === 'GR' ? x.ss * 1.6 + x.tit.length * 12 + x.j * 0.2 : x.g * (['PL', 'ED', 'EE'].includes(x.pos) ? 1 : ['DC', 'DD', 'DE', 'MDC'].includes(x.pos) ? 1.8 : 1.3) + x.a * 0.9 + x.tit.length * 12 + x.j * 0.2 + (['DC', 'DD', 'DE', 'MDC'].includes(x.pos) ? 14 : 0);
+  const gerar = (n, idade, gr) => Array.from({ length: n }, (_, k) => {
+    const p = gr ? 'GR' : pk(pos), j = ra(34, 58), at = ['PL', 'ED', 'EE'].includes(p), md = ['MO', 'MC'].includes(p);
+    const g = gr ? 0 : at ? ra(12, 48) : md ? ra(5, 20) : ra(1, 8), a = gr ? ra(0, 1) : at ? ra(5, 18) : md ? ra(8, 22) : ra(1, 9);
+    const tit = Array.from({ length: Math.max(0, 3 - Math.floor(k / 6) + ra(-1, 1)) }, () => pk(titulosP)).filter((x, i, l) => l.indexOf(x) === i);
+    return { nome: nomeUnico(), pos: p, clube: pk(clubes), idade: ra(idade[0], idade[1]), j, g, a, tit, ss: gr ? ra(12, 26) : null };
+  }).sort((x, y) => ptos(y) - ptos(x));
+  const gb = gerar(30, [18, 21]), gr = gerar(5, [24, 34], true), mdm = gerar(30, [21, 33]);
+  // O avançado do clube do utilizador entra nas duas listas (exemplo).
+  const nosso = { nome: 'Rafael Salouro', pos: 'PL', clube: CLUBE.nome, idade: 21, j: 41, g: 27, a: 9, tit: [], ss: null, meu: true };
+  gb.splice(5, 0, nosso); gb.length = 30; mdm.splice(26, 0, { ...nosso }); mdm.length = 30;
+  return { epoca: '2026/27', ano: 2027, golden_boy: gb, guarda_redes: gr, melhor_do_mundo: mdm };
+})();
+const ETAPAS_PREMIO = [
+  { k: 'golden_boy', nome: 'Golden Boy', sub: 'Melhor jogador sub-21', capa: 'premios/finalistas.jpg' },
+  { k: 'guarda_redes', nome: 'Melhor guarda-redes', sub: 'Troféu de melhor guarda-redes', capa: 'premios/trofeu.jpg' },
+  { k: 'melhor_do_mundo', nome: 'Melhor do Mundo', sub: 'Bola de Ouro', capa: 'premios/cerimonia.jpg' },
+];
+let cer = null; // { etapa, mostrados, timer }
+const linhaPremio = (x, lugar, grande) => `<div class="pr-linha ${grande ? 'pr-podio' : ''} ${x.meu ? 'meu' : ''}"><span class="pr-lugar">${lugar}.º</span><div class="pr-info"><b>${x.nome}</b><div class="pr-sub">${x.pos} · ${x.clube} · ${x.idade} anos</div><div class="pr-est">${x.j} jogos · ${x.pos === 'GR' ? `${x.ss} sem sofrer` : `${x.g} golo${x.g === 1 ? '' : 's'} · ${x.a} assist.`}${x.tit.length ? ` · ${x.tit.length} título${x.tit.length > 1 ? 's' : ''} (${x.tit.join(', ')})` : ''}</div></div></div>`;
+function modalFinalistas() {
+  const ord = (l) => [...l].sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
+  return `<div class="modal modal-rel modal-premios" role="dialog" aria-label="Finalistas dos prémios">${capaRelatorio(`Prémios ${PREMIOS.ano}: os finalistas`, `16 de Julho · época de avaliação 1 Ago ${PREMIOS.ano - 1} – 15 Jul ${PREMIOS.ano} · cerimónia a 30 de Julho`, 'premios/trofeu.jpg')}<div class="modal-corpo">
+    ${ETAPAS_PREMIO.map((e) => `<h3 class="pr-tit">${e.nome} <span class="rot">· ${PREMIOS[e.k].length} finalistas, por ordem alfabética</span></h3><div class="pr-grelha">${ord(PREMIOS[e.k]).map((x) => `<div class="pr-fin ${x.meu ? 'meu' : ''}"><b>${x.nome}</b><span>${x.pos} · ${x.clube} · ${x.idade}</span></div>`).join('')}</div>`).join('')}
+    <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
+}
+function modalCerimonia() {
+  const e = ETAPAS_PREMIO[cer.etapa], lista = PREMIOS[e.k], n = lista.length, feito = cer.mostrados >= n;
+  const proximo = n - cer.mostrados; // lugar a revelar a seguir
+  const revelados = lista.slice(n - cer.mostrados); // do lugar actual até ao n.º
+  const capa = feito && e.k === 'melhor_do_mundo' ? 'premios/vencedor.jpg' : e.capa;
+  const titulo = feito ? `${e.nome} ${PREMIOS.ano}: ${lista[0].nome}` : `${e.nome} ${PREMIOS.ano}`;
+  const suspense = !feito && proximo <= 3 ? `<div class="pr-linha pr-podio pr-suspense"><span class="pr-lugar">${proximo}.º</span><div class="pr-info"><b>${proximo === 1 ? `E o ${e.nome} ${PREMIOS.ano} é…` : `A revelar o ${proximo}.º lugar…`}</b><div class="pr-sub">${'●'.repeat(3)}</div></div></div>` : '';
+  return `<div class="modal modal-rel modal-premios" role="dialog" aria-label="Cerimónia de prémios">${capaRelatorio(titulo, `Cerimónia de 30 de Julho · etapa ${cer.etapa + 1} de 3 · ${e.sub}`, capa)}<div class="modal-corpo">
+    <div class="pr-botoes">${ETAPAS_PREMIO.map((x, i) => `<span class="chip ${i === cer.etapa ? 'info' : i < cer.etapa ? 'bom' : ''}">${i + 1}. ${x.nome}</span>`).join('')}<span style="margin-left:auto;display:flex;gap:8px">${feito ? (cer.etapa < 2 ? `<button class="btn prim" id="pr-seguinte">${ETAPAS_PREMIO[cer.etapa + 1].nome} ›</button>` : '') : '<button class="btn" id="pr-saltar">Saltar ›</button>'}<button class="btn" id="fechar">Fechar</button></span></div>
+    <div class="pr-lista">${suspense}${revelados.map((x, i) => linhaPremio(x, n - cer.mostrados + i + 1, n - cer.mostrados + i < 3)).join('')}</div></div></div>`;
+}
+function passoCerimonia() {
+  clearTimeout(cer?.timer);
+  if (!cer || modal !== 'cerimonia') return;
+  const n = PREMIOS[ETAPAS_PREMIO[cer.etapa].k].length;
+  if (cer.mostrados >= n) return;
+  const lugar = n - cer.mostrados, espera = lugar <= 3 ? 1800 : 450;
+  cer.timer = setTimeout(() => { cer.mostrados++; desenharModal(); passoCerimonia(); }, espera);
+}
+function premiosEcra() {
+  const venc = (k) => PREMIOS[k][0];
+  return `<div class="grelha">
+    <section class="c s12 pr-banner"><img src="premios/cerimonia.jpg" alt=""><div class="pr-banner-txt"><h2 style="color:#fff">Prémios anuais</h2><div>Golden Boy · Melhor guarda-redes · Melhor do Mundo</div><div class="rot" style="color:#cfd3da">Avaliação de 1 de Agosto a 15 de Julho · finalistas a 16 de Julho · cerimónia a 30 de Julho</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="pr-finalistas">Anúncio dos finalistas (16 Jul)</button><button class="btn prim" id="pr-cerimonia">Ver a cerimónia (30 Jul)</button></div></div></section>
+    ${ETAPAS_PREMIO.map((e) => `<section class="c s4"><h2>${e.nome} ${PREMIOS.ano}</h2>${linhaPremio(venc(e.k), 1, true)}<div class="rot" style="margin-top:8px">${PREMIOS[e.k].length} finalistas · ${e.sub}</div></section>`).join('')}
+    <section class="c s12"><div class="rot">Protótipo: os finalistas e os resultados são de exemplo. Na app saem da época simulada (nota média, golos e assistências por posição, jogos sem sofrer, títulos, reputação e força da liga), com os números em src/config/premios.ts.</div></section></div>`;
 }
 
 function staffEcra() {
@@ -1319,7 +1407,9 @@ function desenharModal() {
       <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
     const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
-    if (modal === 'imprensa') el.innerHTML = `<div class="modal modal-imp" role="dialog" aria-label="Imprensa">${imprensaEcra()}</div>`;
+    if (modal === 'finalistas') el.innerHTML = modalFinalistas();
+    else if (modal === 'cerimonia') el.innerHTML = modalCerimonia();
+    else if (modal === 'imprensa') el.innerHTML = `<div class="modal modal-imp" role="dialog" aria-label="Imprensa">${imprensaEcra()}</div>`;
     else if (modal === 'semana') el.innerHTML = modalSemana();
     else if (modal === 'reacao') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="A tua reacção">${capaRelatorio('A tua reacção é notícia', reacao.t.origem, reacao.o.img)}<div class="modal-corpo"><div class="rot">Amanhã nos jornais</div><h3 style="margin:4px 0 8px;font-family:var(--f-num);font-size:22px">${reacao.o.titulo}</h3><div class="rot" style="margin-bottom:10px">Em resposta a: ${reacao.t.tema}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(reacao.o.efeitos)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else if (modal === 'entrev') el.innerHTML = modalEntrevista();
@@ -1331,8 +1421,10 @@ function desenharModal() {
   }
   document.body.appendChild(el);
   el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
-  el.querySelector('#fechar').addEventListener('click', () => { if (daImprensa && (modal === 'entrev' || modal === 'semana' || modal === 'reacao')) { daImprensa = false; modal = 'imprensa'; desenhar(); desenharModal(); return; } daImprensa = false; modal = null; mesCal = null; msgAberta = null; desenhar(); });
+  el.querySelector('#fechar').addEventListener('click', () => { if (cer) { clearTimeout(cer.timer); cer = null; } if (daImprensa && (modal === 'entrev' || modal === 'semana' || modal === 'reacao')) { daImprensa = false; modal = 'imprensa'; desenhar(); desenharModal(); return; } daImprensa = false; modal = null; mesCal = null; msgAberta = null; desenhar(); });
   el.querySelectorAll('[data-ref]').forEach((b) => b.addEventListener('click', () => { modal = null; msgAberta = null; if (b.dataset.ref === 'mercado') { tabMercado = 'Transferências'; location.hash = 'mercado'; } desenhar(); }));
+  el.querySelector('#pr-saltar')?.addEventListener('click', () => { clearTimeout(cer.timer); cer.mostrados = PREMIOS[ETAPAS_PREMIO[cer.etapa].k].length; desenharModal(); });
+  el.querySelector('#pr-seguinte')?.addEventListener('click', () => { cer = { etapa: cer.etapa + 1, mostrados: 0 }; desenharModal(); passoCerimonia(); });
   el.querySelectorAll('[data-ir]').forEach((b) => b.addEventListener('click', () => { modal = 'imprensa'; desenharModal(); }));
   el.querySelectorAll('[data-reagir]').forEach((b) => b.addEventListener('click', () => { const [i, j] = b.dataset.reagir.split(':').map(Number), t = TEMAS_REACAO[i], o = t.opcoes[j]; t.feito = o.tom;
     if (o.titulo) { declarar(t.origem.split(' · ')[0], o.titulo, `Reacção a: ${t.tema}`, o.img, o.efeitos); reacao = { t, o }; modal = 'reacao'; daImprensa = true; desenhar(); desenharModal(); } else { const y = el.querySelector('.modal').scrollTop; desenharModal(); document.querySelector('.modal').scrollTop = y; } }));
@@ -1389,6 +1481,8 @@ function ligar(m) {
   m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
   const sp = m.querySelector('#sel-pais'); if (sp) sp.addEventListener('change', () => { compSel = COMP.find(([k]) => PAIS_COMP[k] === sp.value)[0]; if (sp.value === 'UEFA' && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
   m.querySelectorAll('[data-pedido]').forEach((x) => x.addEventListener('click', () => { modal = 'msg'; msgAberta = MENSAGENS.findIndex((y) => y.rel === x.dataset.pedido); MENSAGENS[msgAberta].lida = true; desenhar(); desenharModal(); }));
+  m.querySelector('#pr-finalistas')?.addEventListener('click', () => { modal = 'finalistas'; desenharModal(); });
+  m.querySelector('#pr-cerimonia')?.addEventListener('click', () => { modal = 'cerimonia'; cer = { etapa: 0, mostrados: 0 }; desenharModal(); passoCerimonia(); });
   m.querySelector('#b-imp').addEventListener('click', () => { modal = 'imprensa'; desenharModal(); });
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
   m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
