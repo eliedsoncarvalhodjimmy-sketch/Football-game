@@ -136,6 +136,17 @@ td.r, th.r { text-align: right; }
 .cores button { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--linha); }
 
 .inferior { display: none; }
+.adeptos { position: relative; overflow: hidden; padding: 0; min-height: 300px; }
+.adeptos > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.adeptos::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,13,16,.92) 0%, rgba(11,13,16,.75) 45%, rgba(11,13,16,.25) 100%); }
+.ad-conteudo { position: relative; z-index: 1; padding: 18px; display: grid; gap: 14px; max-width: 620px; }
+.ad-grandes { display: flex; gap: 28px; flex-wrap: wrap; }
+.ad-grandes > div { display: flex; flex-direction: column; }
+.ad-grandes .num { font-size: 44px; line-height: 1; color: #fff; }
+.ad-linhas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 18px; }
+.ad-linhas > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ad-linhas b { font-family: var(--f-num); font-size: 22px; color: #fff; }
+@media (max-width: 760px) { .ad-linhas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .adeptos::after { background: linear-gradient(180deg, rgba(11,13,16,.85), rgba(11,13,16,.7)); } }
 .banner-mercado { position: relative; border-radius: var(--raio); overflow: hidden; margin-bottom: 14px; aspect-ratio: 588/250; max-height: 300px; width: 100%; border: 1px solid var(--linha); }
 .banner-mercado img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
 .banner-mercado::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,.65) 0%, rgba(11,13,16,.1) 40%, rgba(11,13,16,.35) 100%); }
@@ -645,6 +656,21 @@ function financasEcra() {
     <section class="c s3"><h2>Receita prevista</h2><div class="num grande">102 M€</div></section>
     <section class="c s3"><h2>Resultado previsto</h2><div class="num grande" style="color:var(--bom)">+4,8 M€</div></section>
     <section class="c s12"><h2>Objectivos da época (reunião com o dono, Julho) × desempenho<span class="acao" style="color:var(--suave)">Confiança do dono: 72/100</span></h2>${tabelaObjectivos(false)}</section>
+    <section class="c s12 adeptos"><img src="adeptos.jpg" alt="">
+      <div class="ad-conteudo">
+        <h2 style="color:#e8eaee">Adeptos</h2>
+        <div class="ad-grandes"><div><span class="num">1,2 M</span><span class="rot">Base de adeptos estimada</span></div><div><span class="num">48 300</span><span class="rot">Sócios</span></div></div>
+        <div class="ad-linhas">
+          <div><span class="rot">Satisfação dos adeptos</span><b>68/100</b><div class="barra"><i style="width:68%;background:var(--bom)"></i></div></div>
+          <div><span class="rot">Assistência média</span><b>27 950</b></div>
+          <div><span class="rot">Taxa de ocupação</span><b>86%</b></div>
+          <div><span class="rot">Lugares anuais</span><b>19 400</b></div>
+          <div><span class="rot">Preço médio do bilhete</span><b>24 €</b></div>
+          <div><span class="rot">Quota de sócio (ano)</span><b>96 €</b></div>
+        </div>
+        <div class="rot" style="color:#cfd3da">Tendência: +2 300 sócios desde Julho · a vitória no dérbi subiu a satisfação</div>
+      </div>
+    </section>
     <section class="c s7"><h2>Fluxo de caixa</h2>${fluxoHtml}</section>
     <section class="c s5"><h2>Conselho de administração</h2>
       <div class="linha-kv"><span class="muted">Dono</span><span>Grupo Ferraz Investimentos</span></div>
