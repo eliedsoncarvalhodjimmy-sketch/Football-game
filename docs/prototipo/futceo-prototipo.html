@@ -577,20 +577,18 @@ function filtroCorClube(fid, alfa) {
   if (!document.getElementById(fid)) { const d = document.createElement('div'); d.innerHTML = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="${fid}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  ${alfa}" result="mascara"/><feFlood id="${fid}-cor" flood-color="${cor}" result="cor"/><feComposite in="cor" in2="mascara" operator="in" result="tinta"/><feBlend in="tinta" in2="SourceGraphic" mode="color"/></filter></svg>`; document.body.appendChild(d.firstChild); }
   document.getElementById(`${fid}-cor`).setAttribute('flood-color', cor);
 }
-// Sala de scouting: fotografia do utilizador sem os emblemas; só as camisolas (azuis fortes, dentro das zonas das pessoas) mudam para a cor do clube.
+// Sala de análise/scouting: fotografia do utilizador. Os dizeres, logótipos e emblemas das camisolas foram retirados; por cima
+// vai uma camada só com as camisolas (sombreado do tecido + máscara), pintada aqui com a cor do clube.
 function salaScouting() {
-  // Cor do clube sombreada pela luminância da camisola (claro e escuro do tecido mantêm-se), só onde o azul é forte.
-  const fid = 'recolor-scout', cor = CLUBE.cores[0];
+  const fid = 'cor-camisolas', cor = CLUBE.cores[0];
   if (!document.getElementById(fid)) { const d = document.createElement('div'); d.innerHTML = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="${fid}" color-interpolation-filters="sRGB">
-    <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3 -1.5 3.5 0 -0.3" result="m0"/><feMorphology in="m0" operator="dilate" radius="1" result="mascara"/>
-    <feColorMatrix in="SourceGraphic" type="matrix" values="0.9 1.77 0.33 0 0  0.9 1.77 0.33 0 0  0.9 1.77 0.33 0 0  0 0 0 0 1" result="lum"/>
-    <feFlood id="${fid}-cor" flood-color="${cor}" result="cor"/><feComposite in="lum" in2="cor" operator="arithmetic" k1="1" result="tingido"/>
-    <feComposite in="tingido" in2="mascara" operator="in" result="tinta"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="tinta"/></feMerge></filter></svg>`; document.body.appendChild(d.firstChild); }
+    <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1" result="sombra"/>
+    <feFlood id="${fid}-cor" flood-color="${cor}" result="cor"/><feComposite in="sombra" in2="cor" operator="arithmetic" k1="1.6" result="tinta"/>
+    <feComposite in="tinta" in2="SourceAlpha" operator="in"/></filter></svg>`; document.body.appendChild(d.firstChild); }
   document.getElementById(`${fid}-cor`).setAttribute('flood-color', cor);
-  const camada = (estilo) => `<img src="scouting.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;${estilo}">`;
-  const zonas = ['40.8% 51.1% 32.1% 25.8%', '53% 0.8% 30% 76.1%', '68.6% 64.7% 0 0', '70.7% 0 0 92.4%'];
-  return `<div style="position:relative;width:100%;aspect-ratio:736/460;overflow:hidden"><div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);aspect-ratio:1/1">
-    ${camada('')}${zonas.map((z) => camada(`filter:url(#recolor-scout);clip-path:inset(${z})`)).join('')}</div></div>`;
+  const camada = (src, estilo = '') => `<img src="${src}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;${estilo}">`;
+  return `<div style="position:relative;width:100%;aspect-ratio:1024/600;overflow:hidden"><div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);aspect-ratio:1024/768">
+    ${camada('analise.jpg')}${camada('analise-camisolas.png', `filter:url(#${fid})`)}</div></div>`;
 }
 function salaConselho() {
   const cor = CLUBE.cores[0];
