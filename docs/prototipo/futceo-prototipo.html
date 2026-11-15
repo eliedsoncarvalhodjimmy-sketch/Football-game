@@ -151,6 +151,7 @@ td.r, th.r { text-align: right; }
 @media (max-width: 760px) { .ad-linhas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .adeptos::after { background: linear-gradient(180deg, rgba(11,13,16,.85), rgba(11,13,16,.7)); } }
 .banner-mercado { position: relative; border-radius: var(--raio); overflow: hidden; margin-bottom: 14px; aspect-ratio: 588/250; max-height: 300px; width: 100%; border: 1px solid var(--linha); }
 .banner-mercado img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
+.infra-3d { display: block; width: 100%; aspect-ratio: 1100/776; object-fit: cover; border-radius: 10px; background: #2a3a2a; border: 1px solid var(--linha); }
 .banner-plantel img { object-position: center 40%; }
 .banner-mercado::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,.65) 0%, rgba(11,13,16,.1) 40%, rgba(11,13,16,.35) 100%); }
 .bm-topo { position: absolute; left: 16px; top: 12px; z-index: 1; }
@@ -988,7 +989,7 @@ function infraEcra() {
     ['academia', 'Academia', 7, (v) => `${Math.min(4, 1 + Math.floor(v / 3))} campos · ${v >= 5 ? 'residência' : 'sem residência'} · shortlist de ${Math.min(12, Math.round(7 + 0.5 * v))}`, 3.1, 42],
     ['medico', 'Instalações médicas', 4, (v) => `${1 + Math.floor(v / 2)} piso(s) · ${v >= 5 ? '−' : '+'}${Math.abs((v - 5) * 1.5).toFixed(1).replace('.', ',')}% dias de lesão`, 0.9, 20],
     ['recrutamento', 'Recrutamento', 6, (v) => `${Math.min(6, 1 + Math.floor(v / 2))} postos de scouting · ${v >= 7 ? 3 : v >= 4 ? 2 : 1} ecrã(s) por posto · +${v * 10}% observações`, 0.7, 18]];
-  const des = (k, v) => k === 'estadio' ? desenhoEstadio(v, tamClube).svg : k === 'treino' ? desenhoTreino(v) : k === 'academia' ? desenhoAcademia(v) : k === 'medico' ? desenhoMedico(v) : desenhoScout(v);
+  const des = (k, v) => `<img class="infra-3d" src="infra/${k === 'estadio' ? `estadio-${v}-${tamClube}` : `${k}-${v}`}.webp" alt="Ilustração 3D: ${k} nível ${v}" loading="lazy" decoding="async">`;
   return `
   <div class="topo"><h1>Infraestrutura</h1><span class="sub">Orçamento de infraestruturas: 4,1 / 6,0 M€</span><div class="direita"><label class="rot" style="display:flex;gap:8px;align-items:center">Tamanho do clube (protótipo)<select class="btn" id="sel-tam">${[['1', 'Pequeno'], ['2', 'Médio'], ['3', 'Grande']].map(([v, t]) => `<option value="${v}" ${+v === tamClube ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div></div>
   <div class="grelha">${inf.map(([k, n, v0, ef, custo, sem]) => { const v = previa[k] ?? v0; const vendo = v !== v0;
