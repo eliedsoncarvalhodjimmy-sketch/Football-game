@@ -174,6 +174,36 @@ td.r, th.r { text-align: right; }
 .fundo-modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 20; display: grid; place-items: center; padding: 16px; }
 .modal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; width: min(560px, 100%); max-height: 90%; overflow: auto; padding: 18px; }
 .negociacao { padding: 12px; }
+.sel-comp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 12px; }
+.sel-am { min-width: 0; position: relative; display: flex; align-items: center; gap: 8px; background: #f2c230; color: #111; border-radius: 8px; padding: 0 12px; min-height: 46px; font-weight: 600; box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); }
+.sel-am select { min-width: 0; text-overflow: ellipsis; appearance: none; -webkit-appearance: none; background: transparent; border: 0; color: #111; font: inherit; flex: 1; min-height: 44px; padding-right: 22px; cursor: pointer; }
+.sel-am select option { color: #111; background: #fff; }
+.sel-am .seta { position: absolute; right: 12px; pointer-events: none; font-size: 12px; }
+.sel-am .bandeira { width: 26px; height: 17px; border-radius: 2px; flex: none; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+.sel-am .ci, .tl-zi .ci { flex: none; width: 22px; height: 22px; border-radius: 5px; display: inline-grid; place-items: center; color: #0b0d10; } .sel-am .ci svg, .tl-zi .ci svg { width: 14px; height: 14px; }
+.tl-zi .ci { width: 19px; height: 19px; } .tl-zi .ci svg { width: 12px; height: 12px; }
+.tabela-liga { display: grid; gap: 3px; background: var(--fundo); }
+.tl-linha { display: grid; grid-template-columns: 44px minmax(0, 1fr) repeat(4, 34px) repeat(2, 38px) 40px 44px; align-items: center; min-height: 42px; background: var(--cartao-2); border-radius: 4px; overflow: hidden; font-variant-numeric: tabular-nums; }
+.tl-linha > span:not(.tl-clube):not(.tl-pos) { text-align: center; }
+.tl-cab { background: transparent; min-height: 30px; color: var(--suave); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.tl-pos { align-self: stretch; display: grid; place-items: center; font-family: var(--f-num); font-size: 20px; background: #0b0d10; color: #e8eaee; }
+.tl-cab .tl-pos { background: transparent; font-family: inherit; font-size: 12px; color: var(--suave); }
+.tl-pos.z-ucl { background: var(--c-ucl); } .tl-pos.z-uel { background: var(--c-uel); color: #111; } .tl-pos.z-uecl { background: var(--c-uecl); }
+.tl-pos.z-playoff { background: #f08a3c; color: #111; } .tl-pos.z-desc { background: var(--mau); }
+.tl-clube { display: flex; align-items: center; gap: 8px; padding: 0 10px; min-width: 0; }
+.tl-clube b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.tl-zi { margin-left: auto; display: inline-flex; }
+.tl-pts { font-weight: 700; font-family: var(--f-num); font-size: 19px; }
+.tl-linha.meu { background: color-mix(in srgb, var(--acento) 30%, var(--cartao-2)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acento) 70%, transparent); }
+.tl-botoes { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 8px; margin-top: 12px; }
+.tl-btn { background: #2c63c9; color: #fff; border: 0; border-radius: 8px; min-height: 48px; font-weight: 700; text-transform: uppercase; font-size: 13px; letter-spacing: .03em; box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); cursor: pointer; padding: 0 8px; }
+.tl-ciclo { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+@media (max-width: 640px) {
+  .tl-linha { grid-template-columns: 34px minmax(0, 1fr) repeat(4, 24px) 32px 32px; font-size: 13px; min-height: 38px; }
+  .tl-g { display: none; }
+  .tl-pos { font-size: 17px; } .tl-pts { font-size: 16px; } .tl-clube { padding: 0 6px; gap: 6px; } .tl-clube .escudo { display: none; }
+  .tl-botoes { grid-template-columns: 1fr 1fr; } .tl-ciclo { grid-column: 1 / -1; } .tl-btn { font-size: 12px; }
+}
 .neg-foto { position: relative; aspect-ratio: 736/240; border-radius: 10px; overflow: hidden; }
 .neg-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
 .neg-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,13,16,.85) 0%, rgba(11,13,16,.35) 55%, rgba(11,13,16,0) 100%); }
@@ -742,18 +772,42 @@ function financasEcra() {
   </div>`;
 }
 
+// Países e bandeiras (protótipo) para os selectores das competições.
+const PAISES_COMP = [['POR', 'Portugal'], ['ENG', 'Inglaterra'], ['ESP', 'Espanha'], ['UEFA', 'Europa (UEFA)']];
+const PAIS_COMP = { POR1: 'POR', POR2: 'POR', TPOR: 'POR', ENG1: 'ENG', ESP1: 'ESP', UCL: 'UEFA', UEL: 'UEFA', UECL: 'UEFA' };
+const bandeira = (p) => `<svg class="bandeira" viewBox="0 0 30 20" aria-hidden="true">${p === 'POR' ? '<rect width="12" height="20" fill="#046a38"/><rect x="12" width="18" height="20" fill="#da291c"/><circle cx="12" cy="10" r="4" fill="#ffe900" stroke="#da291c" stroke-width="1"/>'
+  : p === 'ENG' ? '<rect width="30" height="20" fill="#fff"/><rect x="13" width="4" height="20" fill="#ce1124"/><rect y="8" width="30" height="4" fill="#ce1124"/>'
+  : p === 'ESP' ? '<rect width="30" height="20" fill="#aa151b"/><rect y="5" width="30" height="10" fill="#f1bf00"/>'
+  : '<rect width="30" height="20" fill="#003399"/>' + Array.from({ length: 12 }, (_, k) => `<circle cx="${(15 + 6 * Math.cos((k * Math.PI) / 6)).toFixed(1)}" cy="${(10 + 6 * Math.sin((k * Math.PI) / 6)).toFixed(1)}" r=".9" fill="#ffcc00"/>`).join('')}</svg>`;
+const VISTAS_TAB = ['Tabela geral', 'Em casa', 'Fora'];
+let vistaTab = 0;
+function tabelaVista() {
+  if (!vistaTab) return tabela;
+  // Divisão casa/fora determinística a partir dos totais (no protótipo).
+  return tabela.map((t, k) => {
+    const casa = vistaTab === 1, f = (n, a) => (casa ? Math.ceil(n * a) : n - Math.ceil(n * a));
+    const j = casa ? 6 : 6, v = f(t.v, 0.62), e = f(t.e, 0.5), d = Math.max(0, j - v - e), gm = f(t.gm, 0.58), gs = f(t.gs, 0.42);
+    return { ...t, j, v, e, d, gm, gs, pts: v * 3 + e };
+  }).sort((a, b) => b.pts - a.pts || (b.gm - b.gs) - (a.gm - a.gs));
+}
 function classificacaoEcra() {
-  const nome = COMP.find((c) => c[0] === compSel)[1];
-  const cab = `<div class="topo"><h1>Competições</h1><span class="sub">${nome}</span><div class="direita"><select class="btn" id="sel-comp" aria-label="Competição">${COMP.map(([k, n]) => `<option value="${k}" ${k === compSel ? 'selected' : ''}>${n}</option>`).join('')}</select></div></div><div class="filtros"><div class="seg" role="group">${['Classificação', 'Estatísticas', 'Histórico de campeões'].map((t) => `<button data-tabc="${t}" class="${t === tabComp ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
+  const nome = COMP.find((c) => c[0] === compSel)[1], pais = PAIS_COMP[compSel];
+  const sels = `<div class="sel-comp">
+    <label class="sel-am">${bandeira(pais)}<select id="sel-pais" aria-label="País">${PAISES_COMP.map(([k, n]) => `<option value="${k}" ${k === pais ? 'selected' : ''}>${n}</option>`).join('')}</select><span class="seta">▼</span></label>
+    <label class="sel-am"><span class="ci" style="background:${pais === 'UEFA' ? 'var(--c-ucl)' : 'var(--c-liga)'}">${svg(pais === 'UEFA' ? 'cont' : COMP.find((c) => c[0] === compSel)[2] === 'taca' ? 'taca' : 'liga')}</span><select id="sel-comp" aria-label="Competição">${COMP.filter(([k]) => PAIS_COMP[k] === pais).map(([k, n]) => `<option value="${k}" ${k === compSel ? 'selected' : ''}>${n}</option>`).join('')}</select><span class="seta">▼</span></label></div>`;
+  const cab = `<div class="topo"><h1>Competições</h1><span class="sub">${nome}</span></div>${sels}<div class="filtros"><div class="seg" role="group">${['Classificação', 'Estatísticas', 'Histórico de campeões'].map((t) => `<button data-tabc="${t}" class="${t === tabComp ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
   if (tabComp === 'Histórico de campeões') return cab + `<div class="grelha">${historicoEcra()}</div>`;
   if (tabComp === 'Estatísticas') return cab + (compSel === 'POR1' ? estatisticasEcra() : `<section class="c"><div class="rot">No protótipo só a Liga Portugal tem estatísticas; na app vêm do mundo simulado para todas as competições.</div></section>`);
   if (compSel !== 'POR1') return cab + `<section class="c"><div class="rot">Classificação de ${nome}: no protótipo só a Liga Portugal tem dados; na app vêm do mundo simulado (todas as ligas, taças e fases continentais).</div></section>`;
+  const lista = tabelaVista(), n = lista.length;
+  const zona = (i) => (i < 2 ? 'ucl' : i === 2 ? 'uel' : i === 3 ? 'uecl' : i >= n - 2 ? 'desc' : i === n - 3 ? 'playoff' : '');
   return cab + `
-  <section class="c"><div class="tab-wrap"><table>
-    <thead><tr><th class="r">#</th><th class="zi"></th><th>Clube</th><th class="r">J</th><th class="r">V</th><th class="r">E</th><th class="r">D</th><th class="r">GM</th><th class="r">GS</th><th class="r">DG</th><th class="r">Pts</th><th>Forma</th></tr></thead>
-    <tbody>${tabela.map((t, i) => `<tr class="${t.nome === CLUBE.nome ? 'meu' : ''}"><td class="r">${i + 1}</td><td class="zi">${zonaIcone(i, tabela.length)}</td><td><span style="display:inline-flex;align-items:center;gap:8px">${escudo(t.cores, 18)}<b>${t.nome}</b></span></td><td class="r">${t.j}</td><td class="r">${t.v}</td><td class="r">${t.e}</td><td class="r">${t.d}</td><td class="r">${t.gm}</td><td class="r">${t.gs}</td><td class="r">${t.gm - t.gs > 0 ? '+' : ''}${t.gm - t.gs}</td><td class="r"><b class="num" style="font-size:17px">${t.pts}</b></td><td><span class="forma">${t.forma.map((x) => `<i class="${x}">${x}</i>`).join('')}</span></td></tr>`).join('')}</tbody>
-  </table></div>
-  <div class="legenda" style="margin-top:12px">${[['ucl', 'Liga dos Campeões'], ['uel', 'Liga Europa'], ['uecl', 'Liga Conferência'], ['playoff', 'Play-off de descida'], ['desc', 'Descida']].map(([z, t]) => `<span>${zonaSvg(z)}${t}</span>`).join('')}</div></section>`;
+  <section class="tabela-liga">
+    <div class="tl-linha tl-cab"><span class="tl-pos">Pos</span><span class="tl-clube"></span><span>J</span><span>V</span><span>E</span><span>D</span><span class="tl-g">GM</span><span class="tl-g">GS</span><span>DG</span><span class="tl-pts">Pts</span></div>
+    ${lista.map((t, i) => { const z = zona(i); const dg = t.gm - t.gs; return `<div class="tl-linha ${t.nome === CLUBE.nome ? 'meu' : ''}"><span class="tl-pos z-${z || 'nada'}">${String(i + 1).padStart(2, '0')}</span><span class="tl-clube">${escudo(t.cores, 16)}<b>${t.nome}</b><span class="tl-zi">${z ? zonaSvg(z) : ''}</span></span><span>${t.j}</span><span>${t.v}</span><span>${t.e}</span><span>${t.d}</span><span class="tl-g">${t.gm}</span><span class="tl-g">${t.gs}</span><span>${dg > 0 ? '+' : dg < 0 ? '−' : ''}${Math.abs(dg)}</span><span class="tl-pts">${t.pts}</span></div>`; }).join('')}
+  </section>
+  <div class="tl-botoes"><button class="tl-btn" id="b-regras">Regras de transferência</button><button class="tl-btn" data-tabc="Histórico de campeões">Histórico</button><button class="tl-btn tl-ciclo" id="b-vista"><span>◂</span>${VISTAS_TAB[vistaTab]}<span>▸</span></button></div>
+  <div class="legenda" style="margin-top:12px">${[['ucl', 'Liga dos Campeões'], ['uel', 'Liga Europa'], ['uecl', 'Liga Conferência'], ['playoff', 'Play-off de descida'], ['desc', 'Descida']].map(([z, t]) => `<span>${zonaSvg(z)}${t}</span>`).join('')}</div>`;
 }
 
 
@@ -1100,7 +1154,8 @@ function desenharModal() {
       <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
   } else {
     const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
-    if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
+    if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
+    else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else
     if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`)}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
     else el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="modal-cab" style="justify-content:flex-end"><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</div></div>`;
@@ -1138,6 +1193,9 @@ function ligar(m) {
   m.querySelectorAll('[data-bil]').forEach((b) => b.addEventListener('click', () => { const d = +b.dataset.bil; precoBilhete = d === 0 ? 24 : Math.max(5, Math.min(120, precoBilhete + d)); const y = document.getElementById('principal').scrollTop; desenhar(); document.getElementById('principal').scrollTop = y; }));
   m.querySelectorAll('[data-tabe]').forEach((b) => b.addEventListener('click', () => { tabEst = b.dataset.tabe; desenhar(); }));
   m.querySelectorAll('[data-tabc]').forEach((b) => b.addEventListener('click', () => { tabComp = b.dataset.tabc; desenhar(); }));
+  const sp = m.querySelector('#sel-pais'); if (sp) sp.addEventListener('change', () => { compSel = COMP.find(([k]) => PAIS_COMP[k] === sp.value)[0]; if (sp.value === 'UEFA' && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
+  m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
+  m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
   const sc = m.querySelector('#sel-comp'); if (sc) sc.addEventListener('change', () => { compSel = sc.value; if (['UCL', 'UEL', 'UECL'].includes(compSel) && tabComp === 'Classificação') tabComp = 'Histórico de campeões'; desenhar(); });
   m.querySelectorAll('[data-mover]').forEach((b) => b.addEventListener('click', (ev) => { ev.stopPropagation(); const [de, id, para] = b.dataset.mover.split(':');
     let p;
