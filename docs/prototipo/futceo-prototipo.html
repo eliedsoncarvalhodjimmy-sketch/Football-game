@@ -703,7 +703,7 @@ const AV = {
   corOlhos: ['#3b2a1e', '#5c3d22', '#3e6b8a', '#4f7a4a', '#7b7b7b'],
   nomes: { pele: 'Tom de pele', cara: 'Rosto', cabelo: 'Cabelo', corCabelo: 'Cor do cabelo', sobr: 'Sobrancelhas', olhos: 'Olhos', corOlhos: 'Cor dos olhos', nariz: 'Nariz', boca: 'Boca', barba: 'Barba', oculos: 'Óculos' },
   max: { pele: 8, cara: 4, cabelo: 12, corCabelo: 8, sobr: 3, olhos: 4, corOlhos: 5, nariz: 3, boca: 3, barba: 6, oculos: 3 },
-  rot: { cabelo: ['Careca', 'Rapado', 'Curto', 'Risca ao lado', 'Topete', 'Caracóis', 'Afro', 'Comprido', 'Rastas', 'Moicano', 'Degradê', 'Coque'], barba: ['Sem barba', 'Por fazer', 'Bigode', 'Pêra', 'Curta', 'Cheia'], oculos: ['Sem óculos', 'Redondos', 'Rectangulares'], cara: ['Oval', 'Larga', 'Comprida', 'Quadrada'], corCabelo: ['Preto', 'Castanho escuro', 'Castanho', 'Ruivo', 'Loiro escuro', 'Loiro', 'Grisalho', 'Branco'], corOlhos: ['Castanhos escuros', 'Castanhos', 'Azuis', 'Verdes', 'Cinzentos'] },
+  rot: { olhos: ['Amêndoa', 'Encapuzados', 'Redondos', 'Caídos'], sobr: ['Rectas', 'Arqueadas', 'Grossas'], nariz: ['Recto', 'Largo', 'Aquilino'], boca: ['Neutra', 'Sorriso fechado', 'Sorriso aberto'], cabelo: ['Careca', 'Rapado', 'Curto', 'Risca ao lado', 'Topete', 'Caracóis', 'Afro', 'Comprido', 'Rastas', 'Moicano', 'Degradê', 'Coque'], barba: ['Sem barba', 'Por fazer', 'Bigode', 'Pêra', 'Curta', 'Cheia'], oculos: ['Sem óculos', 'Redondos', 'Rectangulares'], cara: ['Oval', 'Larga', 'Comprida', 'Quadrada'], corCabelo: ['Preto', 'Castanho escuro', 'Castanho', 'Ruivo', 'Loiro escuro', 'Loiro', 'Grisalho', 'Branco'], corOlhos: ['Castanhos escuros', 'Castanhos', 'Azuis', 'Verdes', 'Cinzentos'] },
 };
 // Distribuição do tom de pele por região (pesos por índice) e cabelo/olhos claros possíveis.
 const AV_REGIAO = {
@@ -762,17 +762,20 @@ function avatarSvg(p, { kit = null, tam = 48, fundo: corFundo = null } = {}) {
   // Medidas das feições
   const od = lerp(14.5, 19, m.olhosDist), ew = lerp(8.6, 10.8, m.olhosTam), eh = lerp(3.2, 4.8, m.olhosAbert), ein = lerp(-1.6, 1.6, m.olhosInclin);
   const nl = lerp(7, 11.5, m.narizLarg), bl = lerp(12, 17, m.bocaLarg), lb = lerp(3, 5.6, m.labios), sorr = (m.sorriso - 0.5) * 3, iris = AV.corOlhos[t.corOlhos];
-  // Orelhas (entre a sobrancelha e a base do nariz)
-  const orelha = (s) => { const x = X + s * (W - 1), y0 = sobrY + 2, y1 = narizY + 2, ow = lerp(6, 9, m.orelhas);
-    return `<path d="M${x} ${y0} C${x + s * ow * 1.3} ${y0 - 4} ${x + s * ow * 1.4} ${(y0 + y1) / 2} ${x + s * ow * 0.9} ${y1 - 2} C${x + s * ow * 0.5} ${y1 + 4} ${x + s * 2} ${y1 + 2} ${x} ${y1 - 2}Z" fill="${s > 0 ? s1 : pele}" stroke="${L}" stroke-width="2.6" stroke-linejoin="round"/>
-    <path d="M${x + s * 3} ${y0 + 4} C${x + s * ow * 0.95} ${y0 + 2} ${x + s * ow} ${(y0 + y1) / 2} ${x + s * ow * 0.6} ${y1 - 5}" stroke="${s3}" stroke-width="1.6" fill="none"/><path d="M${x + s * 4} ${(y0 + y1) / 2 - 3} q${s * 4} 2 ${s * 1} 7" stroke="${s3}" stroke-width="1.3" fill="none"/>`; };
+  // Orelhas (forma em C com hélice, anti-hélice, concha e lóbulo; entre a sobrancelha e a base do nariz)
+  const orelha = (s) => { const x = X + s * (W - 1.5), y0 = sobrY + 1, y1 = narizY + 3, ow = lerp(6.5, 9.5, m.orelhas), ym = (y0 + y1) / 2;
+    const fora = `M${x} ${y0 + 2} C${x + s * ow * 0.7} ${y0 - 4} ${x + s * ow * 1.35} ${y0 - 1} ${x + s * ow * 1.3} ${ym - 4} C${x + s * ow * 1.25} ${ym + 6} ${x + s * ow * 0.9} ${y1 - 6} ${x + s * ow * 0.75} ${y1 - 1} C${x + s * ow * 0.6} ${y1 + 4} ${x + s * 2} ${y1 + 3} ${x} ${y1 - 1}Z`;
+    return `<path d="${fora}" fill="${s > 0 ? s1 : pele}" stroke="${L}" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M${x + s * 1.5} ${y0 + 4} C${x + s * ow * 0.7} ${y0 + 0.5} ${x + s * ow * 1.05} ${y0 + 3} ${x + s * ow * 1.02} ${ym - 3} C${x + s * ow} ${ym + 5} ${x + s * ow * 0.7} ${y1 - 7} ${x + s * ow * 0.55} ${y1 - 4}" stroke="${s3}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M${x + s * ow * 0.25} ${ym - 4} C${x + s * ow * 0.55} ${ym - 6} ${x + s * ow * 0.7} ${ym} ${x + s * ow * 0.45} ${ym + 4} C${x + s * ow * 0.3} ${ym + 6} ${x + s * ow * 0.25} ${ym + 3} ${x + s * ow * 0.35} ${ym + 1}" fill="${s2}" stroke="${s3}" stroke-width="1.1"/>
+      <ellipse cx="${x + s * ow * 0.45}" cy="${y1 - 2.5}" rx="${ow * 0.2}" ry="1.6" fill="${luz}" opacity=".5"/>`; };
   // Pescoço: lados direitos, músculos em V, maçã-de-adão, sombra dura do maxilar
   const nw = W * 0.72, colY = queixoY + 34;
   const pescoco = `<path d="M${X - nw} ${jawY} L${X - nw - 2} ${colY + 8} L${X + nw + 2} ${colY + 8} L${X + nw} ${jawY}Z" fill="${pele}" stroke="${L}" stroke-width="2.6"/>
     <path d="M${X - nw - 1} ${jawY} L${X + nw + 1} ${jawY} L${X + nw + 1} ${queixoY + 10} C${X + 14} ${queixoY + 16} ${X - 14} ${queixoY + 16} ${X - nw - 1} ${queixoY + 10}Z" fill="${s3}"/>
     <path d="M${X + nw * 0.25} ${queixoY + 12} L${X + nw + 1} ${colY + 8} L${X + nw + 1} ${queixoY + 10}Z" fill="${s2}" opacity=".7"/>
     <path d="M${X - nw * 0.85} ${queixoY + 10} L${X - 6} ${colY + 4} M${X + nw * 0.85} ${queixoY + 10} L${X + 6} ${colY + 4}" stroke="${s2}" stroke-width="1.4" opacity=".75"/>
-    ${p.staff || idade >= 17 ? `<path d="M${X - 3} ${queixoY + 18} q3 4 6 0" stroke="${s2}" stroke-width="1.4" fill="none"/>` : ''}`;
+    ${p.staff || idade >= 17 ? `<path d="M${X - 3.5} ${queixoY + 17} q3.5 -3 7 0 q-3.5 5 -7 0Z" fill="${s1}" stroke="${s2}" stroke-width="1.1"/><path d="M${X - 2} ${queixoY + 16} q2 -1.5 3.5 0" stroke="${luz}" stroke-width="1" fill="none" opacity=".7"/>` : ''}`;
   // Sombras por planos (luz de cima à esquerda): lado direito, maçãs, órbitas, têmpora, testa iluminada
   const planos = `<g clip-path="url(#${id}-f)">
     <path d="M${X + W * 0.42} ${coroa} C${X + W * 0.3} ${hl + 10} ${X + W * 0.5} ${olhoY - 6} ${X + W * 0.62} ${olhoY + 6} C${X + W * 0.45} ${narizY} ${X + W * 0.6} ${bocaY} ${X + cw * 0.6} ${queixoY + 4} L${X + W + 20} ${queixoY + 4} L${X + W + 20} ${coroa}Z" fill="${s1}"/>
@@ -783,41 +786,60 @@ function avatarSvg(p, { kit = null, tam = 48, fundo: corFundo = null } = {}) {
     <path d="M${X - W * 0.55} ${hl + 6} Q${X - W * 0.1} ${hl + 2} ${X + W * 0.15} ${hl + 8} L${X + W * 0.05} ${sobrY - 6} Q${X - W * 0.3} ${sobrY - 10} ${X - W * 0.5} ${sobrY - 4}Z" fill="${luz}" opacity=".55"/>
     <path d="M${X - W * 0.85} ${olhoY + 9} Q${X - W * 0.6} ${olhoY + 7} ${X - W * 0.5} ${olhoY + 14} Q${X - W * 0.7} ${olhoY + 16} ${X - W * 0.85} ${olhoY + 9}Z" fill="${luz}" opacity=".5"/>
     <path d="M${X - cw * 0.7} ${queixoY - 7} Q${X} ${queixoY - 10} ${X + cw * 0.4} ${queixoY - 6} Q${X} ${queixoY - 3} ${X - cw * 0.7} ${queixoY - 7}Z" fill="${luz}" opacity=".5"/>
-    <path d="M${X - 6} ${bocaY + lb + 4} Q${X} ${bocaY + lb + 8} ${X + 8} ${bocaY + lb + 4} L${X + 8} ${bocaY + lb + 7} Q${X} ${bocaY + lb + 12} ${X - 6} ${bocaY + lb + 7}Z" fill="${s2}"/></g>`;
-  // Olhos (pálpebra de cima tapa parte da íris; prega; olheira; inclinação)
+    <path d="M${X - 6} ${bocaY + lb + 4} Q${X} ${bocaY + lb + 8} ${X + 8} ${bocaY + lb + 4} L${X + 8} ${bocaY + lb + 7} Q${X} ${bocaY + lb + 12} ${X - 6} ${bocaY + lb + 7}Z" fill="${s2}"/>
+    <path d="M${X - W * 0.9} ${sobrY - 2} Q${X - od} ${sobrY - 5} ${X - 6} ${sobrY + 2} L${X - 5} ${sobrY + 5} Q${X - od} ${sobrY + 1} ${X - W * 0.9} ${sobrY + 3}Z M${X + W * 0.9} ${sobrY - 2} Q${X + od} ${sobrY - 5} ${X + 6} ${sobrY + 2} L${X + 5} ${sobrY + 5} Q${X + od} ${sobrY + 1} ${X + W * 0.9} ${sobrY + 3}Z" fill="${luz}" opacity=".35"/>
+    <path d="M${X - W} ${hl + 14} Q${X - W * 0.82} ${sobrY - 4} ${X - W * 0.96} ${olhoY - 4}" stroke="${s1}" stroke-width="5" fill="none" opacity=".6"/>
+    <path d="M${X - mac + 4} ${olhoY + 12} Q${X - W * 0.6} ${narizY - 2} ${X - W * 0.42} ${narizY + 2} M${X + mac - 4} ${olhoY + 12} Q${X + W * 0.6} ${narizY - 2} ${X + W * 0.42} ${narizY + 2}" stroke="${s2}" stroke-width="1.3" fill="none" opacity="${0.25 + m.macas * 0.5}"/>
+    ${(t.queixo ?? 0) === 2 || m.queixo > 0.72 ? `<path d="M${X} ${queixoY - 9} q-1 3 0 6" stroke="${s3}" stroke-width="1.3" fill="none"/>` : ''}</g>`;
+  // Olhos: 4 formas (amêndoa, encapuzado, redondo, caído) pela característica "Olhos"; pálpebra cobre a íris; prega; pestanas; olheira.
+  const forma = t.olhos; // 0 amêndoa, 1 encapuzado, 2 redondo, 3 caído
   const olho = (s) => {
-    const x = X + s * od, xi = x - s * ew, xo = x + s * ew, yi = olhoY + ein * 0.3, yo = olhoY - ein;
-    const E = `M${xi} ${yi} Q${x - s * 1} ${olhoY - eh * 1.75} ${xo} ${yo} Q${x} ${olhoY + eh * 1.15} ${xi} ${yi}Z`, ri = eh * 1.2 + 1.2;
-    return `<path d="M${xi + s * 1} ${yi - eh - 2.5} Q${x} ${olhoY - eh * 2.6 - 2} ${xo + s * 0.5} ${yo - eh - 1.5}" stroke="${s3}" stroke-width="1.3" fill="none" opacity=".8"/>
-      <path d="${E}" fill="#f4efe8"/><clipPath id="${id}-o${s}"><path d="${E}"/></clipPath>
-      <g clip-path="url(#${id}-o${s})"><circle cx="${x + s * 0.3}" cy="${olhoY + eh * 0.2}" r="${ri}" fill="${iris}" stroke="${avEsc(iris, 0.5)}" stroke-width="1"/><circle cx="${x + s * 0.3}" cy="${olhoY + eh * 0.2}" r="${ri * 0.45}" fill="#0a0706"/><path d="M${xi - 2} ${olhoY - eh * 0.7} Q${x} ${olhoY - eh * 2} ${xo + 2} ${olhoY - eh * 0.8}" stroke="${s3}" stroke-width="${eh * 0.9}" fill="none" opacity=".45"/></g>
-      <circle cx="${x + s * 0.3 + ri * 0.35}" cy="${olhoY + eh * 0.2 - ri * 0.4}" r="${ri * 0.28}" fill="#fff"/>
-      <path d="M${xi} ${yi + 0.3} Q${x - s * 1} ${olhoY - eh * 1.95} ${xo + s * 1.5} ${yo - 0.6}" stroke="${L}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-      <path d="M${xo + s * 1.2} ${yo - 0.4} l${s * 2.4} ${-1.2 - ein * 0.3}" stroke="${L}" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M${xi + s * 2} ${yi + 1.5} Q${x} ${olhoY + eh * 1.35} ${xo - s * 1} ${yo + 1}" stroke="${s3}" stroke-width="1" fill="none" opacity=".9"/>
-      <path d="M${xi + s * 3} ${yi + 4.5} Q${x} ${olhoY + eh * 1.6 + 3} ${xo - s * 2} ${yo + 4}" stroke="${s2}" stroke-width="1.1" fill="none" opacity=".6"/>`;
+    const x = X + s * od, xi = x - s * ew, xo = x + s * ew, cai = forma === 3 ? 1.8 : 0, yi = olhoY + ein * 0.3 - cai * 0.3, yo = olhoY - ein + cai;
+    const sup = forma === 2 ? 2.05 : forma === 1 ? 1.45 : 1.75, inf = forma === 2 ? 1.35 : 1.1;
+    const E = `M${xi} ${yi} C${x - s * ew * 0.45} ${olhoY - eh * sup} ${x + s * ew * 0.5} ${olhoY - eh * sup} ${xo} ${yo} C${x + s * ew * 0.4} ${olhoY + eh * inf} ${x - s * ew * 0.5} ${olhoY + eh * inf} ${xi} ${yi}Z`, ri = eh * 1.15 + 1.6, ic = x + s * 0.4, iy = olhoY + eh * 0.25;
+    const raios = Array.from({ length: 10 }, (_, i) => { const a = (i / 10) * Math.PI * 2; return `<path d="M${(ic + Math.cos(a) * ri * 0.5).toFixed(1)} ${(iy + Math.sin(a) * ri * 0.5).toFixed(1)} L${(ic + Math.cos(a) * ri * 0.92).toFixed(1)} ${(iy + Math.sin(a) * ri * 0.92).toFixed(1)}" stroke="${avEsc(iris, 1.35)}" stroke-width=".55" opacity=".7"/>`; }).join('');
+    const prega = forma === 1 ? `<path d="M${xi - s * 1} ${yi - eh * 0.9} C${x - s * ew * 0.4} ${olhoY - eh * 2.3} ${x + s * ew * 0.6} ${olhoY - eh * 2.2} ${xo + s * 2} ${yo - eh * 0.6}" fill="${s1}" stroke="${s3}" stroke-width="1.2"/>`
+      : `<path d="M${xi + s * 1} ${yi - eh - 2.2} C${x - s * ew * 0.4} ${olhoY - eh * 2.7} ${x + s * ew * 0.5} ${olhoY - eh * 2.7} ${xo + s * 0.5} ${yo - eh - 1.2}" stroke="${s3}" stroke-width="1.2" fill="none" opacity=".85"/>`;
+    const pest = Array.from({ length: 3 }, (_, i) => { const f = 0.62 + i * 0.16, xx = lerp(xi, xo, f), yy = olhoY - eh * sup * (1 - Math.abs(f - 0.5) * 1.6) * 0.78; return `<path d="M${xx.toFixed(1)} ${yy.toFixed(1)} l${(s * (1.2 + i * 0.6)).toFixed(1)} ${(-1.6 - i * 0.3).toFixed(1)}" stroke="${L}" stroke-width="1.1" stroke-linecap="round"/>`; }).join('');
+    return `<path d="M${xi - s * 2} ${yi + 2} C${x - s * ew * 0.5} ${olhoY + eh * 2.6} ${x + s * ew * 0.5} ${olhoY + eh * 2.6} ${xo + s * 1} ${yo + 3}" fill="${s1}" opacity=".55"/>${prega}
+      <path d="${E}" fill="#f2ece4"/><clipPath id="${id}-o${s}"><path d="${E}"/></clipPath>
+      <g clip-path="url(#${id}-o${s})"><circle cx="${ic}" cy="${iy}" r="${ri}" fill="${iris}"/>${raios}<circle cx="${ic}" cy="${iy}" r="${ri}" fill="none" stroke="${avEsc(iris, 0.45)}" stroke-width="1.1"/><circle cx="${ic}" cy="${iy}" r="${ri * 0.42}" fill="#0a0706"/><path d="M${xi - 2} ${olhoY - eh * 0.5} C${x - s * 4} ${olhoY - eh * 1.9} ${x + s * 4} ${olhoY - eh * 1.9} ${xo + 2} ${olhoY - eh * 0.6}" stroke="${s3}" stroke-width="${eh * 1.1}" fill="none" opacity=".45"/>
+        <path d="M${xi} ${olhoY + eh} L${xo} ${olhoY + eh}" stroke="#d9cfc4" stroke-width="1.4"/></g>
+      <circle cx="${ic + ri * 0.38}" cy="${iy - ri * 0.42}" r="${ri * 0.26}" fill="#fff"/><circle cx="${ic - ri * 0.35}" cy="${iy + ri * 0.35}" r="${ri * 0.12}" fill="#fff" opacity=".8"/>
+      <path d="M${xi} ${yi + 0.3} C${x - s * ew * 0.45} ${olhoY - eh * (sup + 0.2)} ${x + s * ew * 0.5} ${olhoY - eh * (sup + 0.2)} ${xo + s * 1.5} ${yo - 0.6}" stroke="${L}" stroke-width="2.6" fill="none" stroke-linecap="round"/>${pest}
+      <path d="M${xi + s * 1.5} ${yi + 1.2} C${x - s * ew * 0.4} ${olhoY + eh * (inf + 0.25)} ${x + s * ew * 0.4} ${olhoY + eh * (inf + 0.25)} ${xo - s * 0.5} ${yo + 1}" stroke="${s3}" stroke-width="1.1" fill="none"/>
+      <path d="M${xi + s * 0.5} ${yi + 0.5} l${-s * 1.4} 0.6" stroke="#c98a80" stroke-width="1.4" stroke-linecap="round"/>`;
   };
-  const corSobr = t.corCabelo >= 6 ? '#7d7a76' : avEsc(cab, t.corCabelo >= 4 ? 0.72 : 0.92), th = [3, 4.2, 2.2][t.sobr], arco = lerp(1, 4.5, m.sobrArco);
+  // Sobrancelhas: 3 formas (recta, arqueada, grossa/franzida) e o arco das medidas; pelos em leque, mais densos no início.
+  const corSobr = t.corCabelo >= 6 ? '#7d7a76' : avEsc(cab, t.corCabelo >= 4 ? 0.72 : 0.92), th = [3, 2.4, 4.4][t.sobr], arco = [0.6, 1.4, 0.8][t.sobr] * lerp(1, 4.5, m.sobrArco), fr = t.sobr === 2 ? 1.6 : 0;
   const sobr = (s) => {
-    const xi = X + s * (od - ew * 0.65), xp = X + s * (od + ew * 0.35), xe = X + s * (od + ew + 3.5);
-    return `<path d="M${xi} ${sobrY + 1.5} Q${xp - s * 4} ${sobrY - arco - 1} ${xp} ${sobrY - arco} Q${xe - s * 2} ${sobrY - arco * 0.6} ${xe} ${sobrY + 2} Q${xp} ${sobrY - arco + th * 0.7} ${xi} ${sobrY + 1.5 + th}Z" fill="${corSobr}" stroke="${L}" stroke-width=".9" stroke-linejoin="round"/>${Array.from({ length: 8 }, (_, i) => { const f = i / 7, xx = lerp(xi, xe, f), yy = sobrY + 1 - Math.sin(Math.min(1, f * 1.3) * Math.PI * 0.75) * arco + th * 0.5 * (1 - f); return `<path d="M${xx.toFixed(1)} ${(yy + th * 0.4).toFixed(1)} l${(s * 2.2).toFixed(1)} ${(-th * 0.8).toFixed(1)}" stroke="${avEsc(corSobr, 1.35)}" stroke-width=".8" opacity=".7"/>`; }).join('')}`;
+    const xi = X + s * (od - ew * 0.7), xp = X + s * (od + ew * 0.3), xe = X + s * (od + ew + 3.5), yi = sobrY + 1.5 + fr, ye = sobrY + 2.5 - fr * 0.3;
+    const fio = Array.from({ length: 14 }, (_, i) => { const f = i / 13, xx = lerp(xi, xe, f), base = lerp(yi + th, ye, f) - Math.sin(Math.min(1, f * 1.25) * Math.PI * 0.8) * arco, ang = lerp(-0.5, 1.35, f), len = th * lerp(0.75, 0.45, f);
+      return `<path d="M${xx.toFixed(1)} ${base.toFixed(1)} l${(s * Math.sin(ang) * len).toFixed(1)} ${(-Math.cos(ang) * len).toFixed(1)}" stroke="${i % 3 ? avEsc(corSobr, 0.85) : avEsc(corSobr, 1.3)}" stroke-width=".8" stroke-linecap="round" opacity=".8"/>`; }).join('');
+    return `<path d="M${xi} ${yi} Q${xp - s * 4} ${sobrY - arco - 0.5} ${xp} ${sobrY - arco} Q${xe - s * 2} ${sobrY - arco * 0.55} ${xe} ${ye} Q${xp} ${sobrY - arco + th * 0.75} ${xi} ${yi + th}Z" fill="${corSobr}" stroke="${avEsc(corSobr, 0.7)}" stroke-width=".6"/>${fio}`;
   };
-  // Nariz (plano lateral, ponta iluminada, asas e narinas; sem contorno à volta)
-  const nariz = `<path d="M${X + 2} ${olhoY + 3} C${X + 4} ${narizY - 14} ${X + nl * 0.9} ${narizY - 8} ${X + nl} ${narizY - 3} L${X + 2} ${narizY - 1}Z" fill="${s1}"/>
-    <path d="M${X + 3} ${olhoY + 8} C${X + 4} ${narizY - 16} ${X + nl * 0.55} ${narizY - 10} ${X + nl * 0.6} ${narizY - 7}" stroke="${s3}" stroke-width="1.3" fill="none" opacity=".8"/>
-    <ellipse cx="${X - 1}" cy="${narizY - 6}" rx="${nl * 0.32}" ry="2.6" fill="${luz}" opacity=".85"/><path d="M${X - 1.5} ${olhoY + 4} L${X - 2} ${narizY - 12}" stroke="${luz}" stroke-width="2.2" opacity=".55" stroke-linecap="round"/>
-    <path d="M${X - nl} ${narizY - 7} C${X - nl - 3} ${narizY - 3} ${X - nl + 1} ${narizY + 1} ${X - nl * 0.45} ${narizY}" stroke="${L}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-    <path d="M${X + nl} ${narizY - 7} C${X + nl + 3} ${narizY - 3} ${X + nl - 1} ${narizY + 1} ${X + nl * 0.45} ${narizY}" stroke="${L}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-    <path d="M${X - nl * 0.5} ${narizY - 0.5} q${nl * 0.25} -2.2 ${nl * 0.45} 0 M${X + nl * 0.05} ${narizY - 0.5} q${nl * 0.25} -2.2 ${nl * 0.45} 0" stroke="${L}" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M${X - nl * 0.4} ${narizY + 1.5} Q${X} ${narizY + 4} ${X + nl * 0.6} ${narizY + 1.5}" stroke="${s2}" stroke-width="2" fill="none" opacity=".7"/>`;
-  // Boca (arco do lábio superior, lábio inferior mais cheio e iluminado; sorriso dobra os cantos)
-  const labio = mix(t.pele >= 5 ? hx(pele, 0.85) : pele, '#b04a40', t.pele >= 5 ? 0.3 : 0.48), labioS = hx(labio, 0.78), yc = bocaY - sorr * 0.6;
-  const boca = `<path d="M${X} ${narizY + 3} L${X} ${bocaY - lb}" stroke="${s1}" stroke-width="3" opacity=".7"/>
-    <path d="M${X - bl} ${yc} Q${X - bl * 0.5} ${bocaY - lb * 1.15} ${X - 2.2} ${bocaY - lb * 0.95} L${X} ${bocaY - lb * 0.72} L${X + 2.2} ${bocaY - lb * 0.95} Q${X + bl * 0.5} ${bocaY - lb * 1.15} ${X + bl} ${yc} Q${X} ${bocaY + 0.8} ${X - bl} ${yc}Z" fill="${labioS}"/>
-    <path d="M${X - bl * 0.88} ${yc + 0.6} Q${X} ${bocaY + lb * 2.1} ${X + bl * 0.88} ${yc + 0.6} Q${X} ${bocaY + 1.2} ${X - bl * 0.88} ${yc + 0.6}Z" fill="${labio}"/>
-    <ellipse cx="${X - 1.5}" cy="${bocaY + lb * 1.05}" rx="${bl * 0.32}" ry="${lb * 0.28}" fill="#fff" opacity=".3"/>
-    <path d="M${X - bl} ${yc} Q${X} ${bocaY + 1.5 + sorr * 0.5} ${X + bl} ${yc}" stroke="${L}" stroke-width="2.3" fill="none" stroke-linecap="round"/>
-    <path d="M${X - bl - 1} ${yc - 0.5} q-1.6 1 -1.2 2.6 M${X + bl + 1} ${yc - 0.5} q1.6 1 1.2 2.6" stroke="${s3}" stroke-width="1.2" fill="none"/>`;
+  // Nariz: 3 formas (recto, largo, aquilino) pela característica "Nariz"; cana com luz, plano lateral, asas e narinas, columela.
+  const nf = t.nariz, bossa = nf === 2 ? 2.4 : 0;
+  const nariz = `<path d="M${X + 2} ${olhoY + 3} C${X + 4 + bossa} ${narizY - 14} ${X + nl * 0.9} ${narizY - 8} ${X + nl} ${narizY - 3} L${X + 2} ${narizY - 1}Z" fill="${s1}"/>
+    <path d="M${X + 2.5} ${olhoY + 6} C${X + 4 + bossa * 1.2} ${(olhoY + narizY) / 2} ${X + nl * 0.45} ${narizY - 10} ${X + nl * 0.6} ${narizY - 7}" stroke="${s3}" stroke-width="1.3" fill="none" opacity=".85"/>
+    ${bossa ? `<path d="M${X + 3} ${(olhoY + narizY) / 2 - 3} q${bossa} 2 0.5 5" stroke="${s3}" stroke-width="1.3" fill="none"/>` : ''}
+    <path d="M${X - 1.5} ${olhoY + 5} L${X - 2} ${narizY - 11}" stroke="${luz}" stroke-width="${nf === 1 ? 3 : 2.2}" opacity=".6" stroke-linecap="round"/>
+    <ellipse cx="${X - 1}" cy="${narizY - 6}" rx="${nl * (nf === 1 ? 0.42 : 0.32)}" ry="${nf === 1 ? 3.4 : 2.6}" fill="${luz}" opacity=".85"/>
+    <path d="M${X - nl} ${narizY - 8} C${X - nl - 3.5} ${narizY - 4} ${X - nl + 0.5} ${narizY + 1.5} ${X - nl * 0.42} ${narizY + 0.3}" stroke="${s3}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M${X + nl} ${narizY - 8} C${X + nl + 3.5} ${narizY - 4} ${X + nl - 0.5} ${narizY + 1.5} ${X + nl * 0.42} ${narizY + 0.3}" stroke="${L}" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".75"/>
+    <ellipse cx="${X - nl * 0.4}" cy="${narizY - 0.8}" rx="${nl * 0.22}" ry="1.3" fill="${hx(s3, 0.7)}" transform="rotate(-12 ${X - nl * 0.4} ${narizY - 0.8})"/><ellipse cx="${X + nl * 0.4}" cy="${narizY - 0.8}" rx="${nl * 0.22}" ry="1.3" fill="${hx(s3, 0.7)}" transform="rotate(12 ${X + nl * 0.4} ${narizY - 0.8})"/>
+    <path d="M${X - nl * 0.4} ${narizY + 1.8} Q${X} ${narizY + 4.5} ${X + nl * 0.6} ${narizY + 1.8}" stroke="${s2}" stroke-width="2" fill="none" opacity=".7"/>`;
+  // Boca: 3 formas (neutra, sorriso fechado, sorriso com dentes); arco de Cupido, filtro, lábio inferior cheio e iluminado.
+  const labio = mix(t.pele >= 5 ? hx(pele, 0.85) : pele, '#b04a40', t.pele >= 5 ? 0.3 : 0.48), labioS = hx(labio, 0.75), labioL = hx(labio, 1.15);
+  const bf = t.boca, sr = bf === 0 ? (m.sorriso - 0.5) * 2 : bf === 1 ? 2.6 : 3.4, yc = bocaY - sr * 0.8;
+  const filtro = `<path d="M${X - 2.6} ${narizY + 3.5} L${X - 2.2} ${bocaY - lb * 0.95} M${X + 2.6} ${narizY + 3.5} L${X + 2.2} ${bocaY - lb * 0.95}" stroke="${s1}" stroke-width="1.6" opacity=".8"/><path d="M${X} ${narizY + 4} L${X} ${bocaY - lb * 0.8}" stroke="${luz}" stroke-width="1.6" opacity=".35"/>`;
+  const sup = `<path d="M${X - bl} ${yc} C${X - bl * 0.75} ${bocaY - lb * 0.6} ${X - bl * 0.4} ${bocaY - lb * 1.2} ${X - 2.4} ${bocaY - lb * 1.05} L${X} ${bocaY - lb * 0.75} L${X + 2.4} ${bocaY - lb * 1.05} C${X + bl * 0.4} ${bocaY - lb * 1.2} ${X + bl * 0.75} ${bocaY - lb * 0.6} ${X + bl} ${yc} Q${X} ${bocaY + 0.6} ${X - bl} ${yc}Z" fill="${labioS}" stroke="${s3}" stroke-width=".8"/>`;
+  const dentes = bf === 2 ? `<path d="M${X - bl * 0.9} ${yc + 0.4} Q${X} ${bocaY + 6} ${X + bl * 0.9} ${yc + 0.4} Q${X} ${bocaY + 1.4} ${X - bl * 0.9} ${yc + 0.4}Z" fill="#fbf8f2"/><path d="M${X - bl * 0.3} ${bocaY + 1} l0 3.6 M${X + bl * 0.3} ${bocaY + 1} l0 3.6 M${X} ${bocaY + 1.2} l0 4" stroke="#d8d0c4" stroke-width=".7"/>` : '';
+  const inf = `<path d="M${X - bl * 0.86} ${yc + (bf === 2 ? 4 : 0.8)} C${X - bl * 0.55} ${bocaY + lb * 2.3 + (bf === 2 ? 3 : 0)} ${X + bl * 0.55} ${bocaY + lb * 2.3 + (bf === 2 ? 3 : 0)} ${X + bl * 0.86} ${yc + (bf === 2 ? 4 : 0.8)} Q${X} ${bocaY + (bf === 2 ? 6 : 1.4)} ${X - bl * 0.86} ${yc + (bf === 2 ? 4 : 0.8)}Z" fill="${labio}"/><path d="M${X - bl * 0.35} ${bocaY + lb * 1.3 + (bf === 2 ? 3 : 0)} Q${X} ${bocaY + lb * 1.65 + (bf === 2 ? 3 : 0)} ${X + bl * 0.3} ${bocaY + lb * 1.3 + (bf === 2 ? 3 : 0)}" stroke="${labioL}" stroke-width="${lb * 0.55}" stroke-linecap="round" fill="none" opacity=".6"/>`;
+  const linha = bf === 2 ? `<path d="M${X - bl} ${yc} Q${X} ${bocaY + 1} ${X + bl} ${yc}" stroke="${L}" stroke-width="1.6" fill="none"/><path d="M${X - bl * 0.9} ${yc + 0.6} Q${X} ${bocaY + 7.5} ${X + bl * 0.9} ${yc + 0.6}" stroke="${L}" stroke-width="1.8" fill="none"/>`
+    : `<path d="M${X - bl} ${yc} C${X - bl * 0.5} ${bocaY + 0.8 + sr * 0.15} ${X + bl * 0.5} ${bocaY + 0.8 + sr * 0.15} ${X + bl} ${yc}" stroke="${L}" stroke-width="2.3" fill="none" stroke-linecap="round"/>`;
+  const cantos = `<path d="M${X - bl - 0.5} ${yc - 0.5} q${-1.8 - sr * 0.4} ${0.6 - sr * 0.3} ${-1.4 - sr * 0.3} ${2.6}" stroke="${s3}" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M${X + bl + 0.5} ${yc - 0.5} q${1.8 + sr * 0.4} ${0.6 - sr * 0.3} ${1.4 + sr * 0.3} ${2.6}" stroke="${s3}" stroke-width="1.3" fill="none" stroke-linecap="round"/>${sr > 2 ? `<path d="M${X - bl - 4} ${yc - 5} q-3 4 -1 8 M${X + bl + 4} ${yc - 5} q3 4 1 8" stroke="${s2}" stroke-width="1.2" fill="none" opacity=".7"/>` : ''}`;
+  const boca = `${filtro}${inf}${dentes}${sup}${linha}${cantos}`;
   // Barba (a partir do maxilar)
   const barbaReg = (desce = 3) => `M${X - W + 2} ${olhoY - 2} C${X - W + 1} ${narizY} ${X - jw} ${jawY} ${X - jw + 3} ${jawY + 4} C${X - cw - 6} ${queixoY - 2} ${X - cw} ${queixoY + desce} ${X} ${queixoY + desce} C${X + cw} ${queixoY + desce} ${X + cw + 6} ${queixoY - 2} ${X + jw - 3} ${jawY + 4} C${X + jw} ${jawY} ${X + W - 1} ${narizY} ${X + W - 2} ${olhoY - 2} L${X + W - 7} ${olhoY + 1} C${X + W * 0.64} ${narizY - 2} ${X + bl + 7} ${bocaY - 7} ${X + nl * 0.5} ${narizY + 3} L${X - nl * 0.5} ${narizY + 3} C${X - bl - 7} ${bocaY - 7} ${X - W * 0.64} ${narizY - 2} ${X - W + 7} ${olhoY + 1}Z`;
   const pontosB = (n, op) => Array.from({ length: n }, () => { const a = R(), s = R() < 0.5 ? -1 : 1, y = lerp(narizY - 6, queixoY + 1, R()), lim = y < bocaY ? lerp(W - 3, W * 0.62, (y - narizY + 6) / (bocaY - narizY + 6)) : lerp(jw - 2, cw, (y - bocaY) / (queixoY - bocaY)); return `<circle cx="${(X + s * a * lim).toFixed(1)}" cy="${y.toFixed(1)}" r=".85" fill="${cabS}" opacity="${op}"/>`; }).join('');
