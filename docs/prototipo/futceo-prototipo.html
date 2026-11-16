@@ -709,7 +709,7 @@ function tacticaConteudo() {
         <label>Ritmo<div class="barra"><i style="width:55%"></i></div></label>
         <label>Largura<div class="barra"><i style="width:70%"></i></div></label>
       </div>
-      <div class="rot" style="margin:16px 0 10px">Como Director de Futebol não escolhes o onze: o treinador decide. Podes sugerir; ele aceita, aceita em parte ou ignora, conforme a autoridade dele.</div>
+      <div class="rot" style="margin:16px 0 10px">Como Presidente não escolhes o onze: o treinador decide. Podes sugerir; ele aceita, aceita em parte ou ignora, conforme a autoridade dele.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn">Sugerir titular</button><button class="btn">Sugerir formação</button><button class="btn prim">Enviar sugestão</button></div>
     </section>
   </div>`;
@@ -910,9 +910,9 @@ function classificacaoEcra() {
 
 
 // ---------- Imprensa (protótipo) ----------
-// Quem fala à imprensa é o utilizador: Director (modo Director) ou Presidente (modo Dono).
-let MODO = 'director';
-let CARGO = 'Director';
+// Só há o modo Dono: quem fala à imprensa é o utilizador, como Presidente.
+const MODO = 'dono';
+const CARGO = 'Presidente';
 let PERFIL_ACTIVO = null; // perfil de jogo da conta que entrou
 // Meios fictícios. Relação 0–100: sobe com entrevistas dadas e respostas cordiais, desce com recusas e ataques.
 const MEIOS = [
@@ -933,7 +933,7 @@ const DESTAQUES = [
     ['analise', 'Canal Futebol 24', 'Como a saída a três mudou o Serra do Freixo', 'O recuo do médio defensivo entre os centrais libertou os laterais: 8 cruzamentos por jogo, mais 3 do que em Setembro.'],
     ['rumor', 'Lance Directo', 'Real Montalvo prepara 7,5 M€ por Rafael Salouro', 'O avançado de 21 anos estará na lista do líder; o clube não quer vender antes do Verão.'],
     ['critica', 'Mesa Redonda TV', '"Sem médio defensivo, este plantel não aguenta Janeiro"', 'Os comentadores apontam a lesão de Hugo Teiouro e a falta de alternativas no meio-campo.'],
-    ['pressao', 'Diário do Golo', `Dono quer a Europa: ${MODO === 'dono' ? 'adeptos' : 'director'} sem margem para escorregar`, 'Fonte próxima do conselho fala em "ultimato discreto" até ao fim da primeira volta.'],
+    ['pressao', 'Diário do Golo', 'Conselho quer a Europa: presidente sem margem para escorregar', 'Fonte próxima do conselho fala em "ultimato discreto" até ao fim da primeira volta.'],
   ],
   [
     ['critica', 'Diário do Golo', 'Desastre em Alvarenga: três golos sofridos em 20 minutos', 'A defesa voltou a mostrar fragilidade nas bolas paradas; quarto jogo seguido a sofrer de canto.'],
@@ -1532,7 +1532,7 @@ function ligar(m) {
   m.querySelectorAll('[data-pedido]').forEach((x) => x.addEventListener('click', () => { modal = 'msg'; msgAberta = MENSAGENS.findIndex((y) => y.rel === x.dataset.pedido); MENSAGENS[msgAberta].lida = true; desenhar(); desenharModal(); }));
   m.querySelector('#pr-finalistas')?.addEventListener('click', () => { modal = 'finalistas'; desenharModal(); });
   m.querySelector('#pr-cerimonia')?.addEventListener('click', () => { modal = 'cerimonia'; cer = { etapa: 0, mostrados: 0 }; desenharModal(); passoCerimonia(); });
-  m.querySelector('#b-perfil')?.addEventListener('click', () => { if (confirm('Terminar a sessão e voltar ao ecrã de entrada?')) { PERFIL_ACTIVO = null; ent = { passo: 'login', rascunho: { modo: 'director' } }; desenhar(); mostrarEntrada(); } });
+  m.querySelector('#b-perfil')?.addEventListener('click', () => { if (confirm('Terminar a sessão e voltar ao ecrã de entrada?')) { PERFIL_ACTIVO = null; ent = { passo: 'login', rascunho: { modo: 'dono' } }; desenhar(); mostrarEntrada(); } });
   m.querySelector('#b-imp').addEventListener('click', () => { modal = 'imprensa'; desenharModal(); });
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
   m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
@@ -1577,11 +1577,6 @@ const PERFIS_DONO = [
   ['dono-banca', 'Bancário bem sucessido, com várias agências espalhadas pelos EUA com património de +1B.', 1.1e9, 'Juros da dívida −1,5 pontos · limite de dívida +15%'],
   ['dono-ia', 'Empresário que acaba de vender a sua Startup de IA para um fundo de investimentos por 850 milhões.', 850e6, 'Relatórios 10% mais precisos · +10% receitas digitais'],
 ];
-const PERFIS_DIR = [
-  ['dir-harvard', 'Formado em adminstração e negócios em Harvard.', null, 'Negociação +5% · confiança inicial do dono +5'],
-  ['dir-gestao-dados', 'Formado em Gestão desportiva e análise de dados.', null, 'Scouting conhece +8% mais depressa · previsões financeiras mais exactas'],
-  ['dir-ex-scout', 'Antigo chefe de Scout.', null, 'Relatórios 15% mais precisos · +20% prospectos vistos · reputação inicial −5'],
-];
 const NACIONALIDADES = ['Portugal', 'Brasil', 'Angola', 'Cabo Verde', 'Moçambique', 'Guiné-Bissau', 'São Tomé e Príncipe', 'Timor-Leste', 'Espanha', 'França', 'Itália', 'Inglaterra', 'Alemanha', 'Países Baixos', 'Bélgica', 'Suíça', 'Estados Unidos', 'Argentina', 'Uruguai', 'Outra'];
 let ent = null; // ent: { passo, conta, rascunho, erro }
 const lerPerfil = (u) => { try { return JSON.parse(localStorage.getItem('futceo.perfil.' + u) || 'null'); } catch { return null; } };
@@ -1605,8 +1600,6 @@ function sha256js(txt) {
 }
 async function sha256(t) { if (!globalThis.crypto?.subtle) return sha256js(t); const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join(''); }
 const curtoDe = (n) => n.replace(/^(Atlético|Sporting|Desportivo|União|Académico|Vitória|Juventude|Estrela|Clube Naval|Boavista|Marítimo|Recreativo|CF|FC|SC|GD|Os)\s+((de|das|do|da|dos)\s+)?/, '');
-// Preço do clube (protótipo): pela posição na tabela; na app vem do valor do clube (receitas, plantel, estádio, dívida).
-function precoClube(pos) { return Math.round(380 * Math.pow(0.84, pos - 1)) * 1e6; }
 const fM2 = (v) => v >= 1e9 ? (v / 1e9).toFixed(1).replace('.', ',') + ' mil milhões €' : Math.round(v / 1e6) + ' M€';
 function entradaHtml() {
   const d = ent.rascunho, passos = ['Conta', 'Perfil', 'Foto', 'Clube'];
@@ -1615,27 +1608,25 @@ function entradaHtml() {
   const erro = ent.erro ? `<div class="en-erro" role="alert">${ent.erro}</div>` : '';
   let corpo = '';
   if (ent.passo === 'login') corpo = `<h2>Entrar</h2><form id="en-form" autocomplete="off"><label>Utilizador<input id="en-user" required autocomplete="username"></label><label>Palavra-passe<input id="en-pass" type="password" required autocomplete="current-password"></label>${erro}<button class="btn prim en-btn" type="submit">Entrar</button></form><div class="rot">Há 3 contas neste aparelho; cada uma tem o seu perfil e as suas gravações.</div>`;
-  else if (ent.passo === 'retomar') { const p = lerPerfil(ent.conta); corpo = `<h2>Bem-vindo de volta</h2><div class="en-perfil">${avatarHtml(p, 64)}<div><b>${p.nome}</b><div class="rot">${p.modo === 'dono' ? 'Dono (Presidente)' : 'Director desportivo'} · ${p.clube}</div></div></div><button class="btn prim en-btn" id="en-continuar">Continuar carreira</button><button class="btn en-btn" id="en-novo">Criar um perfil novo</button><button class="btn en-btn" id="en-sair">Mudar de conta</button>`; }
+  else if (ent.passo === 'retomar') { const p = lerPerfil(ent.conta); corpo = `<h2>Bem-vindo de volta</h2><div class="en-perfil">${avatarHtml(p, 64)}<div><b>${p.nome}</b><div class="rot">Presidente · ${p.clube}</div></div></div><button class="btn prim en-btn" id="en-continuar">Continuar carreira</button><button class="btn en-btn" id="en-novo">Criar um perfil novo</button><button class="btn en-btn" id="en-sair">Mudar de conta</button>`; }
   else if (ent.passo === 'perfil') {
-    const lista = d.modo === 'dono' ? PERFIS_DONO : PERFIS_DIR;
+    const lista = PERFIS_DONO;
     corpo = `<h2>Perfil de jogo</h2><form id="en-form"><label>Nome<input id="en-nome" required maxlength="40" value="${d.nome ?? ''}"></label>
       <div class="en-duas"><label>Data de nascimento<input id="en-nasc" type="date" required value="${d.nasc ?? ''}" max="2008-11-16"></label><label>Nacionalidade<select id="en-nac" required><option value="">Escolher…</option>${NACIONALIDADES.map((n) => `<option ${d.nac === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div>
-      <div class="en-rot">Modo de jogo</div><div class="seg en-modo" role="group"><button type="button" data-modo="director" class="${d.modo === 'director' ? 'on' : ''}">Director desportivo</button><button type="button" data-modo="dono" class="${d.modo === 'dono' ? 'on' : ''}">Dono (Presidente)</button></div>
-      <div class="en-rot">${d.modo === 'dono' ? 'Perfis disponíveis para o modo Dono' : 'Perfis de Director desportivo'}</div>
-      <div class="en-cartoes">${lista.map(([id, txt, fort, ef], i) => `<label class="en-cartao ${d.perfil === id ? 'on' : ''}"><input type="radio" name="en-perf" value="${id}" ${d.perfil === id ? 'checked' : ''}><span class="en-num">${i + 1}</span><span><span>${txt}</span>${fort ? `<span class="chip info" style="margin-top:6px">Fortuna inicial: ${fM2(fort)}</span>` : ''}<span class="en-ef">${ef}</span></span></label>`).join('')}</div>
+      <div class="en-rot">Perfil de partida (modo Dono)</div>
+      <div class="en-cartoes">${lista.map(([id, txt, fort, ef], i) => `<label class="en-cartao ${d.perfil === id ? 'on' : ''}"><input type="radio" name="en-perf" value="${id}" ${d.perfil === id ? 'checked' : ''}><span class="en-num">${i + 1}</span><span><span>${txt}</span>${fort ? `<span class="chip info" style="margin-top:6px">Património: ${fM2(fort)}</span>` : ''}<span class="en-ef">${ef}</span></span></label>`).join('')}</div>
       ${erro}<div class="en-nav"><button type="button" class="btn" id="en-sair">Mudar de conta</button><button class="btn prim" type="submit">Seguinte ›</button></div></form>`;
   } else if (ent.passo === 'foto') corpo = `<h2>Foto de perfil <span class="rot">(opcional)</span></h2><div class="en-foto">${avatarHtml({ nome: d.nome, foto: d.foto }, 120)}<div style="display:grid;gap:8px"><label class="btn" style="text-align:center;cursor:pointer">Escolher foto<input id="en-ficheiro" type="file" accept="image/*" hidden></label>${d.foto ? '<button class="btn" id="en-tirar">Tirar foto</button>' : ''}<div class="rot">A foto fica só neste aparelho.</div></div></div><div class="en-nav"><button class="btn" id="en-voltar">‹ Voltar</button><button class="btn prim" id="en-seg">${d.foto ? 'Seguinte ›' : 'Saltar ›'}</button></div>`;
   else if (ent.passo === 'clube') {
-    const dono = d.modo === 'dono', fort = dono ? PERFIS_DONO.find((x) => x[0] === d.perfil)[2] : 0;
-    corpo = `<h2>Onde começar</h2><div class="rot" style="margin-bottom:8px">${dono ? `Escolhe o clube a comprar. Fortuna: <b>${fM2(fort)}</b>.` : 'Escolhe o clube que te contrata como director desportivo.'} No protótipo só a Liga Portugal está disponível.</div>
-      <div class="en-clubes">${[...LIGA].sort((a, b) => tabela.findIndex((x) => x.nome === a) - tabela.findIndex((x) => x.nome === b)).map((n) => { const i = LIGA.indexOf(n), t = tabela.find((x) => x.nome === n), pos = tabela.indexOf(t) + 1, rep = Math.max(30, 84 - pos * 3), pr = precoClube(pos), caro = dono && pr > fort; return `<button class="en-clube ${d.clube === n ? 'on' : ''}" data-clube="${n}" ${caro ? 'disabled' : ''}>${escudo(CORES[i], 26)}<span><b>${n}</b><small>${pos}.º na liga · reputação ${rep}${dono ? ` · preço ${fM2(pr)}` : ''}</small></span></button>`; }).join('')}</div>
+    corpo = `<h2>Onde começar</h2><div class="rot" style="margin-bottom:8px">Escolhe o clube a comprar: qualquer clube está disponível (o património do perfil não limita a compra). No protótipo só a Liga Portugal está disponível.</div>
+      <div class="en-clubes">${[...LIGA].sort((a, b) => tabela.findIndex((x) => x.nome === a) - tabela.findIndex((x) => x.nome === b)).map((n) => { const i = LIGA.indexOf(n), t = tabela.find((x) => x.nome === n), pos = tabela.indexOf(t) + 1, rep = Math.max(30, 84 - pos * 3); return `<button class="en-clube ${d.clube === n ? 'on' : ''}" data-clube="${n}">${escudo(CORES[i], 26)}<span><b>${n}</b><small>${pos}.º na liga · reputação ${rep}</small></span></button>`; }).join('')}</div>
       ${erro}<div class="en-nav"><button class="btn" id="en-voltar">‹ Voltar</button><button class="btn prim" id="en-fim" ${d.clube ? '' : 'disabled'}>Começar a carreira</button></div>`;
   }
   return `<img class="en-fundo" src="perfil.jpg" alt=""><div class="en-painel">${cab}${corpo}</div>`;
 }
 function mostrarEntrada() { let el = document.getElementById('entrada'); if (!el) { el = document.createElement('div'); el.id = 'entrada'; document.body.appendChild(el); } const y = el.querySelector('.en-painel')?.scrollTop ?? 0; el.innerHTML = entradaHtml(); el.querySelector('.en-painel').scrollTop = y; ligarEntrada(el); }
 function aplicarPerfil(p) {
-  PERFIL_ACTIVO = p; MODO = p.modo; CARGO = p.modo === 'dono' ? 'Presidente' : 'Director';
+  PERFIL_ACTIVO = p;
   const i = LIGA.indexOf(p.clube);
   if (i >= 0 && p.clube !== CLUBE.nome) { tabela.forEach((t) => { if (t.nome === CLUBE.nome) t.cores = CORES[LIGA.indexOf(CLUBE.nome)]; }); CLUBE.nome = p.clube; CLUBE.curto = curtoDe(p.clube); CLUBE.cores = CORES[i]; VARS_PROTO.clube = CLUBE.curto; }
   document.getElementById('nome-clube-lat').textContent = CLUBE.nome;
@@ -1643,7 +1634,7 @@ function aplicarPerfil(p) {
 }
 function ligarEntrada(el) {
   const d = ent.rascunho, ir = (p) => { ent.passo = p; ent.erro = null; mostrarEntrada(); };
-  el.querySelector('#en-sair')?.addEventListener('click', () => { ent = { passo: 'login', rascunho: { modo: 'director' } }; mostrarEntrada(); });
+  el.querySelector('#en-sair')?.addEventListener('click', () => { ent = { passo: 'login', rascunho: { modo: 'dono' } }; mostrarEntrada(); });
   if (ent.passo === 'login') el.querySelector('#en-form').addEventListener('submit', async (e) => {
     e.preventDefault(); const u = el.querySelector('#en-user').value.trim().toLowerCase(), pw = el.querySelector('#en-pass').value;
     const c = CONTAS[u]; const ok = c && (await sha256(`futceo:${u}:${pw}`)) === c[1];
@@ -1651,10 +1642,9 @@ function ligarEntrada(el) {
     ent.conta = u; ir(lerPerfil(u) ? 'retomar' : 'perfil');
   });
   el.querySelector('#en-continuar')?.addEventListener('click', () => { aplicarPerfil(lerPerfil(ent.conta)); el.remove(); });
-  el.querySelector('#en-novo')?.addEventListener('click', () => { ent.rascunho = { modo: 'director' }; ir('perfil'); });
+  el.querySelector('#en-novo')?.addEventListener('click', () => { ent.rascunho = { modo: 'dono' }; ir('perfil'); });
   if (ent.passo === 'perfil') {
     const guardar = () => { d.nome = el.querySelector('#en-nome').value.trim(); d.nasc = el.querySelector('#en-nasc').value; d.nac = el.querySelector('#en-nac').value; d.perfil = el.querySelector('input[name="en-perf"]:checked')?.value ?? d.perfil; };
-    el.querySelectorAll('[data-modo]').forEach((b) => b.addEventListener('click', () => { guardar(); if (d.modo !== b.dataset.modo) { d.modo = b.dataset.modo; d.perfil = null; d.clube = null; } mostrarEntrada(); }));
     el.querySelectorAll('input[name="en-perf"]').forEach((r) => r.addEventListener('change', () => { guardar(); mostrarEntrada(); }));
     el.querySelector('#en-form').addEventListener('submit', (e) => { e.preventDefault(); guardar();
       const idade = d.nasc ? (new Date('2026-11-16') - new Date(d.nasc)) / 3.15576e10 : 0;
@@ -1668,7 +1658,7 @@ function ligarEntrada(el) {
   el.querySelectorAll('[data-clube]').forEach((b) => b.addEventListener('click', () => { d.clube = b.dataset.clube; mostrarEntrada(); }));
   el.querySelector('#en-fim')?.addEventListener('click', () => { const p = { conta: ent.conta, ...d, criado: '2026-11-16' }; gravarPerfil(ent.conta, p); aplicarPerfil(p); el.remove(); });
 }
-if (!/semEntrada/.test(location.search)) { ent = { passo: 'login', rascunho: { modo: 'director' } }; mostrarEntrada(); }
+if (!/semEntrada/.test(location.search)) { ent = { passo: 'login', rascunho: { modo: 'dono' } }; mostrarEntrada(); }
 
 // ---------- Ecrã de carregamento (intro) ----------
 // Na app, as etapas e a percentagem vêm do worker (mundo, gravação, motor); no protótipo são simuladas (~2,5 s).

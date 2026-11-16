@@ -1,5 +1,5 @@
-// Perfis de jogo (pedido do utilizador): o utilizador entra (3 contas locais), cria o perfil, escolhe o modo e o perfil de
-// partida, põe uma foto (opcional) e escolhe o clube. Os textos são do utilizador; os EFEITOS são propostas minhas (a aprovar).
+// Perfis de jogo (pedido do utilizador): o utilizador entra (3 contas locais), cria o perfil, escolhe o perfil de partida
+// (só há o modo Dono: o utilizador é o Presidente), põe uma foto (opcional) e escolhe o clube. Os textos são do utilizador; os EFEITOS são propostas minhas (a aprovar).
 
 /** Contas locais (no máximo 3). Só separam os perfis e as gravações num aparelho partilhado: não é segurança a sério.
  *  As palavras-passe não ficam no código: guarda-se o SHA-256 de "futceo:<utilizador em minúsculas>:<palavra-passe>". */
@@ -12,7 +12,7 @@ export const CONTAS = [
 export interface PerfilPartida {
   id: string;
   texto: string;
-  /** Fortuna pessoal inicial (€), modo Dono. */
+  /** Património pessoal (€), dos textos do utilizador. NÃO limita a compra do clube: qualquer clube pode ser comprado. */
   fortuna?: number;
   /** Efeitos propostos (multiplicadores ou bónus), a aprovar pelo utilizador. */
   efeitos: Record<string, number>;
@@ -30,14 +30,6 @@ export const PERFIS_DONO: PerfilPartida[] = [
     efeitos: { precisao_relatorios: 1.1, receitas_digitais: 1.1 }, resumo: 'IA: relatórios de scouting com intervalos 10% mais estreitos; +10% nas receitas digitais e de marketing.' },
 ];
 
-export const PERFIS_DIRECTOR: PerfilPartida[] = [
-  { id: 'dir-harvard', texto: 'Formado em adminstração e negócios em Harvard.',
-    efeitos: { negociacao: 1.05, confianca_inicial_dono: 5 }, resumo: 'Negociação: os clubes e agentes cedem um pouco mais (5%); confiança inicial do dono +5.' },
-  { id: 'dir-gestao-dados', texto: 'Formado em Gestão desportiva e análise de dados.',
-    efeitos: { conhecimento_scouting: 1.08, previsao_financas: 1 }, resumo: 'Dados: scouting conhece +8% mais depressa; previsões financeiras mais exactas.' },
-  { id: 'dir-ex-scout', texto: 'Antigo chefe de Scout.',
-    efeitos: { precisao_relatorios: 1.15, prospectos_vistos: 1.2, reputacao_inicial: -5 }, resumo: 'Olho para talento: relatórios 15% mais precisos e +20% de prospectos vistos; começa com menos reputação (−5).' },
-];
 
 /** Idade mínima do perfil (anos). */
 export const IDADE_MINIMA_PERFIL = 18;

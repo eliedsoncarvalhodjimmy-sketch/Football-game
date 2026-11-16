@@ -44,6 +44,9 @@ export const PESO_CLUBE = {
   clube_grande: { IM: 1.5, reputacao_minima: 75 },
 };
 
+/** Só há o modo Dono: as perguntas com Modo DIR (IMP-001) não são usadas. */
+export const MODOS_ACTIVOS = ['DONO', 'AMBOS'] as const;
+
 /** Escolha das perguntas (regras do utilizador). */
 export const CONFERENCIA = {
   perguntas_normal: 3, // pré-jogo e pós-jogo

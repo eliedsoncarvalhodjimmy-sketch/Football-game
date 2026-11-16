@@ -9,4 +9,4 @@ ficheiro: ID, Quando, Modo, Jornalista, Pergunta, respostas A/B/C com tom e efei
 - Para acrescentar guiões: novas entradas `### IMP-xxx — título` no mesmo formato (também em pacotes de dados por país).
   Pode enviar em texto simples; eu converto.
 - Variáveis aceites: as da lista do ficheiro, mais `{idade}`, `{lucro_ou_prejuizo}` e `{promessa}` (usadas em IMP-030,
-  IMP-041 e IMP-066). Quem responde é sempre o utilizador (Director ou Presidente), nunca o treinador.
+  IMP-041 e IMP-066). Quem responde é sempre o utilizador (o Presidente: só há o modo Dono), nunca o treinador. As perguntas com Modo DIR (IMP-001) ficam no ficheiro mas não são usadas.
