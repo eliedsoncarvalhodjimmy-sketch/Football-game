@@ -389,6 +389,11 @@ td.r, th.r { text-align: right; }
   .neg2 { grid-template-columns: 1fr; } .neg2-cena { grid-column: 1; grid-row: 1; min-height: 520px; } .neg2-painel { grid-column: 1; grid-row: 2; border-right: 0; }
   .neg2-fala { max-width: none; top: 64px; } .neg2-menu { left: 12px; right: 12px; transform: none; } .neg2-roda { display: none; } .neg2-ops { width: 100%; } .neg2-op { font-size: 14px; }
 }
+.np-campo { display: grid; gap: 4px; padding: 6px 14px; font-size: 13px; color: #a9adbc; }
+.np-campo input, .np-bonus input { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; color: #fff; font-family: var(--f-num); font-size: 20px; padding: 4px 10px; min-height: 42px; width: 100%; }
+.np-campo input:focus { outline: 2px solid #e2a33a; }
+.np-bonus { display: grid; gap: 6px; padding: 8px 0; margin: 4px 14px; border-top: 1px dashed rgba(255,255,255,.12); } .np-bonus .np-campo { padding: 0; }
+.np-bonus-l { display: flex; gap: 6px; flex-wrap: wrap; } .np-bonus-l .btn { min-height: 34px; padding: 4px 10px; text-transform: none; }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -816,6 +821,29 @@ let tabMercado = 'Visão geral', parcelas = 'À vista';
 // Negociação (protótipo): o clube vendedor contra-propõe a meio caminho; aceita quando a proposta chega ao pedido.
 const NEG0 = { ronda: 4, pedido: 6_800_000, inicial: 7_200_000, proposta: 6_400_000, estado: 'aberta', piso: 6_300_000, venda: 0, troca: -1, tensao: 35, fala: 'Pedimos €6.800.000 à vista. Não vamos muito abaixo disso.', acordo: 0 };
 const NEG = { ...NEG0 };
+// Contrato com o jogador (depois de o clube aceitar). Valores anuais em euros. Pedidos do jogador/agente:
+const PEDE0 = { salario: 1_600_000, premio: 350_000, agente: 450_000, papel: 'Importante' };
+const CT0 = { papel: 'Rotação', anos: 4, salario: 1_300_000, premio: 250_000, agente: 350_000, clausula: false, clausulaValor: 35_000_000, bonus: false, bonusTipo: 'Golos', bonusModo: 'Por cada', bonusN: 10, bonusValor: 20_000 };
+const PEDE = { ...PEDE0 }, CT = { ...CT0 };
+const PAPEIS_PLANTEL = ['Estrela', 'Importante', 'Rotação', 'Promessa', 'Reserva'];
+const BONUS_TIPOS = ['Golos', 'Jogos', 'Assistências', 'Jogos sem sofrer golos'];
+const BONUS_MODOS = ['Por cada', 'Ao chegar a'];
+const BONUS_N = [10, 15, 20, 25, 50];
+const POS_NEG = 'MDC'; // jogos sem sofrer golos: só guarda-redes e defesas
+// O jogador aceita se a proposta "vale" o que pede: salário pesa mais; o agente bloqueia abaixo de 80% da taxa; papel abaixo do pedido custa;
+// cláusula de rescisão até 6× o valor de mercado agrada (liberdade); bónus ajuda um pouco (são difíceis de cumprir).
+const bonusInvalido = () => CT.bonus && CT.bonusTipo === 'Jogos sem sofrer golos' && !['GR', 'DC', 'DD', 'DE'].includes(POS_NEG);
+const bonusTxt = () => `${fE(CT.bonusValor)} ${CT.bonusModo === 'Por cada' ? 'por cada ' + { Golos: 'golo', Jogos: 'jogo', 'Assistências': 'assistência', 'Jogos sem sofrer golos': 'jogo sem sofrer golos' }[CT.bonusTipo] : 'ao chegar a ' + CT.bonusN + ' ' + CT.bonusTipo.toLowerCase()}`;
+function avaliarCt() {
+  const ip = PAPEIS_PLANTEL.indexOf(CT.papel) - PAPEIS_PLANTEL.indexOf(PEDE.papel);
+  let sc = 0.6 * CT.salario / PEDE.salario + 0.15 * Math.min(1.3, CT.premio / PEDE.premio) + 0.15 * Math.min(1.3, CT.agente / PEDE.agente) + 0.1;
+  sc -= Math.max(0, ip) * 0.06; sc += Math.max(0, -ip) * 0.02;
+  if (CT.anos > 4) sc -= 0.02 * (CT.anos - 4);
+  if (CT.clausula) sc += CT.clausulaValor <= 6 * 6_100_000 ? 0.03 : -0.01;
+  if (CT.bonus && !bonusInvalido()) sc += Math.min(0.04, (CT.bonusModo === 'Por cada' ? CT.bonusValor * CT.bonusN / 1e6 * 0.02 : CT.bonusValor / 1e6 * 0.04));
+  const agenteOk = CT.agente >= PEDE.agente * 0.8;
+  return { sc, agenteOk, ok: agenteOk && sc >= 1 };
+}
 // Valores em euros, com pontos nos milhares (pedido do utilizador): €12.000.000.
 const fE = (n) => '€' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 const TROCAS = [[7, 'Rafael Seixal', 'DC', 2_100_000], [17, 'Bruno Corança', 'MO', 3_400_000], [12, 'Tiago Marouro', 'MDC', 1_500_000]];
@@ -856,7 +884,40 @@ function mercadoEcra() {
   const filtros = `<div class="filtros"><input type="search" placeholder="Pesquisar…" aria-label="Pesquisar"><select aria-label="Posição"><option>Todas as posições</option><option>Defesas</option><option>Médios</option><option>Avançados</option></select><select aria-label="Idade"><option>Idade: todas</option><option>Até 23</option><option>24–29</option><option>30+</option></select><select aria-label="Liga"><option>Todas as ligas</option><option>Liga Portugal</option><option>Brasileirão</option></select><select aria-label="Conhecimento"><option>Conhecimento: todos</option><option>≥ 50%</option><option>≥ 80%</option></select></div>`;
   const av = avaliarNeg(), tr = NEG.troca >= 0 ? TROCAS[NEG.troca] : null;
   const negoc = NEG.estado === 'assinado' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><div class="rot">${fE(NEG.acordo)} · contrato até 2031</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Repetir a negociação (protótipo)</button></div></section>`
-    : NEG.estado !== 'aberta' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Negociação terminada · Yusuf Taşsoy</h3><div class="rot">${NEG.estado === 'rompeu' ? `O Kızılpınarspor terminou a negociação na ronda ${NEG.ronda}: a tensão chegou ao limite.` : `Terminaste a negociação na ronda ${NEG.ronda}.`}</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Retomar (protótipo)</button></div></section>`
+    : NEG.estado === 'jogador' ? (() => { const ac = avaliarCt(); const eur = (k, rot, extra = '') => `<label class="np-campo"><span>${rot}</span><input data-eur="${k}" inputmode="numeric" autocomplete="off" value="${fE(CT[k])}" ${extra}></label>`; return `<section class="c s12 neg2">
+    <div class="neg2-cena"><img src="negociacao-${NEG.ronda % 2 ? 1 : 2}.jpg" alt="Negociação com o jogador e o agente">
+      <div class="neg2-tensao" title="Tensão da negociação"><span>Tensão</span><div class="barra"><i style="width:${NEG.tensao}%;background:${NEG.tensao >= 70 ? 'var(--mau)' : NEG.tensao >= 45 ? 'var(--aviso)' : 'var(--bom)'}"></i></div></div>
+      <div class="neg2-fala"><span class="chip info">Contrato · ronda ${NEG.ronda}</span><span>Agente do jogador: "${NEG.fala}"</span></div>
+      <div class="neg2-menu" role="group" aria-label="Acções da negociação"><span class="neg2-roda"></span><div class="neg2-ops">
+        <button class="neg2-op prim" data-neg="enviar">Enviar proposta</button>
+        <button class="neg2-op" data-neg="papel">Papel: ${CT.papel}</button>
+        <button class="neg2-op" data-neg="anos">Duração: ${CT.anos} ${CT.anos === 1 ? 'ano' : 'anos'}</button>
+        <button class="neg2-op" data-neg="clausula">Cláusula de rescisão: ${CT.clausula ? 'sim' : 'não'}</button>
+        <button class="neg2-op" data-neg="bonus">Bónus por objectivos: ${CT.bonus ? 'sim' : 'não'}</button>
+        <button class="neg2-op fim" data-neg="desistir">Terminar negociação</button></div></div>
+    </div>
+    <aside class="neg2-painel">
+      <div class="np-orc">${escudo(CLUBE.cores, 30)}<div><div class="np-l"><span>Orçamento de transferências</span><b>${fE(9_500_000 - NEG.acordo)}</b></div><div class="np-l"><span>Orçamento salarial (livre)</span><b>${fE(1_800_000)}/ano</b></div></div></div>
+      <div class="np-tit">Proposta ao jogador / <span>Contrato</span></div>
+      <div class="np-jog"><span class="np-av">YT</span><div class="np-dados"><span>Idade: <b>24</b></span><span><i class="pt-pos"></i><b>${POS_NEG}</b></span></div><div class="np-ovr"><span>OVR</span><b>72–77</b></div>${escudo(['#c8102e', '#ffd100'], 30)}</div>
+      <div class="np-nome">Yusuf <b>Taşsoy</b></div>
+      <div class="np-l np-pad"><span>Salário actual</span><b>${fE(900_000)}/ano</b></div>
+      <div class="np-sec"><span class="np-ic">✎</span>Contrato</div>
+      <div class="np-l np-pad"><span>Papel no plantel</span><b>${CT.papel} <small class="muted">(pede ${PEDE.papel})</small></b></div>
+      <div class="np-l np-pad"><span>Duração</span><b>${CT.anos} ${CT.anos === 1 ? 'ano' : 'anos'}</b></div>
+      ${CT.clausula ? eur('clausulaValor', 'Cláusula de rescisão') : '<div class="np-l np-pad"><span>Cláusula de rescisão</span><b>—</b></div>'}
+      <div class="np-sec"><span class="np-ic">€</span>Financeiro</div>
+      <label class="np-soma"><span>Salário anual <small class="muted">(pede ${fE(PEDE.salario)})</small></span><input data-eur="salario" inputmode="numeric" autocomplete="off" value="${fE(CT.salario)}" aria-label="Salário anual em euros"></label>
+      <div class="np-sec"><span class="np-ic">+</span>Condições adicionais</div>
+      ${eur('premio', `Prémio de assinatura <small class="muted">(pede ${fE(PEDE.premio)})</small>`)}
+      ${eur('agente', `Taxa do agente <small class="muted">(pede ${fE(PEDE.agente)})</small>`)}
+      ${CT.bonus ? `<div class="np-bonus"><span class="rot">Bónus (opcional, difícil de cumprir)</span>
+        <div class="np-bonus-l"><button class="btn" data-neg="bmodo">${CT.bonusModo}</button>${CT.bonusModo === 'Ao chegar a' ? `<button class="btn" data-neg="bn">${CT.bonusN}</button>` : ''}<button class="btn" data-neg="btipo">${CT.bonusTipo.toLowerCase()}</button></div>
+        ${CT.bonusTipo === 'Jogos sem sofrer golos' && !['GR', 'DC', 'DD', 'DE'].includes(POS_NEG) ? '<div class="np-dica">Só para guarda-redes e defesas: escolhe outro tipo.</div>' : ''}
+        ${eur('bonusValor', CT.bonusModo === 'Por cada' ? `Valor por cada ${CT.bonusTipo === 'Jogos sem sofrer golos' ? 'jogo sem sofrer' : CT.bonusTipo.toLowerCase().replace(/s$/, '')}` : `Valor ao chegar a ${CT.bonusN} ${CT.bonusTipo.toLowerCase()}`)}</div>` : ''}
+      <div class="np-dica ${ac.ok ? 'bom' : ''}" id="ct-dica">${!ac.agenteOk ? 'O agente não aceita uma taxa tão baixa.' : ac.ok ? 'O jogador deve aceitar.' : 'O jogador espera mais.'}</div>
+    </aside></section>`; })()
+    : NEG.estado !== 'aberta' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Negociação terminada · Yusuf Taşsoy</h3><div class="rot">${NEG.estado === 'rompeu' ? `O Kızılpınarspor terminou a negociação na ronda ${NEG.ronda}: a tensão chegou ao limite.` : NEG.estado === 'rompeu-jogador' ? 'O agente do Yusuf terminou as conversas: o jogador não quer vir. O acordo com o clube caiu.' : `Terminaste a negociação na ronda ${NEG.ronda}.`}</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Retomar (protótipo)</button></div></section>`
     : `<section class="c s12 neg2">
     <div class="neg2-cena"><img src="negociacao-${NEG.ronda % 2 ? 2 : 1}.jpg" alt="Negociação com o clube">
       <div class="neg2-tensao" title="Tensão da negociação"><span>Tensão</span><div class="barra"><i style="width:${NEG.tensao}%;background:${NEG.tensao >= 70 ? 'var(--mau)' : NEG.tensao >= 45 ? 'var(--aviso)' : 'var(--bom)'}"></i></div></div>
@@ -1635,7 +1696,7 @@ function desenharModal() {
     else if (modal === 'reacao') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="A tua reacção">${capaRelatorio('A tua reacção é notícia', reacao.t.origem, reacao.o.img)}<div class="modal-corpo"><div class="rot">Amanhã nos jornais</div><h3 style="margin:4px 0 8px;font-family:var(--f-num);font-size:22px">${reacao.o.titulo}</h3><div class="rot" style="margin-bottom:10px">Em resposta a: ${reacao.t.tema}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(reacao.o.efeitos)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else if (modal === 'entrev') el.innerHTML = modalEntrevista();
     else if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
-    else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Médio defensivo · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fE(NEG.acordo)], ['Pagamento', parcelas], ['Venda futura', NEG.venda ? NEG.venda + '%' : 'não'], ['Troca', NEG.troca >= 0 ? TROCAS[NEG.troca][1] : 'não'], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
+    else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Médio defensivo · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fE(NEG.acordo)], ['Pagamento', parcelas], ['Venda futura', NEG.venda ? NEG.venda + '%' : 'não'], ['Troca', NEG.troca >= 0 ? TROCAS[NEG.troca][1] : 'não'], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', `${CT.anos} ${CT.anos === 1 ? 'época' : 'épocas'} · até 30 Jun ${2027 + CT.anos - 1}`], ['Papel', CT.papel], ['Salário', fE(CT.salario) + '/ano'], ['Prémio de assinatura', fE(CT.premio)], ['Taxa do agente', fE(CT.agente)], ['Cláusula de rescisão', CT.clausula ? fE(CT.clausulaValor) : 'não'], ['Bónus', CT.bonus ? bonusTxt() : 'não']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else
     if (ab && !ab.rel && ab.resp) el.innerHTML = `<div class="modal" role="dialog" aria-label="${ab.assunto}"><div class="modal-cab"><h3>${ab.assunto}</h3><button class="btn" id="fechar">Fechar</button></div><div class="rot">${ab.de} · ${ab.dia}</div><p style="margin:12px 0">${ab.txt}</p>${ab.respondida ? `<div class="chip bom">Respondeste: ${ab.respondida}</div>` : `<div class="respostas">${ab.resp.map((r, i) => `<button class="resposta" data-respmsg="${i}" style="grid-template-columns:1fr"><span>${r}</span></button>`).join('')}</div>`}<div style="display:flex;justify-content:flex-start;margin-top:12px"><button class="btn" id="voltar-msg">← Mensagens</button></div></div>`;
     else if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`, ab.rel === 'reforco' ? 'pedido-treinador.jpg' : 'relatorio.jpg')}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
@@ -1724,6 +1785,15 @@ function ligar(m) {
     if (para === 'principal') plantel.push({ ...p, n: plantel.length + 1, moral: 14, cond: 95, forma: ['6.8', '7.0', '6.9', '7.1', '7.0'], adq: 12, papel: PAPEIS[p.pos][0], fim: 2029, sal: 30000, lesao: '', susp: false });
     else (para === 'sub21' ? sub21 : sub18).unshift(p);
     desenhar(); }));
+  m.querySelectorAll('[data-eur]').forEach((inp) => {
+    inp.addEventListener('input', () => {
+      const dig = inp.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10);
+      CT[inp.dataset.eur] = dig ? Number(dig) : 0; inp.value = dig ? fE(CT[inp.dataset.eur]) : '';
+      const ac = avaliarCt(), d = m.querySelector('#ct-dica');
+      d.className = 'np-dica' + (ac.ok ? ' bom' : ''); d.textContent = !ac.agenteOk ? 'O agente não aceita uma taxa tão baixa.' : ac.ok ? 'O jogador deve aceitar.' : 'O jogador espera mais.';
+    });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') m.querySelector('[data-neg="enviar"]').click(); });
+  });
   const inpNeg = m.querySelector('#neg-valor');
   if (inpNeg) {
     // Escreve-se o número: os pontos dos milhares aparecem à medida que se escreve (12 → €12; 12000000 → €12.000.000).
@@ -1739,9 +1809,21 @@ function ligar(m) {
   m.querySelectorAll('[data-neg]').forEach((b) => b.addEventListener('click', () => {
     const a = b.dataset.neg, y = document.getElementById('principal').scrollTop;
     if (a === 'enviar') {
+      if (NEG.estado === 'jogador') {
+        const ac = avaliarCt();
+        if (bonusInvalido()) { NEG.fala = 'Esse bónus não se aplica a um médio: jogos sem sofrer golos é só para guarda-redes e defesas.'; }
+        else if (ac.ok) { NEG.estado = 'assinado'; modal = 'assin'; }
+        else {
+          NEG.tensao = Math.min(100, Math.round(NEG.tensao + 10 + Math.max(0, 1 - ac.sc) * 120));
+          if (NEG.tensao >= 100) NEG.estado = 'rompeu-jogador';
+          else { NEG.ronda++; PEDE.salario = Math.max(1_350_000, Math.round((PEDE.salario * 0.7 + CT.salario * 0.3) / 1e4) * 1e4); PEDE.agente = Math.max(380_000, Math.round((PEDE.agente * 0.8 + CT.agente * 0.2) / 1e4) * 1e4);
+            NEG.fala = !ac.agenteOk ? `A taxa do agente é inegociável abaixo de ${fE(PEDE.agente * 0.8)}.` : `Podemos baixar o salário para ${fE(PEDE.salario)}${PAPEIS_PLANTEL.indexOf(CT.papel) > PAPEIS_PLANTEL.indexOf(PEDE.papel) ? ', mas ele quer ser ' + PEDE.papel.toLowerCase() : ''}.`; }
+        }
+        desenhar(); document.getElementById('principal').scrollTop = y; if (modal === 'assin') desenharModal(); return;
+      }
       const av = avaliarNeg();
       if (!NEG.proposta) { NEG.fala = 'Escreva um valor, por favor.'; }
-      else if (av.ok) { NEG.estado = 'assinado'; NEG.acordo = NEG.proposta; modal = 'assin'; }
+      else if (av.ok) { NEG.estado = 'jogador'; NEG.acordo = NEG.proposta; NEG.ronda = 1; NEG.tensao = 20; NEG.fala = `Acordo com o clube por ${fE(NEG.proposta)}. O Yusuf quer ser ${PEDE.papel.toLowerCase()} e pede ${fE(PEDE.salario)} por ano.`; }
       else {
         const falta = (av.exigido - av.efectivo) / av.exigido;
         NEG.tensao = Math.min(100, Math.round(NEG.tensao + 8 + falta * 120));
@@ -1749,7 +1831,14 @@ function ligar(m) {
         else { NEG.ronda++; NEG.pedido = Math.max(NEG.piso, Math.round((NEG.pedido + av.efectivo) / 2 / 1e5) * 1e5); NEG.fala = falta > 0.15 ? `Isso não é sério. Só baixamos para ${fE(NEG.pedido)}.` : `Estamos perto. Fechamos por ${fE(NEG.pedido)}.`; }
       }
     } else if (a === 'desistir') NEG.estado = 'desistiu';
-    else if (a === 'reiniciar') { Object.assign(NEG, NEG0); parcelas = 'À vista'; }
+    else if (a === 'reiniciar') { Object.assign(NEG, NEG0); Object.assign(CT, CT0); Object.assign(PEDE, PEDE0); parcelas = 'À vista'; }
+    else if (a === 'papel') CT.papel = PAPEIS_PLANTEL[(PAPEIS_PLANTEL.indexOf(CT.papel) + 1) % PAPEIS_PLANTEL.length];
+    else if (a === 'anos') CT.anos = CT.anos >= 5 ? 1 : CT.anos + 1;
+    else if (a === 'clausula') CT.clausula = !CT.clausula;
+    else if (a === 'bonus') CT.bonus = !CT.bonus;
+    else if (a === 'btipo') CT.bonusTipo = BONUS_TIPOS[(BONUS_TIPOS.indexOf(CT.bonusTipo) + 1) % BONUS_TIPOS.length];
+    else if (a === 'bmodo') CT.bonusModo = BONUS_MODOS[(BONUS_MODOS.indexOf(CT.bonusModo) + 1) % BONUS_MODOS.length];
+    else if (a === 'bn') CT.bonusN = BONUS_N[(BONUS_N.indexOf(CT.bonusN) + 1) % BONUS_N.length];
     else if (a === 'venda') NEG.venda = VENDAS[(VENDAS.indexOf(NEG.venda) + 1) % VENDAS.length];
     else if (a === 'troca') NEG.troca = NEG.troca + 1 >= TROCAS.length ? -1 : NEG.troca + 1;
     else if (a === 'parcelas') parcelas = PARCELAS[(PARCELAS.indexOf(parcelas) + 1) % PARCELAS.length];
