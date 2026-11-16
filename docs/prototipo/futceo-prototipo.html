@@ -299,6 +299,10 @@ td.r, th.r { text-align: right; }
 .en-clube { display: flex; align-items: center; gap: 10px; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 10px; padding: 8px 10px; color: var(--texto); font: inherit; cursor: pointer; min-height: 48px; }
 .en-clube span { display: grid; } .en-clube small { color: var(--suave); font-size: 11px; } .en-clube.on { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); } .en-clube:disabled { opacity: .4; cursor: not-allowed; }
 @media (max-width: 640px) { .en-duas, .en-clubes { grid-template-columns: 1fr; } .en-painel { padding: 16px; } }
+#aviso-gravar { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); z-index: 980; background: #1d2128; border: 1px solid var(--linha); border-left: 4px solid var(--bom); border-radius: 12px; padding: 10px 16px; display: grid; gap: 2px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; box-shadow: 0 10px 30px rgba(0,0,0,.4); min-width: 260px; }
+#aviso-gravar.on { opacity: 1; transform: translate(-50%, 0); }
+#aviso-gravar span { font-size: 13px; color: #cfd3da; } #aviso-gravar small { font-size: 11px; color: var(--suave); }
+@media (max-width: 760px) { #aviso-gravar { bottom: 84px; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -424,6 +428,7 @@ const ICON = {
   tactica: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="3"/>',
   mercado: '<path d="M4 7h16l-1.5 12h-13z"/><path d="M8 7a4 4 0 0 1 8 0"/>',
   financas: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  guardar: '<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>',
   imprensa: '<rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
   classificacao: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/>',
   infra: '<path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/>',
@@ -511,7 +516,7 @@ const COR_COMP = { liga: 'var(--c-liga)', taca: 'var(--c-taca)', ucl: 'var(--c-u
 const MENSAGENS = [
   { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
   { de: 'Treinador (Hélder Quintela)', assunto: 'Pedido de reforço: médio defensivo', txt: 'Preciso de um médio defensivo titular para Janeiro. Prioridade alta.', dia: '14 Nov', lida: false, rel: 'reforco' },
-  { de: 'Presidente (dono)', assunto: 'Objectivos de Janeiro', txt: 'Quero um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
+  { de: 'Conselho de administração', assunto: 'Objectivos de Janeiro', txt: 'O conselho pede um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
   { de: 'Gestor de academia', assunto: '2 prospectos prontos para o sub-18', txt: 'Recomendo promover Kevin SmitVries e Gonçalo Valota.', dia: '12 Nov', lida: false },
   { de: 'Director financeiro', assunto: 'Relatório financeiro: Outubro', txt: 'Resultado do mês +0,6 M€; massa salarial a 94% do orçamento.', dia: '11 Nov', lida: false, rel: 'fin' },
   { de: 'Olheiro internacional', assunto: 'Relatório: Gustavo Rosilho (82%)', txt: 'Avançado de 20 anos, OVR 73–81, potencial muito alto.', dia: '11 Nov', lida: true, rel: 'scout' },
@@ -812,7 +817,7 @@ const OBJECTIVOS = [
   ['Jovens', 'Dar minutos a 3 jogadores formados no clube', '3 jogadores', () => '2 jogadores', 'aviso', 'Abaixo do ritmo'],
   ['Salários', 'Massa salarial abaixo de 33 M€', '≤ 33,0 M€', () => '31,2 M€', 'bom', 'Dentro do objectivo'],
 ];
-const tabelaObjectivos = (curta) => `<div class="tab-wrap"><table><thead><tr><th>Área</th><th>Objectivo do dono</th>${curta ? '' : '<th>Meta</th>'}<th>Desempenho</th><th>Estado</th></tr></thead><tbody>${OBJECTIVOS.slice(0, curta ? 4 : 99).map(([a, o, m, d, c, e]) => `<tr><td class="muted">${a}</td><td>${o}</td>${curta ? '' : `<td>${m}</td>`}<td><b>${d()}</b></td><td><span class="chip ${c}"><span class="pt"></span>${e}</span></td></tr>`).join('')}</tbody></table></div>`;
+const tabelaObjectivos = (curta) => `<div class="tab-wrap"><table><thead><tr><th>Área</th><th>Objectivo do conselho</th>${curta ? '' : '<th>Meta</th>'}<th>Desempenho</th><th>Estado</th></tr></thead><tbody>${OBJECTIVOS.slice(0, curta ? 4 : 99).map(([a, o, m, d, c, e]) => `<tr><td class="muted">${a}</td><td>${o}</td>${curta ? '' : `<td>${m}</td>`}<td><b>${d()}</b></td><td><span class="chip ${c}"><span class="pt"></span>${e}</span></td></tr>`).join('')}</tbody></table></div>`;
 function financasEcra() {
   const bil = efeitoBilhete(precoBilhete);
   const fluxo = [['Receitas', null], ['Bilheteira', 0.92, 7.4], ['Direitos de TV', 1.46, 11.7], ['Patrocínios', 0.55, 4.4], ['Merchandising', 0.24, 1.9], ['Prémios (Liga Europa)', 0, 3.8], ['Venda de jogadores', 0, 4.5], ['Despesas', null], ['Salários dos jogadores', -1.20, -9.6], ['Salários dos juniores', -0.03, -0.24], ['Staff técnico', -0.21, -1.7], ['Compra de jogadores (parcelas)', 0, -3.0], ['Infraestruturas e obras', -0.16, -1.3], ['Juros', -0.05, -0.4], ['Outras despesas', -0.14, -1.1]];
@@ -831,12 +836,12 @@ function financasEcra() {
   return `
   <div class="topo"><h1>Finanças e Conselho</h1><span class="sub">Época 2026/27 até 14 Nov</span><div class="direita"><span class="chip bom"><span class="pt"></span>Saudável</span><span class="chip"><span class="pt"></span>Fair play: 61% do limite</span></div></div>
   <div class="grelha">
-    <section class="c s12" style="padding:0;overflow:hidden;position:relative">${salaConselho()}<div style="position:absolute;left:16px;bottom:14px;background:rgba(11,13,16,.75);padding:8px 12px;border-radius:10px"><div class="num" style="font-size:22px">Sala do Conselho</div><div class="rot">Próxima reunião com o dono: fim de Janeiro</div></div></section>
+    <section class="c s12" style="padding:0;overflow:hidden;position:relative">${salaConselho()}<div style="position:absolute;left:16px;bottom:14px;background:rgba(11,13,16,.75);padding:8px 12px;border-radius:10px"><div class="num" style="font-size:22px">Sala do Conselho</div><div class="rot">Próxima reunião do conselho: fim de Janeiro</div></div></section>
     <section class="c s3"><h2>Caixa</h2><div class="num grande">18,4 M€</div></section>
     <section class="c s3"><h2>Dívida</h2><div class="num grande">12,0 M€</div><div class="rot">0,12× a receita · banco a 6,5%</div></section>
     <section class="c s3"><h2>Receita prevista</h2><div class="num grande">102 M€</div></section>
     <section class="c s3"><h2>Resultado previsto</h2><div class="num grande" style="color:var(--bom)">+4,8 M€</div></section>
-    <section class="c s12"><h2>Objectivos da época (reunião com o dono, Julho) × desempenho<span class="acao" style="color:var(--suave)">Confiança do dono: 72/100</span></h2>${tabelaObjectivos(false)}</section>
+    <section class="c s12"><h2>Objectivos da época (reunião do conselho, Julho) × desempenho<span class="acao" style="color:var(--suave)">Confiança do conselho: 72/100</span></h2>${tabelaObjectivos(false)}</section>
     <section class="c s12 adeptos"><img src="adeptos.jpg" alt="">
       <div class="ad-conteudo">
         <h2 style="color:#e8eaee">Adeptos</h2>
@@ -856,16 +861,16 @@ function financasEcra() {
     <section class="c s7"><h2>Fluxo de caixa</h2>${fluxoHtml}</section>
     <section class="c s12"><h2>Promessas à imprensa</h2>${HIST_IMP.length ? `<div class="tab-wrap"><table><thead><tr><th>Data</th><th>Meio</th><th>Tipo</th><th>O que disseste</th><th>Compromisso / risco</th><th>Estado</th></tr></thead><tbody>${HIST_IMP.map((h) => `<tr><td>${h.data}</td><td>${h.meio}</td><td><span class="chip ${h.tipo === 'Promessa' ? 'aviso' : 'mau'}">${h.tipo}</span></td><td>"${h.resposta}"</td><td class="muted">${h.detalhe}</td><td><span class="chip">${h.estado}</span></td></tr>`).join('')}</tbody></table></div>` : '<div class="rot">Ainda não há promessas nem declarações de risco. Ficam aqui com a data, o que disseste e o estado (pendente, cumprida, falhada).</div>'}</section>
     <section class="c s5"><h2>Conselho de administração</h2>
-      <div class="linha-kv"><span class="muted">Dono</span><span>Grupo Ferraz Investimentos</span></div>
-      <div class="linha-kv"><span class="muted">Tipo</span><span>Empresário local</span></div>
-      <div class="linha-kv"><span class="muted">Ambição</span><span>14/20</span></div>
-      <div class="linha-kv"><span class="muted">Paciência</span><span>11/20</span></div>
+      <div class="linha-kv"><span class="muted">Presidente e accionista maioritário</span><span>${PERFIL_ACTIVO ? PERFIL_ACTIVO.nome : 'Tu'}</span></div>
+      <div class="linha-kv"><span class="muted">Accionistas</span><span>Tu 62% · Grupo Ferraz 25% · sócios 13%</span></div>
+      <div class="linha-kv"><span class="muted">Ambição do conselho</span><span>14/20</span></div>
+      <div class="linha-kv"><span class="muted">Paciência do conselho</span><span>11/20</span></div>
       <div class="linha-kv"><span class="muted">Próxima reunião</span><span>Fim de Janeiro</span></div>
-      <div class="rot" style="margin-top:10px">"Quero a Europa e as contas equilibradas. Os jovens têm de jogar mais."</div>
+      <div class="rot" style="margin-top:10px">Vice-presidente: "O conselho quer a Europa e as contas equilibradas. Os jovens têm de jogar mais."</div>
     </section>
     <section class="c s6"><h2>Receitas por rubrica</h2><div class="barras-fin">${rec.map(([l, v]) => bar(l, v, 'var(--bom)')).join('')}</div></section>
     <section class="c s6"><h2>Despesas por rubrica</h2><div class="barras-fin">${des.map(([l, v]) => bar(l, v, 'var(--mau)')).join('')}</div></section>
-    <section class="c s12"><h2>Orçamentos da época (definidos pelo dono)</h2><div class="grelha">${orc.map(([l, u, t]) => `<div class="s3" style="min-width:0"><div class="rot">${l}</div><div class="num medio" style="margin:6px 0">${u.toFixed(1).replace('.', ',')} / ${t.toFixed(1).replace('.', ',')} M€</div><div class="barra"><i style="width:${Math.min(100, (u / t) * 100)}%;${u / t > 0.9 ? 'background:var(--aviso)' : ''}"></i></div></div>`).join('')}</div></section>
+    <section class="c s12"><h2>Orçamentos da época (aprovados pelo conselho)</h2><div class="grelha">${orc.map(([l, u, t]) => `<div class="s3" style="min-width:0"><div class="rot">${l}</div><div class="num medio" style="margin:6px 0">${u.toFixed(1).replace('.', ',')} / ${t.toFixed(1).replace('.', ',')} M€</div><div class="barra"><i style="width:${Math.min(100, (u / t) * 100)}%;${u / t > 0.9 ? 'background:var(--aviso)' : ''}"></i></div></div>`).join('')}</div></section>
   </div>`;
 }
 
@@ -1003,7 +1008,7 @@ function declarar(meio, titulo, texto, img, efeitos) {
 }
 const linhaNoticia = ([t, meio, tit, txt, img]) => `<div class="noticia ${img ? 'com-foto' : ''}">${tomChip(t)}<div><b>${tit}</b><div class="rot">${meio}</div><div style="margin-top:4px">${txt}</div></div>${img ? `<img class="noticia-foto" src="${img}" alt="">` : ''}</div>`;
 const declDaSemana = (k) => DECLARACOES.filter((d) => d.semana === k).map((d) => [d.tom, d.meio, d.titulo, d.texto, d.img]); // { g, passo, respostas: [] }
-const NOME_EFEITO = { EQ: 'Moral do plantel', AD: 'Adeptos', DN: 'Dono', IM: 'Reputação mediática', TR: 'Treinador', BL: 'Balneário', pressao: 'Pressão mediática', adeptos: 'Adeptos', moral: 'Moral do plantel', dono: 'Confiança do dono', rel: 'Relação com o meio' };
+const NOME_EFEITO = { EQ: 'Moral do plantel', AD: 'Adeptos', DN: 'Conselho', IM: 'Reputação mediática', TR: 'Treinador', BL: 'Balneário', pressao: 'Pressão mediática', adeptos: 'Adeptos', moral: 'Moral do plantel', dono: 'Confiança do conselho', rel: 'Relação com o meio' };
 function efeitosTxt(e) { return Object.entries(e).filter(([, v]) => v).map(([k, v]) => `<span class="chip ${k === 'pressao' ? (v > 0 ? 'aviso' : 'bom') : v > 0 ? 'bom' : 'mau'}">${NOME_EFEITO[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}</span>`).join(' '); }
 function medidorPressao(v) { const cor = v >= 70 ? 'var(--mau)' : v >= 45 ? 'var(--aviso)' : 'var(--bom)'; const txt = v >= 70 ? 'Muito alta' : v >= 45 ? 'Moderada' : 'Baixa'; return `<div class="num" style="font-size:40px;line-height:1">${v}<span class="muted" style="font-size:16px">/100</span></div><div class="barra" style="margin:8px 0 4px"><i style="width:${v}%;background:${cor}"></i></div><div class="rot">${txt}</div>`; }
 function imprensaEcra() {
@@ -1013,7 +1018,7 @@ function imprensaEcra() {
     <section class="c s8"><h2>Destaques desta semana<span class="acao"><button class="btn" id="b-semana">Ver resumo da semana</button></span></h2>
       ${[...declDaSemana(semanaImprensa), ...sem].map(linhaNoticia).join('')}</section>
     <section class="c s4"><h2>Pressão mediática</h2>${medidorPressao(pressaoMedia)}
-      <div style="margin-top:12px">${kv([['Resultados recentes', '<span class="chip bom">a aliviar</span>'], ['Expectativa do dono', '<span class="chip aviso">Europa</span>'], ['Rumores de mercado', '<span class="chip aviso">3 activos</span>'], ['Polémicas', '<span class="chip">nenhuma</span>']])}</div></section>
+      <div style="margin-top:12px">${kv([['Resultados recentes', '<span class="chip bom">a aliviar</span>'], ['Expectativa do conselho', '<span class="chip aviso">Europa</span>'], ['Rumores de mercado', '<span class="chip aviso">3 activos</span>'], ['Polémicas', '<span class="chip">nenhuma</span>']])}</div></section>
     <section class="c s6 entrevistas"><div class="ent-foto"><img src="imprensa/microfone.jpg" alt=""></div><h2 style="margin-top:12px">Pedidos de entrevista</h2>
       ${PEDIDOS_ENTREVISTA.map((x, i) => `<div class="linha-kv"><span><b>${x.meio}</b><div class="rot">${x.quando} · ${x.n} perguntas</div></span><span style="display:flex;gap:6px;align-items:center">${x.estado === 'pendente' ? `<button class="btn" data-recusa="${i}">Recusar</button><button class="btn prim" data-entrev="${i}">Dar entrevista</button>` : `<span class="chip ${x.estado === 'dada' ? 'bom' : 'mau'}">${x.estado === 'dada' ? 'Dada' : 'Recusada'}</span>`}</span></div>`).join('')}
       <div class="rot" style="margin-top:8px">Recusar uma entrevista baixa a relação com o meio (−5) e pode virar notícia.</div></section>
@@ -1130,7 +1135,7 @@ function staffEcra() {
   <section class="c"><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Contrato</th><th class="r"></th></tr></thead>
   <tbody>${membros.map(([c, n, i, v, ef, f]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`).join('')}</tbody></table></div></section>
   <div class="grelha" style="margin-top:14px"><section class="c s6"><h2>Pedidos do treinador</h2><div class="linha-kv clic" data-pedido="reforco" role="button" tabindex="0"><span>Quer um médio defensivo titular na janela de Janeiro</span><span style="display:flex;gap:6px;align-items:center"><span class="chip aviso">pendente</span><span class="muted">abrir ›</span></span></div><div class="linha-kv"><span>Pede renovação do 1.º Adjunto</span><span class="chip">em análise</span></div></section>
-  <section class="c s6"><h2>Confiança do dono no treinador</h2><div class="num grande">64</div><div class="barra" style="margin-top:10px"><i style="width:64%"></i></div><div class="rot" style="margin-top:6px">Posição esperada: 3.º · actual: 4.º</div></section></div>`;
+  <section class="c s6"><h2>Confiança do conselho no treinador</h2><div class="num grande">64</div><div class="barra" style="margin-top:10px"><i style="width:64%"></i></div><div class="rot" style="margin-top:6px">Posição esperada: 3.º · actual: 4.º</div></section></div>`;
 }
 
 let alaAcad = 'Academia';
@@ -1433,6 +1438,7 @@ function desenhar() {
     <button class="icone-btn" id="b-cal" aria-label="Calendário">${svg('cal')}</button>
     <button class="icone-btn" id="b-msg" aria-label="Mensagens">${svg('env')}${naoLidas ? `<span class="badge">${naoLidas}</span>` : ''}</button>
     <button class="icone-btn" id="b-imp" aria-label="Imprensa" title="Imprensa">${svg('imprensa')}${PEDIDOS_ENTREVISTA.some((x) => x.estado === 'pendente') ? '<span class="badge">!</span>' : ''}</button>
+    <button class="icone-btn" id="b-guardar" aria-label="Guardar o progresso" title="Guardar o progresso">${svg('guardar')}</button>
     ${PERFIL_ACTIVO ? `<button class="perfil-chip" id="b-perfil" title="Perfil e sessão">${avatarHtml(PERFIL_ACTIVO, 30)}<span><b>${PERFIL_ACTIVO.nome.split(' ')[0]}</b><small>${CARGO}</small></span></button>` : ''}
     <button class="btn prim continuar" id="b-cont">Continuar ${svg('seta').replace('<svg', '<svg style="width:16px;height:16px;vertical-align:-3px"')}</button></div>`;
   m.innerHTML = topo + RENDER[r]() + `<div class="aviso-proto">Protótipo com dados fictícios do mundo gerado. <button class="btn" id="demo-pos" style="min-height:30px;padding:4px 10px">Exemplo: o meu clube em 14.º</button> Cor do clube (acento): <span class="cores">${[['#d63a3a', '#f1f1f1'], ['#2c63c9', '#ffffff'], ['#1d9a6c', '#ffffff'], ['#e2a33a', '#111111'], ['#7a3cc7', '#ffffff']].map((c) => `<button data-cor="${c[0]}" data-cor2="${c[1]}" style="background:${c[0]}" aria-label="Acento ${c[0]}"></button>`).join('')}</span></div>`;
@@ -1507,7 +1513,7 @@ function desenharModal() {
 function ligar(m) {
   m.querySelector('#b-cal').addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
   m.querySelector('#b-msg').addEventListener('click', () => { modal = 'msg'; desenharModal(); });
-  m.querySelector('#b-cont').addEventListener('click', () => { hoje = new Date(hoje.getTime() + 864e5); if (hoje.getUTCDay() === 1) { semanaImprensa++; modal = 'semana'; } desenhar(); if (modal === 'semana') desenharModal(); });
+  m.querySelector('#b-cont').addEventListener('click', () => { hoje = new Date(hoje.getTime() + 864e5); guardarProgresso(false); if (hoje.getUTCDay() === 1) { semanaImprensa++; modal = 'semana'; } desenhar(); if (modal === 'semana') desenharModal(); });
   m.querySelectorAll('[data-pos]').forEach((b) => b.addEventListener('click', () => { filtroPos = b.dataset.pos; desenhar(); }));
   const f = m.querySelector('#f-pesq'); if (f) f.addEventListener('input', () => { pesquisa = f.value; const pos = f.selectionStart; desenhar(); const g = document.getElementById('f-pesq'); g.focus(); g.setSelectionRange(pos, pos); });
   m.querySelectorAll('[data-jj]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.jj; location.hash = 'jogador'; }));
@@ -1533,6 +1539,7 @@ function ligar(m) {
   m.querySelector('#pr-finalistas')?.addEventListener('click', () => { modal = 'finalistas'; desenharModal(); });
   m.querySelector('#pr-cerimonia')?.addEventListener('click', () => { modal = 'cerimonia'; cer = { etapa: 0, mostrados: 0 }; desenharModal(); passoCerimonia(); });
   m.querySelector('#b-perfil')?.addEventListener('click', () => { if (confirm('Terminar a sessão e voltar ao ecrã de entrada?')) { PERFIL_ACTIVO = null; ent = { passo: 'login', rascunho: { modo: 'dono' } }; desenhar(); mostrarEntrada(); } });
+  m.querySelector('#b-guardar').addEventListener('click', () => guardarProgresso(true));
   m.querySelector('#b-imp').addEventListener('click', () => { modal = 'imprensa'; desenharModal(); });
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
   m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
@@ -1608,7 +1615,7 @@ function entradaHtml() {
   const erro = ent.erro ? `<div class="en-erro" role="alert">${ent.erro}</div>` : '';
   let corpo = '';
   if (ent.passo === 'login') corpo = `<h2>Entrar</h2><form id="en-form" autocomplete="off"><label>Utilizador<input id="en-user" required autocomplete="username"></label><label>Palavra-passe<input id="en-pass" type="password" required autocomplete="current-password"></label>${erro}<button class="btn prim en-btn" type="submit">Entrar</button></form><div class="rot">Há 3 contas neste aparelho; cada uma tem o seu perfil e as suas gravações.</div>`;
-  else if (ent.passo === 'retomar') { const p = lerPerfil(ent.conta); corpo = `<h2>Bem-vindo de volta</h2><div class="en-perfil">${avatarHtml(p, 64)}<div><b>${p.nome}</b><div class="rot">Presidente · ${p.clube}</div></div></div><button class="btn prim en-btn" id="en-continuar">Continuar carreira</button><button class="btn en-btn" id="en-novo">Criar um perfil novo</button><button class="btn en-btn" id="en-sair">Mudar de conta</button>`; }
+  else if (ent.passo === 'retomar') { const p = lerPerfil(ent.conta); corpo = `<h2>Bem-vindo de volta</h2><div class="en-perfil">${avatarHtml(p, 64)}<div><b>${p.nome}</b><div class="rot">Presidente · ${p.clube}${p.dataJogo ? ` · gravado em ${p.dataJogo}` : ''}</div></div></div><button class="btn prim en-btn" id="en-continuar">Continuar carreira</button><button class="btn en-btn" id="en-novo">Criar um perfil novo</button><button class="btn en-btn" id="en-sair">Mudar de conta</button>`; }
   else if (ent.passo === 'perfil') {
     const lista = PERFIS_DONO;
     corpo = `<h2>Perfil de jogo</h2><form id="en-form"><label>Nome<input id="en-nome" required maxlength="40" value="${d.nome ?? ''}"></label>
@@ -1626,7 +1633,7 @@ function entradaHtml() {
 }
 function mostrarEntrada() { let el = document.getElementById('entrada'); if (!el) { el = document.createElement('div'); el.id = 'entrada'; document.body.appendChild(el); } const y = el.querySelector('.en-painel')?.scrollTop ?? 0; el.innerHTML = entradaHtml(); el.querySelector('.en-painel').scrollTop = y; ligarEntrada(el); }
 function aplicarPerfil(p) {
-  PERFIL_ACTIVO = p;
+  PERFIL_ACTIVO = p; VARS_PROTO.dono = p.nome;
   const i = LIGA.indexOf(p.clube);
   if (i >= 0 && p.clube !== CLUBE.nome) { tabela.forEach((t) => { if (t.nome === CLUBE.nome) t.cores = CORES[LIGA.indexOf(CLUBE.nome)]; }); CLUBE.nome = p.clube; CLUBE.curto = curtoDe(p.clube); CLUBE.cores = CORES[i]; VARS_PROTO.clube = CLUBE.curto; }
   document.getElementById('nome-clube-lat').textContent = CLUBE.nome;
@@ -1659,6 +1666,18 @@ function ligarEntrada(el) {
   el.querySelector('#en-fim')?.addEventListener('click', () => { const p = { conta: ent.conta, ...d, criado: '2026-11-16' }; gravarPerfil(ent.conta, p); aplicarPerfil(p); el.remove(); });
 }
 if (!/semEntrada/.test(location.search)) { ent = { passo: 'login', rascunho: { modo: 'dono' } }; mostrarEntrada(); }
+
+
+// ---------- Guardar ----------
+// A gravação é automática (cada dia avançado, por perfil); o botão força uma gravação e confirma. Na app: IndexedDB, no worker.
+function guardarProgresso(avisar) {
+  const quando = new Date();
+  if (PERFIL_ACTIVO) { PERFIL_ACTIVO.dataJogo = fmtData(hoje); PERFIL_ACTIVO.gravadoEm = quando.toISOString(); gravarPerfil(PERFIL_ACTIVO.conta, PERFIL_ACTIVO); }
+  if (!avisar) return;
+  let t = document.getElementById('aviso-gravar'); if (!t) { t = document.createElement('div'); t.id = 'aviso-gravar'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.innerHTML = `<b>Progresso guardado</b><span>${fmtData(hoje)} · ${quando.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}${PERFIL_ACTIVO ? ` · perfil de ${PERFIL_ACTIVO.nome.split(' ')[0]}` : ''}</span><small>A gravação automática continua activa.</small>`;
+  t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2600);
+}
 
 // ---------- Ecrã de carregamento (intro) ----------
 // Na app, as etapas e a percentagem vêm do worker (mundo, gravação, motor); no protótipo são simuladas (~2,5 s).

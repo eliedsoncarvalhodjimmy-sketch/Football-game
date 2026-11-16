@@ -7,7 +7,7 @@ export const ESCALA_EFEITOS = { minimo: -3, maximo: 3 };
 export const EFEITOS = {
   EQ: 'Moral do plantel',
   AD: 'Adeptos',
-  DN: 'Dono / conselho',
+  DN: 'Conselho de administração (o utilizador é o dono e Presidente)',
   IM: 'Imprensa (reputação mediática)',
   TR: 'Relação com o treinador',
   BL: 'Balneário (coesão)',
