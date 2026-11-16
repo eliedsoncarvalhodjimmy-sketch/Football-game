@@ -303,6 +303,18 @@ td.r, th.r { text-align: right; }
 #aviso-gravar.on { opacity: 1; transform: translate(-50%, 0); }
 #aviso-gravar span { font-size: 13px; color: #cfd3da; } #aviso-gravar small { font-size: 11px; color: var(--suave); }
 @media (max-width: 760px) { #aviso-gravar { bottom: 84px; } }
+.banner-esc img { object-position: center 60%; }
+.dash h2 { display: flex; align-items: center; gap: 8px; }
+.dash-pt { width: 10px; height: 10px; border-radius: 50%; background: var(--suave); } .dash-pt.bom { background: var(--bom); } .dash-pt.aviso { background: var(--aviso); } .dash-pt.mau { background: var(--mau); }
+.kpis { display: grid; gap: 10px; }
+.kpi { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 10px; padding-bottom: 8px; border-bottom: 1px solid var(--linha); }
+.kpi:last-child { border-bottom: 0; } .kpi b { font-size: 24px; text-align: right; } .kpi-sub { grid-column: 1 / -1; font-size: 12px; color: var(--suave); }
+.kpi-sub.bom { color: var(--bom); } .kpi-sub.aviso { color: var(--aviso); } .kpi-sub.mau { color: var(--mau); }
+.agenda { position: relative; padding: 0; overflow: hidden; min-height: 340px; }
+.agenda img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 70%; }
+.agenda::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,.85) 0%, rgba(11,13,16,.55) 55%, rgba(11,13,16,.2) 100%); }
+.agenda-txt { position: relative; z-index: 1; padding: 16px; display: grid; gap: 8px; }
+.ag-l { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: rgba(11,13,16,.55); } .ag-l span { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #b9bcc2; } .ag-l b { color: #fff; font-size: 14px; }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -424,6 +436,7 @@ td .ci { width: 17px; height: 17px; border-radius: 4px; display: inline-grid; pl
 const ICON = {
   inicio: '<path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
   plantel: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c3 .2 5.5 2.6 5.5 5.8"/>',
+  escritorio: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   jogador: '<circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/>',
   tactica: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="3"/>',
   mercado: '<path d="M4 7h16l-1.5 12h-13z"/><path d="M8 7a4 4 0 0 1 8 0"/>',
@@ -444,7 +457,7 @@ const ICON = {
   cont: '<path d="M12 2l2.9 6.2 6.6.6-5 4.5 1.5 6.6L12 16.6 6 19.9l1.5-6.6-5-4.5 6.6-.6z"/>',
   mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
 };
-const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['jogador', 'Jogador'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças e Conselho'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições']];
+const ECRAS = [['inicio', 'Início'], ['plantel', 'Plantel'], ['escritorio', 'Escritório'], ['staff', 'Staff'], ['academia', 'Academia e Recrutamento'], ['mercado', 'Mercado'], ['financas', 'Finanças e Conselho'], ['infra', 'Infraestrutura'], ['classificacao', 'Competições']];
 const INFERIOR = ['inicio', 'plantel', 'mercado', 'classificacao'];
 const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 
@@ -1116,6 +1129,27 @@ function premiosEcra() {
     <section class="c s12"><div class="rot">Protótipo: os finalistas e os resultados são de exemplo. Na app saem da época simulada (nota média, golos e assistências por posição, jogos sem sofrer, títulos, reputação e força da liga), com os números em src/config/premios.ts.</div></section></div>`;
 }
 
+// ---------- Escritório: dashboard curto (desportivo, financeiro, institucional) e mensagens ----------
+function escritorioEcra() {
+  const pos = tabela.findIndex((t) => t.nome === CLUBE.nome) + 1, eu = tabela[pos - 1], pj = proximoJogo(), bil = efeitoBilhete(precoBilhete);
+  const nome = PERFIL_ACTIVO ? PERFIL_ACTIVO.nome.split(' ')[0] : 'Presidente';
+  const sem = (v, bom, mau) => (v >= bom ? 'bom' : v >= mau ? 'aviso' : 'mau');
+  const kpi = (rot, val, sub, est) => `<div class="kpi"><span class="rot">${rot}</span><b class="num">${val}</b>${sub ? `<span class="kpi-sub ${est ?? ''}">${sub}</span>` : ''}</div>`;
+  const cartao = (t, ic, est, kpis, ir) => `<section class="c s4 dash"><h2><span class="dash-pt ${est}"></span>${t}<a class="acao" href="#${ir}">Abrir ›</a></h2><div class="kpis">${kpis.join('')}</div></section>`;
+  const naoLidas = MENSAGENS.filter((x) => !x.lida).length;
+  return `<section class="banner-mercado banner-esc"><img src="escritorio.jpg" alt=""><div class="bm-topo"><h1>Escritório</h1><span>Bom dia, ${nome}. ${fmtData(hoje)}</span></div></section>
+  <div class="grelha">
+    ${cartao('Desportivo', 'liga', pos <= 4 ? 'bom' : pos <= 10 ? 'aviso' : 'mau', [kpi('Liga', `${pos}.º`, `${eu.pts} pts · forma ${eu.forma.slice(-3).join('')}`, pos <= 5 ? 'bom' : 'aviso'), kpi('Objectivo', 'Top 5', pos <= 5 ? 'dentro do objectivo' : 'abaixo do objectivo', pos <= 5 ? 'bom' : 'mau'), kpi('Próximo jogo', pj ? fmtCurta(pj.d) : '—', pj ? `${pj.j.casa ? 'casa' : 'fora'} · ${pj.j.adv}` : '')], 'classificacao')}
+    ${cartao('Financeiro', 'financas', 'bom', [kpi('Caixa', '18,4 M€', '+2,1 M€ este mês', 'bom'), kpi('Resultado previsto', '+4,8 M€', 'época 2026/27', 'bom'), kpi('Massa salarial', '94%', '31,2 de 33,0 M€', 'aviso')], 'financas')}
+    ${cartao('Institucional', 'staff', sem(Math.min(72, bil.satisf), 60, 40), [kpi('Conselho', '72/100', 'confiança', sem(72, 60, 40)), kpi('Adeptos', `${bil.satisf}/100`, '48 300 sócios', sem(bil.satisf, 60, 40)), kpi('Imprensa', `${pressaoMedia}/100`, 'pressão mediática', pressaoMedia >= 70 ? 'mau' : pressaoMedia >= 45 ? 'aviso' : 'bom')], 'financas')}
+    <section class="c s8"><h2>Mensagens${naoLidas ? `<span class="chip aviso" style="margin-left:8px">${naoLidas} por ler</span>` : ''}</h2>
+      ${MENSAGENS.map((x, i) => `<div class="msg clic ${x.lida ? 'lida' : ''}" data-msgesc="${i}" role="button" tabindex="0"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</section>
+    <section class="c s4 agenda"><img src="escritorio-cafe.jpg" alt=""><div class="agenda-txt"><h2 style="color:#fff">Hoje</h2>
+      ${[['Jogo', pj && chave(pj.d) === chave(hoje) ? `${pj.j.adv} · 20:30` : 'sem jogo'], ['Imprensa', PEDIDOS_ENTREVISTA.filter((x) => x.estado === 'pendente').length + ' pedidos de entrevista'], ['Mercado', emJanela(hoje) ? 'janela aberta' : 'janela fechada'], ['Conselho', 'reunião no fim de Janeiro']].map(([a, b]) => `<div class="ag-l"><span>${a}</span><b>${b}</b></div>`).join('')}</div></section>
+  </div>`;
+}
+const fmtCurta = (d) => `${d.getUTCDate()} ${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][d.getUTCMonth()]}`;
+
 function staffEcra() {
   const membros = [
     ['Treinador', 'Hélder Quintela', 54, 14, 'Pressão alta · desenvolvimento 15', '2028'],
@@ -1421,7 +1455,7 @@ function historicoEcra() {
 }
 
 // ---------- navegação e acento ----------
-const RENDER = { inicio, plantel: plantelEcra, jogador: jogadorEcra, staff: staffEcra, academia: academiaEcra, mercado: mercadoEcra, financas: financasEcra, infra: infraEcra, classificacao: classificacaoEcra };
+const RENDER = { inicio, plantel: plantelEcra, escritorio: escritorioEcra, jogador: jogadorEcra, staff: staffEcra, academia: academiaEcra, mercado: mercadoEcra, financas: financasEcra, infra: infraEcra, classificacao: classificacaoEcra };
 function rota() { const h = location.hash.replace('#', ''); return RENDER[h] ? h : 'inicio'; }
 function desenhar() {
   const r = rota();
@@ -1539,6 +1573,7 @@ function ligar(m) {
   m.querySelector('#pr-finalistas')?.addEventListener('click', () => { modal = 'finalistas'; desenharModal(); });
   m.querySelector('#pr-cerimonia')?.addEventListener('click', () => { modal = 'cerimonia'; cer = { etapa: 0, mostrados: 0 }; desenharModal(); passoCerimonia(); });
   m.querySelector('#b-perfil')?.addEventListener('click', () => { if (confirm('Terminar a sessão e voltar ao ecrã de entrada?')) { PERFIL_ACTIVO = null; ent = { passo: 'login', rascunho: { modo: 'dono' } }; desenhar(); mostrarEntrada(); } });
+  m.querySelectorAll('[data-msgesc]').forEach((x) => x.addEventListener('click', () => { const k = +x.dataset.msgesc; MENSAGENS[k].lida = true; modal = 'msg'; msgAberta = MENSAGENS[k].rel ? k : null; desenhar(); desenharModal(); }));
   m.querySelector('#b-guardar').addEventListener('click', () => guardarProgresso(true));
   m.querySelector('#b-imp').addEventListener('click', () => { modal = 'imprensa'; desenharModal(); });
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
