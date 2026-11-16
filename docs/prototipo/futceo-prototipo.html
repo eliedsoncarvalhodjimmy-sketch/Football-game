@@ -317,6 +317,43 @@ td.r, th.r { text-align: right; }
 .ag-l { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: rgba(11,13,16,.55); } .ag-l span { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #b9bcc2; } .ag-l b { color: #fff; font-size: 14px; }
 .filtros-msg { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; } .filtros-msg .chip { border: 0; cursor: pointer; min-height: 30px; }
 .staff-grupo h2 { flex-wrap: wrap; }
+.modal-cal2 { width: min(1240px, 100%); max-height: 94vh; padding: 0; display: grid; grid-template-columns: 1fr 270px; overflow: auto; color: #fff;
+  background: radial-gradient(1200px 600px at 85% 10%, rgba(120,90,255,.35), transparent 60%), linear-gradient(135deg, #24185a 0%, #33228a 55%, #2a4aa8 100%); border-color: rgba(255,255,255,.12); }
+.c2-princ { padding: 22px 18px 18px 22px; min-width: 0; }
+.c2-cab { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.c2-cab h3 { margin: 0; flex: 1; font-family: var(--f-num); font-size: 34px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+.c2-nav { display: flex; gap: 6px; } .c2-b { min-width: 40px; min-height: 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; font: inherit; font-size: 15px; cursor: pointer; padding: 0 12px; }
+.c2-grelha { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.c2-sem { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #c9c3ff; padding: 0 6px 6px; border-bottom: 1px solid rgba(255,255,255,.18); margin-bottom: 3px; }
+.c2-dia { position: relative; min-height: 98px; border: 0; border-radius: 0; background: rgba(18,12,48,.72); color: #fff; text-align: left; padding: 6px 8px; font: inherit; cursor: pointer; overflow: hidden; }
+.c2-dia:hover { box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); }
+.c2-dia.fora { background: rgba(18,12,48,.28); color: rgba(255,255,255,.35); }
+.c2-n { font-family: var(--f-num); font-size: 30px; font-weight: 600; line-height: 1; }
+.c2-dia.hoje { background: #e4e3ea; color: #1b1640; }
+.c2-dia.sel { box-shadow: inset 0 0 0 3px #fff; }
+.c2-dia.jogo { color: #fff; }
+.c2-dia.t-liga { background: linear-gradient(135deg, #b8323a, #ff7a7f); } .c2-dia.t-taca { background: linear-gradient(135deg, #5f6773, #b7bec8); }
+.c2-dia.t-ucl { background: linear-gradient(135deg, #1f4fb8, #5fa4ff); } .c2-dia.t-uel { background: linear-gradient(135deg, #c9890a, #ffd767); color: #1b1640; } .c2-dia.t-uecl { background: linear-gradient(135deg, #1c8a55, #63e3a3); }
+.c2-dia.jogo.hoje { box-shadow: inset 0 0 0 3px #fff; }
+.c2-dia.fora.jogo, .c2-dia.fora.pausa { opacity: .5; }
+.c2-esc { position: absolute; top: 6px; right: 6px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
+.c2-info { position: absolute; left: 8px; bottom: 6px; display: grid; line-height: 1.15; font-size: 12px; } .c2-info b { font-size: 13px; letter-spacing: .04em; }
+.c2-dia.pausa { background: linear-gradient(135deg, rgba(217,196,154,.38), rgba(217,196,154,.18)); }
+.c2-ev { position: absolute; left: 8px; bottom: 6px; right: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #f3e6c8; }
+.c2-rec { position: absolute; right: 8px; bottom: 8px; width: 18px; height: 18px; color: #c9c3ff; opacity: .85; }
+.c2-dia .troca { position: absolute; top: 6px; right: 6px; width: 15px; height: 15px; color: var(--aviso); }
+.c2-dia.jogo .troca { top: auto; bottom: 6px; right: 8px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+.c2-leg { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 12px; font-size: 12px; color: #d9d5ff; } .c2-leg span { display: inline-flex; align-items: center; gap: 6px; } .c2-leg i { width: 12px; height: 12px; border-radius: 3px; }
+.c2-lado { padding: 22px; display: grid; align-content: start; gap: 14px; background: rgba(10,6,30,.25); border-left: 1px solid rgba(255,255,255,.08); }
+.c2-ano { font-family: var(--f-num); font-size: 64px; font-weight: 700; line-height: .9; color: rgba(255,255,255,.35); }
+.c2-mes { font-family: var(--f-num); font-size: 30px; font-weight: 700; text-transform: uppercase; }
+.c2-bloco { display: grid; gap: 4px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.12); }
+.c2-rot { font-size: 12px; color: #c9c3ff; }
+.c2-pj { display: flex; align-items: center; gap: 10px; color: #c9c3ff; font-size: 12px; }
+.c2-dias { font-family: var(--f-num); font-size: 44px; font-weight: 700; line-height: 1; } .c2-dias small { font-size: 18px; color: #c9c3ff; }
+.c2-acoes { display: grid; gap: 8px; }
+@media (max-width: 900px) { .modal-cal2 { grid-template-columns: 1fr; } .c2-lado { border-left: 0; border-top: 1px solid rgba(255,255,255,.08); grid-template-columns: 1fr 1fr; } .c2-ano, .c2-mes { grid-column: span 1; } .c2-acoes { grid-column: 1 / -1; } }
+@media (max-width: 640px) { .c2-princ { padding: 14px 10px; } .c2-cab h3 { font-size: 24px; } .c2-dia { min-height: 62px; padding: 4px; } .c2-n { font-size: 17px; } .c2-esc { top: auto; bottom: 3px; right: 3px; } .c2-esc .escudo { width: 18px !important; height: 20px !important; } .c2-info span, .c2-ev { display: none; } .c2-info { bottom: 3px; left: 4px; font-size: 9px; } .c2-info b { font-size: 9px; } .c2-rec { width: 12px; height: 12px; right: 3px; bottom: 3px; } .c2-dia .troca { width: 11px; height: 11px; top: 3px; right: 3px; } .c2-dia.jogo .troca { top: 3px; bottom: auto; } .c2-lado { padding: 14px; } .c2-ano { font-size: 40px; } .c2-dias { font-size: 32px; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -540,6 +577,7 @@ const MENSAGENS = [
   { de: 'Olheiro internacional', assunto: 'Relatório: Gustavo Rosilho (82%)', txt: 'Avançado de 20 anos, OVR 73–81, potencial muito alto.', dia: '11 Nov', lida: true, rel: 'scout' },
   { de: 'Departamento médico', assunto: 'Relatório médico: entorse no tornozelo', txt: 'Fora 12 dias. Regressa a 26 de Novembro.', dia: '9 Nov', lida: true, rel: 'med' },
 ];
+let calSel = null;
 let modal = null, mesCal = null, msgAberta = null, filtroMsg = 'Todas';
 const GRUPOS_MSG = ['Todas', 'Treinador', 'Gestor de academia', 'Capitão', 'Director Financeiro e Comercial'];
 const capaRelatorio = (titulo, sub, img = 'relatorio.jpg') => `<div class="capa-rel ${img === 'pedido-treinador.jpg' ? 'capa-alta' : ''}"><img src="${img}" alt=""><div class="cr-txt"><h3>${titulo}</h3>${sub ? `<span>${sub}</span>` : ''}</div></div>`;
@@ -1501,14 +1539,28 @@ function desenharModal() {
   if (modal === 'cal') {
     const base = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1));
     const ini = new Date(base.getTime() - (((base.getUTCDay() + 6) % 7) * 864e5));
+    const ROT = { liga: 'LIGA', taca: 'TAÇA', ucl: 'UCL', uel: 'UEL', uecl: 'UECL' };
     let cel = '';
-    for (let k = 0; k < 42; k++) { const d = new Date(ini.getTime() + k * 864e5); const j = JOGOS.get(chave(d)); const ev = EVENTOS.get(chave(d));
+    for (let k = 0; k < 42; k++) {
+      const d = new Date(ini.getTime() + k * 864e5), ch = chave(d), j = JOGOS.get(ch), ev = EVENTOS.get(ch);
+      const ontem = JOGOS.get(chave(new Date(d.getTime() - 864e5)));
       const cores = j ? j.cores ?? CORES[LIGA.indexOf(j.adv)] ?? ['#555', '#fff'] : null;
-      cel += `<div class="dia ${d.getUTCMonth() !== base.getUTCMonth() ? 'fora-mes' : ''} ${chave(d) === chave(hoje) ? 'hoje' : ''}" ${emJanela(d) ? 'title="Janela de transferências aberta"' : ''}><span class="n">${d.getUTCDate()}</span>${emJanela(d) ? `<svg class="troca" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-label="janela aberta"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>` : ''}${j ? `<div class="partida" style="--cor-comp:${COR_COMP[j.tipo]}" title="${j.comp}: ${j.casa ? 'em casa' : 'fora'} contra ${j.adv}"><span class="ci">${svg(j.icone ?? j.tipo)}</span><div><div class="cf">${j.casa ? 'Casa' : 'Fora'} · vs</div><div class="adv">${escudo(cores, 10).replace('class="escudo"', 'class="escudo" style="width:10px;height:11px;vertical-align:-1px;margin-right:3px"')}${j.adv}</div></div></div>` : ''}${ev ? `<span class="pausa">${ev}</span>` : ''}</div>`; }
-    el.innerHTML = `<div class="modal" role="dialog" aria-label="Calendário" style="width:min(960px,100%)"><div class="modal-cab"><button class="icone-btn" id="cal-ant" aria-label="Mês anterior" style="transform:scaleX(-1)">${svg('seta')}</button><h3>${MESES[base.getUTCMonth()]} ${base.getUTCFullYear()}</h3><button class="icone-btn" id="cal-seg" aria-label="Mês seguinte">${svg('seta')}</button><button class="btn" id="fechar">Fechar</button></div>
-      <div class="cal">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((x) => `<div class="dsem">${x}</div>`).join('')}${cel}</div>
-      <div class="legenda"><span><i class="ci" style="background:var(--c-liga)">${svg('liga')}</i>Liga</span><span><i class="ci" style="background:var(--c-taca)">${svg('taca')}</i>Taça</span><span><i class="ci" style="background:var(--c-ucl)">${svg('cont')}</i>Liga dos Campeões / Libertadores / AFC Champions</span><span><i class="ci" style="background:var(--c-uel)">${svg('cont')}</i>Liga Europa</span><span><i class="ci" style="background:var(--c-uecl)">${svg('cont')}</i>Liga Conferência</span><span><i class="ci" style="background:var(--c-pausa)"></i>Pausas</span><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--aviso)" stroke-width="2.4" stroke-linecap="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>Janela de transferências aberta</span></div>
-      <div class="rot" style="margin-top:8px">Hoje: ${fmtData(hoje)}</div></div>`;
+      const cls = ['c2-dia', d.getUTCMonth() !== base.getUTCMonth() ? 'fora' : '', ch === chave(hoje) ? 'hoje' : '', j ? `jogo t-${j.tipo}` : '', ev ? 'pausa' : '', ch === calSel ? 'sel' : ''].join(' ');
+      cel += `<button class="${cls}" data-dia="${ch}" title="${j ? `${j.comp}: ${j.casa ? 'em casa' : 'fora'} contra ${j.adv}` : ev ?? fmtData(d)}"><span class="c2-n">${d.getUTCDate()}</span>${j ? `<span class="c2-esc">${escudo(cores, 34)}</span><span class="c2-info"><span>${j.casa ? 'Casa' : 'Fora'}</span><b>${ROT[j.tipo] ?? j.tipo.toUpperCase()}</b></span>` : ''}${ev ? `<span class="c2-ev">${ev}</span>` : ''}${!j && ontem && d > hoje ? `<svg class="c2-rec" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="dia de recuperação"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>` : ''}${emJanela(d) ? `<svg class="troca" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-label="janela aberta"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>` : ''}</button>`;
+    }
+    const aberta = emJanela(hoje), y = hoje.getUTCFullYear(), m = hoje.getUTCMonth();
+    const alvo = aberta ? (m === 0 ? Date.UTC(y, 0, 31) : Date.UTC(y, 7, 31)) : (m < 6 ? Date.UTC(y, 6, 1) : Date.UTC(y + 1, 0, 1));
+    const dias = Math.max(0, Math.round((alvo - hoje) / 864e5)), pj = proximoJogo();
+    const sel = calSel ? new Date(calSel + 'T00:00:00Z') : null, podeSimular = sel && sel > hoje;
+    el.innerHTML = `<div class="modal modal-cal2" role="dialog" aria-label="Calendário">
+      <div class="c2-princ"><div class="c2-cab"><h3>Calendário</h3><span class="c2-nav"><button class="c2-b" id="cal-ant" aria-label="Mês anterior">‹</button><button class="c2-b" id="cal-hoje">Hoje</button><button class="c2-b" id="cal-seg" aria-label="Mês seguinte">›</button></span></div>
+        <div class="c2-grelha">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((x) => `<div class="c2-sem">${x}</div>`).join('')}${cel}</div>
+        <div class="c2-leg"><span><i style="background:var(--c-liga)"></i>Liga</span><span><i style="background:var(--c-taca)"></i>Taça</span><span><i style="background:var(--c-ucl)"></i>Liga dos Campeões</span><span><i style="background:var(--c-uel)"></i>Liga Europa</span><span><i style="background:var(--c-uecl)"></i>Liga Conferência</span><span><i style="background:var(--c-pausa)"></i>Pausas</span><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--aviso)" stroke-width="2.6" stroke-linecap="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>Janela aberta</span><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#c9c3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Recuperação</span></div></div>
+      <aside class="c2-lado"><div class="c2-ano">${base.getUTCFullYear()}</div><div class="c2-mes">${MESES[base.getUTCMonth()]}</div>
+        <div class="c2-bloco">${pj ? `<div class="c2-rot">Próximo jogo · ${pj.j.comp}</div><div class="c2-pj">${escudo(CLUBE.cores, 30)}<span>vs</span>${escudo(pj.j.cores ?? CORES[LIGA.indexOf(pj.j.adv)] ?? ['#555', '#fff'], 30)}</div><b>${pj.j.adv}</b><div class="c2-rot">${fmtData(pj.d)} · ${pj.j.casa ? 'em casa' : 'fora'}</div>` : ''}</div>
+        <div class="c2-bloco"><div class="c2-rot">${aberta ? 'Janela de transferências aberta' : 'Janela de transferências fechada'}</div><div class="c2-dias">${dias} <small>${dias === 1 ? 'dia' : 'dias'}</small></div><div class="c2-rot">até a janela ${aberta ? 'fechar' : 'abrir'}</div></div>
+        <div class="c2-bloco"><div class="c2-rot">Hoje: ${fmtData(hoje)}</div>${sel ? `<div class="c2-rot">Seleccionado: ${fmtData(sel)}</div>` : '<div class="c2-rot">Toca num dia para o seleccionar</div>'}</div>
+        <div class="c2-acoes"><button class="btn prim" id="cal-sim" ${podeSimular ? '' : 'disabled'}>Simular até ${sel && podeSimular ? fmtCurta(sel) : 'à data'}</button><button class="btn" id="fechar">Fechar</button></div></aside></div>`;
   } else {
     const ab = msgAberta != null ? MENSAGENS[msgAberta] : null;
     if (modal === 'finalistas') el.innerHTML = modalFinalistas();
@@ -1558,6 +1610,9 @@ function desenharModal() {
   el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };
   el.querySelector('#cal-ant')?.addEventListener('click', () => mv(-1));
+  el.querySelector('#cal-hoje')?.addEventListener('click', () => { mesCal = null; calSel = null; desenharModal(); });
+  el.querySelectorAll('[data-dia]').forEach((b) => b.addEventListener('click', () => { calSel = calSel === b.dataset.dia ? null : b.dataset.dia; desenharModal(); }));
+  el.querySelector('#cal-sim')?.addEventListener('click', () => { const alvo = new Date(calSel + 'T00:00:00Z'); while (hoje < alvo) { hoje = new Date(hoje.getTime() + 864e5); if (hoje.getUTCDay() === 1) semanaImprensa++; } guardarProgresso(false); calSel = null; mesCal = null; modal = null; desenhar(); });
   el.querySelector('#cal-seg')?.addEventListener('click', () => mv(1));
   el.querySelectorAll('[data-msg]').forEach((x) => x.addEventListener('click', () => { MENSAGENS[+x.dataset.msg].lida = true; if (MENSAGENS[+x.dataset.msg].rel || MENSAGENS[+x.dataset.msg].resp) msgAberta = +x.dataset.msg; desenharModal(); const b = document.querySelector('#b-msg .badge'); const n = MENSAGENS.filter((y) => !y.lida).length; if (b) { if (n) b.textContent = n; else b.remove(); } }));
 }
