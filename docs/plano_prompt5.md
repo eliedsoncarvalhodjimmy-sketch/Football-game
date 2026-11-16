@@ -39,6 +39,8 @@ Interface (main thread)          Web Worker (motor puro, determinístico)
 
 - **Entrada e perfil** (pedido do utilizador): depois do carregamento, ecrã com `docs/prototipo/perfil.jpg`: login (3 contas locais; só o SHA-256 das palavras-passe fica no código; separa perfis e gravações, não é segurança a sério) → perfil de jogo (nome, data de nascimento, nacionalidade e o perfil de partida do modo Dono, textos do utilizador) → foto (opcional, 256 px, só no aparelho) → clube (compra de qualquer clube: o património do perfil não limita a compra). Contas com perfil já criado: "Continuar carreira" ou "Criar um perfil novo". Efeitos dos perfis (propostos, a aprovar) em `src/config/perfis.ts`.
 
+- **Avatares** (pedido do utilizador): rostos 2D por camadas para todos os jogadores, treinadores e staff, a partir de ~11 números por pessoa (pele, rosto, cabelo e cor, sobrancelhas, olhos e cor, nariz, boca, barba, óculos; entradas e cabelos brancos pela idade), derivados da nacionalidade, da idade e de uma semente: sempre a mesma cara. Corpo pela altura e pelo peso, com o equipamento do clube (cores, padrão, número) ou fato no staff. Gerados no worker com o mundo (`src/avatares/`), também para cada jovem da academia no intake; o desenho é feito na UI só quando aparece (e fica em cache). **Editor** antes de começar a carreira (jogadores, juniores, staff, outros clubes; setas por característica, Aleatório, Repor), guardado como sobreposição no pacote de dados. **Ficha do jogador** no estilo pedido: avatar de corpo inteiro, dados físicos, pé, moral, OVR, clube, agente, contrato, camisola, posições, estatísticas da época, potencial estimado e relatório do olheiro.
+
 ## Ecrãs (Bloco A)
 
 | Ecrã | Conteúdo | Dados que já existem |

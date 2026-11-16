@@ -394,6 +394,48 @@ td.r, th.r { text-align: right; }
 .np-campo input:focus { outline: 2px solid #e2a33a; }
 .np-bonus { display: grid; gap: 6px; padding: 8px 0; margin: 4px 14px; border-top: 1px dashed rgba(255,255,255,.12); } .np-bonus .np-campo { padding: 0; }
 .np-bonus-l { display: flex; gap: 6px; flex-wrap: wrap; } .np-bonus-l .btn { min-height: 34px; padding: 4px 10px; text-transform: none; }
+.nome-av { display: inline-flex; align-items: center; gap: 8px; } .nome-av .avatar-svg { flex: none; border-radius: 6px; background: linear-gradient(180deg, #3a7a52, #23553a); }
+.hero-jog { padding: 0; overflow: hidden; background: linear-gradient(180deg, rgba(120,170,220,.25), rgba(40,110,60,.35) 55%, rgba(20,60,35,.6)), #1a2a22; }
+.hj-cab { display: flex; align-items: stretch; gap: 8px; padding: 10px; }
+.hj-nome { flex: 1; background: rgba(15,22,34,.85); border-radius: 8px; padding: 8px 12px; display: grid; } .hj-nome b { font-family: var(--f-num); font-size: 24px; letter-spacing: .02em; } .hj-nome span { color: #b9bcc2; font-size: 13px; }
+.hj-pos { align-self: start; background: #e0565b; color: #fff; font-weight: 700; border-radius: 6px; padding: 4px 10px; font-family: var(--f-num); font-size: 18px; }
+.hj-pe, .hj-moral { width: 56px; display: grid; place-items: center; background: rgba(15,22,34,.85); border-radius: 8px; font-family: var(--f-num); font-size: 22px; }
+.hj-ovr { width: 64px; display: grid; place-items: center; border-radius: 10px; color: #111; font-family: var(--f-num); font-weight: 700; font-size: 32px; padding: 0 6px; }
+.hj-corpo { display: grid; grid-template-columns: 1fr 300px; gap: 10px; padding: 0 10px; }
+.hj-avatar { display: grid; place-items: end center; min-height: 380px; background: radial-gradient(ellipse at 50% 85%, rgba(255,255,255,.12), transparent 60%); }
+.hj-avatar .avatar-svg { width: 210px; height: auto; }
+.hj-lado { display: grid; gap: 10px; align-content: start; }
+.hj-cartao { background: rgba(15,22,34,.82); border-radius: 10px; padding: 12px; display: grid; gap: 8px; justify-items: center; text-align: center; }
+.hj-ag { display: flex; align-items: center; gap: 8px; } .hj-ag span:last-child { display: grid; text-align: left; } .hj-ag small { color: #b9bcc2; } .hj-agav .avatar-svg { border-radius: 50%; background: #3a4458; }
+.hj-l { display: flex; justify-content: space-between; width: 100%; font-size: 13px; } .hj-l span { color: #b9bcc2; }
+.hj-contrato { width: 100%; background: #2f9a4a; color: #fff; font-weight: 700; border-radius: 6px; padding: 6px; font-size: 13px; text-transform: uppercase; }
+.hj-cam { grid-template-columns: 1fr; }
+.hj-epoca { margin: 10px; background: rgba(15,22,34,.85); border-radius: 10px; padding: 10px; display: grid; gap: 8px; }
+.hj-tit { font-family: var(--f-num); font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #cfd3da; }
+.hj-grelha { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 4px; }
+.hj-est { display: grid; text-align: center; background: #263049; border-radius: 6px; padding: 4px; } .hj-est span { font-size: 11px; color: #b9bcc2; text-transform: uppercase; } .hj-est b { font-family: var(--f-num); font-size: 19px; }
+.hj-est.laranja b { background: #f08a3c; color: #111; border-radius: 4px; margin: 2px auto 0; padding: 0 10px; }
+.hj-pot { display: flex; align-items: center; gap: 10px; background: #1b2236; border-radius: 8px; padding: 8px 12px; } .hj-pot span:first-child { flex: 1; font-family: var(--f-num); font-size: 17px; text-transform: uppercase; }
+.hj-p1, .hj-p2 { font-family: var(--f-num); font-size: 26px; border-radius: 6px; padding: 0 8px; color: #111; } .hj-p1 { background: #e2a33a; } .hj-p2 { background: #e8e8ea; } .hj-sep { color: #57c26a; }
+.hj-atitude { text-align: center; color: #cfd3da; font-size: 13px; }
+.hj-rel { display: grid; grid-template-columns: 1fr; gap: 0; border-radius: 8px; overflow: hidden; } .hj-rel span { background: #e8e8ea; color: #111; font-size: 12px; font-weight: 700; text-transform: uppercase; padding: 4px 10px; } .hj-rel b { background: #fff; color: #111; text-align: center; font-family: var(--f-num); font-size: 20px; padding: 6px; text-transform: uppercase; }
+@media (max-width: 760px) { .hj-corpo { grid-template-columns: 1fr; } .hj-avatar { min-height: 0; } .hj-avatar .avatar-svg { width: 140px; } .hj-cab { flex-wrap: wrap; } .hj-nome { flex-basis: 100%; } }
+.en-painel.en-largo { width: min(1060px, 100%); }
+.ed { display: grid; grid-template-columns: 1fr 1.1fr; gap: 14px; min-height: 0; }
+.ed-lista { display: grid; gap: 8px; align-content: start; min-width: 0; } .ed-grupos { flex-wrap: wrap; } .ed-grupos button { font-size: 12px; }
+.ed-itens { display: grid; gap: 4px; max-height: 48vh; overflow: auto; }
+.ed-item { display: flex; align-items: center; gap: 10px; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 10px; padding: 4px 10px; color: var(--texto); text-align: left; font: inherit; cursor: pointer; min-height: 48px; }
+.ed-item .avatar-svg { border-radius: 8px; background: linear-gradient(180deg, #3a7a52, #23553a); flex: none; } .ed-item span { display: grid; } .ed-item small { color: var(--suave); font-size: 11px; }
+.ed-item.on { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); }
+.ed-prev { display: grid; justify-items: center; gap: 6px; background: rgba(0,0,0,.2); border-radius: 14px; padding: 12px; align-content: start; }
+.ed-av .avatar-svg { border-radius: 14px; background: radial-gradient(circle at 50% 30%, #4a8a62, #1f4a32); }
+.ed-tracos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+.ed-t { display: grid; grid-template-columns: 34px 1fr 34px; align-items: center; background: #1e3a8a33; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; }
+.ed-t span { display: grid; text-align: center; line-height: 1.15; } .ed-t small { color: var(--suave); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; } .ed-t b { font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.ed-s { min-height: 40px; border: 0; background: #2c63c9; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; border-radius: 8px; }
+.ed-cor { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,.5); }
+.ed-acoes { display: flex; gap: 8px; }
+@media (max-width: 760px) { .ed { grid-template-columns: 1fr; } .ed-itens { max-height: 30vh; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -639,6 +681,106 @@ function proximoJogo() { for (let d = new Date(hoje); d < Date.UTC(2027, 6, 1); 
 const corOvr = (o) => (o >= 75 ? 'qa' : o >= 68 ? 'qb' : o >= 60 ? 'qc' : 'qd');
 const M = (v) => (v >= 1e6 ? `${(v / 1e6).toFixed(1).replace('.', ',')} M€` : `${Math.round(v / 1000)} mil €`);
 const escudo = (cores, w = 34) => `<svg class="escudo" viewBox="0 0 34 38" width="${w}" aria-hidden="true"><path d="M17 1 L32 6 V18 C32 28 25 34 17 37 C9 34 2 28 2 18 V6 Z" fill="${cores[0]}" stroke="${cores[1]}" stroke-width="2"/><path d="M17 1 V37" stroke="${cores[1]}" stroke-width="5" opacity=".55"/></svg>`;
+// ---------- Avatares (gerados por características; ~11 números por pessoa) ----------
+// Cada pessoa tem traços derivados da nacionalidade, da idade e de uma semente (o nome): sempre a mesma cara.
+// O editor (antes de começar a carreira) guarda alterações por conta; na app ficam no pacote de dados.
+const AV = {
+  pele: ['#f7dcc8', '#efc6a8', '#e2ae8a', '#cf9871', '#b47a55', '#94603f', '#744628', '#4f2f1c'],
+  corCabelo: ['#1c1714', '#3b2619', '#5e3b22', '#8d4a24', '#b98a4e', '#e0c27e', '#9a9a9a', '#e8e6e2'],
+  corOlhos: ['#3b2a1e', '#5c3d22', '#3e6b8a', '#4f7a4a', '#7b7b7b'],
+  nomes: { pele: 'Tom de pele', cara: 'Rosto', cabelo: 'Cabelo', corCabelo: 'Cor do cabelo', sobr: 'Sobrancelhas', olhos: 'Olhos', corOlhos: 'Cor dos olhos', nariz: 'Nariz', boca: 'Boca', barba: 'Barba', oculos: 'Óculos' },
+  max: { pele: 8, cara: 4, cabelo: 10, corCabelo: 8, sobr: 3, olhos: 4, corOlhos: 5, nariz: 3, boca: 3, barba: 6, oculos: 3 },
+  rot: { cabelo: ['Careca', 'Rapado', 'Curto', 'Risca ao lado', 'Topete', 'Caracóis', 'Afro', 'Comprido', 'Rastas', 'Moicano'], barba: ['Sem barba', 'Por fazer', 'Bigode', 'Pêra', 'Curta', 'Cheia'], oculos: ['Sem óculos', 'Redondos', 'Rectangulares'], cara: ['Oval', 'Larga', 'Comprida', 'Quadrada'], corCabelo: ['Preto', 'Castanho escuro', 'Castanho', 'Ruivo', 'Loiro escuro', 'Loiro', 'Grisalho', 'Branco'], corOlhos: ['Castanhos escuros', 'Castanhos', 'Azuis', 'Verdes', 'Cinzentos'] },
+};
+// Distribuição do tom de pele por região (pesos por índice) e cabelo/olhos claros possíveis.
+const AV_REGIAO = {
+  europa_sul: [[2, 5, 4, 2, 1, 0, 0, 0], 0.08], europa_norte: [[6, 5, 2, 1, 0, 0, 0, 0], 0.4], africa: [[0, 0, 0, 1, 2, 4, 5, 4], 0], lusofonia_africa: [[0, 0, 1, 2, 3, 4, 4, 2], 0.02],
+  america_sul: [[1, 2, 3, 3, 3, 2, 2, 1], 0.05], mundo: [[2, 3, 3, 2, 2, 2, 1, 1], 0.1],
+};
+const PAIS_REGIAO = { POR: 'europa_sul', ESP: 'europa_sul', ITA: 'europa_sul', FRA: 'mundo', GRE: 'europa_sul', TUR: 'europa_sul', ENG: 'europa_norte', GER: 'europa_norte', NED: 'europa_norte', BEL: 'europa_norte', SWE: 'europa_norte', NOR: 'europa_norte', DEN: 'europa_norte', CRO: 'europa_norte', SRB: 'europa_norte', ANG: 'lusofonia_africa', CPV: 'lusofonia_africa', MOZ: 'lusofonia_africa', GNB: 'lusofonia_africa', NGA: 'africa', SEN: 'africa', CIV: 'africa', GHA: 'africa', CMR: 'africa', BRA: 'america_sul', ARG: 'america_sul', URU: 'america_sul', COL: 'america_sul' };
+function avHash(t) { let h = 2166136261; for (const c of t) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function avRng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), 1 | t); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function avPeso(r, pesos) { const tot = pesos.reduce((a, b) => a + b, 0); let x = r() * tot; for (let i = 0; i < pesos.length; i++) { x -= pesos[i]; if (x < 0) return i; } return pesos.length - 1; }
+/** Traços de uma pessoa: { id, nome, pais, idade, staff } */
+function avGerar(p) {
+  const r = avRng(avHash(p.id + '|' + p.nome)), [peles, claro] = AV_REGIAO[PAIS_REGIAO[p.pais] ?? 'mundo'];
+  const pele = avPeso(r, peles), escura = pele >= 5;
+  let corCabelo = escura ? avPeso(r, [8, 2, 0, 0, 0, 0, 0, 0]) : avPeso(r, [4, 4, 3, claro > 0.2 ? 1 : 0.2, claro * 6, claro * 5, 0, 0]);
+  if (p.idade >= 34 && r() < (p.idade - 30) * 0.08) corCabelo = r() < 0.7 ? 6 : 7;
+  let cabelo = escura ? avPeso(r, [1, 4, 2, 1, 1, 3, 2, 0.4, 1.2, 0.5]) : avPeso(r, [0.6, 2, 4, 3, 2.5, 1, 0, 1.2, 0.2, 0.4]);
+  if (p.staff) cabelo = avPeso(r, [p.idade > 45 ? 2 : 0.5, 2, 4, 4, 1, escura ? 2 : 0.5, 0, 0.3, 0, 0]);
+  if (p.idade >= 36 && r() < 0.25) cabelo = 0;
+  const barba = p.idade < 18 ? 0 : p.idade < 21 ? avPeso(r, [6, 3, 0, 1, 0, 0]) : avPeso(r, [4, 3, 0.6, 1.2, 2.5, 1.5]);
+  return { pele, cara: Math.floor(r() * 4), cabelo, corCabelo, sobr: Math.floor(r() * 3), olhos: Math.floor(r() * 4), corOlhos: escura ? avPeso(r, [6, 3, 0, 0, 0]) : avPeso(r, [3, 4, claro * 8, claro * 4, 1]),
+    nariz: Math.floor(r() * 3), boca: Math.floor(r() * 3), barba, oculos: p.staff && p.idade > 40 && r() < 0.4 ? 1 + Math.floor(r() * 2) : 0, entradas: p.idade >= 33 && r() < 0.5 };
+}
+const avEdit = (() => { try { return JSON.parse(localStorage.getItem('futceo.avatares') || '{}'); } catch { return {}; } })();
+const avGravar = () => { try { localStorage.setItem('futceo.avatares', JSON.stringify(avEdit)); } catch { /* sem armazenamento */ } };
+const avTracos = (p) => ({ ...avGerar(p), ...(avEdit[p.id] ?? {}) });
+// Medidas do corpo (cm, kg) e pé, derivados da posição e da semente.
+function avCorpo(p) { const r = avRng(avHash('corpo' + p.id)); const base = { GR: 190, DC: 187, DD: 178, DE: 178, MDC: 182, MC: 179, MO: 176, ED: 175, EE: 175, PL: 183 }[p.pos] ?? 180; const alt = Math.round(base + (r() - 0.5) * 12); return { alt, peso: Math.round(alt - 106 + (r() - 0.4) * 9), pe: r() < 0.24 ? 'E' : 'D' }; }
+const avEsc = (h, f) => { const n = parseInt(h.slice(1), 16); const c = (s) => Math.max(0, Math.min(255, Math.round(((n >> s) & 255) * f))); return `rgb(${c(16)},${c(8)},${c(0)})`; };
+let avSeq = 0;
+/** SVG do avatar. modo: 'busto' | 'corpo'. kit: { c1, c2, padrao, numero } ou { fato: true }. */
+function avatarSvg(p, { modo = 'busto', kit = null, tam = 48 } = {}) {
+  const t = avTracos(p), id = 'av' + (avSeq++), pele = AV.pele[t.pele], peleS = avEsc(pele, 0.82), cab = AV.corCabelo[t.corCabelo], cabS = avEsc(cab, 0.7);
+  const rx = [40, 44, 38, 43][t.cara], ry = [50, 47, 53, 47][t.cara], cx = 100, cy = 92;
+  const k = kit ?? { c1: '#2b3445', c2: '#cfd3da', padrao: 'liso' };
+  // Cabeça (relativo ao centro cx, cy)
+  const topo = cy - ry + (t.entradas ? 7 : 0);
+  const cabelos = [
+    '',
+    `<path d="M${cx - rx + 2} ${cy - 10} C${cx - rx} ${cy - ry - 4} ${cx + rx} ${cy - ry - 4} ${cx + rx - 2} ${cy - 10} C${cx + rx - 8} ${topo + 8} ${cx - rx + 8} ${topo + 8} ${cx - rx + 2} ${cy - 10}Z" fill="${cab}" opacity=".55"/>`,
+    `<path d="M${cx - rx - 1} ${cy - 4} C${cx - rx - 4} ${cy - ry - 10} ${cx + rx + 4} ${cy - ry - 10} ${cx + rx + 1} ${cy - 4} C${cx + rx - 6} ${topo + 14} ${cx - rx + 6} ${topo + 14} ${cx - rx - 1} ${cy - 4}Z" fill="${cab}"/>`,
+    `<path d="M${cx - rx - 2} ${cy - 2} C${cx - rx - 6} ${cy - ry - 14} ${cx + rx + 6} ${cy - ry - 12} ${cx + rx + 2} ${cy - 2} C${cx + rx - 4} ${topo + 18} ${cx - 6} ${topo + 8} ${cx - 14} ${topo + 20} C${cx - 22} ${topo + 12} ${cx - rx + 4} ${topo + 20} ${cx - rx - 2} ${cy - 2}Z" fill="${cab}"/><path d="M${cx - 14} ${topo + 4} L${cx - 10} ${topo + 20}" stroke="${cabS}" stroke-width="1.5"/>`,
+    `<path d="M${cx - rx - 1} ${cy - 2} C${cx - rx - 6} ${cy - ry - 22} ${cx + rx + 10} ${cy - ry - 26} ${cx + rx + 1} ${cy - 2} C${cx + rx - 4} ${topo + 14} ${cx - rx + 6} ${topo + 18} ${cx - rx - 1} ${cy - 2}Z" fill="${cab}"/><path d="M${cx - 20} ${topo - 6} C${cx} ${topo - 20} ${cx + 30} ${topo - 14} ${cx + 34} ${topo + 2}" stroke="${cabS}" stroke-width="2" fill="none"/>`,
+    Array.from({ length: 16 }, (_, i) => { const a = Math.PI * (0.98 + i * 1.04 / 15), r0 = rx + 2; return `<circle cx="${(cx + Math.cos(a) * r0 * 0.98).toFixed(1)}" cy="${(cy - 6 + Math.sin(a) * (ry + 4)).toFixed(1)}" r="9" fill="${cab}"/>`; }).join('') + `<ellipse cx="${cx}" cy="${topo + 8}" rx="${rx - 4}" ry="14" fill="${cab}"/>`,
+    `<ellipse cx="${cx}" cy="${cy - 22}" rx="${rx + 14}" ry="${ry - 2}" fill="${cab}"/>`,
+    `<path d="M${cx - rx - 4} ${cy + 34} C${cx - rx - 14} ${cy - ry - 16} ${cx + rx + 14} ${cy - ry - 16} ${cx + rx + 4} ${cy + 34} L${cx + rx - 4} ${cy + 30} C${cx + rx - 2} ${topo + 16} ${cx - rx + 2} ${topo + 16} ${cx - rx + 4} ${cy + 30}Z" fill="${cab}"/>`,
+    Array.from({ length: 11 }, (_, i) => { const x = cx - rx - 2 + i * (2 * rx + 4) / 10; return `<path d="M${x.toFixed(1)} ${topo + 4} L${(x + (i - 5) * 0.8).toFixed(1)} ${cy + 26}" stroke="${cab}" stroke-width="7" stroke-linecap="round"/>`; }).join('') + `<ellipse cx="${cx}" cy="${topo + 6}" rx="${rx + 2}" ry="16" fill="${cab}"/>`,
+    `<path d="M${cx - 12} ${cy - 8} C${cx - 14} ${topo - 24} ${cx + 14} ${topo - 24} ${cx + 12} ${cy - 8} C${cx + 6} ${topo + 6} ${cx - 6} ${topo + 6} ${cx - 12} ${cy - 8}Z" fill="${cab}"/><path d="M${cx - rx + 4} ${cy - 10} C${cx - rx} ${topo + 4} ${cx - 14} ${topo} ${cx - 12} ${topo + 4} M${cx + rx - 4} ${cy - 10} C${cx + rx} ${topo + 4} ${cx + 14} ${topo} ${cx + 12} ${topo + 4}" stroke="${cab}" stroke-width="2" opacity=".5" fill="none"/>`,
+  ];
+  const atras = t.cabelo === 6 || t.cabelo === 7 || t.cabelo === 8 ? cabelos[t.cabelo] : '';
+  const frente = t.cabelo === 6 || t.cabelo === 7 || t.cabelo === 8 ? (t.cabelo === 6 ? '' : `<ellipse cx="${cx}" cy="${topo + 10}" rx="${rx}" ry="16" fill="${cab}"/>`) : cabelos[t.cabelo];
+  const oy = cy + 4, ox = 16, eh = [4.5, 3.4, 5.4, 4][t.olhos], iris = AV.corOlhos[t.corOlhos];
+  const olho = (x) => `<ellipse cx="${x}" cy="${oy}" rx="7" ry="${eh}" fill="#fff"/><circle cx="${x}" cy="${oy}" r="${Math.min(3.6, eh)}" fill="${iris}"/><circle cx="${x}" cy="${oy}" r="1.6" fill="#111"/><circle cx="${x + 1.2}" cy="${oy - 1.2}" r=".8" fill="#fff"/>` + (t.olhos === 3 ? `<path d="M${x - 7} ${oy - 2} Q${x} ${oy - eh - 3} ${x + 7} ${oy - 2}" stroke="${peleS}" stroke-width="1.6" fill="none"/>` : '');
+  const sw = [2.6, 4, 2][t.sobr], so = (x, s) => `<path d="M${x - 9 * s} ${oy - 10} Q${x} ${oy - 15 - (t.sobr === 2 ? 2 : 0)} ${x + 9 * s} ${oy - 11}" stroke="${t.corCabelo >= 6 ? '#8a8a8a' : cabS}" stroke-width="${sw}" stroke-linecap="round" fill="none"/>`;
+  const nariz = [`<path d="M${cx - 2} ${oy + 4} L${cx - 6} ${oy + 18} Q${cx} ${oy + 21} ${cx + 5} ${oy + 18}" stroke="${peleS}" stroke-width="2" fill="none" stroke-linecap="round"/>`, `<path d="M${cx - 7} ${oy + 18} Q${cx} ${oy + 23} ${cx + 7} ${oy + 18}" stroke="${peleS}" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M${cx} ${oy + 4} L${cx} ${oy + 14}" stroke="${peleS}" stroke-width="1.4" opacity=".6"/>`, `<path d="M${cx + 1} ${oy + 2} L${cx - 4} ${oy + 19} Q${cx + 2} ${oy + 22} ${cx + 6} ${oy + 19}" stroke="${peleS}" stroke-width="2" fill="none"/><ellipse cx="${cx - 4}" cy="${oy + 19}" rx="2" ry="1.2" fill="${peleS}"/><ellipse cx="${cx + 5}" cy="${oy + 19}" rx="2" ry="1.2" fill="${peleS}"/>`][t.nariz];
+  const by = oy + 30, boca = [`<path d="M${cx - 11} ${by} Q${cx} ${by + 6} ${cx + 11} ${by}" stroke="#7a3b32" stroke-width="2.6" fill="none" stroke-linecap="round"/>`, `<path d="M${cx - 10} ${by + 1} L${cx + 10} ${by + 1}" stroke="#7a3b32" stroke-width="2.6" stroke-linecap="round"/>`, `<path d="M${cx - 12} ${by - 1} Q${cx} ${by + 9} ${cx + 12} ${by - 1} Q${cx} ${by + 3} ${cx - 12} ${by - 1}Z" fill="#7a3b32"/><path d="M${cx - 9} ${by + 1} Q${cx} ${by + 4} ${cx + 9} ${by + 1}" stroke="#fff" stroke-width="1.6" fill="none"/>`][t.boca];
+  const jaw = `M${cx - rx + 3} ${cy + 6} C${cx - rx + 4} ${cy + ry - 2} ${cx - 16} ${cy + ry + 4} ${cx} ${cy + ry + 4} C${cx + 16} ${cy + ry + 4} ${cx + rx - 4} ${cy + ry - 2} ${cx + rx - 3} ${cy + 6}`;
+  const barba = ['', `<path d="${jaw} C${cx + rx - 10} ${cy + 30} ${cx - rx + 10} ${cy + 30} ${cx - rx + 3} ${cy + 6}Z" fill="${cab}" opacity=".28"/>`, `<path d="M${cx - 14} ${by - 4} Q${cx} ${by - 10} ${cx + 14} ${by - 4} Q${cx} ${by - 6} ${cx - 14} ${by - 4}Z" fill="${cab}" stroke="${cab}" stroke-width="3"/>`, `<path d="M${cx - 14} ${by - 4} Q${cx} ${by - 10} ${cx + 14} ${by - 4}" stroke="${cab}" stroke-width="4" fill="none"/><path d="M${cx - 8} ${by + 6} Q${cx} ${by + 22} ${cx + 8} ${by + 6} Z" fill="${cab}"/>`, `<path d="${jaw} C${cx + rx - 12} ${cy + 22} ${cx + 12} ${by - 6} ${cx} ${by - 6} C${cx - 12} ${by - 6} ${cx - rx + 12} ${cy + 22} ${cx - rx + 3} ${cy + 6}Z" fill="${cab}" opacity=".85"/>`, `<path d="M${cx - rx + 2} ${cy + 2} C${cx - rx} ${cy + ry + 14} ${cx + rx} ${cy + ry + 14} ${cx + rx - 2} ${cy + 2} C${cx + rx - 10} ${cy + 22} ${cx + 12} ${by - 7} ${cx} ${by - 7} C${cx - 12} ${by - 7} ${cx - rx + 10} ${cy + 22} ${cx - rx + 2} ${cy + 2}Z" fill="${cab}"/>`][t.barba];
+  const bocaFinal = t.barba >= 4 ? `<path d="M${cx - 9} ${by + 1} Q${cx} ${by + 5} ${cx + 9} ${by + 1}" stroke="#7a3b32" stroke-width="2.4" fill="none" stroke-linecap="round"/>` : boca;
+  const oculos = ['', `<g fill="none" stroke="#2a2a2a" stroke-width="2.4"><circle cx="${cx - ox}" cy="${oy}" r="10"/><circle cx="${cx + ox}" cy="${oy}" r="10"/><path d="M${cx - 6} ${oy} L${cx + 6} ${oy}"/></g>`, `<g fill="rgba(200,220,255,.12)" stroke="#1d1d1d" stroke-width="2.6"><rect x="${cx - ox - 11}" y="${oy - 7}" width="22" height="14" rx="3"/><rect x="${cx + ox - 11}" y="${oy - 7}" width="22" height="14" rx="3"/><path d="M${cx - 5} ${oy - 2} L${cx + 5} ${oy - 2}" fill="none"/></g>`][t.oculos];
+  const cabeca = `<g>${atras}<ellipse cx="${cx - rx + 1}" cy="${oy + 2}" rx="7" ry="11" fill="${peleS}"/><ellipse cx="${cx + rx - 1}" cy="${oy + 2}" rx="7" ry="11" fill="${peleS}"/>
+    <path d="M${cx - rx} ${cy + 6} C${cx - rx} ${cy - ry - 6} ${cx + rx} ${cy - ry - 6} ${cx + rx} ${cy + 6} C${cx + rx - 2} ${cy + ry - 2} ${cx + 16} ${cy + ry + 4} ${cx} ${cy + ry + 4} C${cx - 16} ${cy + ry + 4} ${cx - rx + 2} ${cy + ry - 2} ${cx - rx} ${cy + 6}Z" fill="url(#${id}-p)"/>
+    <path d="${jaw}" stroke="${peleS}" stroke-width="1.5" fill="none" opacity=".5"/>
+    ${olho(cx - ox)}${olho(cx + ox)}${so(cx - ox, 1)}${so(cx + ox, -1)}${nariz}${barba}${bocaFinal}${frente}${oculos}</g>`;
+  const defs = `<defs><radialGradient id="${id}-p" cx="45%" cy="38%" r="70%"><stop offset="0" stop-color="${avEsc(pele, 1.06)}"/><stop offset="1" stop-color="${avEsc(pele, 0.88)}"/></radialGradient>
+    <linearGradient id="${id}-k" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${k.fato ? '#2c3340' : k.c1}"/><stop offset="1" stop-color="${avEsc(k.fato ? '#2c3340' : k.c1, 0.78)}"/></linearGradient>
+    <pattern id="${id}-pv" width="26" height="10" patternUnits="userSpaceOnUse"><rect width="26" height="10" fill="url(#${id}-k)"/><rect x="13" width="13" height="10" fill="${k.c2}"/></pattern>
+    <pattern id="${id}-ph" width="10" height="26" patternUnits="userSpaceOnUse"><rect width="10" height="26" fill="url(#${id}-k)"/><rect y="13" width="10" height="13" fill="${k.c2}"/></pattern></defs>`;
+  const tecido = k.fato ? `url(#${id}-k)` : k.padrao === 'riscasV' ? `url(#${id}-pv)` : k.padrao === 'riscasH' ? `url(#${id}-ph)` : `url(#${id}-k)`;
+  const pescoco = `<path d="M${cx - 14} ${cy + ry - 8} L${cx - 15} ${cy + ry + 22} L${cx + 15} ${cy + ry + 22} L${cx + 14} ${cy + ry - 8}Z" fill="${peleS}"/>`;
+  const gola = k.fato ? `<path d="M${cx - 16} ${cy + ry + 14} L${cx} ${cy + ry + 44} L${cx + 16} ${cy + ry + 14}Z" fill="#f2f2f0"/><path d="M${cx - 4} ${cy + ry + 20} L${cx + 4} ${cy + ry + 20} L${cx + 6} ${cy + ry + 60} L${cx} ${cy + ry + 68} L${cx - 6} ${cy + ry + 60}Z" fill="${k.gravata ?? '#8b1d2c'}"/>` : `<path d="M${cx - 18} ${cy + ry + 14} Q${cx} ${cy + ry + 34} ${cx + 18} ${cy + ry + 14}" stroke="${k.c2}" stroke-width="5" fill="none"/>`;
+  if (modo === 'busto') {
+    const ombros = `<path d="M${cx - 78} 260 C${cx - 76} ${cy + ry + 26} ${cx - 40} ${cy + ry + 12} ${cx - 16} ${cy + ry + 12} L${cx + 16} ${cy + ry + 12} C${cx + 40} ${cy + ry + 12} ${cx + 76} ${cy + ry + 26} ${cx + 78} 260Z" fill="${tecido}"/>${k.fato ? `<path d="M${cx - 16} ${cy + ry + 12} L${cx - 30} ${cy + ry + 70} L${cx} ${cy + ry + 44}Z M${cx + 16} ${cy + ry + 12} L${cx + 30} ${cy + ry + 70} L${cx} ${cy + ry + 44}Z" fill="${avEsc('#2c3340', 0.8)}"/>` : ''}`;
+    return `<svg class="avatar-svg" viewBox="20 18 160 222" width="${tam}" height="${Math.round(tam * 222 / 160)}" aria-hidden="true">${defs}${pescoco}${ombros}${gola}${cabeca}</svg>`;
+  }
+  // Corpo inteiro (viewBox 0 0 200 430): cabeça no topo, tronco com o equipamento, calções, meias e chuteiras.
+  const c = avCorpo(p), lg = 1 + (c.peso - (c.alt - 106)) / 60;
+  const tronco = `<path d="M${100 - 46 * lg} 168 C${100 - 50 * lg} 162 ${100 - 26} 152 ${100 - 16} 152 L${100 + 16} 152 C${100 + 26} 152 ${100 + 50 * lg} 162 ${100 + 46 * lg} 168 L${100 + 40 * lg} 270 L${100 - 40 * lg} 270Z" fill="${tecido}"/>`;
+  const braco = (s) => `<path d="M${100 + s * 46 * lg} 168 L${100 + s * 60 * lg} 236 L${100 + s * 50 * lg} 240 L${100 + s * 38 * lg} 190Z" fill="${tecido}"/><path d="M${100 + s * 60 * lg} 236 L${100 + s * 62 * lg} 290 L${100 + s * 52 * lg} 292 L${100 + s * 50 * lg} 240Z" fill="${k.fato ? tecido : avEsc(pele, 0.95)}"/><ellipse cx="${100 + s * 57 * lg}" cy="${k.fato ? 296 : 298}" rx="7" ry="9" fill="${pele}"/>`;
+  const calcao = k.fato ? `<path d="M${100 - 40 * lg} 268 L${100 + 40 * lg} 268 L${100 + 34} 410 L${100 + 8} 410 L100 300 L${100 - 8} 410 L${100 - 34} 410Z" fill="#232933"/>` : `<path d="M${100 - 40 * lg} 266 L${100 + 40 * lg} 266 L${100 + 42 * lg} 318 L${100 + 4} 318 L100 300 L${100 - 4} 318 L${100 - 42 * lg} 318Z" fill="${k.calcao ?? k.c2}"/>
+    <path d="M${100 - 34} 318 L${100 - 8} 318 L${100 - 10} 350 L${100 - 32} 350Z M${100 + 34} 318 L${100 + 8} 318 L${100 + 10} 350 L${100 + 32} 350Z" fill="${pele}"/>
+    <path d="M${100 - 32} 350 L${100 - 10} 350 L${100 - 12} 398 L${100 - 30} 398Z M${100 + 32} 350 L${100 + 10} 350 L${100 + 12} 398 L${100 + 30} 398Z" fill="${k.meias ?? k.c1}"/>`;
+  const sapatos = `<path d="M${100 - 32} 398 L${100 - 10} 398 L${100 - 8} 412 L${100 - 40} 414 Q${100 - 42} 404 ${100 - 32} 398Z M${100 + 32} 398 L${100 + 10} 398 L${100 + 8} 412 L${100 + 40} 414 Q${100 + 42} 404 ${100 + 32} 398Z" fill="${k.fato ? '#111' : '#d63a3a'}"/>`;
+  const golaCorpo = k.fato ? `<path d="M88 152 L100 182 L112 152Z" fill="#f2f2f0"/><path d="M97 156 L103 156 L105 196 L100 202 L95 196Z" fill="${k.gravata ?? '#8b1d2c'}"/><path d="M88 152 L78 210 L100 182Z M112 152 L122 210 L100 182Z" fill="${avEsc('#2c3340', 0.8)}"/>` : `<path d="M86 153 Q100 168 114 153" stroke="${k.c2}" stroke-width="4" fill="none"/>`;
+  const num = !k.fato && k.numero ? `<text x="${100 + 18}" y="200" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="16" fill="${k.c2}" text-anchor="middle" opacity=".9">${k.numero}</text>` : '';
+  const emblema = !k.fato ? `<circle cx="${100 - 20}" cy="192" r="6" fill="${k.c2}" opacity=".85"/>` : '';
+  return `<svg class="avatar-svg" viewBox="0 0 200 430" width="${tam}" height="${Math.round(tam * 2.15)}" aria-hidden="true">${defs}<ellipse cx="100" cy="418" rx="70" ry="8" fill="rgba(0,0,0,.25)"/>${braco(-1)}${braco(1)}${calcao}${sapatos}${tronco}${golaCorpo}${emblema}${num}<g transform="translate(100 154) scale(.74) translate(-100 ${-(cy + ry + 8)})">${pescoco}${cabeca}</g></svg>`;
+}
+const kitClube = (numero) => ({ c1: CLUBE.cores[0], c2: CLUBE.cores[1], padrao: CLUBE.padrao ?? 'liso', numero });
+const avJog = (p) => ({ id: 'j:' + p.n, nome: p.nome, pais: p.pais ?? 'POR', idade: p.idade, pos: p.pos });
 const estrelas = (a, b) => { const s = (x) => '★'.repeat(Math.floor(x)) + (x % 1 ? '½' : ''); return a === b ? s(a) : `${s(a)}–${s(b)}`; };
 const potE = (p) => Math.max(0.5, Math.min(5, Math.round(((p - 40) / 12) * 2) / 2));
 
@@ -708,7 +850,7 @@ const sub21 = JUN(16, 19, 52), sub18 = JUN(16, 15, 42);
 function listaJuniores(lista, esc) {
   return `<div class="tab-wrap"><table><thead><tr><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th>Potencial</th><th class="r">Evolução</th><th>Conselho do gestor</th><th class="r">Gerir</th></tr></thead><tbody>${lista.map((p, i) => {
     const c = p.ovr >= 58 ? 'Promover à equipa principal' : p.pot < 62 ? 'Libertar' : esc === 'sub18' && p.ovr >= 50 ? 'Promover ao sub-21' : 'Manter';
-    return `<tr><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="estrelas" style="font-size:13px">${estrelas(potE(p.pot), potE(p.pot))}</td><td class="r" style="color:${p.evol > 0 ? 'var(--bom)' : 'var(--suave)'}">${p.evol > 0 ? '+' : ''}${p.evol}</td><td><span class="chip ${c.startsWith('Promover') ? 'bom' : c === 'Libertar' ? 'mau' : ''}">${c}</span></td><td class="r" style="display:flex;gap:6px;justify-content:flex-end">${esc === 'sub21' ? `<button class="btn" data-mover="sub21:${i}:principal">↑ Principal</button><button class="btn" data-mover="sub21:${i}:sub18">↓ Sub-18</button>` : `<button class="btn" data-mover="sub18:${i}:sub21">↑ Sub-21</button>`}</td></tr>`; }).join('')}</tbody></table></div>`;
+    return `<tr><td><span class="nome-av">${avatarSvg({ id: 'jr:' + p.nome, nome: p.nome, pais: p.pais ?? 'POR', idade: p.idade, pos: p.pos }, { tam: 28, kit: kitClube(p.n) })}<b>${p.nome}</b></span></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="estrelas" style="font-size:13px">${estrelas(potE(p.pot), potE(p.pot))}</td><td class="r" style="color:${p.evol > 0 ? 'var(--bom)' : 'var(--suave)'}">${p.evol > 0 ? '+' : ''}${p.evol}</td><td><span class="chip ${c.startsWith('Promover') ? 'bom' : c === 'Libertar' ? 'mau' : ''}">${c}</span></td><td class="r" style="display:flex;gap:6px;justify-content:flex-end">${esc === 'sub21' ? `<button class="btn" data-mover="sub21:${i}:principal">↑ Principal</button><button class="btn" data-mover="sub21:${i}:sub18">↓ Sub-18</button>` : `<button class="btn" data-mover="sub18:${i}:sub21">↑ Sub-21</button>`}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function plantelEcra() {
   const tabs = ['Equipa principal', 'Táctica', `Sub-21 (${sub21.length})`, `Sub-18 (${sub18.length})`];
@@ -725,32 +867,61 @@ function plantelPrincipal() {
   <div class="filtros"><input id="f-pesq" type="search" placeholder="Pesquisar no plantel…" value="${pesquisa}" aria-label="Pesquisar no plantel"><div class="seg" role="group">${Object.keys(grupos).map((g) => `<button data-pos="${g}" class="${g === filtroPos ? 'on' : ''}">${g}</button>`).join('')}</div></div>
   <section class="c"><div class="tab-wrap"><table>
     <thead><tr><th>N.º</th><th>Nome</th><th>Pos.</th><th class="r">Idade</th><th class="r">OVR</th><th class="r">J</th><th class="r">G</th><th class="r">A</th><th class="r">Cartões</th><th>Melhor papel</th><th class="r">Adeq.</th><th class="r">Moral</th><th>Forma</th><th class="r">Condição</th><th class="r">Contrato</th><th class="r">Salário</th><th>Estado</th><th></th></tr></thead>
-    <tbody>${lista.map((p) => `<tr class="clic" data-j="${p.n}"><td class="muted">${p.n}</td><td><b>${p.nome}</b></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="r">${p.j}</td><td class="r">${p.g}</td><td class="r">${p.a}</td><td class="r"><span style="color:var(--c-uel)">▮</span>${p.am}${p.vm ? ` <span style="color:var(--mau)">▮</span>${p.vm}` : ''}</td><td class="muted">${p.papel}</td><td class="r">${p.adq}</td><td class="r">${p.moral}</td><td>${p.forma.slice(-3).join(' · ')}</td><td class="r">${p.cond}%</td><td class="r">${p.fim}</td><td class="r">${M(p.sal)}</td><td>${p.lesao ? `<span class="chip mau">${p.lesao}</span>` : p.susp ? '<span class="chip aviso">Suspenso</span>' : '<span class="chip bom">Apto</span>'}</td><td class="r">${p.idade <= 21 ? `<button class="btn" data-mover="principal:${p.n}:sub21">↓ Sub-21</button>` : ''}</td></tr>`).join('')}</tbody>
+    <tbody>${lista.map((p) => `<tr class="clic" data-j="${p.n}"><td class="muted">${p.n}</td><td><span class="nome-av">${avatarSvg(avJog(p), { tam: 28, kit: kitClube(p.n) })}<b>${p.nome}</b></span></td><td>${p.pos}</td><td class="r">${p.idade}</td><td class="r"><span class="ovr ${corOvr(p.ovr)}">${p.ovr}</span></td><td class="r">${p.j}</td><td class="r">${p.g}</td><td class="r">${p.a}</td><td class="r"><span style="color:var(--c-uel)">▮</span>${p.am}${p.vm ? ` <span style="color:var(--mau)">▮</span>${p.vm}` : ''}</td><td class="muted">${p.papel}</td><td class="r">${p.adq}</td><td class="r">${p.moral}</td><td>${p.forma.slice(-3).join(' · ')}</td><td class="r">${p.cond}%</td><td class="r">${p.fim}</td><td class="r">${M(p.sal)}</td><td>${p.lesao ? `<span class="chip mau">${p.lesao}</span>` : p.susp ? '<span class="chip aviso">Suspenso</span>' : '<span class="chip bom">Apto</span>'}</td><td class="r">${p.idade <= 21 ? `<button class="btn" data-mover="principal:${p.n}:sub21">↓ Sub-21</button>` : ''}</td></tr>`).join('')}</tbody>
   </table></div></section>`;
 }
 
 let jogadorSel = 23, verComo = 'proprio';
+// Cabeçalho do jogador (estilo pedido): avatar de corpo inteiro com o equipamento, dados físicos, moral, OVR, clube, agente, contrato,
+// camisola com nome e número, posições, estatísticas da época, potencial estimado e relatório do olheiro.
+const AGENTES = ['R. Ferreira', 'M. Costa Lopes', 'A. Bellandi', 'J. Okoro', 'T. van Riel', 'C. Duarte'];
+const NOME_PAIS = { POR: 'Portugal', BRA: 'Brasil', CPV: 'Cabo Verde', ARG: 'Argentina', ANG: 'Angola', ESP: 'Espanha', URU: 'Uruguai' };
+const POS_CAMPO = { GR: [[6, 50]], DC: [[24, 38], [24, 62]], DD: [[28, 84]], DE: [[28, 16]], MDC: [[42, 50]], MC: [[54, 38], [54, 62]], MO: [[66, 50]], ED: [[74, 84]], EE: [[74, 16]], PL: [[86, 50]] };
+const ALT_POS = { GR: [], DC: ['MDC'], DD: ['ED', 'DC'], DE: ['EE'], MDC: ['MC', 'DC'], MC: ['MDC', 'MO'], MO: ['MC', 'ED'], ED: ['EE', 'MO'], EE: ['ED', 'MO'], PL: ['MO'] };
+function heroJogador(p, rival) {
+  const c = avCorpo(avJog(p)), ag = AGENTES[p.n % AGENTES.length], ultimos = p.forma.slice(-3), media = (p.forma.reduce((a, x) => a + +x, 0) / p.forma.length).toFixed(1).replace('.', ',');
+  const moralCara = p.moral >= 15 ? '😀' : p.moral >= 10 ? '🙂' : p.moral >= 7 ? '😐' : '☹️';
+  const ovrCor = p.ovr >= 75 ? '#57c26a' : p.ovr >= 68 ? '#d7e04a' : p.ovr >= 60 ? '#f2c230' : '#f08a3c';
+  const pots = rival ? [p.pot - 6, p.pot + 4] : [Math.max(p.ovr, p.pot - 3), p.pot + 2];
+  const atitude = p.moral >= 12 ? 'Acreditamos que tem a atitude certa para chegar ao seu potencial.' : 'Temos dúvidas sobre se tem a atitude e a vontade para chegar ao seu potencial.';
+  const relatorio = p.ovr >= 70 ? 'Peça importante' : p.pot - p.ovr >= 8 ? 'A seguir de perto' : 'Bom jogador de plantel';
+  const camisola = `<svg viewBox="0 0 120 110" width="120" aria-hidden="true"><path d="M30 8 L46 2 Q60 12 74 2 L90 8 L114 30 L100 46 L90 38 L90 106 L30 106 L30 38 L20 46 L6 30Z" fill="${CLUBE.cores[0]}" stroke="${CLUBE.cores[1]}" stroke-width="3"/><text x="60" y="40" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="14" fill="${CLUBE.cores[1]}">${p.nome.split(' ').slice(-1)[0].toUpperCase()}</text><text x="60" y="88" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="42" fill="${CLUBE.cores[1]}">${p.n}</text></svg>`;
+  const campo = `<svg viewBox="0 0 100 64" width="140" aria-hidden="true"><rect width="100" height="64" rx="3" fill="#2f8a4a"/><g stroke="rgba(255,255,255,.7)" fill="none" stroke-width=".8"><rect x="2" y="2" width="96" height="60"/><path d="M50 2V62"/><circle cx="50" cy="32" r="8"/><rect x="2" y="18" width="12" height="28"/><rect x="86" y="18" width="12" height="28"/></g>${(POS_CAMPO[p.pos] ?? []).slice(0, 1).map(([x, y]) => `<circle cx="${x}" cy="${y * 0.64}" r="4" fill="#57c26a" stroke="#fff"/>`).join('')}${(ALT_POS[p.pos] ?? []).map((q, i) => (POS_CAMPO[q] ?? [])[0]).filter(Boolean).map(([x, y], i) => `<circle cx="${x}" cy="${y * 0.64}" r="3.4" fill="${i ? '#f08a3c' : '#f2c230'}" stroke="#fff"/>`).join('')}</svg>`;
+  const est = (rot, v, cls = '') => `<div class="hj-est ${cls}"><span>${rot}</span><b>${v}</b></div>`;
+  return `<section class="c s12 hero-jog">
+    <div class="hj-cab"><div class="hj-nome"><b>${p.nome.split(' ')[0][0]}. ${p.nome.split(' ').slice(-1)[0].toUpperCase()}</b><span>${NOME_PAIS[p.pais] ?? p.pais} · ${c.peso} kg · ${c.alt} cm · ${p.idade} anos</span></div><span class="hj-pos">${p.pos}</span>
+      <span class="hj-pe" title="Pé preferido">${c.pe}</span><span class="hj-moral" title="Moral ${p.moral}/20">${moralCara}</span><span class="hj-ovr" style="background:${ovrCor}">${rival ? `${p.ovr - 5}–${p.ovr + 4}` : p.ovr}</span></div>
+    <div class="hj-corpo">
+      <div class="hj-avatar">${avatarSvg(avJog(p), { modo: 'corpo', tam: 190, kit: kitClube(p.n) })}</div>
+      <div class="hj-lado">
+        <div class="hj-cartao">${escudo(CLUBE.cores, 34)}<b>${CLUBE.nome}</b>
+          <div class="hj-ag"><span class="hj-agav">${avatarSvg({ id: 'ag:' + ag, nome: ag, pais: 'POR', idade: 50, staff: true }, { tam: 30, kit: { fato: true, gravata: '#1d3b6b' } })}</span><span><b>${ag}</b><small>Agente</small></span></div>
+          <div class="hj-l"><span>Salário</span><b>${fE(p.sal)}/ano</b></div><div class="hj-l"><span>Valor</span><b>${rival ? '€4.000.000–€9.000.000' : fE(6_400_000)}</b></div>
+          <div class="hj-contrato">Com contrato · até 30/06/${p.fim}</div></div>
+        <div class="hj-cartao hj-cam">${camisola}${campo}</div>
+      </div>
+    </div>
+    <div class="hj-epoca"><div class="hj-tit">Esta época</div>
+      <div class="hj-grelha">${est('Média', media, 'laranja')}${ultimos.map((x, i) => est(i ? 'Jogo anterior' : 'Último jogo', x.replace('.', ','), 'laranja')).join('')}
+        ${est('Jogos', p.j)}${est('Do banco', Object.values(p.est).reduce((a, x) => a + x.sup, 0))}${est('🟨', p.am)}${est('🟥', p.vm)}${est('Golos', p.g)}${est('Assist.', p.a)}${est('Golos liga', p.est['Liga Portugal']?.g ?? 0)}${est('Nota', (+(p.est['Liga Portugal']?.nota ?? 6.8)).toFixed(1).replace('.', ','))}</div>
+      <div class="hj-pot"><span>Potencial estimado</span><b class="hj-p1">${pots[0]}</b><span class="hj-sep">◆</span><b class="hj-p2">${pots[1]}</b></div>
+      <div class="hj-atitude">${atitude}</div>
+      <div class="hj-rel"><span>Relatório do olheiro principal</span><b>👍 ${relatorio}</b></div></div>
+  </section>`;
+}
+
 function jogadorEcra() {
   const p = plantel[jogadorSel - 1];
   const rival = verComo === 'rival';
   const grupos = { Técnicos: ['Finalização', 'Drible', 'Passe', 'Técnica', 'Cabeceamento', 'Cruzamento', 'Primeiro toque'], Mentais: ['Antecipação', 'Compostura', 'Decisões', 'Movimentação', 'Trabalho de equipa', 'Visão', 'Determinação'], Físicos: ['Aceleração', 'Velocidade', 'Agilidade', 'Equilíbrio', 'Resistência', 'Força', 'Impulsão'] };
-  const val = (k) => Math.max(4, Math.min(20, Math.round((p.ovr - 30) / 3.4) + ((k * 7) % 7) - 3));
+  const val = (k) => Math.max(4, Math.min(20, Math.round((p.ovr - 30) / 3.4) + (((k + p.n) * 5) % 7) - 3));
   let k = 0;
   const cel = (nome) => { const v = val(k++); const c = v >= 16 ? 'v20' : v >= 13 ? 'v15' : v >= 9 ? 'v10' : 'v5'; return `<span>${nome}</span><span class="v ${rival ? '' : c}">${rival ? `<span class="intervalo">${Math.max(1, v - 3)}–${Math.min(20, v + 3)}</span>` : v}</span>`; };
   const papeis = (PAPEIS[p.pos] ?? []).concat(p.pos === 'PL' ? ['Avançado de área'] : []).map((r, i) => [r, Math.max(6, p.adq - i * 2 + (i === 0 ? 0 : 1))]);
   return `
   <div class="topo"><h1>Ficha do jogador</h1><div class="direita"><div class="seg" role="group" aria-label="Ver como"><button data-ver="proprio" class="${!rival ? 'on' : ''}">O meu clube (conhecimento total)</button><button data-ver="rival" class="${rival ? 'on' : ''}">Visto por um rival (41%)</button></div></div></div>
   <div class="grelha">
-    <section class="c s12"><div class="jogador-topo">
-      <div class="dorsal">${p.n}</div>
-      <div style="min-width:0"><div class="num medio">${p.nome}</div><div class="muted" style="margin-top:4px">${p.pos} · ${p.papel} · ${p.idade} anos · ${p.pais} · pé direito</div></div>
-      <div style="margin-left:auto;display:flex;gap:28px;flex-wrap:wrap">
-        <div><div class="rot">OVR</div><div class="num grande">${rival ? `<span class="intervalo" style="font-size:24px">${p.ovr - 6}–${p.ovr + 5}</span>` : p.ovr}</div></div>
-        <div><div class="rot">Potencial</div><div class="estrelas" style="margin-top:8px">${rival ? estrelas(potE(p.pot - 9), potE(p.pot + 6)) : estrelas(potE(p.pot), potE(p.pot))}</div></div>
-        <div><div class="rot">Valor</div><div class="num medio" style="margin-top:6px">${rival ? '4–9 M€' : M(6.4e6)}</div></div>
-      </div></div>
-      ${rival ? '<div class="rot" style="margin-top:12px">Conhecimento 41% · relatório de 2 scouts · os atributos ocultos só aparecem a partir de 60%.</div>' : ''}
-    </section>
+    ${heroJogador(p, rival)}
     ${Object.entries(grupos).map(([g, at]) => `<section class="c s4"><h2>${g}</h2><div class="atrib">${at.map(cel).join('')}</div></section>`).join('')}
     <section class="c s6"><h2>Adequação aos papéis (1–20)</h2><div class="papeis">${papeis.map(([r, v]) => `<div class="papel"><span>${r}</span><div class="barra"><i style="width:${v * 5}%"></i></div><b class="num" style="font-size:17px;text-align:right">${rival ? '?' : v}</b></div>`).join('')}</div></section>
     <section class="c s12"><h2>Estatísticas da época por competição</h2><div class="tab-wrap"><table><thead><tr><th>Competição</th><th class="r">Jogos</th><th class="r">Titular</th><th class="r">Do banco</th><th class="r">Golos</th><th class="r">Assist.</th><th class="r">Amarelos</th><th class="r">Vermelhos</th><th class="r">Nota média</th></tr></thead><tbody>
@@ -1342,7 +1513,7 @@ function staffEcra() {
       ['Director Financeiro e Comercial', 'Teresa Valota', 46, 15, 'Orçamento, patrocínios, bilheteira e receitas comerciais (+5% receitas comerciais)', '2029', 0.4]]],
   ];
   const todos = GRUPOS.flatMap((g) => g[2]), custo = todos.reduce((t, m) => t + m[6], 0);
-  const linha = ([c, n, i, v, ef, f, sal]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r">${sal.toFixed(2).replace('.', ',')} M€</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`;
+  const linha = ([c, n, i, v, ef, f, sal]) => `<tr><td class="muted">${c}</td><td><span class="nome-av">${avatarSvg({ id: 's:' + n, nome: n, pais: 'POR', idade: i, staff: true }, { tam: 28, kit: { fato: true } })}<b>${n}</b></span></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r">${sal.toFixed(2).replace('.', ',')} M€</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`;
   const tabelas = GRUPOS.map(([t, sub, l]) => `<section class="c s12 staff-grupo"><h2>${t}<span class="chip" style="margin-left:8px">${l.length}</span><span class="rot" style="margin-left:10px;text-transform:none;letter-spacing:0;font-weight:400">${sub}</span></h2><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Salário</th><th class="r">Contrato</th><th class="r"></th></tr></thead><tbody>${l.map(linha).join('')}</tbody></table></div></section>`).join('');
   return `
   <div class="topo"><h1>Staff</h1><span class="sub">${todos.length} membros · custo anual ${custo.toFixed(1).replace('.', ',')} M€ (orçamento 5,5 M€)</span><div class="direita"><button class="btn">Mercado de treinadores</button><button class="btn prim">Contratar staff</button></div></div>
@@ -1895,7 +2066,7 @@ const curtoDe = (n) => n.replace(/^(Atlético|Sporting|Desportivo|União|Académ
 const fM2 = (v) => v >= 1e9 ? (v / 1e9).toFixed(1).replace('.', ',') + ' mil milhões €' : Math.round(v / 1e6) + ' M€';
 function entradaHtml() {
   const d = ent.rascunho, passos = ['Conta', 'Perfil', 'Foto', 'Clube'];
-  const idx = { login: 0, retomar: 0, perfil: 1, foto: 2, clube: 3 }[ent.passo];
+  const idx = { login: 0, retomar: 0, perfil: 1, foto: 2, clube: 3, avatares: 3 }[ent.passo];
   const cab = `<div class="en-marca">FutCEO</div><div class="en-passos">${passos.map((x, i) => `<span class="${i === idx ? 'on' : i < idx ? 'feito' : ''}">${i + 1}. ${x}</span>`).join('')}</div>`;
   const erro = ent.erro ? `<div class="en-erro" role="alert">${ent.erro}</div>` : '';
   let corpo = '';
@@ -1912,9 +2083,9 @@ function entradaHtml() {
   else if (ent.passo === 'clube') {
     corpo = `<h2>Onde começar</h2><div class="rot" style="margin-bottom:8px">Escolhe o clube a comprar: qualquer clube está disponível (o património do perfil não limita a compra). No protótipo só a Liga Portugal está disponível.</div>
       <div class="en-clubes">${[...LIGA].sort((a, b) => tabela.findIndex((x) => x.nome === a) - tabela.findIndex((x) => x.nome === b)).map((n) => { const i = LIGA.indexOf(n), t = tabela.find((x) => x.nome === n), pos = tabela.indexOf(t) + 1, rep = Math.max(30, 84 - pos * 3); return `<button class="en-clube ${d.clube === n ? 'on' : ''}" data-clube="${n}">${escudo(CORES[i], 26)}<span><b>${n}</b><small>${pos}.º na liga · reputação ${rep}</small></span></button>`; }).join('')}</div>
-      ${erro}<div class="en-nav"><button class="btn" id="en-voltar">‹ Voltar</button><button class="btn prim" id="en-fim" ${d.clube ? '' : 'disabled'}>Começar a carreira</button></div>`;
-  }
-  return `<img class="en-fundo" src="perfil.jpg" alt=""><div class="en-painel">${cab}${corpo}</div>`;
+      ${erro}<div class="en-nav"><button class="btn" id="en-voltar">‹ Voltar</button><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="en-avatares" ${d.clube ? '' : 'disabled'}>Editar avatares</button><button class="btn prim" id="en-fim" ${d.clube ? '' : 'disabled'}>Começar a carreira</button></span></div>`;
+  } else if (ent.passo === 'avatares') corpo = editorAvatares();
+  return `<img class="en-fundo" src="perfil.jpg" alt=""><div class="en-painel ${ent.passo === 'avatares' ? 'en-largo' : ''}">${cab}${corpo}</div>`;
 }
 function mostrarEntrada() { let el = document.getElementById('entrada'); if (!el) { el = document.createElement('div'); el.id = 'entrada'; document.body.appendChild(el); } const y = el.querySelector('.en-painel')?.scrollTop ?? 0; el.innerHTML = entradaHtml(); el.querySelector('.en-painel').scrollTop = y; ligarEntrada(el); }
 function aplicarPerfil(p) {
@@ -1945,13 +2116,53 @@ function ligarEntrada(el) {
   }
   el.querySelector('#en-ficheiro')?.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const img = new Image(); img.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'), m = Math.min(img.width, img.height); g.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 256, 256); d.foto = c.toDataURL('image/jpeg', 0.85); URL.revokeObjectURL(img.src); mostrarEntrada(); }; img.src = URL.createObjectURL(f); });
   el.querySelector('#en-tirar')?.addEventListener('click', () => { d.foto = null; mostrarEntrada(); });
-  el.querySelector('#en-voltar')?.addEventListener('click', () => ir(ent.passo === 'clube' ? 'foto' : 'perfil'));
+  el.querySelector('#en-voltar')?.addEventListener('click', () => ir(ent.passo === 'avatares' ? 'clube' : ent.passo === 'clube' ? 'foto' : 'perfil'));
+  el.querySelector('#en-avatares')?.addEventListener('click', () => ir('avatares'));
+  ligarEditor(el, () => mostrarEntrada());
   el.querySelector('#en-seg')?.addEventListener('click', () => ir('clube'));
   el.querySelectorAll('[data-clube]').forEach((b) => b.addEventListener('click', () => { d.clube = b.dataset.clube; mostrarEntrada(); }));
   el.querySelector('#en-fim')?.addEventListener('click', () => { const p = { conta: ent.conta, ...d, criado: '2026-11-16' }; gravarPerfil(ent.conta, p); aplicarPerfil(p); el.remove(); });
 }
 if (!/semEntrada/.test(location.search)) { ent = { passo: 'login', rascunho: { modo: 'dono' } }; mostrarEntrada(); }
 
+
+// ---------- Editor de avatares (antes de começar a carreira) ----------
+// Jogadores (plantel e juniores), staff e jogadores de outros clubes; setas por característica, Aleatório e Repor.
+let edSel = null, edPesq = '', edGrupo = 'Plantel';
+function pessoasEditor() {
+  const staff = ['Hélder Quintela|54', 'Rui Amieira|47', 'Paulo Carvide|39', 'Jorge Seixal|51', 'Marco Lourosa|44', 'Ana Rebordão|38', 'Inês Carvide|31', 'Luís Alcobia|49', 'Diego Ferraz|41', 'Carlos Ferrão|58', 'Paulo Teiouro|45', 'Nuno Barota|40', 'Samuel Quintela|33', 'Teresa Valota|46'];
+  return {
+    Plantel: plantel.map((p) => ({ ...avJog(p), rot: `${p.pos} · ${p.idade} anos`, kit: kitClube(p.n) })),
+    Juniores: [...sub21, ...sub18].map((p) => ({ id: 'jr:' + p.nome, nome: p.nome, pais: p.pais ?? 'POR', idade: p.idade, pos: p.pos, rot: `${p.pos} · ${p.idade} anos`, kit: kitClube(p.n) })),
+    Staff: staff.map((x) => { const [n, i] = x.split('|'); return { id: 's:' + n, nome: n, pais: 'POR', idade: +i, staff: true, rot: `${i} anos`, kit: { fato: true } }; }),
+    'Outros clubes': LISTADOS.slice(0, 30).map((x, i) => ({ id: 'm:' + x.nome, nome: x.nome, pais: ['ESP', 'BRA', 'NGA', 'ENG', 'ARG', 'NED'][i % 6], idade: x.idade ?? 24, pos: x.pos, rot: `${x.pos} · ${x.clube}`, kit: { c1: '#3a4458', c2: '#e8e8ea', padrao: 'liso' } })),
+  };
+}
+function editorAvatares() {
+  const grupos = pessoasEditor(), lista = grupos[edGrupo].filter((x) => x.nome.toLowerCase().includes(edPesq.toLowerCase()));
+  const sel = Object.values(grupos).flat().find((x) => x.id === edSel) ?? lista[0];
+  edSel = sel?.id;
+  const t = sel ? avTracos(sel) : null, editado = sel && avEdit[sel.id];
+  const val = (k) => k === 'pele' ? `<i class="ed-cor" style="background:${AV.pele[t.pele]}"></i>${t.pele + 1}` : k === 'corCabelo' ? `<i class="ed-cor" style="background:${AV.corCabelo[t.corCabelo]}"></i>${AV.rot.corCabelo[t.corCabelo]}` : k === 'corOlhos' ? `<i class="ed-cor" style="background:${AV.corOlhos[t.corOlhos]}"></i>${AV.rot.corOlhos[t.corOlhos]}` : AV.rot[k] ? AV.rot[k][t[k]] : `Tipo ${t[k] + 1}`;
+  return `<h2>Editor de avatares <span class="rot">(opcional)</span></h2>
+    <div class="ed"><div class="ed-lista"><div class="seg ed-grupos" role="group">${Object.keys(grupos).map((g) => `<button data-edg="${g}" class="${g === edGrupo ? 'on' : ''}">${g}</button>`).join('')}</div>
+      <input id="ed-pesq" type="search" placeholder="Pesquisar…" value="${edPesq}" aria-label="Pesquisar pessoa">
+      <div class="ed-itens">${lista.map((x) => `<button class="ed-item ${x.id === edSel ? 'on' : ''}" data-eds="${x.id}">${avatarSvg(x, { tam: 34, kit: x.kit })}<span><b>${x.nome}</b><small>${x.rot}${avEdit[x.id] ? ' · editado' : ''}</small></span></button>`).join('')}</div></div>
+    ${sel ? `<div class="ed-prev"><div class="ed-av">${avatarSvg(sel, { tam: 150, kit: sel.kit })}</div><b>${sel.nome}</b><small class="rot">${sel.rot}${editado ? ' · editado' : ''}</small>
+      <div class="ed-tracos">${Object.keys(AV.max).map((k) => `<div class="ed-t"><button class="ed-s" data-edt="${k}:-1" aria-label="${AV.nomes[k]} anterior">‹</button><span><small>${AV.nomes[k]}</small><b>${val(k)}</b></span><button class="ed-s" data-edt="${k}:1" aria-label="${AV.nomes[k]} seguinte">›</button></div>`).join('')}</div>
+      <div class="ed-acoes"><button class="btn" id="ed-aleat">Aleatório</button><button class="btn" id="ed-repor" ${editado ? '' : 'disabled'}>Repor</button></div></div>` : ''}</div>
+    <div class="rot">As alterações ficam guardadas neste aparelho e valem para todas as carreiras novas. Os jovens que entrarem na academia recebem o seu próprio avatar.</div>
+    <div class="en-nav"><button class="btn" id="en-voltar">‹ Voltar</button><button class="btn prim" id="en-fim">Começar a carreira</button></div>`;
+}
+function ligarEditor(el, redesenhar) {
+  const sel = () => Object.values(pessoasEditor()).flat().find((x) => x.id === edSel);
+  el.querySelectorAll('[data-edg]').forEach((b) => b.addEventListener('click', () => { edGrupo = b.dataset.edg; edSel = null; redesenhar(); }));
+  el.querySelectorAll('[data-eds]').forEach((b) => b.addEventListener('click', () => { edSel = b.dataset.eds; redesenhar(); }));
+  const q = el.querySelector('#ed-pesq'); if (q) q.addEventListener('input', () => { edPesq = q.value; const pos = q.selectionStart; redesenhar(); const n = document.getElementById('ed-pesq'); n.focus(); n.setSelectionRange(pos, pos); });
+  el.querySelectorAll('[data-edt]').forEach((b) => b.addEventListener('click', () => { const p = sel(); if (!p) return; const [k, d] = b.dataset.edt.split(':'); const t = avTracos(p); avEdit[p.id] = { ...(avEdit[p.id] ?? {}), [k]: (t[k] + +d + AV.max[k]) % AV.max[k] }; avGravar(); redesenhar(); }));
+  el.querySelector('#ed-aleat')?.addEventListener('click', () => { const p = sel(); const r = avRng(Date.now() >>> 0); avEdit[p.id] = Object.fromEntries(Object.keys(AV.max).map((k) => [k, k === 'oculos' && !p.staff ? 0 : Math.floor(r() * AV.max[k])])); avGravar(); redesenhar(); });
+  el.querySelector('#ed-repor')?.addEventListener('click', () => { delete avEdit[edSel]; avGravar(); redesenhar(); });
+}
 
 // ---------- Guardar ----------
 // A gravação é automática (cada dia avançado, por perfil); o botão força uma gravação e confirma. Na app: IndexedDB, no worker.
