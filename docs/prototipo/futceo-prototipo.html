@@ -835,23 +835,62 @@ function avatarSvg(p, { modo = 'busto', kit = null, tam = 48 } = {}) {
       : `<path d="M${cx - 24} ${yo - 6} Q${cx} ${yo + 24} ${cx + 24} ${yo - 6} L${cx + 19} ${yo - 7} Q${cx} ${yo + 16} ${cx - 19} ${yo - 7}Z" fill="${c2}" stroke="${L}" stroke-width="2" stroke-linejoin="round"/><path d="M${cx - 44} ${yo + 50} l7 -3 l7 3 l0 8 q-7 6 -14 0z" fill="${c2}" stroke="${L}" stroke-width="1.4"/>`;
     return `<svg class="avatar-svg" viewBox="12 14 176 230" width="${tam}" height="${Math.round(tam * 230 / 176)}" aria-hidden="true">${defs}${pescoco}${ombros}${gola}${cabeca}</svg>`;
   }
-  // Corpo inteiro (viewBox 0 0 200 430)
-  const c = avCorpo(p), lg = 1 + (c.peso - (c.alt - 106)) / 60, S = `stroke="${L}" stroke-width="2.2" stroke-linejoin="round"`;
-  const tronco = `<path d="M${100 - 46 * lg} 168 C${100 - 50 * lg} 160 ${100 - 26} 152 ${100 - 16} 152 L${100 + 16} 152 C${100 + 26} 152 ${100 + 50 * lg} 160 ${100 + 46 * lg} 168 L${100 + 40 * lg} 270 L${100 - 40 * lg} 270Z" fill="${tecido}" ${S}/><path d="M${100 + 18} 160 C${100 + 40 * lg} 170 ${100 + 44 * lg} 220 ${100 + 38 * lg} 268 L${100 + 40 * lg} 268 L${100 + 46 * lg} 168Z" fill="${c1s}" opacity=".5"/>`;
-  const braco = (s) => `<path d="M${100 + s * 46 * lg} 168 L${100 + s * 60 * lg} 236 L${100 + s * 50 * lg} 240 L${100 + s * 38 * lg} 190Z" fill="${tecido}" ${S}/><path d="M${100 + s * 60 * lg} 236 L${100 + s * 62 * lg} 290 L${100 + s * 52 * lg} 292 L${100 + s * 50 * lg} 240Z" fill="${k.fato ? tecido : s > 0 ? s1 : pele}" ${S}/><ellipse cx="${100 + s * 57 * lg}" cy="${k.fato ? 296 : 298}" rx="7" ry="9" fill="${pele}" ${S}/>`;
-  const calcao = k.fato ? `<path d="M${100 - 40 * lg} 268 L${100 + 40 * lg} 268 L${100 + 34} 410 L${100 + 8} 410 L100 300 L${100 - 8} 410 L${100 - 34} 410Z" fill="#232933" ${S}/>`
-    : `<path d="M${100 - 32} 318 L${100 - 8} 318 L${100 - 10} 350 L${100 - 30} 350Z M${100 + 32} 318 L${100 + 8} 318 L${100 + 10} 350 L${100 + 30} 350Z" fill="${pele}" ${S}/>
-    <path d="M${100 - 30} 350 L${100 - 10} 350 L${100 - 12} 398 L${100 - 29} 398Z M${100 + 30} 350 L${100 + 10} 350 L${100 + 12} 398 L${100 + 29} 398Z" fill="${k.meias ?? c1}" ${S}/>
-    <path d="M${100 - 40 * lg} 266 L${100 + 40 * lg} 266 L${100 + 42 * lg} 318 L${100 + 4} 318 L100 302 L${100 - 4} 318 L${100 - 42 * lg} 318Z" fill="${k.calcao ?? c2}" ${S}/>`;
-  const sapatos = `<path d="M${100 - 30} 398 L${100 - 10} 398 L${100 - 8} 412 L${100 - 40} 414 Q${100 - 42} 404 ${100 - 30} 398Z M${100 + 30} 398 L${100 + 10} 398 L${100 + 8} 412 L${100 + 40} 414 Q${100 + 42} 404 ${100 + 30} 398Z" fill="${k.fato ? '#111' : '#d63a3a'}" ${S}/>`;
-  const golaCorpo = k.fato ? `<path d="M88 152 L100 182 L112 152Z" fill="#f2f2f0" ${S}/><path d="M97 156 L103 156 L105 196 L100 202 L95 196Z" fill="${k.gravata ?? '#8b1d2c'}" ${S}/><path d="M88 152 L78 210 L100 182Z M112 152 L122 210 L100 182Z" fill="${avEsc('#283040', 0.82)}" ${S}/>` : `<path d="M84 152 Q100 172 116 152 L112 151 Q100 164 88 151Z" fill="${c2}" ${S}/>`;
-  const num = !k.fato && k.numero ? `<text x="118" y="200" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="16" fill="${c2}" text-anchor="middle" stroke="${L}" stroke-width=".6">${k.numero}</text>` : '';
-  const emblema = !k.fato ? `<path d="M74 186 l6 -2 l6 2 l0 7 q-6 5 -12 0z" fill="${c2}" ${S}/>` : '';
-  return `<svg class="avatar-svg" viewBox="0 0 200 430" width="${tam}" height="${Math.round(tam * 2.15)}" aria-hidden="true">${defs}<ellipse cx="100" cy="418" rx="70" ry="8" fill="rgba(0,0,0,.25)"/>${braco(-1)}${braco(1)}${calcao}${sapatos}${tronco}${golaCorpo}${emblema}${num}<g transform="translate(100 154) scale(.74) translate(-100 ${-(cy + ry + 8)})">${pescoco}${cabeca}</g></svg>`;
+  // Corpo inteiro (viewBox 0 0 200 430), proporcional à altura, ao peso e aos atributos físicos (os mesmos da ficha).
+  const c = avCorpo(p), at = (k) => atributoJog(p, k), forca = (at(19) - 10) / 10, vel = ((at(14) + at(15)) / 2 - 10) / 10;
+  const imc = c.peso / (c.alt / 100) ** 2, b = Math.max(-0.6, Math.min(1, (imc - 22.5) / 3));
+  const pes = 422, H = 330 * (c.alt / 185), u = H / 6.6, topo = pes - H, X = 100;
+  // Proporções (em alturas de cabeça, u): queixo 1, ombros 1,4, cintura 2,75, anca 3, virilha 3,45, joelho 4,95, tornozelo 6,3.
+  const queixo = topo + u * 1.0, ombro = topo + u * 1.4, cintura = ombro + u * 1.35, anca = ombro + u * 1.6, virilha = ombro + u * 2.05;
+  const joelho = pes - u * 1.65, tornozelo = pes - u * 0.3, cotovelo = ombro + u * 1.15, pulso = ombro + u * 2.1;
+  const oH = u * (0.98 + 0.13 * forca + 0.07 * b), wH = u * (0.6 + 0.1 * b - 0.04 * forca), hH = u * (0.66 + 0.08 * b), coxa = u * (0.37 + 0.06 * b + 0.06 * vel), gemeo = u * (0.25 + 0.05 * vel), braco = u * (0.25 + 0.08 * forca + 0.03 * b), antebraco = u * (0.2 + 0.05 * forca);
+  const gr = p.pos === 'GR' && !k.fato, kc1 = gr ? (k.grc1 ?? '#2bb673') : c1, kc2 = gr ? (k.grc2 ?? '#0e3b2a') : c2, kc1s = avEsc(kc1, 0.72);
+  const tec = gr ? kc1 : tecido, S = `stroke="${L}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
+  const sh = (d, f, o = 1) => `<path d="${d}" fill="${f}" opacity="${o}"/>`;
+  // Membros como "cápsulas" com contorno: segmento com espessura e pontas redondas.
+  const capsula = (x1, y1, x2, y2, w, cor, cont = true) => `${cont ? `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${L}" stroke-width="${(w + 4).toFixed(1)}" stroke-linecap="round"/>` : ''}<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${cor}" stroke-width="${w.toFixed(1)}" stroke-linecap="round"/>`;
+  // Pernas: coxa (mais larga em cima, quadricípite pela velocidade), joelho, gémeo saliente, meia, bota.
+  const perna = (s) => {
+    const xa = X + s * u * 0.34, xj = X + s * u * 0.33, xt = X + s * u * 0.31, cw = u * (0.27 + 0.04 * b + 0.05 * vel), kw = u * 0.18, gw = u * (0.2 + 0.04 * vel), aw = u * 0.11;
+    const coxaD = `M${xa - cw} ${anca} C${xa - cw * 1.08} ${(anca + joelho) / 2} ${xj - kw * 1.2} ${joelho - u * 0.35} ${xj - kw} ${joelho} L${xj + kw} ${joelho} C${xj + kw * 1.3} ${joelho - u * 0.35} ${xa + cw * 1.05} ${(anca + joelho) / 2} ${xa + cw} ${anca}Z`;
+    const gemD = `M${xj - kw} ${joelho - 2} C${xj - gw * 1.45} ${joelho + u * 0.4} ${xt - aw * 1.6} ${tornozelo - u * 0.5} ${xt - aw} ${tornozelo} L${xt + aw} ${tornozelo} C${xt + aw * 1.6} ${tornozelo - u * 0.5} ${xj + gw * 1.45} ${joelho + u * 0.3} ${xj + kw} ${joelho - 2}Z`;
+    const meiaTopo = joelho + u * 0.2;
+    const meia = `<path d="M${xj - gw * 1.18} ${meiaTopo} C${xj - gw * 1.25} ${meiaTopo + u * 0.3} ${xt - aw * 1.6} ${tornozelo - u * 0.5} ${xt - aw - 1} ${tornozelo + 2} L${xt + aw + 1} ${tornozelo + 2} C${xt + aw * 1.6} ${tornozelo - u * 0.5} ${xj + gw * 1.3} ${meiaTopo + u * 0.25} ${xj + gw * 1.2} ${meiaTopo}Z" fill="${k.meias ?? (gr ? kc2 : c1)}" ${S}/><path d="M${xj - gw * 1.2} ${meiaTopo + u * 0.1} L${xj + gw * 1.22} ${meiaTopo + u * 0.1}" stroke="${gr ? kc1 : c2}" stroke-width="${(u * 0.07).toFixed(1)}"/>`;
+    const sombra = `<path d="M${xa + s * cw * 0.25} ${anca} C${xa + s * cw * 0.6} ${(anca + joelho) / 2} ${xj + s * kw * 0.3} ${joelho - u * 0.3} ${xj + s * kw * 0.4} ${joelho} L${xj + s * kw} ${joelho} C${xj + s * kw * 1.3} ${joelho - u * 0.35} ${xa + s * cw * 1.05} ${(anca + joelho) / 2} ${xa + s * cw} ${anca}Z" fill="${s2}" opacity=".35"/>`;
+    const musc = vel > 0.2 ? `<path d="M${xa} ${anca + u * 0.55} q${s * cw * 0.35} ${u * 0.35} ${s * cw * 0.1} ${u * 0.8}" stroke="${s2}" stroke-width="1.3" fill="none" opacity=".7"/>` : '';
+    const joelhoL = `<path d="M${xj - kw * 0.5} ${joelho - u * 0.02} q${kw * 0.5} ${u * 0.08} ${kw} 0" stroke="${s2}" stroke-width="1.2" fill="none"/>`;
+    const bota = `<path d="M${xt - aw - 1} ${tornozelo} L${xt + aw + 1} ${tornozelo} L${xt + s * u * 0.12 + aw} ${pes - 3} Q${xt + s * u * 0.55} ${pes} ${xt + s * u * 0.6} ${pes - 6} Q${xt + s * u * 0.5} ${tornozelo + u * 0.08} ${xt + s * aw} ${tornozelo + u * 0.04}Z" fill="${k.fato ? '#141414' : k.botas ?? '#ececee'}" ${S}/>${k.fato ? '' : `<path d="M${xt - aw * 0.4} ${pes - 4} L${xt + s * u * 0.45} ${pes - 7}" stroke="${k.botasRisca ?? '#d63a3a'}" stroke-width="2.2"/>`}`;
+    if (k.fato) return `<path d="M${xa - cw * 1.05} ${anca} L${xt - aw * 1.5} ${tornozelo + 3} L${xt + aw * 1.5} ${tornozelo + 3} L${xa + cw * 1.05} ${anca}Z" fill="#232933" ${S}/>${bota}`;
+    return `<path d="${coxaD}" fill="${pele}" ${S}/>${sombra}${musc}${joelhoL}<path d="${gemD}" fill="${pele}" ${S}/>${meia}${bota}`;
+  };
+  // Braços: ombro → cotovelo → pulso, ligeiramente afastados do tronco; manga curta por cima; luvas no guarda-redes.
+  const bracoD = (s) => {
+    const xo = X + s * (oH - braco * 0.55), yo = ombro + u * 0.18, xc = X + s * (oH + u * 0.14), xp = X + s * (oH + u * 0.1);
+    const pc = s > 0 ? s1 : pele;
+    const mao = gr ? `<ellipse cx="${xp}" cy="${pulso + u * 0.2}" rx="${u * 0.2}" ry="${u * 0.26}" fill="${k.luvas ?? '#f2f2f2'}" ${S}/><path d="M${xp - u * 0.17} ${pulso + u * 0.04} L${xp + u * 0.17} ${pulso + u * 0.04}" stroke="${kc1}" stroke-width="${(u * 0.08).toFixed(1)}"/>`
+      : `<ellipse cx="${xp + s * 1}" cy="${pulso + u * 0.17}" rx="${(antebraco * 0.62).toFixed(1)}" ry="${(u * 0.2).toFixed(1)}" fill="${pele}" ${S}/>`;
+    if (k.fato) return `${capsula(xo, yo, xc, cotovelo, braco * 1.9, tec)}${capsula(xc, cotovelo, xp, pulso - u * 0.05, antebraco * 2, tec)}${mao}`;
+    const musc = forca > 0.3 ? `<path d="M${xo + s * braco * 0.2} ${yo + u * 0.55} q${s * braco * 0.6} ${u * 0.2} ${s * braco * 0.4} ${u * 0.45}" stroke="${s2}" stroke-width="1.3" fill="none" opacity=".7"/>` : '';
+    const mx = xo + (xc - xo) * 0.4, my = yo + (cotovelo - yo) * 0.4;
+    return `${capsula(xo, yo, xc, cotovelo, braco * 1.7, pc)}${capsula(xc, cotovelo, xp, pulso, antebraco * 1.6, pc)}${musc}${mao}<g class="manga">${capsula(xo, yo - u * 0.02, mx, my, braco * 1.7 + 3, tec)}<path d="M${mx - braco * 0.95} ${my} L${mx + braco * 0.95} ${my}" stroke="${gr ? kc2 : c2}" stroke-width="2.4" transform="rotate(${(Math.atan2(cotovelo - yo, xc - xo) * 180 / Math.PI - 90).toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})"/></g>`;
+  };
+  // Tronco (camisola com gola, sombra lateral e dobras; fato no staff)
+  const troncoD = `M${X - u * 0.32} ${ombro - u * 0.08} C${X - oH * 0.7} ${ombro - u * 0.02} ${X - oH} ${ombro + u * 0.05} ${X - oH} ${ombro + u * 0.3} C${X - oH * 0.98} ${ombro + u * 1.2} ${X - wH * 1.02} ${cintura - u * 0.4} ${X - wH} ${cintura} L${X - hH * 1.04} ${anca + u * 0.12} L${X + hH * 1.04} ${anca + u * 0.12} L${X + wH} ${cintura} C${X + wH * 1.02} ${cintura - u * 0.4} ${X + oH * 0.98} ${ombro + u * 1.2} ${X + oH} ${ombro + u * 0.3} C${X + oH} ${ombro + u * 0.05} ${X + oH * 0.7} ${ombro - u * 0.02} ${X + u * 0.32} ${ombro - u * 0.08}Z`;
+  const calcaoD = `M${X - hH * 1.04} ${anca} L${X + hH * 1.04} ${anca} L${X + hH * 1.14} ${virilha + u * 0.42} L${X + u * 0.06} ${virilha + u * 0.46} L${X} ${virilha + u * 0.08} L${X - u * 0.06} ${virilha + u * 0.46} L${X - hH * 1.14} ${virilha + u * 0.42}Z`;
+  const tronco = `<path d="${troncoD}" fill="${tec}" ${S}/><clipPath id="${id}-t"><path d="${troncoD}"/></clipPath><g clip-path="url(#${id}-t)">${sh(`M${X + oH * 0.35} ${ombro} C${X + oH * 0.2} ${ombro + u} ${X + wH * 0.5} ${cintura} ${X + hH * 0.6} ${anca + u * 0.2} L${X + oH + 10} ${anca + u * 0.2} L${X + oH + 10} ${ombro}Z`, gr ? kc1s : c1s, 0.55)}<path d="M${X - wH * 0.6} ${cintura - u * 0.3} q${u * 0.3} ${u * 0.15} ${u * 0.5} 0 M${X + wH * 0.1} ${ombro + u * 1.2} q${u * 0.2} ${u * 0.3} ${u * 0.1} ${u * 0.6}" stroke="${gr ? kc1s : c1s}" stroke-width="1.6" fill="none" opacity=".6"/></g>`;
+  const golaCorpo = k.fato ? `<path d="M${X - u * 0.3} ${ombro - u * 0.08} L${X} ${ombro + u * 0.75} L${X + u * 0.3} ${ombro - u * 0.08}Z" fill="#f2f2f0" ${S}/><path d="M${X - u * 0.07} ${ombro} L${X + u * 0.07} ${ombro} L${X + u * 0.1} ${ombro + u * 1.15} L${X} ${ombro + u * 1.3} L${X - u * 0.1} ${ombro + u * 1.15}Z" fill="${k.gravata ?? '#8b1d2c'}" ${S}/><path d="M${X - u * 0.32} ${ombro - u * 0.08} L${X - u * 0.55} ${ombro + u * 1.5} L${X - u * 0.05} ${ombro + u * 0.8}Z M${X + u * 0.32} ${ombro - u * 0.08} L${X + u * 0.55} ${ombro + u * 1.5} L${X + u * 0.05} ${ombro + u * 0.8}Z" fill="${avEsc('#283040', 0.8)}" ${S}/>`
+    : `<path d="M${X - u * 0.36} ${ombro - u * 0.1} Q${X} ${ombro + u * 0.42} ${X + u * 0.36} ${ombro - u * 0.1} L${X + u * 0.28} ${ombro - u * 0.12} Q${X} ${ombro + u * 0.28} ${X - u * 0.28} ${ombro - u * 0.12}Z" fill="${gr ? kc2 : c2}" ${S}/>`;
+  const emblema = k.fato ? '' : `<path d="M${X - oH * 0.5} ${ombro + u * 0.5} l${u * 0.12} -${u * 0.04} l${u * 0.12} ${u * 0.04} l0 ${u * 0.14} q-${u * 0.12} ${u * 0.1} -${u * 0.24} 0z" fill="${gr ? kc2 : c2}" ${S}/>`;
+  const num = !k.fato && k.numero ? `<text x="${X + oH * 0.42}" y="${ombro + u * 0.72}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="${u * 0.42}" fill="${gr ? kc2 : c2}" text-anchor="middle" stroke="${L}" stroke-width=".5">${k.numero}</text>` : '';
+  const calcao = k.fato ? '' : `<path d="${calcaoD}" fill="${gr ? kc2 : k.calcao ?? c2}" ${S}/><path d="M${X + hH * 0.5} ${anca} L${X + hH * 1.1} ${virilha + u * 0.38}" stroke="${avEsc(gr ? kc2 : k.calcao ?? c2, 0.8)}" stroke-width="${u * 0.18}" opacity=".5"/>`;
+  const hs = (u * 1.42) / (ry * 2 + 20);
+  const cabecaCorpo = `<g transform="translate(${X} ${queixo}) scale(${hs.toFixed(3)}) translate(-100 ${-(cy + ry + 4)})">${pescoco}${cabeca}</g>`;
+  return `<svg class="avatar-svg" viewBox="0 0 200 430" width="${tam}" height="${Math.round(tam * 2.15)}" aria-hidden="true">${defs}<ellipse cx="${X}" cy="${pes + 2}" rx="${u * 1.6}" ry="${u * 0.18}" fill="rgba(0,0,0,.28)"/>${perna(-1)}${perna(1)}${calcao}${tronco}${bracoD(-1)}${bracoD(1)}${golaCorpo}${emblema}${num}${cabecaCorpo}</svg>`;
 }
 function mix(a, b, f) { const x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16); const c = (s) => Math.round(((x >> s) & 255) * (1 - f) + ((y >> s) & 255) * f); return '#' + [c(16), c(8), c(0)].map((v) => v.toString(16).padStart(2, '0')).join(''); }
 const kitClube = (numero) => ({ c1: CLUBE.cores[0], c2: CLUBE.cores[1], padrao: CLUBE.padrao ?? 'liso', numero });
-const avJog = (p) => ({ id: 'j:' + p.n, nome: p.nome, pais: p.pais ?? 'POR', idade: p.idade, pos: p.pos });
+const avJog = (p) => ({ id: 'j:' + p.n, nome: p.nome, pais: p.pais ?? 'POR', idade: p.idade, pos: p.pos, ovr: p.ovr, n: p.n });
+// Atributo k (ordem da ficha: 0–6 técnicos, 7–13 mentais, 14 aceleração, 15 velocidade, 16 agilidade, 17 equilíbrio, 18 resistência, 19 força, 20 impulsão).
+const atributoJog = (p, k) => (p.ovr == null ? 10 : Math.max(4, Math.min(20, Math.round((p.ovr - 30) / 3.4) + (((k + (p.n ?? 0)) * 5) % 7) - 3)));
 const estrelas = (a, b) => { const s = (x) => '★'.repeat(Math.floor(x)) + (x % 1 ? '½' : ''); return a === b ? s(a) : `${s(a)}–${s(b)}`; };
 const potE = (p) => Math.max(0.5, Math.min(5, Math.round(((p - 40) / 12) * 2) / 2));
 
@@ -996,7 +1035,7 @@ function jogadorEcra() {
   const p = plantel[jogadorSel - 1];
   const rival = verComo === 'rival';
   const grupos = { Técnicos: ['Finalização', 'Drible', 'Passe', 'Técnica', 'Cabeceamento', 'Cruzamento', 'Primeiro toque'], Mentais: ['Antecipação', 'Compostura', 'Decisões', 'Movimentação', 'Trabalho de equipa', 'Visão', 'Determinação'], Físicos: ['Aceleração', 'Velocidade', 'Agilidade', 'Equilíbrio', 'Resistência', 'Força', 'Impulsão'] };
-  const val = (k) => Math.max(4, Math.min(20, Math.round((p.ovr - 30) / 3.4) + (((k + p.n) * 5) % 7) - 3));
+  const val = (k) => atributoJog(p, k);
   let k = 0;
   const cel = (nome) => { const v = val(k++); const c = v >= 16 ? 'v20' : v >= 13 ? 'v15' : v >= 9 ? 'v10' : 'v5'; return `<span>${nome}</span><span class="v ${rival ? '' : c}">${rival ? `<span class="intervalo">${Math.max(1, v - 3)}–${Math.min(20, v + 3)}</span>` : v}</span>`; };
   const papeis = (PAPEIS[p.pos] ?? []).concat(p.pos === 'PL' ? ['Avançado de área'] : []).map((r, i) => [r, Math.max(6, p.adq - i * 2 + (i === 0 ? 0 : 1))]);
