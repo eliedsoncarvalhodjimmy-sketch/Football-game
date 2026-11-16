@@ -252,6 +252,22 @@ td.r, th.r { text-align: right; }
 @keyframes pr-entra { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 @keyframes pr-pulso { 50% { opacity: .55; } }
 @media (prefers-reduced-motion: reduce) { .pr-linha, .pr-suspense { animation: none; } }
+#intro { position: fixed; inset: 0; z-index: 1000; background: #0b0b0b; color: #fff; overflow: hidden; cursor: pointer; transition: opacity .5s; }
+#intro.fora { opacity: 0; pointer-events: none; }
+#intro img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 62%; animation: in-zoom 6s ease-out forwards; }
+#intro::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 55%, rgba(0,0,0,.85) 100%); }
+.in-topo, .in-baixo { position: absolute; left: 0; right: 0; z-index: 1; text-align: center; padding: 0 24px; }
+.in-topo { top: 9vh; }
+.in-logo { font-family: var(--f-num); font-weight: 700; font-size: clamp(44px, 9vw, 84px); letter-spacing: .04em; text-shadow: 0 4px 30px rgba(0,0,0,.6); }
+.in-sub { color: #d4d6da; letter-spacing: .3em; text-transform: uppercase; font-size: 12px; margin-top: 4px; }
+.in-baixo { bottom: 6vh; display: grid; gap: 10px; justify-items: center; }
+.in-etapa { font-size: 14px; color: #e8eaee; }
+.in-barra { width: min(420px, 80vw); height: 4px; border-radius: 2px; background: rgba(255,255,255,.18); overflow: hidden; }
+.in-barra i { display: block; height: 100%; width: 0; background: #fff; transition: width .5s ease; }
+.in-dica { max-width: 460px; font-size: 13px; color: #b9bcc2; }
+.in-saltar { font-size: 11px; color: #8d9198; letter-spacing: .08em; text-transform: uppercase; }
+@keyframes in-zoom { from { transform: scale(1.06); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { #intro img { animation: none; } .in-barra i { transition: none; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -1515,4 +1531,33 @@ function acento() {
 window.addEventListener('hashchange', desenhar);
 acento();
 desenhar();
+
+// ---------- Ecrã de carregamento (intro) ----------
+// Na app, as etapas e a percentagem vêm do worker (mundo, gravação, motor); no protótipo são simuladas (~2,5 s).
+(function intro() {
+  const DICAS = [
+    'As promessas à imprensa ficam registadas e têm prazo.',
+    'Um jovem titular evolui mais depressa, sobretudo numa liga forte.',
+    'Subir o preço do bilhete enche menos o estádio e baixa a satisfação dos adeptos.',
+    'A janela de mercado aparece no calendário com o ícone 🔁.',
+    'Os finalistas dos prémios são anunciados a 16 de Julho; a cerimónia é a 30.',
+  ];
+  const ETAPAS = [['A carregar o mundo…', 35], ['A ler a gravação…', 60], ['A preparar a época…', 85], ['A abrir o clube…', 100]];
+  const el = document.createElement('div');
+  el.id = 'intro'; el.setAttribute('role', 'status'); el.setAttribute('aria-label', 'A carregar o FutCEO');
+  el.innerHTML = `<img src="intro.jpg" alt=""><div class="in-topo"><div class="in-logo">FutCEO</div><div class="in-sub">Gestão de futebol</div></div>
+    <div class="in-baixo"><div class="in-etapa">A iniciar…</div><div class="in-barra"><i></i></div><div class="in-dica">${DICAS[Math.floor(Math.random() * DICAS.length)]}</div><div class="in-saltar">Toca para continuar</div></div>`;
+  document.body.appendChild(el);
+  const fechar = () => { el.classList.add('fora'); setTimeout(() => el.remove(), 500); };
+  el.addEventListener('click', fechar);
+  let k = 0;
+  const passo = () => {
+    if (!document.body.contains(el)) return;
+    if (k >= ETAPAS.length) { setTimeout(fechar, 350); return; }
+    const [txt, pct] = ETAPAS[k++];
+    el.querySelector('.in-etapa').textContent = txt; el.querySelector('.in-barra i').style.width = pct + '%';
+    setTimeout(passo, 600);
+  };
+  setTimeout(passo, 150);
+})();
 </script>

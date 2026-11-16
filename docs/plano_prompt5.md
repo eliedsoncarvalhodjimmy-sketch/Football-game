@@ -35,6 +35,8 @@ Interface (main thread)          Web Worker (motor puro, determinístico)
 | `src/config/interface.ts` | Números da interface (tamanho de página das listas, gravação automática, …) |
 | `tests/vistas.test.ts`, `tests/historico.test.ts`, `tests/saves.test.ts` | Testes |
 
+- **Ecrã de carregamento** (pedido do utilizador): `docs/prototipo/intro.jpg` em ecrã inteiro, logótipo, barra com as etapas reais enviadas pelo worker (mundo, gravação, motor), uma dica ao acaso; fecha quando o jogo está pronto (sem tempo mínimo) ou ao tocar; a mesma imagem no ecrã de arranque da PWA (manifesto).
+
 ## Ecrãs (Bloco A)
 
 | Ecrã | Conteúdo | Dados que já existem |
