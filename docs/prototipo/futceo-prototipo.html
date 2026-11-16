@@ -354,6 +354,41 @@ td.r, th.r { text-align: right; }
 .c2-acoes { display: grid; gap: 8px; }
 @media (max-width: 900px) { .modal-cal2 { grid-template-columns: 1fr; } .c2-lado { border-left: 0; border-top: 1px solid rgba(255,255,255,.08); grid-template-columns: 1fr 1fr; } .c2-ano, .c2-mes { grid-column: span 1; } .c2-acoes { grid-column: 1 / -1; } }
 @media (max-width: 640px) { .c2-princ { padding: 14px 10px; } .c2-cab h3 { font-size: 24px; } .c2-dia { min-height: 62px; padding: 4px; } .c2-n { font-size: 17px; } .c2-esc { top: auto; bottom: 3px; right: 3px; } .c2-esc .escudo { width: 18px !important; height: 20px !important; } .c2-info span, .c2-ev { display: none; } .c2-info { bottom: 3px; left: 4px; font-size: 9px; } .c2-info b { font-size: 9px; } .c2-rec { width: 12px; height: 12px; right: 3px; bottom: 3px; } .c2-dia .troca { width: 11px; height: 11px; top: 3px; right: 3px; } .c2-dia.jogo .troca { top: 3px; bottom: auto; } .c2-lado { padding: 14px; } .c2-ano { font-size: 40px; } .c2-dias { font-size: 32px; } }
+.neg2 { padding: 0; overflow: hidden; display: grid; grid-template-columns: 340px 1fr; min-height: 520px; }
+.neg2-cena { position: relative; grid-column: 2; grid-row: 1; min-height: 520px; overflow: hidden; }
+.neg2-cena > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.neg2-cena::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,13,16,.55), rgba(11,13,16,0) 35%), linear-gradient(0deg, rgba(11,13,16,.75), rgba(11,13,16,0) 45%); }
+.neg2-painel { grid-column: 1; grid-row: 1; background: #232634; display: grid; align-content: start; border-right: 1px solid rgba(255,255,255,.06); }
+.np-orc { display: flex; gap: 10px; align-items: center; padding: 12px 14px; background: #2d3142; }
+.np-orc > div { flex: 1; display: grid; gap: 2px; }
+.np-l { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; } .np-l span { color: #a9adbc; } .np-l b { font-family: var(--f-num); font-size: 17px; font-weight: 600; }
+.np-pad { padding: 8px 14px; }
+.np-tit { padding: 12px 14px; font-family: var(--f-num); font-size: 18px; text-transform: uppercase; letter-spacing: .02em; background: #2a2e3d; border-top: 3px solid #e2a33a; } .np-tit span { color: #a9adbc; }
+.np-jog { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.np-av { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #c8102e, #7a0a1c); font-weight: 700; font-size: 18px; flex: none; }
+.np-dados { display: grid; gap: 2px; font-size: 13px; color: #a9adbc; flex: 1; } .np-dados b { color: #fff; font-family: var(--f-num); font-size: 17px; }
+.pt-pos { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e2a33a; margin-right: 5px; }
+.np-ovr { display: grid; text-align: center; color: #a9adbc; font-size: 11px; } .np-ovr b { color: #fff; font-family: var(--f-num); font-size: 22px; }
+.np-nome { padding: 10px 14px; font-family: var(--f-num); font-size: 22px; color: #a9adbc; border-bottom: 1px solid rgba(255,255,255,.08); } .np-nome b { color: #fff; }
+.np-sec { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; color: #e2a33a; font-family: var(--f-num); font-size: 16px; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,.08); }
+.np-ic { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e2a33a; display: grid; place-items: center; font-size: 11px; }
+.np-troca .np-av { background: linear-gradient(135deg, #3a3f52, #23263a); width: 46px; height: 46px; font-size: 14px; }
+.np-soma { display: grid; gap: 4px; padding: 12px 14px 4px; color: #e2a33a; font-family: var(--f-num); font-size: 17px; }
+.np-soma input { background: rgba(0,0,0,.25); border: 1px solid rgba(226,163,58,.5); border-radius: 8px; color: #f0a640; font-family: var(--f-num); font-size: 34px; font-weight: 700; padding: 4px 10px; width: 100%; min-height: 54px; }
+.np-soma input:focus { outline: 2px solid #e2a33a; }
+.np-dica { padding: 2px 14px 14px; font-size: 12px; color: #ff9b9b; } .np-dica.bom { color: var(--bom); }
+.neg2-tensao { position: absolute; top: 14px; right: 14px; z-index: 1; display: grid; gap: 4px; justify-items: end; background: rgba(20,24,36,.85); border-radius: 10px; padding: 8px 12px; min-width: 150px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #cfd3da; } .neg2-tensao .barra { width: 100%; }
+.neg2-fala { position: absolute; left: 16px; right: 16px; top: 14px; z-index: 1; display: flex; gap: 8px; align-items: center; max-width: 60%; flex-wrap: wrap; } .neg2-fala > span:last-child { background: rgba(20,24,36,.85); border-radius: 10px; padding: 6px 10px; font-size: 13px; color: #fff; }
+.neg2-menu { position: absolute; z-index: 1; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; }
+.neg2-roda { width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(255,255,255,.85); background: rgba(20,24,36,.65); flex: none; }
+.neg2-ops { display: grid; gap: 6px; }
+.neg2-op { text-align: left; background: rgba(28,32,74,.9); color: #fff; border: 0; border-left: 4px solid transparent; padding: 8px 16px; min-height: 40px; font: inherit; font-size: 15px; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
+.neg2-op:hover, .neg2-op:focus-visible { border-left-color: #fff; background: rgba(48,54,120,.95); }
+.neg2-op.prim { background: #f5f0e2; color: #1b1640; font-weight: 700; } .neg2-op.fim { background: rgba(60,20,30,.9); }
+@media (max-width: 860px) {
+  .neg2 { grid-template-columns: 1fr; } .neg2-cena { grid-column: 1; grid-row: 1; min-height: 520px; } .neg2-painel { grid-column: 1; grid-row: 2; border-right: 0; }
+  .neg2-fala { max-width: none; top: 64px; } .neg2-menu { left: 12px; right: 12px; transform: none; } .neg2-roda { display: none; } .neg2-ops { width: 100%; } .neg2-op { font-size: 14px; }
+}
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -779,7 +814,19 @@ function tacticaConteudo() {
 
 let tabMercado = 'Visão geral', parcelas = 'À vista';
 // Negociação (protótipo): o clube vendedor contra-propõe a meio caminho; aceita quando a proposta chega ao pedido.
-const NEG = { ronda: 4, pedido: 6.8, inicial: 7.2, proposta: 6.4, estado: 'aberta', piso: 6.3 };
+const NEG0 = { ronda: 4, pedido: 6_800_000, inicial: 7_200_000, proposta: 6_400_000, estado: 'aberta', piso: 6_300_000, venda: 0, troca: -1, tensao: 35, fala: 'Pedimos €6.800.000 à vista. Não vamos muito abaixo disso.', acordo: 0 };
+const NEG = { ...NEG0 };
+// Valores em euros, com pontos nos milhares (pedido do utilizador): €12.000.000.
+const fE = (n) => '€' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const TROCAS = [[7, 'Rafael Seixal', 'DC', 2_100_000], [17, 'Bruno Corança', 'MO', 3_400_000], [12, 'Tiago Marouro', 'MDC', 1_500_000]];
+const VENDAS = [0, 10, 15, 20];
+const PARCELAS = ['À vista', 'À vista + 4 parcelas trimestrais', 'À vista + 2 parcelas semestrais', 'À vista + 2 parcelas anuais'];
+// O clube vendedor: venda futura de 10% vale −4% no pedido; parcelas pedem +3%; um jogador na troca conta 80% do valor.
+function avaliarNeg() {
+  const troca = NEG.troca >= 0 ? TROCAS[NEG.troca][3] * 0.8 : 0, efectivo = NEG.proposta + troca;
+  const exigido = NEG.pedido * (1 - NEG.venda * 0.004) * (parcelas === 'À vista' ? 1 : 1.03);
+  return { efectivo, exigido, ok: efectivo >= exigido - 1 };
+}
 const fM = (v) => v.toFixed(1).replace('.', ',') + ' M€';
 const nomeJ = () => `${PRIMEIROS[ri(0, PRIMEIROS.length - 1)]} ${APELIDOS[ri(0, APELIDOS.length - 1)]}`;
 const CLUBES_M = [['Real Montalvo', 'POR1', CORES[0]], ['CF Alvarenga', 'POR1', CORES[1]], ['Kızılpınarspor', 'TUR1', ['#c8102e', '#ffd100']], ['Asteras Oristathmos', 'GRE1', ['#1d3b6b', '#fff']], ['Brackcombe Town', 'ENG1', ['#5a2d82', '#fff']], ['SV Mühlwangen', 'GER1', ['#111', '#e2a33a']], ['Atlético Pouso das Pedras', 'BRA1', ['#0a7a3a', '#fff']], ['Fontemarino Calcio', 'ITA1', ['#1b4fa0', '#fff']]];
@@ -807,15 +854,33 @@ function mercadoEcra() {
     <div class="bm-contagem ${aberta ? 'aberta' : ''}"><span class="bm-estado">${aberta ? 'Janela aberta' : 'Janela fechada'}</span><span class="bm-dias num">${dias}</span><span class="bm-texto">${dias === 1 ? 'dia' : 'dias'} para a janela ${nomeJ} ${aberta ? 'fechar' : 'abrir'}</span></div></section>
   <div class="filtros"><div class="seg" role="group">${tabs.map((t) => `<button data-tabm="${t}" class="${t === tabMercado ? 'on' : ''}">${t}</button>`).join('')}</div></div>`;
   const filtros = `<div class="filtros"><input type="search" placeholder="Pesquisar…" aria-label="Pesquisar"><select aria-label="Posição"><option>Todas as posições</option><option>Defesas</option><option>Médios</option><option>Avançados</option></select><select aria-label="Idade"><option>Idade: todas</option><option>Até 23</option><option>24–29</option><option>30+</option></select><select aria-label="Liga"><option>Todas as ligas</option><option>Liga Portugal</option><option>Brasileirão</option></select><select aria-label="Conhecimento"><option>Conhecimento: todos</option><option>≥ 50%</option><option>≥ 80%</option></select></div>`;
-  const parcTxt = (v) => parcelas === 'À vista' ? `Pagamento total: ${fM(v)} agora` : parcelas.includes('4') ? `${fM(v - 4)} agora + 4 × 1,0 M€ (de 3 em 3 meses)` : parcelas.includes('semestrais') ? `${fM(v / 2)} agora + 2 × ${fM(v / 4)} (de 6 em 6 meses)` : `${fM(v / 2)} agora + 2 × ${fM(v / 4)} (por ano)`;
-  const negoc = NEG.estado === 'assinado' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><div class="rot">${fM(NEG.pedido)} · contrato até 2031</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Repetir a negociação (protótipo)</button></div></section>`
-    : NEG.estado === 'desistiu' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Negociação terminada · Yusuf Taşsoy</h3><div class="rot">Desististe na ronda ${NEG.ronda}. O Kızılpınarspor fica à espera de outras propostas.</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Retomar (protótipo)</button></div></section>`
-    : `<section class="c s12 negociacao"><div class="neg-foto"><img src="negociacao-${NEG.ronda % 2 ? 2 : 1}.jpg" alt="Negociação com o clube"><div class="neg-txt"><span class="chip info">Ronda ${NEG.ronda}</span><h3>Negociação em curso · Yusuf Taşsoy (Kızılpınarspor)</h3><span>Pedido do clube: <b>${fM(NEG.pedido)}</b> · pedido inicial ${fM(NEG.inicial)}</span></div></div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:12px"><span class="rot">A tua proposta</span><button class="btn" data-neg="-0.1" aria-label="Baixar a proposta">−</button><b class="num" style="font-size:22px;min-width:84px;text-align:center">${fM(NEG.proposta)}</b><button class="btn" data-neg="0.1" aria-label="Subir a proposta">+</button>
-    <label class="rot" style="display:flex;gap:8px;align-items:center">Pagamento<select class="btn" id="sel-parc">${['À vista', 'À vista + 4 parcelas trimestrais', 'À vista + 2 parcelas semestrais', 'À vista + 2 parcelas anuais'].map((o) => `<option ${o === parcelas ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
-    <span class="muted">${parcTxt(NEG.proposta)}</span>
-    <span class="chip aviso">Poucos clubes aceitam parcelas</span>
-    <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-neg="desistir">Desistir</button><button class="btn prim" data-neg="enviar">Enviar proposta</button></span></div></section>`;
+  const av = avaliarNeg(), tr = NEG.troca >= 0 ? TROCAS[NEG.troca] : null;
+  const negoc = NEG.estado === 'assinado' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><div class="rot">${fE(NEG.acordo)} · contrato até 2031</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Repetir a negociação (protótipo)</button></div></section>`
+    : NEG.estado !== 'aberta' ? `<section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>Negociação terminada · Yusuf Taşsoy</h3><div class="rot">${NEG.estado === 'rompeu' ? `O Kızılpınarspor terminou a negociação na ronda ${NEG.ronda}: a tensão chegou ao limite.` : `Terminaste a negociação na ronda ${NEG.ronda}.`}</div></div><button class="btn" style="margin-left:auto" data-neg="reiniciar">Retomar (protótipo)</button></div></section>`
+    : `<section class="c s12 neg2">
+    <div class="neg2-cena"><img src="negociacao-${NEG.ronda % 2 ? 2 : 1}.jpg" alt="Negociação com o clube">
+      <div class="neg2-tensao" title="Tensão da negociação"><span>Tensão</span><div class="barra"><i style="width:${NEG.tensao}%;background:${NEG.tensao >= 70 ? 'var(--mau)' : NEG.tensao >= 45 ? 'var(--aviso)' : 'var(--bom)'}"></i></div></div>
+      <div class="neg2-fala"><span class="chip info">Ronda ${NEG.ronda}</span><span>Kızılpınarspor: "${NEG.fala}"</span></div>
+      <div class="neg2-menu" role="group" aria-label="Acções da negociação"><span class="neg2-roda"></span><div class="neg2-ops">
+        <button class="neg2-op prim" data-neg="enviar">Enviar proposta</button>
+        <button class="neg2-op" data-neg="venda">Venda futura: ${NEG.venda}%</button>
+        <button class="neg2-op" data-neg="troca">Troca: ${tr ? tr[1] : 'nenhum jogador'}</button>
+        <button class="neg2-op" data-neg="parcelas">Pagamento: ${parcelas === 'À vista' ? 'à vista' : parcelas.replace('À vista + ', 'parcelas: ')}</button>
+        <button class="neg2-op fim" data-neg="desistir">Terminar negociação</button></div></div>
+    </div>
+    <aside class="neg2-painel">
+      <div class="np-orc">${escudo(CLUBE.cores, 30)}<div><div class="np-l"><span>Orçamento de transferências</span><b>${fE(9_500_000)}</b></div><div class="np-l"><span>Orçamento salarial</span><b>${fE(1_800_000)}/ano</b></div></div></div>
+      <div class="np-tit">Proposta ao clube / <span>Compra</span></div>
+      <div class="np-jog"><span class="np-av">YT</span><div class="np-dados"><span>Idade: <b>24</b></span><span><i class="pt-pos"></i><b>MDC</b></span></div><div class="np-ovr"><span>OVR</span><b>72–77</b></div>${escudo(['#c8102e', '#ffd100'], 30)}</div>
+      <div class="np-nome">Yusuf <b>Taşsoy</b></div>
+      <div class="np-l np-pad"><span>Valor de mercado</span><b>${fE(6_100_000)}</b></div>
+      ${tr ? `<div class="np-sec"><span class="np-ic">🔁</span>Troca de jogador</div><div class="np-jog np-troca"><span class="np-av">${tr[1].split(' ').map((x) => x[0]).join('')}</span><div class="np-dados"><span>Valor <b>${fE(tr[3])}</b></span><span><b>${tr[2]}</b> · ${tr[1]}</span></div></div>` : ''}
+      <div class="np-sec"><span class="np-ic">€</span>Financeiro</div>
+      <div class="np-l np-pad"><span>Venda futura</span><b>${NEG.venda ? NEG.venda + '%' : '—'}</b></div>
+      <div class="np-l np-pad"><span>Pagamento</span><b>${parcelas}</b></div>
+      <label class="np-soma"><span>Valor da transferência</span><input id="neg-valor" inputmode="numeric" autocomplete="off" value="${fE(NEG.proposta)}" aria-label="Valor da transferência em euros"></label>
+      <div class="np-dica ${av.ok ? 'bom' : ''}" id="neg-dica">${av.ok ? 'O clube deve aceitar.' : `Abaixo do que o clube pede (${fE(av.exigido - (av.efectivo - NEG.proposta))}).`}</div>
+    </aside></section>`;
   if (tabMercado === 'Transferências') return cab + filtros + `<section class="c">${painel('troca', 'Transferências', 'Jogadores que outros clubes puseram à venda (que conheces)', `${LISTADOS.length} jogadores`)}${tabelaTransf(LISTADOS.slice(0, 40))}</section>`;
   if (tabMercado === 'Empréstimos') return cab + filtros + `<section class="c">${painel('troca', 'Empréstimos', 'Jogadores disponíveis para empréstimo', `${EMPREST.length} jogadores`)}${tabelaEmpr(EMPREST.slice(0, 40))}</section>`;
   if (tabMercado === 'Jogadores livres') return cab + filtros + `<section class="c">${painel('livre', 'Jogadores livres', 'Sem custo de transferência; o salário pedido desce com os meses sem clube', `${LIVRES.length} jogadores`)}${tabelaLivres(LIVRES.slice(0, 40))}</section>`;
@@ -1570,7 +1635,7 @@ function desenharModal() {
     else if (modal === 'reacao') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="A tua reacção">${capaRelatorio('A tua reacção é notícia', reacao.t.origem, reacao.o.img)}<div class="modal-corpo"><div class="rot">Amanhã nos jornais</div><h3 style="margin:4px 0 8px;font-family:var(--f-num);font-size:22px">${reacao.o.titulo}</h3><div class="rot" style="margin-bottom:10px">Em resposta a: ${reacao.t.tema}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(reacao.o.efeitos)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else if (modal === 'entrev') el.innerHTML = modalEntrevista();
     else if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
-    else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
+    else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Médio defensivo · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fE(NEG.acordo)], ['Pagamento', parcelas], ['Venda futura', NEG.venda ? NEG.venda + '%' : 'não'], ['Troca', NEG.troca >= 0 ? TROCAS[NEG.troca][1] : 'não'], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else
     if (ab && !ab.rel && ab.resp) el.innerHTML = `<div class="modal" role="dialog" aria-label="${ab.assunto}"><div class="modal-cab"><h3>${ab.assunto}</h3><button class="btn" id="fechar">Fechar</button></div><div class="rot">${ab.de} · ${ab.dia}</div><p style="margin:12px 0">${ab.txt}</p>${ab.respondida ? `<div class="chip bom">Respondeste: ${ab.respondida}</div>` : `<div class="respostas">${ab.resp.map((r, i) => `<button class="resposta" data-respmsg="${i}" style="grid-template-columns:1fr"><span>${r}</span></button>`).join('')}</div>`}<div style="display:flex;justify-content:flex-start;margin-top:12px"><button class="btn" id="voltar-msg">← Mensagens</button></div></div>`;
     else if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`, ab.rel === 'reforco' ? 'pedido-treinador.jpg' : 'relatorio.jpg')}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
@@ -1659,12 +1724,35 @@ function ligar(m) {
     if (para === 'principal') plantel.push({ ...p, n: plantel.length + 1, moral: 14, cond: 95, forma: ['6.8', '7.0', '6.9', '7.1', '7.0'], adq: 12, papel: PAPEIS[p.pos][0], fim: 2029, sal: 30000, lesao: '', susp: false });
     else (para === 'sub21' ? sub21 : sub18).unshift(p);
     desenhar(); }));
+  const inpNeg = m.querySelector('#neg-valor');
+  if (inpNeg) {
+    // Escreve-se o número: os pontos dos milhares aparecem à medida que se escreve (12 → €12; 12000000 → €12.000.000).
+    inpNeg.addEventListener('focus', () => { if (NEG.proposta === 0) inpNeg.value = ''; });
+    inpNeg.addEventListener('input', () => {
+      const dig = inpNeg.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10);
+      NEG.proposta = dig ? Number(dig) : 0; inpNeg.value = dig ? fE(NEG.proposta) : '';
+      const av = avaliarNeg(), d = m.querySelector('#neg-dica');
+      d.className = 'np-dica' + (av.ok ? ' bom' : ''); d.textContent = av.ok ? 'O clube deve aceitar.' : `Abaixo do que o clube pede (${fE(av.exigido - (av.efectivo - NEG.proposta))}).`;
+    });
+    inpNeg.addEventListener('keydown', (e) => { if (e.key === 'Enter') m.querySelector('[data-neg="enviar"]').click(); });
+  }
   m.querySelectorAll('[data-neg]').forEach((b) => b.addEventListener('click', () => {
     const a = b.dataset.neg, y = document.getElementById('principal').scrollTop;
-    if (a === 'enviar') { if (NEG.proposta >= NEG.pedido - 1e-9) { NEG.estado = 'assinado'; modal = 'assin'; } else { NEG.ronda++; NEG.pedido = Math.max(NEG.piso, Math.round(((NEG.pedido + NEG.proposta) / 2) * 10) / 10); } }
-    else if (a === 'desistir') NEG.estado = 'desistiu';
-    else if (a === 'reiniciar') Object.assign(NEG, { ronda: 4, pedido: 6.8, proposta: 6.4, estado: 'aberta' });
-    else NEG.proposta = Math.max(1, Math.round((NEG.proposta + +a) * 10) / 10);
+    if (a === 'enviar') {
+      const av = avaliarNeg();
+      if (!NEG.proposta) { NEG.fala = 'Escreva um valor, por favor.'; }
+      else if (av.ok) { NEG.estado = 'assinado'; NEG.acordo = NEG.proposta; modal = 'assin'; }
+      else {
+        const falta = (av.exigido - av.efectivo) / av.exigido;
+        NEG.tensao = Math.min(100, Math.round(NEG.tensao + 8 + falta * 120));
+        if (NEG.tensao >= 100) NEG.estado = 'rompeu';
+        else { NEG.ronda++; NEG.pedido = Math.max(NEG.piso, Math.round((NEG.pedido + av.efectivo) / 2 / 1e5) * 1e5); NEG.fala = falta > 0.15 ? `Isso não é sério. Só baixamos para ${fE(NEG.pedido)}.` : `Estamos perto. Fechamos por ${fE(NEG.pedido)}.`; }
+      }
+    } else if (a === 'desistir') NEG.estado = 'desistiu';
+    else if (a === 'reiniciar') { Object.assign(NEG, NEG0); parcelas = 'À vista'; }
+    else if (a === 'venda') NEG.venda = VENDAS[(VENDAS.indexOf(NEG.venda) + 1) % VENDAS.length];
+    else if (a === 'troca') NEG.troca = NEG.troca + 1 >= TROCAS.length ? -1 : NEG.troca + 1;
+    else if (a === 'parcelas') parcelas = PARCELAS[(PARCELAS.indexOf(parcelas) + 1) % PARCELAS.length];
     desenhar(); document.getElementById('principal').scrollTop = y; if (modal === 'assin') desenharModal();
   }));
   m.querySelector('#sel-parc')?.addEventListener('change', (e) => { parcelas = e.target.value; desenhar(); });
