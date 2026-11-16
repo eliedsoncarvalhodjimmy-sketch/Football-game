@@ -37,6 +37,8 @@ Interface (main thread)          Web Worker (motor puro, determinístico)
 
 - **Ecrã de carregamento** (pedido do utilizador): `docs/prototipo/intro.jpg` em ecrã inteiro, logótipo, barra com as etapas reais enviadas pelo worker (mundo, gravação, motor), uma dica ao acaso; fecha quando o jogo está pronto (sem tempo mínimo) ou ao tocar; a mesma imagem no ecrã de arranque da PWA (manifesto).
 
+- **Entrada e perfil** (pedido do utilizador): depois do carregamento, ecrã com `docs/prototipo/perfil.jpg`: login (3 contas locais; só o SHA-256 das palavras-passe fica no código; separa perfis e gravações, não é segurança a sério) → perfil de jogo (nome, data de nascimento, nacionalidade, modo Dono ou Director e o perfil de partida, textos do utilizador) → foto (opcional, 256 px, só no aparelho) → clube (Dono: compra com a fortuna do perfil; Director: o clube que o contrata). Contas com perfil já criado: "Continuar carreira" ou "Criar um perfil novo". Efeitos dos perfis (propostos, a aprovar) em `src/config/perfis.ts`.
+
 ## Ecrãs (Bloco A)
 
 | Ecrã | Conteúdo | Dados que já existem |

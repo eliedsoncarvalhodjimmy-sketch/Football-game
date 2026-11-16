@@ -268,6 +268,37 @@ td.r, th.r { text-align: right; }
 .in-saltar { font-size: 11px; color: #8d9198; letter-spacing: .08em; text-transform: uppercase; }
 @keyframes in-zoom { from { transform: scale(1.06); } to { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { #intro img { animation: none; } .in-barra i { transition: none; } }
+.perfil-chip { display: flex; align-items: center; gap: 8px; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 999px; padding: 4px 12px 4px 4px; color: var(--texto); cursor: pointer; min-height: 40px; }
+.perfil-chip span { display: grid; text-align: left; line-height: 1.1; } .perfil-chip small { color: var(--suave); font-size: 11px; }
+@media (max-width: 640px) { .perfil-chip { padding: 4px; } .perfil-chip span { display: none; } }
+.avatar { border-radius: 50%; object-fit: cover; flex: none; } .avatar-ini { display: inline-grid; place-items: center; background: var(--acento); color: #fff; font-weight: 700; }
+#entrada { position: fixed; inset: 0; z-index: 990; display: grid; place-items: center; padding: 16px; overflow: hidden; background: #111; }
+.en-fundo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; filter: brightness(.55); }
+.en-painel { position: relative; width: min(600px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: rgba(17,19,23,.88); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 22px; display: grid; gap: 12px; color: var(--texto); }
+.en-marca { font-family: var(--f-num); font-size: 30px; font-weight: 700; letter-spacing: .04em; }
+.en-passos { display: flex; gap: 6px; flex-wrap: wrap; } .en-passos span { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.06); color: var(--suave); } .en-passos .on { background: var(--acento); color: #fff; } .en-passos .feito { color: var(--bom); }
+.en-painel h2 { margin: 4px 0 0; font-family: var(--f-num); font-size: 24px; font-weight: 600; text-transform: none; letter-spacing: 0; color: #fff; }
+.en-painel form { display: grid; gap: 12px; }
+.en-painel label { display: grid; gap: 6px; font-size: 13px; color: #cfd3da; }
+.en-painel input:not([type=radio]), .en-painel select { min-height: 44px; border-radius: 10px; border: 1px solid var(--linha); background: var(--cartao-2); color: var(--texto); padding: 0 12px; font: inherit; }
+.en-duas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.en-rot { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); margin-top: 4px; }
+.en-modo { width: 100%; } .en-modo button { flex: 1; }
+.en-cartoes { display: grid; gap: 8px; }
+.en-cartao { display: grid !important; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 12px; padding: 12px; cursor: pointer; color: var(--texto) !important; font-size: 14px !important; }
+.en-cartao.on { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); }
+.en-cartao input { position: absolute; opacity: 0; pointer-events: none; }
+.en-cartao > span:last-child { display: grid; justify-items: start; }
+.en-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,.08); display: grid; place-items: center; font-weight: 700; }
+.en-ef { color: var(--suave); font-size: 12px; margin-top: 6px; }
+.en-erro { background: rgba(214,58,58,.15); color: #ff9b9b; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+.en-btn { width: 100%; min-height: 46px; }
+.en-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.en-perfil, .en-foto { display: flex; align-items: center; gap: 16px; }
+.en-clubes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 46vh; overflow: auto; }
+.en-clube { display: flex; align-items: center; gap: 10px; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 10px; padding: 8px 10px; color: var(--texto); font: inherit; cursor: pointer; min-height: 48px; }
+.en-clube span { display: grid; } .en-clube small { color: var(--suave); font-size: 11px; } .en-clube.on { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); } .en-clube:disabled { opacity: .4; cursor: not-allowed; }
+@media (max-width: 640px) { .en-duas, .en-clubes { grid-template-columns: 1fr; } .en-painel { padding: 16px; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -880,8 +911,9 @@ function classificacaoEcra() {
 
 // ---------- Imprensa (protótipo) ----------
 // Quem fala à imprensa é o utilizador: Director (modo Director) ou Presidente (modo Dono).
-const MODO = 'director';
-const CARGO = MODO === 'dono' ? 'Presidente' : 'Director';
+let MODO = 'director';
+let CARGO = 'Director';
+let PERFIL_ACTIVO = null; // perfil de jogo da conta que entrou
 // Meios fictícios. Relação 0–100: sobe com entrevistas dadas e respostas cordiais, desce com recusas e ataques.
 const MEIOS = [
   { nome: 'Tribuna Desportiva', tipo: 'Jornal', rel: 62, linha: 'Exigente, mas justo' },
@@ -1401,6 +1433,7 @@ function desenhar() {
     <button class="icone-btn" id="b-cal" aria-label="Calendário">${svg('cal')}</button>
     <button class="icone-btn" id="b-msg" aria-label="Mensagens">${svg('env')}${naoLidas ? `<span class="badge">${naoLidas}</span>` : ''}</button>
     <button class="icone-btn" id="b-imp" aria-label="Imprensa" title="Imprensa">${svg('imprensa')}${PEDIDOS_ENTREVISTA.some((x) => x.estado === 'pendente') ? '<span class="badge">!</span>' : ''}</button>
+    ${PERFIL_ACTIVO ? `<button class="perfil-chip" id="b-perfil" title="Perfil e sessão">${avatarHtml(PERFIL_ACTIVO, 30)}<span><b>${PERFIL_ACTIVO.nome.split(' ')[0]}</b><small>${CARGO}</small></span></button>` : ''}
     <button class="btn prim continuar" id="b-cont">Continuar ${svg('seta').replace('<svg', '<svg style="width:16px;height:16px;vertical-align:-3px"')}</button></div>`;
   m.innerHTML = topo + RENDER[r]() + `<div class="aviso-proto">Protótipo com dados fictícios do mundo gerado. <button class="btn" id="demo-pos" style="min-height:30px;padding:4px 10px">Exemplo: o meu clube em 14.º</button> Cor do clube (acento): <span class="cores">${[['#d63a3a', '#f1f1f1'], ['#2c63c9', '#ffffff'], ['#1d9a6c', '#ffffff'], ['#e2a33a', '#111111'], ['#7a3cc7', '#ffffff']].map((c) => `<button data-cor="${c[0]}" data-cor2="${c[1]}" style="background:${c[0]}" aria-label="Acento ${c[0]}"></button>`).join('')}</span></div>`;
   ligar(m);
@@ -1499,6 +1532,7 @@ function ligar(m) {
   m.querySelectorAll('[data-pedido]').forEach((x) => x.addEventListener('click', () => { modal = 'msg'; msgAberta = MENSAGENS.findIndex((y) => y.rel === x.dataset.pedido); MENSAGENS[msgAberta].lida = true; desenhar(); desenharModal(); }));
   m.querySelector('#pr-finalistas')?.addEventListener('click', () => { modal = 'finalistas'; desenharModal(); });
   m.querySelector('#pr-cerimonia')?.addEventListener('click', () => { modal = 'cerimonia'; cer = { etapa: 0, mostrados: 0 }; desenharModal(); passoCerimonia(); });
+  m.querySelector('#b-perfil')?.addEventListener('click', () => { if (confirm('Terminar a sessão e voltar ao ecrã de entrada?')) { PERFIL_ACTIVO = null; ent = { passo: 'login', rascunho: { modo: 'director' } }; desenhar(); mostrarEntrada(); } });
   m.querySelector('#b-imp').addEventListener('click', () => { modal = 'imprensa'; desenharModal(); });
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });
   m.querySelector('#b-regras')?.addEventListener('click', () => { modal = 'regras'; desenharModal(); });
@@ -1531,6 +1565,110 @@ function acento() {
 window.addEventListener('hashchange', desenhar);
 acento();
 desenhar();
+
+
+// ---------- Entrada: login (3 contas locais) e criação do perfil de jogo ----------
+// As palavras-passe não estão no código: compara-se o SHA-256 de "futceo:<utilizador>:<palavra-passe>" (src/config/perfis.ts).
+// Isto só separa perfis num aparelho partilhado; não é segurança a sério. Para testes: ?semEntrada.
+const CONTAS = { aleixo: ['Aleixo', '46b1490527dfcfb055f62fbd58ae69aac70799a857ee6972f4eabc4c3d47974c'], eliedson: ['Eliedson', '7a41d829936bf79d5a0e2be79be387624dc5579fe70d3f116996ace71e0b7c41'], user3: ['User3', 'cb8bc458c4bb9e803fa0927523cb96506b98d2df6df6aaa8463621529b7c270d'] };
+const PERFIS_DONO = [
+  ['dono-tecnologia', 'Empresário do ramo de tecnologia que acaba de vender a sua empresa de análise de dados para a WS Holding S.A por 500 Milhões de Euros.', 500e6, 'Scouting conhece +10% mais depressa · análise −15% de custo'],
+  ['dono-agro-construcao', 'Empresário com negócios ligados à agricultura, construção civil e rede de super-mercados, com património avaliado em + 1 bilhão', 1.2e9, 'Obras −15% no custo e no prazo · +10% patrocínios locais'],
+  ['dono-banca', 'Bancário bem sucessido, com várias agências espalhadas pelos EUA com património de +1B.', 1.1e9, 'Juros da dívida −1,5 pontos · limite de dívida +15%'],
+  ['dono-ia', 'Empresário que acaba de vender a sua Startup de IA para um fundo de investimentos por 850 milhões.', 850e6, 'Relatórios 10% mais precisos · +10% receitas digitais'],
+];
+const PERFIS_DIR = [
+  ['dir-harvard', 'Formado em adminstração e negócios em Harvard.', null, 'Negociação +5% · confiança inicial do dono +5'],
+  ['dir-gestao-dados', 'Formado em Gestão desportiva e análise de dados.', null, 'Scouting conhece +8% mais depressa · previsões financeiras mais exactas'],
+  ['dir-ex-scout', 'Antigo chefe de Scout.', null, 'Relatórios 15% mais precisos · +20% prospectos vistos · reputação inicial −5'],
+];
+const NACIONALIDADES = ['Portugal', 'Brasil', 'Angola', 'Cabo Verde', 'Moçambique', 'Guiné-Bissau', 'São Tomé e Príncipe', 'Timor-Leste', 'Espanha', 'França', 'Itália', 'Inglaterra', 'Alemanha', 'Países Baixos', 'Bélgica', 'Suíça', 'Estados Unidos', 'Argentina', 'Uruguai', 'Outra'];
+let ent = null; // ent: { passo, conta, rascunho, erro }
+const lerPerfil = (u) => { try { return JSON.parse(localStorage.getItem('futceo.perfil.' + u) || 'null'); } catch { return null; } };
+const gravarPerfil = (u, p) => { try { localStorage.setItem('futceo.perfil.' + u, JSON.stringify(p)); } catch { /* sem armazenamento: o perfil dura só esta sessão */ } };
+function avatarHtml(p, t) { return p.foto ? `<img class="avatar" src="${p.foto}" alt="" style="width:${t}px;height:${t}px">` : `<span class="avatar avatar-ini" style="width:${t}px;height:${t}px;font-size:${Math.round(t * 0.42)}px">${p.nome.split(' ').map((x) => x[0]).slice(0, 2).join('').toUpperCase()}</span>`; }
+// SHA-256: crypto.subtle quando existe (páginas seguras); senão, implementação simples (ex.: aberto por http local).
+function sha256js(txt) {
+  const K = [], H = [], primo = (n) => { for (let d = 2; d * d <= n; d++) if (n % d === 0) return false; return true; }, fr = (x) => ((x - Math.floor(x)) * 2 ** 32) >>> 0;
+  for (let n = 2, k = 0; k < 64; n++) if (primo(n)) { if (k < 8) H[k] = fr(n ** 0.5); K[k++] = fr(n ** (1 / 3)); }
+  const b = [...new TextEncoder().encode(txt)], l = b.length * 8; b.push(0x80); while (b.length % 64 !== 56) b.push(0);
+  for (let i = 7; i >= 0; i--) b.push(i > 3 ? 0 : (l >>> (i * 8)) & 255);
+  const r = (x, n) => (x >>> n) | (x << (32 - n));
+  for (let o = 0; o < b.length; o += 64) {
+    const w = []; for (let i = 0; i < 16; i++) w[i] = (b[o + 4 * i] << 24) | (b[o + 4 * i + 1] << 16) | (b[o + 4 * i + 2] << 8) | b[o + 4 * i + 3];
+    for (let i = 16; i < 64; i++) { const s0 = r(w[i - 15], 7) ^ r(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = r(w[i - 2], 17) ^ r(w[i - 2], 19) ^ (w[i - 2] >>> 10); w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0; }
+    let [a, bb, c, d, e, f, g, h] = H;
+    for (let i = 0; i < 64; i++) { const t1 = (h + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0, t2 = ((r(a, 2) ^ r(a, 13) ^ r(a, 22)) + ((a & bb) ^ (a & c) ^ (bb & c))) | 0; h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0; }
+    [a, bb, c, d, e, f, g, h].forEach((v, i) => (H[i] = (H[i] + v) >>> 0));
+  }
+  return H.map((x) => x.toString(16).padStart(8, '0')).join('');
+}
+async function sha256(t) { if (!globalThis.crypto?.subtle) return sha256js(t); const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join(''); }
+const curtoDe = (n) => n.replace(/^(Atlético|Sporting|Desportivo|União|Académico|Vitória|Juventude|Estrela|Clube Naval|Boavista|Marítimo|Recreativo|CF|FC|SC|GD|Os)\s+((de|das|do|da|dos)\s+)?/, '');
+// Preço do clube (protótipo): pela posição na tabela; na app vem do valor do clube (receitas, plantel, estádio, dívida).
+function precoClube(pos) { return Math.round(380 * Math.pow(0.84, pos - 1)) * 1e6; }
+const fM2 = (v) => v >= 1e9 ? (v / 1e9).toFixed(1).replace('.', ',') + ' mil milhões €' : Math.round(v / 1e6) + ' M€';
+function entradaHtml() {
+  const d = ent.rascunho, passos = ['Conta', 'Perfil', 'Foto', 'Clube'];
+  const idx = { login: 0, retomar: 0, perfil: 1, foto: 2, clube: 3 }[ent.passo];
+  const cab = `<div class="en-marca">FutCEO</div><div class="en-passos">${passos.map((x, i) => `<span class="${i === idx ? 'on' : i < idx ? 'feito' : ''}">${i + 1}. ${x}</span>`).join('')}</div>`;
+  const erro = ent.erro ? `<div class="en-erro" role="alert">${ent.erro}</div>` : '';
+  let corpo = '';
+  if (ent.passo === 'login') corpo = `<h2>Entrar</h2><form id="en-form" autocomplete="off"><label>Utilizador<input id="en-user" required autocomplete="username"></label><label>Palavra-passe<input id="en-pass" type="password" required autocomplete="current-password"></label>${erro}<button class="btn prim en-btn" type="submit">Entrar</button></form><div class="rot">Há 3 contas neste aparelho; cada uma tem o seu perfil e as suas gravações.</div>`;
+  else if (ent.passo === 'retomar') { const p = lerPerfil(ent.conta); corpo = `<h2>Bem-vindo de volta</h2><div class="en-perfil">${avatarHtml(p, 64)}<div><b>${p.nome}</b><div class="rot">${p.modo === 'dono' ? 'Dono (Presidente)' : 'Director desportivo'} · ${p.clube}</div></div></div><button class="btn prim en-btn" id="en-continuar">Continuar carreira</button><button class="btn en-btn" id="en-novo">Criar um perfil novo</button><button class="btn en-btn" id="en-sair">Mudar de conta</button>`; }
+  else if (ent.passo === 'perfil') {
+    const lista = d.modo === 'dono' ? PERFIS_DONO : PERFIS_DIR;
+    corpo = `<h2>Perfil de jogo</h2><form id="en-form"><label>Nome<input id="en-nome" required maxlength="40" value="${d.nome ?? ''}"></label>
+      <div class="en-duas"><label>Data de nascimento<input id="en-nasc" type="date" required value="${d.nasc ?? ''}" max="2008-11-16"></label><label>Nacionalidade<select id="en-nac" required><option value="">Escolher…</option>${NACIONALIDADES.map((n) => `<option ${d.nac === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div>
+      <div class="en-rot">Modo de jogo</div><div class="seg en-modo" role="group"><button type="button" data-modo="director" class="${d.modo === 'director' ? 'on' : ''}">Director desportivo</button><button type="button" data-modo="dono" class="${d.modo === 'dono' ? 'on' : ''}">Dono (Presidente)</button></div>
+      <div class="en-rot">${d.modo === 'dono' ? 'Perfis disponíveis para o modo Dono' : 'Perfis de Director desportivo'}</div>
+      <div class="en-cartoes">${lista.map(([id, txt, fort, ef], i) => `<label class="en-cartao ${d.perfil === id ? 'on' : ''}"><input type="radio" name="en-perf" value="${id}" ${d.perfil === id ? 'checked' : ''}><span class="en-num">${i + 1}</span><span><span>${txt}</span>${fort ? `<span class="chip info" style="margin-top:6px">Fortuna inicial: ${fM2(fort)}</span>` : ''}<span class="en-ef">${ef}</span></span></label>`).join('')}</div>
+      ${erro}<div class="en-nav"><button type="button" class="btn" id="en-sair">Mudar de conta</button><button class="btn prim" type="submit">Seguinte ›</button></div></form>`;
+  } else if (ent.passo === 'foto') corpo = `<h2>Foto de perfil <span class="rot">(opcional)</span></h2><div class="en-foto">${avatarHtml({ nome: d.nome, foto: d.foto }, 120)}<div style="display:grid;gap:8px"><label class="btn" style="text-align:center;cursor:pointer">Escolher foto<input id="en-ficheiro" type="file" accept="image/*" hidden></label>${d.foto ? '<button class="btn" id="en-tirar">Tirar foto</button>' : ''}<div class="rot">A foto fica só neste aparelho.</div></div></div><div class="en-nav"><button class="btn" id="en-voltar">‹ Voltar</button><button class="btn prim" id="en-seg">${d.foto ? 'Seguinte ›' : 'Saltar ›'}</button></div>`;
+  else if (ent.passo === 'clube') {
+    const dono = d.modo === 'dono', fort = dono ? PERFIS_DONO.find((x) => x[0] === d.perfil)[2] : 0;
+    corpo = `<h2>Onde começar</h2><div class="rot" style="margin-bottom:8px">${dono ? `Escolhe o clube a comprar. Fortuna: <b>${fM2(fort)}</b>.` : 'Escolhe o clube que te contrata como director desportivo.'} No protótipo só a Liga Portugal está disponível.</div>
+      <div class="en-clubes">${[...LIGA].sort((a, b) => tabela.findIndex((x) => x.nome === a) - tabela.findIndex((x) => x.nome === b)).map((n) => { const i = LIGA.indexOf(n), t = tabela.find((x) => x.nome === n), pos = tabela.indexOf(t) + 1, rep = Math.max(30, 84 - pos * 3), pr = precoClube(pos), caro = dono && pr > fort; return `<button class="en-clube ${d.clube === n ? 'on' : ''}" data-clube="${n}" ${caro ? 'disabled' : ''}>${escudo(CORES[i], 26)}<span><b>${n}</b><small>${pos}.º na liga · reputação ${rep}${dono ? ` · preço ${fM2(pr)}` : ''}</small></span></button>`; }).join('')}</div>
+      ${erro}<div class="en-nav"><button class="btn" id="en-voltar">‹ Voltar</button><button class="btn prim" id="en-fim" ${d.clube ? '' : 'disabled'}>Começar a carreira</button></div>`;
+  }
+  return `<img class="en-fundo" src="perfil.jpg" alt=""><div class="en-painel">${cab}${corpo}</div>`;
+}
+function mostrarEntrada() { let el = document.getElementById('entrada'); if (!el) { el = document.createElement('div'); el.id = 'entrada'; document.body.appendChild(el); } const y = el.querySelector('.en-painel')?.scrollTop ?? 0; el.innerHTML = entradaHtml(); el.querySelector('.en-painel').scrollTop = y; ligarEntrada(el); }
+function aplicarPerfil(p) {
+  PERFIL_ACTIVO = p; MODO = p.modo; CARGO = p.modo === 'dono' ? 'Presidente' : 'Director';
+  const i = LIGA.indexOf(p.clube);
+  if (i >= 0 && p.clube !== CLUBE.nome) { tabela.forEach((t) => { if (t.nome === CLUBE.nome) t.cores = CORES[LIGA.indexOf(CLUBE.nome)]; }); CLUBE.nome = p.clube; CLUBE.curto = curtoDe(p.clube); CLUBE.cores = CORES[i]; VARS_PROTO.clube = CLUBE.curto; }
+  document.getElementById('nome-clube-lat').textContent = CLUBE.nome;
+  acento(); desenhar();
+}
+function ligarEntrada(el) {
+  const d = ent.rascunho, ir = (p) => { ent.passo = p; ent.erro = null; mostrarEntrada(); };
+  el.querySelector('#en-sair')?.addEventListener('click', () => { ent = { passo: 'login', rascunho: { modo: 'director' } }; mostrarEntrada(); });
+  if (ent.passo === 'login') el.querySelector('#en-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); const u = el.querySelector('#en-user').value.trim().toLowerCase(), pw = el.querySelector('#en-pass').value;
+    const c = CONTAS[u]; const ok = c && (await sha256(`futceo:${u}:${pw}`)) === c[1];
+    if (!ok) { ent.erro = 'Utilizador ou palavra-passe errados.'; mostrarEntrada(); return; }
+    ent.conta = u; ir(lerPerfil(u) ? 'retomar' : 'perfil');
+  });
+  el.querySelector('#en-continuar')?.addEventListener('click', () => { aplicarPerfil(lerPerfil(ent.conta)); el.remove(); });
+  el.querySelector('#en-novo')?.addEventListener('click', () => { ent.rascunho = { modo: 'director' }; ir('perfil'); });
+  if (ent.passo === 'perfil') {
+    const guardar = () => { d.nome = el.querySelector('#en-nome').value.trim(); d.nasc = el.querySelector('#en-nasc').value; d.nac = el.querySelector('#en-nac').value; d.perfil = el.querySelector('input[name="en-perf"]:checked')?.value ?? d.perfil; };
+    el.querySelectorAll('[data-modo]').forEach((b) => b.addEventListener('click', () => { guardar(); if (d.modo !== b.dataset.modo) { d.modo = b.dataset.modo; d.perfil = null; d.clube = null; } mostrarEntrada(); }));
+    el.querySelectorAll('input[name="en-perf"]').forEach((r) => r.addEventListener('change', () => { guardar(); mostrarEntrada(); }));
+    el.querySelector('#en-form').addEventListener('submit', (e) => { e.preventDefault(); guardar();
+      const idade = d.nasc ? (new Date('2026-11-16') - new Date(d.nasc)) / 3.15576e10 : 0;
+      ent.erro = !d.nome ? 'Falta o nome.' : idade < 18 ? 'É preciso ter pelo menos 18 anos.' : !d.nac ? 'Falta a nacionalidade.' : !d.perfil ? 'Escolhe um perfil.' : null;
+      if (ent.erro) mostrarEntrada(); else ir('foto'); });
+  }
+  el.querySelector('#en-ficheiro')?.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const img = new Image(); img.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'), m = Math.min(img.width, img.height); g.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 256, 256); d.foto = c.toDataURL('image/jpeg', 0.85); URL.revokeObjectURL(img.src); mostrarEntrada(); }; img.src = URL.createObjectURL(f); });
+  el.querySelector('#en-tirar')?.addEventListener('click', () => { d.foto = null; mostrarEntrada(); });
+  el.querySelector('#en-voltar')?.addEventListener('click', () => ir(ent.passo === 'clube' ? 'foto' : 'perfil'));
+  el.querySelector('#en-seg')?.addEventListener('click', () => ir('clube'));
+  el.querySelectorAll('[data-clube]').forEach((b) => b.addEventListener('click', () => { d.clube = b.dataset.clube; mostrarEntrada(); }));
+  el.querySelector('#en-fim')?.addEventListener('click', () => { const p = { conta: ent.conta, ...d, criado: '2026-11-16' }; gravarPerfil(ent.conta, p); aplicarPerfil(p); el.remove(); });
+}
+if (!/semEntrada/.test(location.search)) { ent = { passo: 'login', rascunho: { modo: 'director' } }; mostrarEntrada(); }
 
 // ---------- Ecrã de carregamento (intro) ----------
 // Na app, as etapas e a percentagem vêm do worker (mundo, gravação, motor); no protótipo são simuladas (~2,5 s).
