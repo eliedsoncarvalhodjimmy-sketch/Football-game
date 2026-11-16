@@ -402,8 +402,8 @@ td.r, th.r { text-align: right; }
 .hj-pe, .hj-moral { width: 56px; display: grid; place-items: center; background: rgba(15,22,34,.85); border-radius: 8px; font-family: var(--f-num); font-size: 22px; }
 .hj-ovr { width: 64px; display: grid; place-items: center; border-radius: 10px; color: #111; font-family: var(--f-num); font-weight: 700; font-size: 32px; padding: 0 6px; }
 .hj-corpo { display: grid; grid-template-columns: 1fr 300px; gap: 10px; padding: 0 10px; }
-.hj-avatar { display: grid; place-items: end center; min-height: 380px; background: radial-gradient(ellipse at 50% 85%, rgba(255,255,255,.12), transparent 60%); }
-.hj-avatar .avatar-svg { width: 210px; height: auto; }
+.hj-avatar { display: grid; place-items: center; min-height: 360px; background: radial-gradient(ellipse at 50% 85%, rgba(255,255,255,.12), transparent 60%); }
+.hj-avatar .avatar-svg { width: 260px; height: auto; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .hj-lado { display: grid; gap: 10px; align-content: start; }
 .hj-cartao { background: rgba(15,22,34,.82); border-radius: 10px; padding: 12px; display: grid; gap: 8px; justify-items: center; text-align: center; }
 .hj-ag { display: flex; align-items: center; gap: 8px; } .hj-ag span:last-child { display: grid; text-align: left; } .hj-ag small { color: #b9bcc2; } .hj-agav .avatar-svg { border-radius: 50%; background: #3a4458; }
@@ -419,7 +419,7 @@ td.r, th.r { text-align: right; }
 .hj-p1, .hj-p2 { font-family: var(--f-num); font-size: 26px; border-radius: 6px; padding: 0 8px; color: #111; } .hj-p1 { background: #e2a33a; } .hj-p2 { background: #e8e8ea; } .hj-sep { color: #57c26a; }
 .hj-atitude { text-align: center; color: #cfd3da; font-size: 13px; }
 .hj-rel { display: grid; grid-template-columns: 1fr; gap: 0; border-radius: 8px; overflow: hidden; } .hj-rel span { background: #e8e8ea; color: #111; font-size: 12px; font-weight: 700; text-transform: uppercase; padding: 4px 10px; } .hj-rel b { background: #fff; color: #111; text-align: center; font-family: var(--f-num); font-size: 20px; padding: 6px; text-transform: uppercase; }
-@media (max-width: 760px) { .hj-corpo { grid-template-columns: 1fr; } .hj-avatar { min-height: 0; } .hj-avatar .avatar-svg { width: 140px; } .hj-cab { flex-wrap: wrap; } .hj-nome { flex-basis: 100%; } }
+@media (max-width: 760px) { .hj-corpo { grid-template-columns: 1fr; } .hj-avatar { min-height: 0; padding: 8px 0; } .hj-avatar .avatar-svg { width: 200px; } .hj-cab { flex-wrap: wrap; } .hj-nome { flex-basis: 100%; } }
 .en-painel.en-largo { width: min(1060px, 100%); }
 .ed { display: grid; grid-template-columns: 1fr 1.1fr; gap: 14px; min-height: 0; }
 .ed-lista { display: grid; gap: 8px; align-content: start; min-width: 0; } .ed-grupos { flex-wrap: wrap; } .ed-grupos button { font-size: 12px; }
@@ -701,8 +701,8 @@ const AV = {
   corCabelo: ['#1c1714', '#3b2619', '#5e3b22', '#8d4a24', '#b98a4e', '#e0c27e', '#9a9a9a', '#e8e6e2'],
   corOlhos: ['#3b2a1e', '#5c3d22', '#3e6b8a', '#4f7a4a', '#7b7b7b'],
   nomes: { pele: 'Tom de pele', cara: 'Rosto', cabelo: 'Cabelo', corCabelo: 'Cor do cabelo', sobr: 'Sobrancelhas', olhos: 'Olhos', corOlhos: 'Cor dos olhos', nariz: 'Nariz', boca: 'Boca', barba: 'Barba', oculos: 'Óculos' },
-  max: { pele: 8, cara: 4, cabelo: 10, corCabelo: 8, sobr: 3, olhos: 4, corOlhos: 5, nariz: 3, boca: 3, barba: 6, oculos: 3 },
-  rot: { cabelo: ['Careca', 'Rapado', 'Curto', 'Risca ao lado', 'Topete', 'Caracóis', 'Afro', 'Comprido', 'Rastas', 'Moicano'], barba: ['Sem barba', 'Por fazer', 'Bigode', 'Pêra', 'Curta', 'Cheia'], oculos: ['Sem óculos', 'Redondos', 'Rectangulares'], cara: ['Oval', 'Larga', 'Comprida', 'Quadrada'], corCabelo: ['Preto', 'Castanho escuro', 'Castanho', 'Ruivo', 'Loiro escuro', 'Loiro', 'Grisalho', 'Branco'], corOlhos: ['Castanhos escuros', 'Castanhos', 'Azuis', 'Verdes', 'Cinzentos'] },
+  max: { pele: 8, cara: 4, cabelo: 12, corCabelo: 8, sobr: 3, olhos: 4, corOlhos: 5, nariz: 3, boca: 3, barba: 6, oculos: 3 },
+  rot: { cabelo: ['Careca', 'Rapado', 'Curto', 'Risca ao lado', 'Topete', 'Caracóis', 'Afro', 'Comprido', 'Rastas', 'Moicano', 'Degradê', 'Coque'], barba: ['Sem barba', 'Por fazer', 'Bigode', 'Pêra', 'Curta', 'Cheia'], oculos: ['Sem óculos', 'Redondos', 'Rectangulares'], cara: ['Oval', 'Larga', 'Comprida', 'Quadrada'], corCabelo: ['Preto', 'Castanho escuro', 'Castanho', 'Ruivo', 'Loiro escuro', 'Loiro', 'Grisalho', 'Branco'], corOlhos: ['Castanhos escuros', 'Castanhos', 'Azuis', 'Verdes', 'Cinzentos'] },
 };
 // Distribuição do tom de pele por região (pesos por índice) e cabelo/olhos claros possíveis.
 const AV_REGIAO = {
@@ -719,12 +719,12 @@ function avGerar(p) {
   const pele = avPeso(r, peles), escura = pele >= 5;
   let corCabelo = escura ? avPeso(r, [8, 2, 0, 0, 0, 0, 0, 0]) : avPeso(r, [4, 4, 3, claro > 0.2 ? 1 : 0.2, claro * 6, claro * 5, 0, 0]);
   if (p.idade >= 34 && r() < (p.idade - 30) * 0.08) corCabelo = r() < 0.7 ? 6 : 7;
-  let cabelo = escura ? avPeso(r, [1, 4, 2, 1, 1, 3, 2, 0.4, 1.2, 0.5]) : avPeso(r, [0.6, 2, 4, 3, 2.5, 1, 0, 1.2, 0.2, 0.4]);
-  if (p.staff) cabelo = avPeso(r, [p.idade > 45 ? 2 : 0.5, 2, 4, 4, 1, escura ? 2 : 0.5, 0, 0.3, 0, 0]);
+  let cabelo = escura ? avPeso(r, [1, 3, 1.5, 1, 1, 3, 1.5, 0.3, 1.2, 0.4, 4, 0.4]) : avPeso(r, [0.6, 1.5, 3, 2.5, 2.5, 1, 0, 1, 0.2, 0.3, 4, 0.6]);
+  if (p.staff) cabelo = avPeso(r, [p.idade > 45 ? 2 : 0.5, 2, 4, 4, 1, escura ? 2 : 0.5, 0, 0.3, 0, 0, 1, 0]);
   if (p.idade >= 36 && r() < 0.25) cabelo = 0;
   const barba = p.idade < 18 ? 0 : p.idade < 21 ? avPeso(r, [6, 3, 0, 1, 0, 0]) : avPeso(r, [4, 3, 0.6, 1.2, 2.5, 1.5]);
   return { pele, cara: Math.floor(r() * 4), cabelo, corCabelo, sobr: Math.floor(r() * 3), olhos: Math.floor(r() * 4), corOlhos: escura ? avPeso(r, [6, 3, 0, 0, 0]) : avPeso(r, [3, 4, claro * 8, claro * 4, 1]),
-    nariz: Math.floor(r() * 3), boca: Math.floor(r() * 3), barba, oculos: p.staff && p.idade > 40 && r() < 0.4 ? 1 + Math.floor(r() * 2) : 0, entradas: p.idade >= 33 && r() < 0.5 };
+    nariz: Math.floor(r() * 3), boca: Math.floor(r() * 3), barba, queixo: Math.floor(r() * 3), covinha: r() < 0.18, oculos: p.staff && p.idade > 40 && r() < 0.4 ? 1 + Math.floor(r() * 2) : 0, entradas: p.idade >= 33 && r() < 0.5 };
 }
 const avEdit = (() => { try { return JSON.parse(localStorage.getItem('futceo.avatares') || '{}'); } catch { return {}; } })();
 const avGravar = () => { try { localStorage.setItem('futceo.avatares', JSON.stringify(avEdit)); } catch { /* sem armazenamento */ } };
@@ -733,17 +733,18 @@ const avTracos = (p) => ({ ...avGerar(p), ...(avEdit[p.id] ?? {}) });
 function avCorpo(p) { const r = avRng(avHash('corpo' + p.id)); const base = { GR: 190, DC: 187, DD: 178, DE: 178, MDC: 182, MC: 179, MO: 176, ED: 175, EE: 175, PL: 183 }[p.pos] ?? 180; const alt = Math.round(base + (r() - 0.5) * 12); return { alt, peso: Math.round(alt - 106 + (r() - 0.4) * 9), pe: r() < 0.24 ? 'E' : 'D' }; }
 const avEsc = (h, f) => { const n = parseInt(h.slice(1), 16); const c = (s) => Math.max(0, Math.min(255, Math.round(((n >> s) & 255) * f))); return `rgb(${c(16)},${c(8)},${c(0)})`; };
 let avSeq = 0;
-/** SVG do avatar em estilo de ilustração vectorial (contorno preto, sombras recortadas em 2–3 tons).
- *  modo: 'busto' | 'corpo'. kit: { c1, c2, padrao, numero } ou { fato: true, gravata }. */
-function avatarSvg(p, { modo = 'busto', kit = null, tam = 48 } = {}) {
+/** Retrato (busto) em estilo de ilustração vectorial (contorno preto, sombras recortadas em 2–3 tons).
+ *  kit: { c1, c2, padrao, numero } ou { fato: true, gravata }. fundo: cor ou gradiente do clube (opcional). */
+function avatarSvg(p, { kit = null, tam = 48, fundo: corFundo = null } = {}) {
   const t = avTracos(p), id = 'av' + (avSeq++), R = avRng(avHash('det' + p.id));
-  const pele = AV.pele[t.pele], s1 = avEsc(pele, 0.84), s2 = avEsc(pele, 0.7), luz = avEsc(pele, 1.09), L = '#1f1510', LW = 2.6;
+  const pele = AV.pele[t.pele], s1 = avEsc(pele, 0.89), s2 = avEsc(pele, 0.7), luz = avEsc(pele, 1.09), L = '#1f1510', LW = 2.6;
   const cab = AV.corCabelo[t.corCabelo], cabS = avEsc(cab, 0.62), cabL = t.corCabelo <= 1 ? '#6b5240' : avEsc(cab, 1.35);
   const labio = mix(pele, '#a8483f', 0.42), labioS = avEsc(labio, 0.78);
   const rx = [40, 44, 37, 43][t.cara], ry = [50, 47, 54, 47][t.cara], cx = 100, cy = 96, ox = 17, oy = cy + 2, by = oy + 31;
   const hl = cy - ry * 0.56 + (t.entradas ? 9 : 0); // linha do cabelo
   const k = kit ?? { c1: '#2b3445', c2: '#cfd3da', padrao: 'liso' };
-  const F = `M${cx - rx} ${cy + 4} C${cx - rx} ${cy - ry - 6} ${cx + rx} ${cy - ry - 6} ${cx + rx} ${cy + 4} C${cx + rx - 1} ${cy + ry - 6} ${cx + 15} ${cy + ry + 4} ${cx} ${cy + ry + 4} C${cx - 15} ${cy + ry + 4} ${cx - rx + 1} ${cy + ry - 6} ${cx - rx} ${cy + 4}Z`;
+  const qw = [15, 8, 24][t.queixo ?? 0], qy = [-6, -10, -1][t.queixo ?? 0];
+  const F = `M${cx - rx} ${cy + 4} C${cx - rx} ${cy - ry - 6} ${cx + rx} ${cy - ry - 6} ${cx + rx} ${cy + 4} C${cx + rx - 1} ${cy + ry + qy} ${cx + qw} ${cy + ry + 4} ${cx} ${cy + ry + 4} C${cx - qw} ${cy + ry + 4} ${cx - rx + 1} ${cy + ry + qy} ${cx - rx} ${cy + 4}Z`;
   const contorno = (d, fill, extra = '') => `<path d="${d}" fill="${fill}" stroke="${L}" stroke-width="${LW}" stroke-linejoin="round" ${extra}/>`;
   // Orelhas
   const orelha = (s) => { const x = cx + s * (rx - 2); return `<path d="M${x} ${oy - 8} C${x + s * 13} ${oy - 14} ${x + s * 15} ${oy + 12} ${x + s * 2} ${oy + 18}Z" fill="${s > 0 ? s1 : pele}" stroke="${L}" stroke-width="${LW}" stroke-linejoin="round"/><path d="M${x + s * 3} ${oy - 4} C${x + s * 10} ${oy - 6} ${x + s * 10} ${oy + 8} ${x + s * 3} ${oy + 11}" stroke="${s2}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`; };
@@ -754,7 +755,7 @@ function avatarSvg(p, { modo = 'busto', kit = null, tam = 48 } = {}) {
     <path d="M${cx - 12} ${cy + ry + 10} L${cx - 4} ${cy + ry + 28} M${cx + 12} ${cy + ry + 10} L${cx + 4} ${cy + ry + 28}" stroke="${s2}" stroke-width="1.6" opacity=".7"/>`;
   // Sombras recortadas no rosto (luz vinda da esquerda)
   const sombras = `<g clip-path="url(#${id}-f)">
-    <path d="M${cx + rx * 0.3} ${cy - ry - 8} C${cx + rx * 0.12} ${cy - 12} ${cx + rx * 0.62} ${cy + 22} ${cx + 8} ${cy + ry + 8} L${cx + rx + 12} ${cy + ry + 8} L${cx + rx + 12} ${cy - ry - 8}Z" fill="${s1}"/>
+    <path d="M${cx + rx * 0.5} ${cy - ry - 8} C${cx + rx * 0.3} ${cy - 12} ${cx + rx * 0.72} ${cy + 22} ${cx + 16} ${cy + ry + 8} L${cx + rx + 12} ${cy + ry + 8} L${cx + rx + 12} ${cy - ry - 8}Z" fill="${s1}"/>
     <path d="M${cx + rx * 0.62} ${oy + 8} C${cx + rx * 0.45} ${oy + 24} ${cx + rx * 0.5} ${oy + 38} ${cx + rx * 0.3} ${cy + ry} L${cx + rx + 10} ${cy + ry} L${cx + rx + 10} ${oy + 8}Z" fill="${s2}" opacity=".7"/>
     <path d="M${cx - rx + 3} ${oy + 12} C${cx - rx + 10} ${oy + 22} ${cx - rx + 12} ${oy + 30} ${cx - rx + 8} ${oy + 40} L${cx - rx} ${oy + 40}Z" fill="${s1}" opacity=".8"/>
     <ellipse cx="${cx - ox}" cy="${oy - 2}" rx="12" ry="7" fill="${s1}" opacity=".55"/><ellipse cx="${cx + ox}" cy="${oy - 2}" rx="12" ry="7" fill="${s2}" opacity=".45"/>
@@ -763,24 +764,26 @@ function avatarSvg(p, { modo = 'busto', kit = null, tam = 48 } = {}) {
     <ellipse cx="${cx - 3}" cy="${cy + ry - 2}" rx="7" ry="3" fill="${luz}" opacity=".6"/></g>`;
   // Olhos (amêndoa, íris, reflexo, pálpebra grossa)
   const ehs = [0, -1.4, 1.2, 0][t.olhos], iris = AV.corOlhos[t.corOlhos];
-  const olho = (x, s) => `<path d="M${x - 9} ${oy} Q${x} ${oy - 7 - ehs} ${x + 9} ${oy - 1} Q${x} ${oy + 5 + ehs * 0.5} ${x - 9} ${oy}Z" fill="#f6f2ec"/>
-    <clipPath id="${id}-o${s}"><path d="M${x - 9} ${oy} Q${x} ${oy - 7 - ehs} ${x + 9} ${oy - 1} Q${x} ${oy + 5 + ehs * 0.5} ${x - 9} ${oy}Z"/></clipPath>
-    <g clip-path="url(#${id}-o${s})"><circle cx="${x + s * 0.5}" cy="${oy - 0.5}" r="4.6" fill="${iris}"/><circle cx="${x + s * 0.5}" cy="${oy - 0.5}" r="2" fill="#0d0a08"/><path d="M${x - 10} ${oy - 4} L${x + 10} ${oy - 4}" stroke="${s2}" stroke-width="3" opacity=".35"/></g>
-    <circle cx="${x + s * 0.5 + 1.5}" cy="${oy - 2}" r="1.1" fill="#fff"/>
-    <path d="M${x - 10} ${oy + 0.6} Q${x} ${oy - 8.5 - ehs} ${x + 10} ${oy - 1.6}" stroke="${L}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-    ${t.olhos === 3 ? `<path d="M${x - 8} ${oy - 6} Q${x} ${oy - 11} ${x + 8} ${oy - 6}" stroke="${s2}" stroke-width="1.6" fill="none"/>` : ''}
-    <path d="M${x - 6} ${oy + 4} Q${x} ${oy + 6} ${x + 6} ${oy + 3}" stroke="${s2}" stroke-width="1.2" fill="none" opacity=".8"/>`;
+  const olho = (x, s) => { const E = `M${x - 10} ${oy + 0.5} Q${x - 2} ${oy - 8 - ehs} ${x + 10} ${oy - 1} Q${x + 2} ${oy + 6 + ehs * 0.4} ${x - 10} ${oy + 0.5}Z`, ex = x + s * 10;
+    return `<path d="M${x - 8} ${oy - 7.5} Q${x} ${oy - 12.5 - ehs} ${x + 8} ${oy - 7.5}" stroke="${s2}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="${E}" fill="#f7f3ee"/><clipPath id="${id}-o${s}"><path d="${E}"/></clipPath>
+    <g clip-path="url(#${id}-o${s})"><circle cx="${x + s * 0.6}" cy="${oy - 0.6}" r="5.3" fill="${iris}" stroke="${avEsc(iris, 0.55)}" stroke-width="1.2"/><circle cx="${x + s * 0.6}" cy="${oy - 0.6}" r="2.5" fill="#0b0806"/><path d="M${x - 11} ${oy - 4.5} Q${x} ${oy - 9} ${x + 11} ${oy - 5}" stroke="${s2}" stroke-width="4" fill="none" opacity=".4"/></g>
+    <circle cx="${x + s * 0.6 + 1.9}" cy="${oy - 2.6}" r="1.5" fill="#fff"/><circle cx="${x + s * 0.6 - 1.7}" cy="${oy + 1.3}" r=".7" fill="#fff" opacity=".85"/>
+    <path d="M${x - 10.5} ${oy + 0.8} Q${x - 2} ${oy - 9.5 - ehs} ${x + 10.5} ${oy - 1.4}" stroke="${L}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M${ex} ${s > 0 ? oy - 1.4 : oy + 0.8} l${s * 3} -2.2" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M${x - 7} ${oy + 4.4} Q${x} ${oy + 6.6} ${x + 7} ${oy + 3.4}" stroke="${s2}" stroke-width="1.2" fill="none" opacity=".85"/>`; };
   const corSobr = t.corCabelo >= 6 ? '#7d7a76' : avEsc(cab, t.corCabelo >= 4 ? 0.7 : 0.9), gs = [3.2, 4.6, 2.4][t.sobr];
-  const sobr = (x, s) => `<path d="M${x - s * 11} ${oy - 10} Q${x - s * 2} ${oy - 17 - (t.sobr === 2 ? 1 : 0)} ${x + s * 11} ${oy - 13} L${x + s * 11} ${oy - 13 + gs * 0.6} Q${x - s * 1} ${oy - 15 + gs} ${x - s * 11} ${oy - 10 + gs}Z" fill="${corSobr}" stroke="${L}" stroke-width="1.2" stroke-linejoin="round"/>`;
+  const sobr = (x, s) => `<path d="M${x - s * 11} ${oy - 11} Q${x - s * 2} ${oy - 18 - (t.sobr === 2 ? 1 : 0)} ${x + s * 12} ${oy - 14} L${x + s * 12} ${oy - 14 + gs * 0.5} Q${x - s * 1} ${oy - 16 + gs} ${x - s * 11} ${oy - 11 + gs}Z" fill="${corSobr}" stroke="${L}" stroke-width="1.1" stroke-linejoin="round"/>${Array.from({ length: 7 }, (_, i) => { const f = i / 6, xx = x - s * 10 + s * f * 21, yy = oy - 11 - Math.sin(f * Math.PI) * 5 + gs * 0.4; return `<path d="M${xx.toFixed(1)} ${(yy + 1.5).toFixed(1)} l${(s * 2.4).toFixed(1)} -${(2 + gs * 0.3).toFixed(1)}" stroke="${avEsc(corSobr, 1.3)}" stroke-width=".9" opacity=".7"/>`; }).join('')}`;
   // Nariz
   const nw = [0, 2, -1][t.nariz];
   const nariz = `<path d="M${cx + 1} ${oy + 2} L${cx + 7 + nw} ${oy + 21} L${cx + 1} ${oy + 25}Z" fill="${s1}"/>
     <path d="M${cx - 2} ${oy + 3} C${cx - 3} ${oy + 10} ${cx - 6 - nw} ${oy + 16} ${cx - 7 - nw} ${oy + 21}" stroke="${s2}" stroke-width="1.5" fill="none" opacity=".7"/>
     <path d="M${cx - 9 - nw} ${oy + 22} Q${cx - 10 - nw} ${oy + 27} ${cx - 3} ${oy + 26} Q${cx} ${oy + 28} ${cx + 3} ${oy + 26} Q${cx + 10 + nw} ${oy + 27} ${cx + 9 + nw} ${oy + 22}" stroke="${L}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-    <ellipse cx="${cx - 1}" cy="${oy + 19}" rx="3" ry="2" fill="${luz}" opacity=".8"/>`;
+    <ellipse cx="${cx - 1}" cy="${oy + 19}" rx="3" ry="2" fill="${luz}" opacity=".8"/><path d="M${cx - 1} ${oy + 3} L${cx - 2} ${oy + 15}" stroke="${luz}" stroke-width="2" opacity=".6" stroke-linecap="round"/>
+    <path d="M${cx - 9 - nw} ${oy + 21} q-3 3 1 6 M${cx + 9 + nw} ${oy + 21} q3 3 -1 6" stroke="${L}" stroke-width="1.4" fill="none" opacity=".7"/>`;
   // Boca
   const boca = [
-    `<path d="M${cx - 12} ${by} Q${cx - 5} ${by - 4} ${cx} ${by - 2} Q${cx + 5} ${by - 4} ${cx + 12} ${by} Q${cx} ${by + 1.5} ${cx - 12} ${by}Z" fill="${labioS}"/><path d="M${cx - 11} ${by + 0.6} Q${cx} ${by + 9} ${cx + 11} ${by + 0.6} Q${cx} ${by + 3} ${cx - 11} ${by + 0.6}Z" fill="${labio}"/><path d="M${cx - 12} ${by} Q${cx} ${by + 2.5} ${cx + 12} ${by}" stroke="${L}" stroke-width="1.8" fill="none" stroke-linecap="round"/><ellipse cx="${cx - 2}" cy="${by + 4.5}" rx="4" ry="1.2" fill="#fff" opacity=".35"/>`,
+    `<path d="M${cx - 13} ${by} Q${cx - 7} ${by - 5} ${cx - 2.2} ${by - 3.6} L${cx} ${by - 2.4} L${cx + 2.2} ${by - 3.6} Q${cx + 7} ${by - 5} ${cx + 13} ${by} Q${cx} ${by + 1.4} ${cx - 13} ${by}Z" fill="${labioS}"/><path d="M${cx - 14} ${by - 0.5} q-1.5 1 -1 2.4 M${cx + 14} ${by - 0.5} q1.5 1 1 2.4" stroke="${s2}" stroke-width="1.3" fill="none"/><path d="M${cx} ${by - 9} L${cx} ${by - 3.6}" stroke="${s1}" stroke-width="2.2" opacity=".6"/><path d="M${cx - 11} ${by + 0.6} Q${cx} ${by + 9} ${cx + 11} ${by + 0.6} Q${cx} ${by + 3} ${cx - 11} ${by + 0.6}Z" fill="${labio}"/><path d="M${cx - 12} ${by} Q${cx} ${by + 2.5} ${cx + 12} ${by}" stroke="${L}" stroke-width="1.8" fill="none" stroke-linecap="round"/><ellipse cx="${cx - 2}" cy="${by + 4.5}" rx="4" ry="1.2" fill="#fff" opacity=".35"/>`,
     `<path d="M${cx - 13} ${by - 1} Q${cx} ${by + 10} ${cx + 13} ${by - 1} Q${cx} ${by + 2} ${cx - 13} ${by - 1}Z" fill="#fbfaf7" stroke="${L}" stroke-width="1.8" stroke-linejoin="round"/><path d="M${cx - 13} ${by - 1} Q${cx} ${by + 14} ${cx + 13} ${by - 1}" stroke="${L}" stroke-width="2" fill="none"/><path d="M${cx - 10} ${by + 7} Q${cx} ${by + 13} ${cx + 10} ${by + 7}" stroke="${labio}" stroke-width="3" fill="none" stroke-linecap="round"/>`,
     `<path d="M${cx - 10} ${by} Q${cx} ${by - 2} ${cx + 10} ${by}" stroke="${L}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M${cx - 8} ${by + 1.5} Q${cx} ${by + 6} ${cx + 8} ${by + 1.5}" stroke="${labio}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`,
   ][t.boca];
@@ -816,75 +819,34 @@ function avatarSvg(p, { modo = 'busto', kit = null, tam = 48 } = {}) {
     case 6: atras = `${contorno(`M${cx - rx - 16} ${cy + 10} C${cx - rx - 34} ${cy - ry - 40} ${cx + rx + 34} ${cy - ry - 40} ${cx + rx + 16} ${cy + 10} C${cx + rx + 6} ${cy - 10} ${cx - rx - 6} ${cy - 10} ${cx - rx - 16} ${cy + 10}Z`, cab)}${Array.from({ length: 30 }, () => { const a = Math.PI * (1 + R()), r0 = (rx + 12) * (0.4 + R() * 0.6); return `<circle cx="${(cx + Math.cos(a) * r0).toFixed(1)}" cy="${(cy - 16 + Math.sin(a) * r0).toFixed(1)}" r="1.4" fill="${cabL}" opacity=".5"/>`; }).join('')}`; frente = `<path d="${capa(hl, 10)}" fill="${cab}"/>`; break;
     case 7: atras = contorno(`M${cx - rx - 8} ${cy + 46} C${cx - rx - 18} ${cy - ry - 20} ${cx + rx + 18} ${cy - ry - 20} ${cx + rx + 8} ${cy + 46} L${cx + rx - 6} ${cy + 40} L${cx - rx + 6} ${cy + 40}Z`, cab); frente = `${contorno(`M${cx - rx - 3} ${cy + 10} C${cx - rx - 6} ${cy - ry - 14} ${cx + rx + 6} ${cy - ry - 14} ${cx + rx + 3} ${cy + 10} L${cx + rx - 4} ${cy - 2} C${cx + rx - 8} ${hl + 4} ${cx + 8} ${hl} ${cx} ${hl - 2} C${cx - 8} ${hl} ${cx - rx + 8} ${hl + 4} ${cx - rx + 4} ${cy - 2}Z`, cab)}<path d="M${cx} ${cy - ry - 8} L${cx} ${hl - 2}" stroke="${cabS}" stroke-width="2"/>${dentro(`M${cx - rx - 3} ${cy + 10} C${cx - rx - 6} ${cy - ry - 14} ${cx + rx + 6} ${cy - ry - 14} ${cx + rx + 3} ${cy + 10}Z`, madeixas(8, cy - ry + 2, 30, -2), 7)}`; break;
     case 8: atras = Array.from({ length: 12 }, (_, i) => { const x = cx - rx - 4 + i * (2 * rx + 8) / 11; return `<path d="M${x.toFixed(1)} ${hl + 4} L${(x + (i - 5.5) * 1.2).toFixed(1)} ${cy + 38}" stroke="${L}" stroke-width="9.5" stroke-linecap="round"/><path d="M${x.toFixed(1)} ${hl + 4} L${(x + (i - 5.5) * 1.2).toFixed(1)} ${cy + 38}" stroke="${cab}" stroke-width="6.5" stroke-linecap="round"/><path d="M${x.toFixed(1)} ${hl + 14} l0 3 M${(x + (i - 5.5) * 0.4).toFixed(1)} ${cy + 4} l0 3 M${(x + (i - 5.5) * 0.8).toFixed(1)} ${cy + 22} l0 3" stroke="${cabL}" stroke-width="1.4"/>`; }).join(''); frente = `${contorno(capa(hl, 14), cab)}${dentro(capa(hl, 14), Array.from({ length: 7 }, (_, i) => `<path d="M${cx - 30 + i * 10} ${hl} L${cx - 26 + i * 10} ${cy - ry - 6}" stroke="${cabS}" stroke-width="1.6"/>`).join(''), 8)}`; break;
+    case 10: { const topD = `M${cx - rx + 5} ${cy - ry * 0.32} C${cx - rx + 1} ${cy - ry - 15} ${cx + rx - 1} ${cy - ry - 15} ${cx + rx - 5} ${cy - ry * 0.32} Q${cx + rx * 0.35} ${hl - 7} ${cx + 6} ${hl + 1} L${cx} ${hl - 3} L${cx - 6} ${hl + 2} Q${cx - rx * 0.35} ${hl - 7} ${cx - rx + 5} ${cy - ry * 0.32}Z`;
+      frente = `<path d="${capa(hl + 2, 6)}" fill="url(#${id}-fd)"/>${contorno(topD, cab)}${dentro(topD, Array.from({ length: 10 }, (_, i) => `<path d="M${cx - rx + 10 + i * 7.5} ${hl + 2} q${2 + (i % 3)} -8 ${-1 + (i % 2) * 3} -16" stroke="${cabL}" stroke-width="1.5" fill="none" opacity=".7"/>`).join(''), 10)}`; break; }
+    case 11: frente = `${contorno(capa(hl, 10), cab)}${dentro(capa(hl, 10), Array.from({ length: 7 }, (_, i) => `<path d="M${cx - rx + 8 + i * 11} ${hl + 2} Q${cx - 10 + i * 4} ${cy - ry - 2} ${cx} ${cy - ry - 8}" stroke="${cabL}" stroke-width="1.4" fill="none" opacity=".6"/>`).join(''), 11)}${contorno(`M${cx - 13} ${cy - ry - 2} a13 12 0 1 1 26 0 a13 6 0 0 1 -26 0Z`, cab)}<path d="M${cx - 12} ${cy - ry - 1} q12 5 24 0" stroke="${cabS}" stroke-width="2.4" fill="none"/>`; break;
     case 9: frente = `<path d="${capa(hl, 6)}" fill="${cab}" opacity=".35"/>${contorno(`M${cx - 12} ${hl + 2} L${cx - 15} ${cy - ry - 8} L${cx - 8} ${cy - ry - 26} L${cx - 2} ${cy - ry - 12} L${cx + 4} ${cy - ry - 30} L${cx + 8} ${cy - ry - 12} L${cx + 14} ${cy - ry - 22} L${cx + 14} ${hl + 2}Z`, cab)}`; break;
   }
   const oculos = ['', `<g fill="rgba(210,230,255,.18)" stroke="${L}" stroke-width="2.6"><circle cx="${cx - ox}" cy="${oy}" r="11"/><circle cx="${cx + ox}" cy="${oy}" r="11"/></g><path d="M${cx - 6} ${oy - 1} Q${cx} ${oy - 4} ${cx + 6} ${oy - 1}" stroke="${L}" stroke-width="2.4" fill="none"/>`,
     `<g fill="rgba(210,230,255,.18)" stroke="${L}" stroke-width="3"><rect x="${cx - ox - 12}" y="${oy - 8}" width="24" height="15" rx="3"/><rect x="${cx + ox - 12}" y="${oy - 8}" width="24" height="15" rx="3"/></g><path d="M${cx - 5} ${oy - 3} L${cx + 5} ${oy - 3}" stroke="${L}" stroke-width="2.6"/>`][t.oculos];
-  const cabeca = `<g>${atras}${orelha(-1)}${orelha(1)}${contorno(F, pele)}${sombras}${nariz}${barba}${bocaFinal}${olho(cx - ox, -1)}${olho(cx + ox, 1)}${sobr(cx - ox, 1)}${sobr(cx + ox, -1)}${frente}${oculos}</g>`;
+  const idade = p.idade ?? 25, marcas = `${idade >= 28 ? `<path d="M${cx - 13} ${oy + 22} Q${cx - 18} ${oy + 29} ${cx - 15} ${by + 3} M${cx + 13} ${oy + 22} Q${cx + 18} ${oy + 29} ${cx + 15} ${by + 3}" stroke="${s2}" stroke-width="1.4" fill="none" opacity=".55" stroke-linecap="round"/>` : ''}${idade >= 32 ? `<path d="M${cx - ox - 12} ${oy - 1} l-4 -2 M${cx - ox - 12} ${oy + 2} l-4 1 M${cx + ox + 12} ${oy - 1} l4 -2 M${cx + ox + 12} ${oy + 2} l4 1" stroke="${s2}" stroke-width="1.1" opacity=".6"/>` : ''}${idade >= 36 && hl < oy - 26 ? `<path d="M${cx - 16} ${oy - 24} q16 -3 32 0 M${cx - 12} ${oy - 29} q12 -3 24 0" stroke="${s2}" stroke-width="1.2" fill="none" opacity=".5"/>` : ''}${idade <= 21 ? `<ellipse cx="${cx - 22}" cy="${oy + 16}" rx="7" ry="4" fill="#e0706a" opacity=".14"/><ellipse cx="${cx + 22}" cy="${oy + 16}" rx="7" ry="4" fill="#e0706a" opacity=".12"/>` : ''}${t.covinha ? `<path d="M${cx} ${cy + ry - 7} l0 5" stroke="${s2}" stroke-width="1.4" stroke-linecap="round"/>` : ''}`;
+  const cabeca = `<g>${atras}${orelha(-1)}${orelha(1)}${contorno(F, pele)}${sombras}${marcas}${nariz}${barba}${bocaFinal}${olho(cx - ox, -1)}${olho(cx + ox, 1)}${sobr(cx - ox, 1)}${sobr(cx + ox, -1)}${frente}${oculos}</g>`;
   const c1 = k.fato ? '#283040' : k.c1, c1s = avEsc(c1, 0.72), c2 = k.fato ? '#f2f2f0' : k.c2;
   const defs = `<defs><clipPath id="${id}-f"><path d="${F}"/></clipPath>
+    <linearGradient id="${id}-fd" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${cab}"/><stop offset=".5" stop-color="${cab}" stop-opacity=".55"/><stop offset="1" stop-color="${cab}" stop-opacity=".05"/></linearGradient>
+    <linearGradient id="${id}-bg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${corFundo ? avEsc(corFundo, 1.15) : '#555'}"/><stop offset="1" stop-color="${corFundo ? avEsc(corFundo, 0.45) : '#222'}"/></linearGradient>
     <pattern id="${id}-gr" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="${cabS}"/></pattern>
     <pattern id="${id}-pv" width="34" height="10" patternUnits="userSpaceOnUse"><rect width="34" height="10" fill="${c1}"/><rect x="17" width="17" height="10" fill="${c2}"/></pattern>
     <pattern id="${id}-ph" width="10" height="30" patternUnits="userSpaceOnUse"><rect width="10" height="30" fill="${c1}"/><rect y="15" width="10" height="15" fill="${c2}"/></pattern></defs>`;
   const tecido = k.fato ? c1 : k.padrao === 'riscasV' ? `url(#${id}-pv)` : k.padrao === 'riscasH' ? `url(#${id}-ph)` : c1;
-  if (modo === 'busto') {
     const yo = cy + ry + 18, OM = `M${cx - 86} 262 C${cx - 86} ${yo + 30} ${cx - 64} ${yo} ${cx - 22} ${yo - 4} L${cx + 22} ${yo - 4} C${cx + 64} ${yo} ${cx + 86} ${yo + 30} ${cx + 86} 262Z`;
     const ombros = `${contorno(OM, tecido)}<clipPath id="${id}-c"><path d="${OM}"/></clipPath><g clip-path="url(#${id}-c)"><path d="M${cx + 30} ${yo} C${cx + 60} ${yo + 10} ${cx + 70} ${yo + 40} ${cx + 66} 262 L${cx + 90} 262 L${cx + 90} ${yo}Z" fill="${c1s}" opacity=".55"/><path d="M${cx - 40} ${yo + 30} q20 30 6 70 M${cx + 22} ${yo + 40} q-10 30 4 60" stroke="${c1s}" stroke-width="3" fill="none" opacity=".5"/></g>`;
+    const tipoGola = k.gola ?? ['redonda', 'v', 'polo'][avHash(String(c1) + String(c2)) % 3];
+    const costura = k.fato ? '' : `<path d="M${cx - 25} ${yo - 3} C${cx - 52} ${yo + 1} ${cx - 72} ${yo + 18} ${cx - 82} ${yo + 46} M${cx + 25} ${yo - 3} C${cx + 52} ${yo + 1} ${cx + 72} ${yo + 18} ${cx + 82} ${yo + 46}" stroke="${c2}" stroke-width="3" fill="none" opacity=".9"/>`;
+    const fundo = corFundo ? `<rect x="12" y="4" width="176" height="240" fill="url(#${id}-bg)"/><circle cx="100" cy="90" r="86" fill="#fff" opacity=".08"/>${Array.from({ length: 6 }, (_, i) => `<path d="M${12 + i * 36} 244 L${60 + i * 36} 14" stroke="#fff" stroke-width="10" opacity=".035"/>`).join('')}` : '';
     const gola = k.fato
       ? `<path d="M${cx - 21} ${yo - 6} L${cx} ${yo + 30} L${cx + 21} ${yo - 6}Z" fill="#f4f3ef" stroke="${L}" stroke-width="2"/><path d="M${cx - 5} ${yo + 4} L${cx + 5} ${yo + 4} L${cx + 7} ${yo + 50} L${cx} ${yo + 58} L${cx - 7} ${yo + 50}Z" fill="${k.gravata ?? '#8b1d2c'}" stroke="${L}" stroke-width="1.8"/><path d="M${cx - 22} ${yo - 4} L${cx - 38} ${yo + 60} L${cx - 6} ${yo + 34}Z M${cx + 22} ${yo - 4} L${cx + 38} ${yo + 60} L${cx + 6} ${yo + 34}Z" fill="${avEsc('#283040', 0.82)}" stroke="${L}" stroke-width="2"/>`
-      : `<path d="M${cx - 24} ${yo - 6} Q${cx} ${yo + 24} ${cx + 24} ${yo - 6} L${cx + 19} ${yo - 7} Q${cx} ${yo + 16} ${cx - 19} ${yo - 7}Z" fill="${c2}" stroke="${L}" stroke-width="2" stroke-linejoin="round"/><path d="M${cx - 44} ${yo + 50} l7 -3 l7 3 l0 8 q-7 6 -14 0z" fill="${c2}" stroke="${L}" stroke-width="1.4"/>`;
-    return `<svg class="avatar-svg" viewBox="12 14 176 230" width="${tam}" height="${Math.round(tam * 230 / 176)}" aria-hidden="true">${defs}${pescoco}${ombros}${gola}${cabeca}</svg>`;
-  }
-  // Corpo inteiro (viewBox 0 0 200 430), proporcional à altura, ao peso e aos atributos físicos (os mesmos da ficha).
-  const c = avCorpo(p), at = (k) => atributoJog(p, k), forca = (at(19) - 10) / 10, vel = ((at(14) + at(15)) / 2 - 10) / 10;
-  const imc = c.peso / (c.alt / 100) ** 2, b = Math.max(-0.6, Math.min(1, (imc - 22.5) / 3));
-  const pes = 422, H = 330 * (c.alt / 185), u = H / 6.6, topo = pes - H, X = 100;
-  // Proporções (em alturas de cabeça, u): queixo 1, ombros 1,4, cintura 2,75, anca 3, virilha 3,45, joelho 4,95, tornozelo 6,3.
-  const queixo = topo + u * 1.0, ombro = topo + u * 1.4, cintura = ombro + u * 1.35, anca = ombro + u * 1.6, virilha = ombro + u * 2.05;
-  const joelho = pes - u * 1.65, tornozelo = pes - u * 0.3, cotovelo = ombro + u * 1.15, pulso = ombro + u * 2.1;
-  const oH = u * (0.98 + 0.13 * forca + 0.07 * b), wH = u * (0.6 + 0.1 * b - 0.04 * forca), hH = u * (0.66 + 0.08 * b), coxa = u * (0.37 + 0.06 * b + 0.06 * vel), gemeo = u * (0.25 + 0.05 * vel), braco = u * (0.25 + 0.08 * forca + 0.03 * b), antebraco = u * (0.2 + 0.05 * forca);
-  const gr = p.pos === 'GR' && !k.fato, kc1 = gr ? (k.grc1 ?? '#2bb673') : c1, kc2 = gr ? (k.grc2 ?? '#0e3b2a') : c2, kc1s = avEsc(kc1, 0.72);
-  const tec = gr ? kc1 : tecido, S = `stroke="${L}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
-  const sh = (d, f, o = 1) => `<path d="${d}" fill="${f}" opacity="${o}"/>`;
-  // Membros como "cápsulas" com contorno: segmento com espessura e pontas redondas.
-  const capsula = (x1, y1, x2, y2, w, cor, cont = true) => `${cont ? `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${L}" stroke-width="${(w + 4).toFixed(1)}" stroke-linecap="round"/>` : ''}<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${cor}" stroke-width="${w.toFixed(1)}" stroke-linecap="round"/>`;
-  // Pernas: coxa (mais larga em cima, quadricípite pela velocidade), joelho, gémeo saliente, meia, bota.
-  const perna = (s) => {
-    const xa = X + s * u * 0.34, xj = X + s * u * 0.33, xt = X + s * u * 0.31, cw = u * (0.27 + 0.04 * b + 0.05 * vel), kw = u * 0.18, gw = u * (0.2 + 0.04 * vel), aw = u * 0.11;
-    const coxaD = `M${xa - cw} ${anca} C${xa - cw * 1.08} ${(anca + joelho) / 2} ${xj - kw * 1.2} ${joelho - u * 0.35} ${xj - kw} ${joelho} L${xj + kw} ${joelho} C${xj + kw * 1.3} ${joelho - u * 0.35} ${xa + cw * 1.05} ${(anca + joelho) / 2} ${xa + cw} ${anca}Z`;
-    const gemD = `M${xj - kw} ${joelho - 2} C${xj - gw * 1.45} ${joelho + u * 0.4} ${xt - aw * 1.6} ${tornozelo - u * 0.5} ${xt - aw} ${tornozelo} L${xt + aw} ${tornozelo} C${xt + aw * 1.6} ${tornozelo - u * 0.5} ${xj + gw * 1.45} ${joelho + u * 0.3} ${xj + kw} ${joelho - 2}Z`;
-    const meiaTopo = joelho + u * 0.2;
-    const meia = `<path d="M${xj - gw * 1.18} ${meiaTopo} C${xj - gw * 1.25} ${meiaTopo + u * 0.3} ${xt - aw * 1.6} ${tornozelo - u * 0.5} ${xt - aw - 1} ${tornozelo + 2} L${xt + aw + 1} ${tornozelo + 2} C${xt + aw * 1.6} ${tornozelo - u * 0.5} ${xj + gw * 1.3} ${meiaTopo + u * 0.25} ${xj + gw * 1.2} ${meiaTopo}Z" fill="${k.meias ?? (gr ? kc2 : c1)}" ${S}/><path d="M${xj - gw * 1.2} ${meiaTopo + u * 0.1} L${xj + gw * 1.22} ${meiaTopo + u * 0.1}" stroke="${gr ? kc1 : c2}" stroke-width="${(u * 0.07).toFixed(1)}"/>`;
-    const sombra = `<path d="M${xa + s * cw * 0.25} ${anca} C${xa + s * cw * 0.6} ${(anca + joelho) / 2} ${xj + s * kw * 0.3} ${joelho - u * 0.3} ${xj + s * kw * 0.4} ${joelho} L${xj + s * kw} ${joelho} C${xj + s * kw * 1.3} ${joelho - u * 0.35} ${xa + s * cw * 1.05} ${(anca + joelho) / 2} ${xa + s * cw} ${anca}Z" fill="${s2}" opacity=".35"/>`;
-    const musc = vel > 0.2 ? `<path d="M${xa} ${anca + u * 0.55} q${s * cw * 0.35} ${u * 0.35} ${s * cw * 0.1} ${u * 0.8}" stroke="${s2}" stroke-width="1.3" fill="none" opacity=".7"/>` : '';
-    const joelhoL = `<path d="M${xj - kw * 0.5} ${joelho - u * 0.02} q${kw * 0.5} ${u * 0.08} ${kw} 0" stroke="${s2}" stroke-width="1.2" fill="none"/>`;
-    const bota = `<path d="M${xt - aw - 1} ${tornozelo} L${xt + aw + 1} ${tornozelo} L${xt + s * u * 0.12 + aw} ${pes - 3} Q${xt + s * u * 0.55} ${pes} ${xt + s * u * 0.6} ${pes - 6} Q${xt + s * u * 0.5} ${tornozelo + u * 0.08} ${xt + s * aw} ${tornozelo + u * 0.04}Z" fill="${k.fato ? '#141414' : k.botas ?? '#ececee'}" ${S}/>${k.fato ? '' : `<path d="M${xt - aw * 0.4} ${pes - 4} L${xt + s * u * 0.45} ${pes - 7}" stroke="${k.botasRisca ?? '#d63a3a'}" stroke-width="2.2"/>`}`;
-    if (k.fato) return `<path d="M${xa - cw * 1.05} ${anca} L${xt - aw * 1.5} ${tornozelo + 3} L${xt + aw * 1.5} ${tornozelo + 3} L${xa + cw * 1.05} ${anca}Z" fill="#232933" ${S}/>${bota}`;
-    return `<path d="${coxaD}" fill="${pele}" ${S}/>${sombra}${musc}${joelhoL}<path d="${gemD}" fill="${pele}" ${S}/>${meia}${bota}`;
-  };
-  // Braços: ombro → cotovelo → pulso, ligeiramente afastados do tronco; manga curta por cima; luvas no guarda-redes.
-  const bracoD = (s) => {
-    const xo = X + s * (oH - braco * 0.55), yo = ombro + u * 0.18, xc = X + s * (oH + u * 0.14), xp = X + s * (oH + u * 0.1);
-    const pc = s > 0 ? s1 : pele;
-    const mao = gr ? `<ellipse cx="${xp}" cy="${pulso + u * 0.2}" rx="${u * 0.2}" ry="${u * 0.26}" fill="${k.luvas ?? '#f2f2f2'}" ${S}/><path d="M${xp - u * 0.17} ${pulso + u * 0.04} L${xp + u * 0.17} ${pulso + u * 0.04}" stroke="${kc1}" stroke-width="${(u * 0.08).toFixed(1)}"/>`
-      : `<ellipse cx="${xp + s * 1}" cy="${pulso + u * 0.17}" rx="${(antebraco * 0.62).toFixed(1)}" ry="${(u * 0.2).toFixed(1)}" fill="${pele}" ${S}/>`;
-    if (k.fato) return `${capsula(xo, yo, xc, cotovelo, braco * 1.9, tec)}${capsula(xc, cotovelo, xp, pulso - u * 0.05, antebraco * 2, tec)}${mao}`;
-    const musc = forca > 0.3 ? `<path d="M${xo + s * braco * 0.2} ${yo + u * 0.55} q${s * braco * 0.6} ${u * 0.2} ${s * braco * 0.4} ${u * 0.45}" stroke="${s2}" stroke-width="1.3" fill="none" opacity=".7"/>` : '';
-    const mx = xo + (xc - xo) * 0.4, my = yo + (cotovelo - yo) * 0.4;
-    return `${capsula(xo, yo, xc, cotovelo, braco * 1.7, pc)}${capsula(xc, cotovelo, xp, pulso, antebraco * 1.6, pc)}${musc}${mao}<g class="manga">${capsula(xo, yo - u * 0.02, mx, my, braco * 1.7 + 3, tec)}<path d="M${mx - braco * 0.95} ${my} L${mx + braco * 0.95} ${my}" stroke="${gr ? kc2 : c2}" stroke-width="2.4" transform="rotate(${(Math.atan2(cotovelo - yo, xc - xo) * 180 / Math.PI - 90).toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})"/></g>`;
-  };
-  // Tronco (camisola com gola, sombra lateral e dobras; fato no staff)
-  const troncoD = `M${X - u * 0.32} ${ombro - u * 0.08} C${X - oH * 0.7} ${ombro - u * 0.02} ${X - oH} ${ombro + u * 0.05} ${X - oH} ${ombro + u * 0.3} C${X - oH * 0.98} ${ombro + u * 1.2} ${X - wH * 1.02} ${cintura - u * 0.4} ${X - wH} ${cintura} L${X - hH * 1.04} ${anca + u * 0.12} L${X + hH * 1.04} ${anca + u * 0.12} L${X + wH} ${cintura} C${X + wH * 1.02} ${cintura - u * 0.4} ${X + oH * 0.98} ${ombro + u * 1.2} ${X + oH} ${ombro + u * 0.3} C${X + oH} ${ombro + u * 0.05} ${X + oH * 0.7} ${ombro - u * 0.02} ${X + u * 0.32} ${ombro - u * 0.08}Z`;
-  const calcaoD = `M${X - hH * 1.04} ${anca} L${X + hH * 1.04} ${anca} L${X + hH * 1.14} ${virilha + u * 0.42} L${X + u * 0.06} ${virilha + u * 0.46} L${X} ${virilha + u * 0.08} L${X - u * 0.06} ${virilha + u * 0.46} L${X - hH * 1.14} ${virilha + u * 0.42}Z`;
-  const tronco = `<path d="${troncoD}" fill="${tec}" ${S}/><clipPath id="${id}-t"><path d="${troncoD}"/></clipPath><g clip-path="url(#${id}-t)">${sh(`M${X + oH * 0.35} ${ombro} C${X + oH * 0.2} ${ombro + u} ${X + wH * 0.5} ${cintura} ${X + hH * 0.6} ${anca + u * 0.2} L${X + oH + 10} ${anca + u * 0.2} L${X + oH + 10} ${ombro}Z`, gr ? kc1s : c1s, 0.55)}<path d="M${X - wH * 0.6} ${cintura - u * 0.3} q${u * 0.3} ${u * 0.15} ${u * 0.5} 0 M${X + wH * 0.1} ${ombro + u * 1.2} q${u * 0.2} ${u * 0.3} ${u * 0.1} ${u * 0.6}" stroke="${gr ? kc1s : c1s}" stroke-width="1.6" fill="none" opacity=".6"/></g>`;
-  const golaCorpo = k.fato ? `<path d="M${X - u * 0.3} ${ombro - u * 0.08} L${X} ${ombro + u * 0.75} L${X + u * 0.3} ${ombro - u * 0.08}Z" fill="#f2f2f0" ${S}/><path d="M${X - u * 0.07} ${ombro} L${X + u * 0.07} ${ombro} L${X + u * 0.1} ${ombro + u * 1.15} L${X} ${ombro + u * 1.3} L${X - u * 0.1} ${ombro + u * 1.15}Z" fill="${k.gravata ?? '#8b1d2c'}" ${S}/><path d="M${X - u * 0.32} ${ombro - u * 0.08} L${X - u * 0.55} ${ombro + u * 1.5} L${X - u * 0.05} ${ombro + u * 0.8}Z M${X + u * 0.32} ${ombro - u * 0.08} L${X + u * 0.55} ${ombro + u * 1.5} L${X + u * 0.05} ${ombro + u * 0.8}Z" fill="${avEsc('#283040', 0.8)}" ${S}/>`
-    : `<path d="M${X - u * 0.36} ${ombro - u * 0.1} Q${X} ${ombro + u * 0.42} ${X + u * 0.36} ${ombro - u * 0.1} L${X + u * 0.28} ${ombro - u * 0.12} Q${X} ${ombro + u * 0.28} ${X - u * 0.28} ${ombro - u * 0.12}Z" fill="${gr ? kc2 : c2}" ${S}/>`;
-  const emblema = k.fato ? '' : `<path d="M${X - oH * 0.5} ${ombro + u * 0.5} l${u * 0.12} -${u * 0.04} l${u * 0.12} ${u * 0.04} l0 ${u * 0.14} q-${u * 0.12} ${u * 0.1} -${u * 0.24} 0z" fill="${gr ? kc2 : c2}" ${S}/>`;
-  const num = !k.fato && k.numero ? `<text x="${X + oH * 0.42}" y="${ombro + u * 0.72}" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="${u * 0.42}" fill="${gr ? kc2 : c2}" text-anchor="middle" stroke="${L}" stroke-width=".5">${k.numero}</text>` : '';
-  const calcao = k.fato ? '' : `<path d="${calcaoD}" fill="${gr ? kc2 : k.calcao ?? c2}" ${S}/><path d="M${X + hH * 0.5} ${anca} L${X + hH * 1.1} ${virilha + u * 0.38}" stroke="${avEsc(gr ? kc2 : k.calcao ?? c2, 0.8)}" stroke-width="${u * 0.18}" opacity=".5"/>`;
-  const hs = (u * 1.42) / (ry * 2 + 20);
-  const cabecaCorpo = `<g transform="translate(${X} ${queixo}) scale(${hs.toFixed(3)}) translate(-100 ${-(cy + ry + 4)})">${pescoco}${cabeca}</g>`;
-  return `<svg class="avatar-svg" viewBox="0 0 200 430" width="${tam}" height="${Math.round(tam * 2.15)}" aria-hidden="true">${defs}<ellipse cx="${X}" cy="${pes + 2}" rx="${u * 1.6}" ry="${u * 0.18}" fill="rgba(0,0,0,.28)"/>${perna(-1)}${perna(1)}${calcao}${tronco}${bracoD(-1)}${bracoD(1)}${golaCorpo}${emblema}${num}${cabecaCorpo}</svg>`;
+      : (tipoGola === 'v' ? `<path d="M${cx - 19} ${yo - 7} L${cx} ${yo + 16} L${cx + 19} ${yo - 7}Z" fill="${s1}"/><path d="M${cx - 24} ${yo - 6} L${cx} ${yo + 24} L${cx + 24} ${yo - 6} L${cx + 19} ${yo - 7} L${cx} ${yo + 15} L${cx - 19} ${yo - 7}Z" fill="${c2}" stroke="${L}" stroke-width="2" stroke-linejoin="round"/>`
+        : tipoGola === 'polo' ? `<path d="M${cx - 24} ${yo - 8} L${cx - 4} ${yo + 14} L${cx - 30} ${yo + 12}Z M${cx + 24} ${yo - 8} L${cx + 4} ${yo + 14} L${cx + 30} ${yo + 12}Z" fill="${c2}" stroke="${L}" stroke-width="2" stroke-linejoin="round"/><path d="M${cx} ${yo + 10} L${cx} ${yo + 34}" stroke="${L}" stroke-width="1.6"/><circle cx="${cx + 3}" cy="${yo + 24}" r="1.6" fill="${c2}" stroke="${L}" stroke-width=".8"/>`
+        : `<path d="M${cx - 24} ${yo - 6} Q${cx} ${yo + 24} ${cx + 24} ${yo - 6} L${cx + 19} ${yo - 7} Q${cx} ${yo + 16} ${cx - 19} ${yo - 7}Z" fill="${c2}" stroke="${L}" stroke-width="2" stroke-linejoin="round"/>`) + costura + `<path d="M${cx - 44} ${yo + 50} l7 -3 l7 3 l0 8 q-7 6 -14 0z" fill="${c2}" stroke="${L}" stroke-width="1.4"/>`;
+    return `<svg class="avatar-svg" viewBox="22 10 156 204" width="${tam}" height="${Math.round(tam * 204 / 156)}" aria-hidden="true">${defs}${fundo}${pescoco}${ombros}${gola}${cabeca}</svg>`;
 }
 function mix(a, b, f) { const x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16); const c = (s) => Math.round(((x >> s) & 255) * (1 - f) + ((y >> s) & 255) * f); return '#' + [c(16), c(8), c(0)].map((v) => v.toString(16).padStart(2, '0')).join(''); }
 const kitClube = (numero) => ({ c1: CLUBE.cores[0], c2: CLUBE.cores[1], padrao: CLUBE.padrao ?? 'liso', numero });
@@ -1014,7 +976,7 @@ function heroJogador(p, rival) {
     <div class="hj-cab"><div class="hj-nome"><b>${p.nome.split(' ')[0][0]}. ${p.nome.split(' ').slice(-1)[0].toUpperCase()}</b><span>${NOME_PAIS[p.pais] ?? p.pais} · ${c.peso} kg · ${c.alt} cm · ${p.idade} anos</span></div><span class="hj-pos">${p.pos}</span>
       <span class="hj-pe" title="Pé preferido">${c.pe}</span><span class="hj-moral" title="Moral ${p.moral}/20">${moralCara}</span><span class="hj-ovr" style="background:${ovrCor}">${rival ? `${p.ovr - 5}–${p.ovr + 4}` : p.ovr}</span></div>
     <div class="hj-corpo">
-      <div class="hj-avatar">${avatarSvg(avJog(p), { modo: 'corpo', tam: 190, kit: kitClube(p.n) })}</div>
+      <div class="hj-avatar">${avatarSvg(avJog(p), { tam: 260, kit: kitClube(p.n), fundo: CLUBE.cores[0] })}</div>
       <div class="hj-lado">
         <div class="hj-cartao">${escudo(CLUBE.cores, 34)}<b>${CLUBE.nome}</b>
           <div class="hj-ag"><span class="hj-agav">${avatarSvg({ id: 'ag:' + ag, nome: ag, pais: 'POR', idade: 50, staff: true }, { tam: 30, kit: { fato: true, gravata: '#1d3b6b' } })}</span><span><b>${ag}</b><small>Agente</small></span></div>
