@@ -701,9 +701,9 @@ const AV = {
   pele: ['#f7dcc8', '#efc6a8', '#e2ae8a', '#cf9871', '#b47a55', '#94603f', '#744628', '#4f2f1c'],
   corCabelo: ['#1c1714', '#3b2619', '#5e3b22', '#8d4a24', '#b98a4e', '#e0c27e', '#9a9a9a', '#e8e6e2'],
   corOlhos: ['#3b2a1e', '#5c3d22', '#3e6b8a', '#4f7a4a', '#7b7b7b'],
-  nomes: { pele: 'Tom de pele', cara: 'Rosto', cabelo: 'Cabelo', corCabelo: 'Cor do cabelo', sobr: 'Sobrancelhas', olhos: 'Olhos', corOlhos: 'Cor dos olhos', nariz: 'Nariz', boca: 'Boca', barba: 'Barba', oculos: 'Óculos' },
-  max: { pele: 8, cara: 4, cabelo: 16, corCabelo: 8, sobr: 3, olhos: 4, corOlhos: 5, nariz: 3, boca: 3, barba: 6, oculos: 3 },
-  rot: { olhos: ['Amêndoa', 'Encapuzados', 'Redondos', 'Caídos'], sobr: ['Rectas', 'Arqueadas', 'Grossas'], nariz: ['Recto', 'Largo', 'Aquilino'], boca: ['Neutra', 'Sorriso fechado', 'Sorriso aberto'], cabelo: ['Careca', 'Rapado', 'Curto', 'Risca ao lado', 'Topete', 'Caracóis', 'Afro', 'Comprido', 'Rastas', 'Moicano', 'Degradê', 'Coque', 'Tranças', 'Para trás', 'Risca rapada', 'Curto texturizado'], barba: ['Sem barba', 'Por fazer', 'Bigode', 'Pêra', 'Curta', 'Cheia'], oculos: ['Sem óculos', 'Redondos', 'Rectangulares'], cara: ['Oval', 'Larga', 'Comprida', 'Quadrada'], corCabelo: ['Preto', 'Castanho escuro', 'Castanho', 'Ruivo', 'Loiro escuro', 'Loiro', 'Grisalho', 'Branco'], corOlhos: ['Castanhos escuros', 'Castanhos', 'Azuis', 'Verdes', 'Cinzentos'] },
+  nomes: { pele: 'Tom de pele', cara: 'Rosto', cabelo: 'Cabelo', corCabelo: 'Cor do cabelo', sobr: 'Sobrancelhas', olhos: 'Olhos', corOlhos: 'Cor dos olhos', nariz: 'Nariz', boca: 'Boca', barba: 'Barba', oculos: 'Óculos', tatuagem: 'Tatuagem', brinco: 'Brincos', sardas: 'Sardas', cicatriz: 'Cicatriz' },
+  max: { pele: 8, cara: 4, cabelo: 16, corCabelo: 8, sobr: 3, olhos: 4, corOlhos: 5, nariz: 3, boca: 3, barba: 6, oculos: 3, tatuagem: 4, brinco: 4, sardas: 2, cicatriz: 3 },
+  rot: { olhos: ['Amêndoa', 'Encapuzados', 'Redondos', 'Caídos'], sobr: ['Rectas', 'Arqueadas', 'Grossas'], nariz: ['Recto', 'Largo', 'Aquilino'], boca: ['Neutra', 'Sorriso fechado', 'Sorriso aberto'], cabelo: ['Careca', 'Rapado', 'Curto', 'Risca ao lado', 'Topete', 'Caracóis', 'Afro', 'Comprido', 'Rastas', 'Moicano', 'Degradê', 'Coque', 'Tranças', 'Para trás', 'Risca rapada', 'Curto texturizado'], barba: ['Sem barba', 'Por fazer', 'Bigode', 'Pêra', 'Curta', 'Cheia'], oculos: ['Sem óculos', 'Redondos', 'Rectangulares'], tatuagem: ['Sem tatuagem', 'Pescoço (lado)', 'Pescoço (frente)', 'Pescoço (os dois lados)'], brinco: ['Sem brincos', 'Brilhante (esq.)', 'Brilhantes (os dois)', 'Argola'], sardas: ['Sem sardas', 'Com sardas'], cicatriz: ['Sem cicatriz', 'Sobrancelha', 'Bochecha'], cara: ['Oval', 'Larga', 'Comprida', 'Quadrada'], corCabelo: ['Preto', 'Castanho escuro', 'Castanho', 'Ruivo', 'Loiro escuro', 'Loiro', 'Grisalho', 'Branco'], corOlhos: ['Castanhos escuros', 'Castanhos', 'Azuis', 'Verdes', 'Cinzentos'] },
 };
 // Distribuição do tom de pele por região (pesos por índice) e cabelo/olhos claros possíveis.
 const AV_REGIAO = {
@@ -714,6 +714,15 @@ const PAIS_REGIAO = { POR: 'europa_sul', ESP: 'europa_sul', ITA: 'europa_sul', F
 function avHash(t) { let h = 2166136261; for (const c of t) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 function avRng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), 1 | t); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 function avPeso(r, pesos) { const tot = pesos.reduce((a, b) => a + b, 0); let x = r() * tot; for (let i = 0; i < pesos.length; i++) { x -= pesos[i]; if (x < 0) return i; } return pesos.length - 1; }
+// Extras (fase 4), com semente própria para não alterar os rostos já gerados. Raros: tatuagens ~16%, brincos ~12%, cicatriz ~6%.
+function avExtras(p, pele, corCabelo) {
+  const r = avRng(avHash('extra|' + p.id + '|' + p.nome)), staff = !!p.staff, jovem = (p.idade ?? 25) < 19;
+  const tatuagem = staff || jovem ? 0 : r() < 0.16 ? 1 + Math.floor(r() * 3) : 0;
+  const brinco = staff ? 0 : r() < 0.12 ? 1 + Math.floor(r() * 3) : 0;
+  const sardas = r() < (pele <= 1 && (corCabelo === 3 || corCabelo === 5 || corCabelo === 4) ? 0.45 : pele <= 2 ? 0.07 : 0.01) ? 1 : 0;
+  const cicatriz = r() < 0.06 ? 1 + Math.floor(r() * 2) : 0;
+  return { tatuagem, brinco, sardas, cicatriz };
+}
 /** Traços de uma pessoa: { id, nome, pais, idade, staff } */
 function avGerar(p) {
   const r = avRng(avHash(p.id + '|' + p.nome)), [peles, claro] = AV_REGIAO[PAIS_REGIAO[p.pais] ?? 'mundo'];
@@ -725,7 +734,7 @@ function avGerar(p) {
   if (p.idade >= 36 && r() < 0.25) cabelo = 0;
   const barba = p.idade < 18 ? 0 : p.idade < 21 ? avPeso(r, [6, 3, 0, 1, 0, 0]) : avPeso(r, [4, 3, 0.6, 1.2, 2.5, 1.5]);
   return { pele, cara: Math.floor(r() * 4), cabelo, corCabelo, sobr: Math.floor(r() * 3), olhos: Math.floor(r() * 4), corOlhos: escura ? avPeso(r, [6, 3, 0, 0, 0]) : avPeso(r, [3, 4, claro * 8, claro * 4, 1]),
-    nariz: Math.floor(r() * 3), boca: Math.floor(r() * 3), barba, queixo: Math.floor(r() * 3), covinha: r() < 0.18, oculos: p.staff && p.idade > 40 && r() < 0.4 ? 1 + Math.floor(r() * 2) : 0, entradas: p.idade >= 33 && r() < 0.5 };
+    nariz: Math.floor(r() * 3), boca: Math.floor(r() * 3), barba, queixo: Math.floor(r() * 3), covinha: r() < 0.18, oculos: p.staff && p.idade > 40 && r() < 0.4 ? 1 + Math.floor(r() * 2) : 0, entradas: p.idade >= 33 && r() < 0.5, ...avExtras(p, pele, corCabelo) };
 }
 const avEdit = (() => { try { return JSON.parse(localStorage.getItem('futceo.avatares') || '{}'); } catch { return {}; } })();
 const avGravar = () => { try { localStorage.setItem('futceo.avatares', JSON.stringify(avEdit)); } catch { /* sem armazenamento */ } };
@@ -769,13 +778,24 @@ function avatarSvg(p, { kit = null, tam = 48, fundo: corFundo = null } = {}) {
       <path d="M${x + s * 1.5} ${y0 + 4} C${x + s * ow * 0.7} ${y0 + 0.5} ${x + s * ow * 1.05} ${y0 + 3} ${x + s * ow * 1.02} ${ym - 3} C${x + s * ow} ${ym + 5} ${x + s * ow * 0.7} ${y1 - 7} ${x + s * ow * 0.55} ${y1 - 4}" stroke="${s3}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
       <path d="M${x + s * ow * 0.25} ${ym - 4} C${x + s * ow * 0.55} ${ym - 6} ${x + s * ow * 0.7} ${ym} ${x + s * ow * 0.45} ${ym + 4} C${x + s * ow * 0.3} ${ym + 6} ${x + s * ow * 0.25} ${ym + 3} ${x + s * ow * 0.35} ${ym + 1}" fill="${s2}" stroke="${s3}" stroke-width="1.1"/>
       <ellipse cx="${x + s * ow * 0.45}" cy="${y1 - 2.5}" rx="${ow * 0.2}" ry="1.6" fill="${luz}" opacity=".5"/>`; };
-  // Pescoço: lados direitos, músculos em V, maçã-de-adão, sombra dura do maxilar
-  const nw = W * 0.72, colY = queixoY + 34;
-  const pescoco = `<path d="M${X - nw} ${jawY} L${X - nw - 2} ${colY + 8} L${X + nw + 2} ${colY + 8} L${X + nw} ${jawY}Z" fill="${pele}" stroke="${L}" stroke-width="2.6"/>
-    <path d="M${X - nw - 1} ${jawY} L${X + nw + 1} ${jawY} L${X + nw + 1} ${queixoY + 10} C${X + 14} ${queixoY + 16} ${X - 14} ${queixoY + 16} ${X - nw - 1} ${queixoY + 10}Z" fill="${s3}"/>
-    <path d="M${X + nw * 0.25} ${queixoY + 12} L${X + nw + 1} ${colY + 8} L${X + nw + 1} ${queixoY + 10}Z" fill="${s2}" opacity=".7"/>
-    <path d="M${X - nw * 0.85} ${queixoY + 10} L${X - 6} ${colY + 4} M${X + nw * 0.85} ${queixoY + 10} L${X + 6} ${colY + 4}" stroke="${s2}" stroke-width="1.4" opacity=".75"/>
-    ${p.staff || idade >= 17 ? `<path d="M${X - 3.5} ${queixoY + 17} q3.5 -3 7 0 q-3.5 5 -7 0Z" fill="${s1}" stroke="${s2}" stroke-width="1.1"/><path d="M${X - 2} ${queixoY + 16} q2 -1.5 3.5 0" stroke="${luz}" stroke-width="1" fill="none" opacity=".7"/>` : ''}`;
+  // Pescoço (fase 4): mais largo na base, trapézio a descer para os ombros, esternocleidomastoideus (de trás da orelha à fúrcula),
+  // fúrcula, maçã-de-adão, sombra do maxilar em degradê e lado direito em sombra; largura pela medida do maxilar e pela idade.
+  const nw = W * lerp(0.62, 0.78, m.maxilar) + (p.staff ? 0 : 2), colY = queixoY + 34, nb = nw + 9;
+  const pescD = `M${X - nw} ${jawY - 4} C${X - nw - 1} ${queixoY + 14} ${X - nw - 2} ${colY - 4} ${X - nb} ${colY + 2} L${X - nb - 14} ${colY + 10} L${X + nb + 14} ${colY + 10} L${X + nb} ${colY + 2} C${X + nw + 2} ${colY - 4} ${X + nw + 1} ${queixoY + 14} ${X + nw} ${jawY - 4}Z`;
+  const tinta = '#2b3138', tat = t.tatuagem ?? 0;
+  const escrita = (x0, y0, larg, linhas, rot) => `<g transform="rotate(${rot} ${x0} ${y0})" stroke="${tinta}" fill="none" stroke-width="1.15" opacity=".72" stroke-linecap="round">${Array.from({ length: linhas }, (_, l) => `<path d="M${x0} ${y0 + l * 5} ${Array.from({ length: 6 }, (_, k) => `q${(larg / 12).toFixed(1)} ${k % 2 ? 3.4 : -3.4} ${(larg / 6).toFixed(1)} 0`).join(' ')}"/><path d="M${x0 + larg * 0.3} ${y0 + l * 5 - 3} l1.5 -2 M${x0 + larg * 0.7} ${y0 + l * 5 + 2} l-1 2.5"/>`).join('')}</g>`;
+  const rosa = (x0, y0) => `<g stroke="${tinta}" fill="none" stroke-width="1.15" opacity=".72"><circle cx="${x0}" cy="${y0}" r="4.5"/><path d="M${x0 - 2} ${y0 - 1} q2 -3 4 0 q-2 3 -4 0 M${x0} ${y0 + 4.5} q-2 6 -6 8 M${x0} ${y0 + 4.5} q3 5 2 9 M${x0 - 4} ${y0 + 9} q-3 -1 -4 1 M${x0 + 3} ${y0 + 10} q3 -1 4 1"/></g>`;
+  const lado = colY - queixoY - 4, tatuagem = tat === 1 ? `${escrita(X + nw * 0.82, queixoY - 2, lado, 3, 98)}${rosa(X + nw * 0.32, queixoY + 13)}` : tat === 2 ? escrita(X - nw * 0.5, colY - 12, nw, 2, -4) : tat === 3 ? `${escrita(X + nw * 0.82, queixoY - 2, lado, 3, 98)}${escrita(X - nw * 0.62, queixoY - 2, lado, 3, 82)}` : '';
+  const pescoco = `<path d="${pescD}" fill="${pele}" stroke="${L}" stroke-width="2.6" stroke-linejoin="round"/><clipPath id="${id}-pc"><path d="${pescD}"/></clipPath><g clip-path="url(#${id}-pc)">
+    <rect x="${X - nb - 16}" y="${jawY - 6}" width="${2 * nb + 32}" height="${queixoY + 22 - jawY}" fill="url(#${id}-pq)"/>
+    <path d="M${X + nw * 0.3} ${queixoY + 10} C${X + nw * 0.55} ${queixoY + 20} ${X + nw * 0.6} ${colY - 6} ${X + nw * 0.3} ${colY + 4} L${X + nb + 16} ${colY + 12} L${X + nb + 16} ${jawY}Z" fill="${s2}" opacity=".55"/>
+    <path d="M${X - nw + 1} ${queixoY + 2} C${X - nw * 0.7} ${queixoY + 18} ${X - 10} ${colY - 4} ${X - 4} ${colY + 2}" stroke="${s2}" stroke-width="2.2" fill="none" opacity=".7"/>
+    <path d="M${X + nw - 1} ${queixoY + 2} C${X + nw * 0.7} ${queixoY + 18} ${X + 10} ${colY - 4} ${X + 4} ${colY + 2}" stroke="${s3}" stroke-width="2.2" fill="none" opacity=".75"/>
+    <path d="M${X - nw * 0.95} ${queixoY + 6} C${X - nw * 0.75} ${queixoY + 16} ${X - nw * 0.4} ${colY - 8} ${X - 9} ${colY - 1}" stroke="${luz}" stroke-width="2" fill="none" opacity=".45"/>
+    <path d="M${X - 6} ${colY + 1} Q${X} ${colY + 5} ${X + 6} ${colY + 1}" stroke="${s3}" stroke-width="1.5" fill="none"/>
+    <path d="M${X - nb} ${colY + 2} Q${X - nb - 8} ${colY + 4} ${X - nb - 14} ${colY + 10} M${X + nb} ${colY + 2} Q${X + nb + 8} ${colY + 4} ${X + nb + 14} ${colY + 10}" stroke="${s2}" stroke-width="1.6" fill="none" opacity=".7"/>
+    ${p.staff || idade >= 17 ? `<path d="M${X - 3.6} ${queixoY + 17} q3.6 -3 7.2 0 q-3.6 5.5 -7.2 0Z" fill="${s1}" stroke="${s2}" stroke-width="1"/><path d="M${X - 2} ${queixoY + 15.6} q2 -1.4 3.6 0" stroke="${luz}" stroke-width="1" fill="none" opacity=".7"/>` : ''}
+    ${tatuagem}</g>`;
   // Sombras por planos (luz de cima à esquerda): lado direito, maçãs, órbitas, têmpora, testa iluminada
   const planos = `<g clip-path="url(#${id}-f)">
     <path d="M${X + W * 0.42} ${coroa} C${X + W * 0.3} ${hl + 10} ${X + W * 0.5} ${olhoY - 6} ${X + W * 0.62} ${olhoY + 6} C${X + W * 0.45} ${narizY} ${X + W * 0.6} ${bocaY} ${X + cw * 0.6} ${queixoY + 4} L${X + W + 20} ${queixoY + 4} L${X + W + 20} ${coroa}Z" fill="${s1}"/>
@@ -914,6 +934,7 @@ function avatarSvg(p, { kit = null, tam = 48, fundo: corFundo = null } = {}) {
     <linearGradient id="${id}-fd" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${cab}"/><stop offset=".5" stop-color="${cab}" stop-opacity=".55"/><stop offset="1" stop-color="${cab}" stop-opacity=".05"/></linearGradient>
     <linearGradient id="${id}-bg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${corFundo ? avEsc(corFundo, 1.15) : '#555'}"/><stop offset="1" stop-color="${corFundo ? avEsc(corFundo, 0.45) : '#222'}"/></linearGradient>
     <pattern id="${id}-gr" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="${cabS}"/></pattern>
+    <linearGradient id="${id}-pq" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${s3}"/><stop offset=".55" stop-color="${s3}" stop-opacity=".75"/><stop offset="1" stop-color="${s2}" stop-opacity="0"/></linearGradient>
     <linearGradient id="${id}-hf" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="${coroa}" y2="${sobrY + 3}"><stop offset="0" stop-color="${cab}"/><stop offset="${((hl + 4 - coroa) / (sobrY + 3 - coroa)).toFixed(2)}" stop-color="${cab}" stop-opacity=".85"/><stop offset="1" stop-color="${cab}" stop-opacity=".12"/></linearGradient>
     <pattern id="${id}-pv" width="34" height="10" patternUnits="userSpaceOnUse"><rect width="34" height="10" fill="${c1}"/><rect x="17" width="17" height="10" fill="${c2}"/></pattern>
     <pattern id="${id}-ph" width="10" height="30" patternUnits="userSpaceOnUse"><rect width="10" height="30" fill="${c1}"/><rect y="15" width="10" height="15" fill="${c2}"/></pattern></defs>`;
@@ -929,7 +950,12 @@ function avatarSvg(p, { kit = null, tam = 48, fundo: corFundo = null } = {}) {
       : tipoGola === 'polo' ? `<path d="M${X - g0} ${yo - 10} L${X - 4} ${yo + 12} L${X - g0 - 8} ${yo + 10}Z M${X + g0} ${yo - 10} L${X + 4} ${yo + 12} L${X + g0 + 8} ${yo + 10}Z" fill="${c2}" stroke="${L}" stroke-width="2" stroke-linejoin="round"/><path d="M${X} ${yo + 8} L${X} ${yo + 32}" stroke="${L}" stroke-width="1.6"/><circle cx="${X + 3}" cy="${yo + 22}" r="1.6" fill="${c2}" stroke="${L}" stroke-width=".8"/>`
       : `<path d="M${X - g0} ${yo - 7} Q${X} ${yo + 22} ${X + g0} ${yo - 7} L${X + g0 - 5} ${yo - 8} Q${X} ${yo + 14} ${X - g0 + 5} ${yo - 8}Z" fill="${c2}" stroke="${L}" stroke-width="2" stroke-linejoin="round"/>`) + costura + `<path d="M${X - 46} ${yo + 44} l7 -3 l7 3 l0 8 q-7 6 -14 0z" fill="${c2}" stroke="${L}" stroke-width="1.4"/>`;
   const fundo = corFundo ? `<rect x="0" y="0" width="200" height="262" fill="url(#${id}-bg)"/><circle cx="100" cy="100" r="92" fill="#fff" opacity=".07"/>${Array.from({ length: 7 }, (_, i) => `<path d="M${i * 34} 262 L${50 + i * 34} 0" stroke="#fff" stroke-width="10" opacity=".03"/>`).join('')}` : '';
-  const rosto = `${orelha(-1)}${orelha(1)}<path d="${F}" fill="${pele}"/>${planos}${marcas}${nariz}${barba}${boca}${olho(-1)}${olho(1)}${sobr(-1)}${sobr(1)}<path d="${F}" fill="none" stroke="${L}" stroke-width="3" stroke-linejoin="round"/>`;
+  const brincoEm = (s) => { const x = X + s * (W - 1.5) + s * lerp(6.5, 9.5, m.orelhas) * 0.45, y = narizY + 1.5; return t.brinco === 3 ? `<circle cx="${x}" cy="${y + 4}" r="4" fill="none" stroke="#d9b54a" stroke-width="1.8"/><path d="M${x - 2} ${y + 1} a4 4 0 0 1 4 0" stroke="#fff6c8" stroke-width="1" fill="none"/>` : `<circle cx="${x}" cy="${y}" r="2.3" fill="#eef4fb" stroke="${L}" stroke-width=".9"/><path d="M${x - 1} ${y - 1} l1.4 1.4" stroke="#fff" stroke-width=".9"/>`; };
+  const brincos = !t.brinco ? '' : t.brinco === 1 ? brincoEm(-1) : `${brincoEm(-1)}${brincoEm(1)}`;
+  const sardas = t.sardas ? Array.from({ length: 34 }, () => { const s = R() < 0.5 ? -1 : 1, x = X + s * lerp(4, W * 0.7, R()), y = lerp(olhoY + 6, narizY + 2, R()); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(0.6 + R() * 0.6).toFixed(1)}" fill="${hx(pele, 0.68)}" opacity=".6"/>`; }).join('') : '';
+  const cicatriz = t.cicatriz === 1 ? `<path d="M${X + od + 2} ${sobrY - 6} L${X + od - 1} ${sobrY + 5}" stroke="${pele}" stroke-width="2.4" stroke-linecap="round"/><path d="M${X + od + 2.6} ${sobrY - 6} L${X + od - 0.4} ${sobrY + 5}" stroke="${s2}" stroke-width=".7"/>`
+    : t.cicatriz === 2 ? `<path d="M${X - W * 0.62} ${olhoY + 12} l7 6" stroke="${luz}" stroke-width="2" stroke-linecap="round" opacity=".8"/><path d="M${X - W * 0.62 + 0.8} ${olhoY + 12.8} l6 5" stroke="${s3}" stroke-width=".7"/>` : '';
+  const rosto = `${orelha(-1)}${orelha(1)}${brincos}<path d="${F}" fill="${pele}"/>${planos}${marcas}${sardas}${nariz}${barba}${boca}${olho(-1)}${olho(1)}${sobr(-1)}${sobr(1)}${cicatriz}<path d="${F}" fill="none" stroke="${L}" stroke-width="3" stroke-linejoin="round"/>`;
   return `<svg class="avatar-svg" viewBox="18 4 164 214" width="${tam}" height="${Math.round(tam * 214 / 164)}" aria-hidden="true">${defs}${fundo}${pescoco}${ombros}${gola}${atras}${rosto}${frente}${oculos}</svg>`;
 }
 function mix(a, b, f) { const x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16); const c = (s) => Math.round(((x >> s) & 255) * (1 - f) + ((y >> s) & 255) * f); return '#' + [c(16), c(8), c(0)].map((v) => v.toString(16).padStart(2, '0')).join(''); }
