@@ -315,6 +315,8 @@ td.r, th.r { text-align: right; }
 .agenda::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,16,.85) 0%, rgba(11,13,16,.55) 55%, rgba(11,13,16,.2) 100%); }
 .agenda-txt { position: relative; z-index: 1; padding: 16px; display: grid; gap: 8px; }
 .ag-l { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: rgba(11,13,16,.55); } .ag-l span { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #b9bcc2; } .ag-l b { color: #fff; font-size: 14px; }
+.filtros-msg { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; } .filtros-msg .chip { border: 0; cursor: pointer; min-height: 30px; }
+.staff-grupo h2 { flex-wrap: wrap; }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -528,14 +530,18 @@ const emJanela = (d) => { const m = d.getUTCMonth(); return m === 0 || m === 6 |
 const COR_COMP = { liga: 'var(--c-liga)', taca: 'var(--c-taca)', ucl: 'var(--c-ucl)', uel: 'var(--c-uel)', uecl: 'var(--c-uecl)' };
 const MENSAGENS = [
   { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
-  { de: 'Treinador (Hélder Quintela)', assunto: 'Pedido de reforço: médio defensivo', txt: 'Preciso de um médio defensivo titular para Janeiro. Prioridade alta.', dia: '14 Nov', lida: false, rel: 'reforco' },
+  { de: 'Treinador (Hélder Quintela)', grupo: 'Treinador', assunto: 'Pedido de reforço: médio defensivo', txt: 'Preciso de um médio defensivo titular para Janeiro. Prioridade alta.', dia: '14 Nov', lida: false, rel: 'reforco' },
   { de: 'Conselho de administração', assunto: 'Objectivos de Janeiro', txt: 'O conselho pede um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
-  { de: 'Gestor de academia', assunto: '2 prospectos prontos para o sub-18', txt: 'Recomendo promover Kevin SmitVries e Gonçalo Valota.', dia: '12 Nov', lida: false },
-  { de: 'Director financeiro', assunto: 'Relatório financeiro: Outubro', txt: 'Resultado do mês +0,6 M€; massa salarial a 94% do orçamento.', dia: '11 Nov', lida: false, rel: 'fin' },
+  { de: 'Capitão (Nuno Salares)', grupo: 'Capitão', assunto: 'O balneário pede folga depois do dérbi', txt: 'Em nome do grupo: depois de três jogos em oito dias, um dia de folga ajudava a recuperar. Deixo à tua decisão.', dia: '14 Nov', lida: false, resp: ['Dar a folga (moral +, condição +)', 'Recusar: o calendário não deixa'] },
+  { de: 'Gestor de academia (Carlos Ferrão)', grupo: 'Gestor de academia', assunto: '2 prospectos prontos para o sub-18', txt: 'Recomendo promover Kevin SmitVries e Gonçalo Valota.', dia: '12 Nov', lida: false },
+  { de: 'Director Financeiro e Comercial (Teresa Valota)', grupo: 'Director Financeiro e Comercial', assunto: 'Relatório financeiro: Outubro', txt: 'Resultado do mês +0,6 M€; massa salarial a 94% do orçamento.', dia: '11 Nov', lida: false, rel: 'fin' },
+  { de: 'Director Financeiro e Comercial (Teresa Valota)', grupo: 'Director Financeiro e Comercial', assunto: 'Proposta de patrocínio de manga', txt: 'A Lusovolt oferece 1,8 M€ por época (3 épocas) para a manga da camisola principal. Recomendo aceitar.', dia: '12 Nov', lida: false, resp: ['Aceitar (+1,8 M€/época)', 'Negociar mais', 'Recusar'] },
+  { de: 'Treinador (Hélder Quintela)', grupo: 'Treinador', assunto: 'Relatório do dérbi', txt: 'A pressão alta funcionou. Quero manter o onze no próximo jogo; o Salouro precisa de gerir minutos.', dia: '14 Nov', lida: true },
   { de: 'Olheiro internacional', assunto: 'Relatório: Gustavo Rosilho (82%)', txt: 'Avançado de 20 anos, OVR 73–81, potencial muito alto.', dia: '11 Nov', lida: true, rel: 'scout' },
   { de: 'Departamento médico', assunto: 'Relatório médico: entorse no tornozelo', txt: 'Fora 12 dias. Regressa a 26 de Novembro.', dia: '9 Nov', lida: true, rel: 'med' },
 ];
-let modal = null, mesCal = null, msgAberta = null;
+let modal = null, mesCal = null, msgAberta = null, filtroMsg = 'Todas';
+const GRUPOS_MSG = ['Todas', 'Treinador', 'Gestor de academia', 'Capitão', 'Director Financeiro e Comercial'];
 const capaRelatorio = (titulo, sub, img = 'relatorio.jpg') => `<div class="capa-rel ${img === 'pedido-treinador.jpg' ? 'capa-alta' : ''}"><img src="${img}" alt=""><div class="cr-txt"><h3>${titulo}</h3>${sub ? `<span>${sub}</span>` : ''}</div></div>`;
 const kv = (l) => l.map(([a, b]) => `<div class="linha-kv"><span class="muted">${a}</span><span>${b}</span></div>`).join('');
 const RELATORIOS = {
@@ -1143,7 +1149,8 @@ function escritorioEcra() {
     ${cartao('Financeiro', 'financas', 'bom', [kpi('Caixa', '18,4 M€', '+2,1 M€ este mês', 'bom'), kpi('Resultado previsto', '+4,8 M€', 'época 2026/27', 'bom'), kpi('Massa salarial', '94%', '31,2 de 33,0 M€', 'aviso')], 'financas')}
     ${cartao('Institucional', 'staff', sem(Math.min(72, bil.satisf), 60, 40), [kpi('Conselho', '72/100', 'confiança', sem(72, 60, 40)), kpi('Adeptos', `${bil.satisf}/100`, '48 300 sócios', sem(bil.satisf, 60, 40)), kpi('Imprensa', `${pressaoMedia}/100`, 'pressão mediática', pressaoMedia >= 70 ? 'mau' : pressaoMedia >= 45 ? 'aviso' : 'bom')], 'financas')}
     <section class="c s8"><h2>Mensagens${naoLidas ? `<span class="chip aviso" style="margin-left:8px">${naoLidas} por ler</span>` : ''}</h2>
-      ${MENSAGENS.map((x, i) => `<div class="msg clic ${x.lida ? 'lida' : ''}" data-msgesc="${i}" role="button" tabindex="0"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</section>
+      <div class="filtros-msg">${GRUPOS_MSG.map((g) => { const n = g === 'Todas' ? MENSAGENS.length : MENSAGENS.filter((x) => x.grupo === g).length; return `<button class="chip ${g === filtroMsg ? 'info' : ''}" data-fmsg="${g}">${g} · ${n}</button>`; }).join('')}</div>
+      ${MENSAGENS.map((x, i) => [x, i]).filter(([x]) => filtroMsg === 'Todas' || x.grupo === filtroMsg).map(([x, i]) => `<div class="msg clic ${x.lida ? 'lida' : ''}" data-msgesc="${i}" role="button" tabindex="0"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('') || '<div class="rot">Sem mensagens deste remetente.</div>'}</section>
     <section class="c s4 agenda"><img src="escritorio-cafe.jpg" alt=""><div class="agenda-txt"><h2 style="color:#fff">Hoje</h2>
       ${[['Jogo', pj && chave(pj.d) === chave(hoje) ? `${pj.j.adv} · 20:30` : 'sem jogo'], ['Imprensa', PEDIDOS_ENTREVISTA.filter((x) => x.estado === 'pendente').length + ' pedidos de entrevista'], ['Mercado', emJanela(hoje) ? 'janela aberta' : 'janela fechada'], ['Conselho', 'reunião no fim de Janeiro']].map(([a, b]) => `<div class="ag-l"><span>${a}</span><b>${b}</b></div>`).join('')}</div></section>
   </div>`;
@@ -1151,23 +1158,31 @@ function escritorioEcra() {
 const fmtCurta = (d) => `${d.getUTCDate()} ${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][d.getUTCMonth()]}`;
 
 function staffEcra() {
-  const membros = [
-    ['Treinador', 'Hélder Quintela', 54, 14, 'Pressão alta · desenvolvimento 15', '2028'],
-    ['1.º Adjunto', 'Rui Amieira', 47, 12, 'Táctica e preparação de jogo', '2027'],
-    ['2.º Adjunto', 'Paulo Carvide', 39, 10, 'Bolas paradas', '2027'],
-    ['Treinador de guarda-redes', 'Jorge Seixal', 51, 13, '+ evolução dos GR', '2028'],
-    ['Preparador físico', 'Marco Lourosa', 44, 15, 'Condição e prevenção de lesões', '2029'],
-    ['Fisioterapeuta', 'Ana Rebordão', 38, 14, '− dias de lesão', '2028'],
-    ['Gestor de academia', 'Carlos Ferrão', 58, 16, 'Qualidade do intake e evolução dos jovens', '2029'],
-    ['Olheiro principal', 'Luís Alcobia', 49, 13, 'Coordena os olheiros', '2027'],
-    ['Olheiro de jovens', 'Samuel Quintela', 33, 11, 'Juniores e prospectos', '2027'],
-    ['Olheiro internacional', 'Diego Ferraz', 41, 12, 'Brasil e Argentina', '2028'],
-    ['Analista', 'Inês Carvide', 31, 12, 'Estatísticas e relatórios', '2027'],
+  const GRUPOS = [
+    ['Staff principal', 'Equipa técnica, saúde, análise e scouting da equipa principal', [
+      ['Treinador', 'Hélder Quintela', 54, 14, 'Pressão alta · desenvolvimento 15', '2028', 1.6],
+      ['1.º Adjunto', 'Rui Amieira', 47, 12, 'Táctica e preparação de jogo', '2027', 0.45],
+      ['2.º Adjunto', 'Paulo Carvide', 39, 10, 'Bolas paradas', '2027', 0.3],
+      ['Treinador de guarda-redes', 'Jorge Seixal', 51, 13, '+ evolução dos GR', '2028', 0.25],
+      ['Preparador físico', 'Marco Lourosa', 44, 15, 'Condição e prevenção de lesões', '2029', 0.3],
+      ['Fisioterapeuta', 'Ana Rebordão', 38, 14, '− dias de lesão', '2028', 0.2],
+      ['Analista', 'Inês Carvide', 31, 12, 'Estatísticas e relatórios', '2027', 0.15],
+      ['Olheiro principal', 'Luís Alcobia', 49, 13, 'Coordena os olheiros', '2027', 0.25],
+      ['Olheiro internacional', 'Diego Ferraz', 41, 12, 'Brasil e Argentina', '2028', 0.2]]],
+    ['Staff juvenil', 'Academia, sub-21 e sub-18', [
+      ['Gestor de academia', 'Carlos Ferrão', 58, 16, 'Qualidade do intake e evolução dos jovens', '2029', 0.35],
+      ['Treinador do sub-21', 'Paulo Teiouro', 45, 12, 'Evolução do sub-21 · minutos dos juniores', '2028', 0.15],
+      ['Treinador do sub-18', 'Nuno Barota', 40, 13, 'Evolução do sub-18 · prospectos', '2028', 0.12],
+      ['Olheiro de jovens', 'Samuel Quintela', 33, 11, 'Juniores e prospectos', '2027', 0.1]]],
+    ['Staff directivo', 'Direcção executiva do clube (responde ao Presidente)', [
+      ['Director Financeiro e Comercial', 'Teresa Valota', 46, 15, 'Orçamento, patrocínios, bilheteira e receitas comerciais (+5% receitas comerciais)', '2029', 0.4]]],
   ];
+  const todos = GRUPOS.flatMap((g) => g[2]), custo = todos.reduce((t, m) => t + m[6], 0);
+  const linha = ([c, n, i, v, ef, f, sal]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r">${sal.toFixed(2).replace('.', ',')} M€</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`;
+  const tabelas = GRUPOS.map(([t, sub, l]) => `<section class="c s12 staff-grupo"><h2>${t}<span class="chip" style="margin-left:8px">${l.length}</span><span class="rot" style="margin-left:10px;text-transform:none;letter-spacing:0;font-weight:400">${sub}</span></h2><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Salário</th><th class="r">Contrato</th><th class="r"></th></tr></thead><tbody>${l.map(linha).join('')}</tbody></table></div></section>`).join('');
   return `
-  <div class="topo"><h1>Staff</h1><span class="sub">11 membros · custo anual 5,4 M€ (orçamento 5,5 M€)</span><div class="direita"><button class="btn">Mercado de treinadores</button><button class="btn prim">Contratar staff</button></div></div>
-  <section class="c"><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Contrato</th><th class="r"></th></tr></thead>
-  <tbody>${membros.map(([c, n, i, v, ef, f]) => `<tr><td class="muted">${c}</td><td><b>${n}</b></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`).join('')}</tbody></table></div></section>
+  <div class="topo"><h1>Staff</h1><span class="sub">${todos.length} membros · custo anual ${custo.toFixed(1).replace('.', ',')} M€ (orçamento 5,5 M€)</span><div class="direita"><button class="btn">Mercado de treinadores</button><button class="btn prim">Contratar staff</button></div></div>
+  <div class="grelha">${tabelas}</div>
   <div class="grelha" style="margin-top:14px"><section class="c s6"><h2>Pedidos do treinador</h2><div class="linha-kv clic" data-pedido="reforco" role="button" tabindex="0"><span>Quer um médio defensivo titular na janela de Janeiro</span><span style="display:flex;gap:6px;align-items:center"><span class="chip aviso">pendente</span><span class="muted">abrir ›</span></span></div><div class="linha-kv"><span>Pede renovação do 1.º Adjunto</span><span class="chip">em análise</span></div></section>
   <section class="c s6"><h2>Confiança do conselho no treinador</h2><div class="num grande">64</div><div class="barra" style="margin-top:10px"><i style="width:64%"></i></div><div class="rot" style="margin-top:6px">Posição esperada: 3.º · actual: 4.º</div></section></div>`;
 }
@@ -1505,7 +1520,8 @@ function desenharModal() {
     else if (modal === 'regras') el.innerHTML = `<div class="modal" role="dialog" aria-label="Regras de transferência"><div class="modal-cab"><h3>Regras de transferência · Liga Portugal</h3><button class="btn" id="fechar">Fechar</button></div>${kv([['Janela de Verão', '1 Jul – 31 Ago'], ['Janela de Inverno', '1 Jan – 31 Jan'], ['Jogadores livres', 'Podem assinar a qualquer momento'], ['Plantel', 'Máximo 25 inscritos (8 formados localmente)'], ['Extracomunitários', 'Sem limite'], ['Empréstimos', 'Máximo 6 cedidos e 6 recebidos'], ['Compensação de formação', 'Aplica-se a jogadores até 23 anos'], ['Mecanismo de solidariedade', '5% do valor, pelos clubes formadores']])}</div>`;
     else if (modal === 'assin') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Contratação concluída"><div class="capa-rel" style="aspect-ratio:736/380"><img src="assinatura.jpg" alt="" style="object-position:center 55%"><div class="cr-txt"><span class="chip bom">Contratação concluída</span><h3 style="margin-top:6px">Yusuf Taşsoy assinou pelo ${CLUBE.nome}</h3><span>Avançado · 24 anos · vem do Kızılpınarspor</span></div></div><div class="modal-corpo"><div class="grelha-rel"><div>${kv([['Valor da transferência', fM(NEG.pedido)], ['Pagamento', parcelas], ['Rondas de negociação', NEG.ronda]])}</div><div>${kv([['Contrato', 'até 30 Jun 2031'], ['Salário', '1,6 M€/ano'], ['Cláusula de rescisão', '35,0 M€']])}</div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else
-    if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`, ab.rel === 'reforco' ? 'pedido-treinador.jpg' : 'relatorio.jpg')}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
+    if (ab && !ab.rel && ab.resp) el.innerHTML = `<div class="modal" role="dialog" aria-label="${ab.assunto}"><div class="modal-cab"><h3>${ab.assunto}</h3><button class="btn" id="fechar">Fechar</button></div><div class="rot">${ab.de} · ${ab.dia}</div><p style="margin:12px 0">${ab.txt}</p>${ab.respondida ? `<div class="chip bom">Respondeste: ${ab.respondida}</div>` : `<div class="respostas">${ab.resp.map((r, i) => `<button class="resposta" data-respmsg="${i}" style="grid-template-columns:1fr"><span>${r}</span></button>`).join('')}</div>`}<div style="display:flex;justify-content:flex-start;margin-top:12px"><button class="btn" id="voltar-msg">← Mensagens</button></div></div>`;
+    else if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`, ab.rel === 'reforco' ? 'pedido-treinador.jpg' : 'relatorio.jpg')}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
     else el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="modal-cab" style="justify-content:flex-end"><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</div></div>`;
   }
   document.body.appendChild(el);
@@ -1538,11 +1554,12 @@ function desenharModal() {
       desenhar();
     }
     desenharModal(); }));
+  el.querySelectorAll('[data-respmsg]').forEach((b) => b.addEventListener('click', () => { const ab = MENSAGENS[msgAberta]; ab.respondida = ab.resp[+b.dataset.respmsg]; desenharModal(); }));
   el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };
   el.querySelector('#cal-ant')?.addEventListener('click', () => mv(-1));
   el.querySelector('#cal-seg')?.addEventListener('click', () => mv(1));
-  el.querySelectorAll('[data-msg]').forEach((x) => x.addEventListener('click', () => { MENSAGENS[+x.dataset.msg].lida = true; if (MENSAGENS[+x.dataset.msg].rel) msgAberta = +x.dataset.msg; desenharModal(); const b = document.querySelector('#b-msg .badge'); const n = MENSAGENS.filter((y) => !y.lida).length; if (b) { if (n) b.textContent = n; else b.remove(); } }));
+  el.querySelectorAll('[data-msg]').forEach((x) => x.addEventListener('click', () => { MENSAGENS[+x.dataset.msg].lida = true; if (MENSAGENS[+x.dataset.msg].rel || MENSAGENS[+x.dataset.msg].resp) msgAberta = +x.dataset.msg; desenharModal(); const b = document.querySelector('#b-msg .badge'); const n = MENSAGENS.filter((y) => !y.lida).length; if (b) { if (n) b.textContent = n; else b.remove(); } }));
 }
 function ligar(m) {
   m.querySelector('#b-cal').addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
@@ -1573,7 +1590,8 @@ function ligar(m) {
   m.querySelector('#pr-finalistas')?.addEventListener('click', () => { modal = 'finalistas'; desenharModal(); });
   m.querySelector('#pr-cerimonia')?.addEventListener('click', () => { modal = 'cerimonia'; cer = { etapa: 0, mostrados: 0 }; desenharModal(); passoCerimonia(); });
   m.querySelector('#b-perfil')?.addEventListener('click', () => { if (confirm('Terminar a sessão e voltar ao ecrã de entrada?')) { PERFIL_ACTIVO = null; ent = { passo: 'login', rascunho: { modo: 'dono' } }; desenhar(); mostrarEntrada(); } });
-  m.querySelectorAll('[data-msgesc]').forEach((x) => x.addEventListener('click', () => { const k = +x.dataset.msgesc; MENSAGENS[k].lida = true; modal = 'msg'; msgAberta = MENSAGENS[k].rel ? k : null; desenhar(); desenharModal(); }));
+  m.querySelectorAll('[data-fmsg]').forEach((b) => b.addEventListener('click', () => { filtroMsg = b.dataset.fmsg; desenhar(); }));
+  m.querySelectorAll('[data-msgesc]').forEach((x) => x.addEventListener('click', () => { const k = +x.dataset.msgesc; MENSAGENS[k].lida = true; modal = 'msg'; msgAberta = MENSAGENS[k].rel || MENSAGENS[k].resp ? k : null; desenhar(); desenharModal(); }));
   m.querySelector('#b-guardar').addEventListener('click', () => guardarProgresso(true));
   m.querySelector('#b-imp').addEventListener('click', () => { modal = 'imprensa'; desenharModal(); });
   m.querySelector('#b-vista')?.addEventListener('click', () => { vistaTab = (vistaTab + 1) % VISTAS_TAB.length; desenhar(); });

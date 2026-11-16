@@ -48,7 +48,7 @@ Interface (main thread)          Web Worker (motor puro, determinístico)
 | Plantel | Lista com filtros; OVR + adequação ao papel; moral, forma, condição, lesões, contrato | PlayerStore, Contratos |
 | Jogador | Atributos (intervalos se o conhecimento não for total), papéis 1–20, estado, contrato, cláusulas, época | Scouting.relatorio, PlayerStore |
 | Táctica | Formação e papéis do treinador, instruções; sugestões limitadas pela autoridade | motor (treinadores, tácticas) |
-| Treinador e staff | Perfil, contrato, pedidos; mercados de treinadores e staff | MercadoTreinadores, StaffMundo |
+| Treinador e staff | Três grupos: principal, juvenil, directivo (Director Financeiro e Comercial); perfil, contrato, pedidos; mercados de treinadores e staff | MercadoTreinadores, StaffMundo |
 | Mercado | Pesquisa/filtros, shortlists, relatórios com confiança, ofertas feitas e recebidas, negociação por rondas, leilões, empréstimos, contagem da janela | Mercado, Scouting |
 | Scouting | Atribuição de scouts por região, escalão e posição; conhecimento; pedidos de relatório | Scouting |
 | Academia | Sub-18, sub-21, shortlist de prospectos com o conselho automático | Academia.resumoProspectos |
