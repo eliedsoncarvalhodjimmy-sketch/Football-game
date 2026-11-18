@@ -134,7 +134,7 @@ export class CacheRatings {
   obter(clube: number, st: PlayerStore, onze: Onze): RatingsEquipa {
     this.pedidos++;
     const i = onze.instrucoes;
-    const chave = `${onze.formacao.id}|${onze.papeis.join(',')}|${onze.jogadores.join(',')}|${i.mentalidade}${i.pressao}${i.linha}${i.largura}${i.ritmo}`;
+    const chave = `${onze.formacao.id}|${onze.papeis.join(',')}|${onze.jogadores.join(',')}|${i.mentalidade}${i.pressao}${i.linha}${i.largura}${i.ritmo}${i.passe ?? 0}`;
     let m = this.mapa.get(clube);
     if (!m) { m = new Map(); this.mapa.set(clube, m); }
     const c = m.get(chave);

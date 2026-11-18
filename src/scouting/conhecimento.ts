@@ -120,7 +120,7 @@ export class Scouting {
     if (!sm) return 0;
     const g = grupoPos(this.w.jogadores!.posNat[j]);
     let s = 0, n = 0;
-    for (const m of sm.porClube[c] ?? []) if (m.cargo === 'scout' || m.cargo === 'chefe_scouts') {
+    for (const m of sm.porClube[c] ?? []) if (m.cargo === 'olheiro' || m.cargo === 'chefe_recrutamento' || m.cargo === 'olheiro_jovens') {
       const h = hash32(m.id.length, ...[...m.id].map((x) => x.charCodeAt(0)));
       if (['GR', 'DEF', 'MED', 'AVA'][h % 4] === g) { s += S.vies_desvio * gauss(h, 1, 3); n++; }
     }
@@ -163,7 +163,7 @@ export class Scouting {
     const pot = this.estimarPotencial(c, j, dia);
     const estrela = (p: number) => Math.max(0.5, Math.min(5, Math.round((p / 20) * 2) / 2));
     const sm = this.w.economia?.staff;
-    const scout = (sm?.porClube[c] ?? []).find((m) => m.cargo === 'scout') ?? null;
+    const scout = (sm?.porClube[c] ?? []).find((m) => m.cargo === 'olheiro') ?? null;
     const v = this.vies(c, j);
     return {
       jogador: j, conhecimento: n, ovr: this.estimarOVR(c, j, dia), potencial: pot, estrelas: [estrela(pot.min), estrela(pot.max)], atributos, ocultos,
@@ -206,7 +206,7 @@ export class Scouting {
    *  pela proximidade (mesma confederação) e pela relação qualidade/preço da liga. */
   atribuir(c: number, rng: Rng) {
     const w = this.w, e = w.economia!;
-    const n = (e.staff.porClube[c] ?? []).filter((m) => m.cargo === 'scout').length;
+    const n = (e.staff.porClube[c] ?? []).filter((m) => m.cargo === 'olheiro').length;
     const l0 = w.liga[c];
     if (l0 < 0) { this.atribuicao[c] = []; return; }
     const fd0 = w.ligas[l0].regras.forca_desportiva;
@@ -241,28 +241,35 @@ export class Scouting {
       if (w.liga[c] < 0) continue;
       if (!this.atribuicao[c]) this.atribuir(c, Rng.de(w.semente, 'scouts', w.clubes[c].id));
       const ms = e.staff.porClube[c] ?? [];
-      const scouts = ms.filter((m) => m.cargo === 'scout');
-      const chefe = ms.find((m) => m.cargo === 'chefe_scouts')?.nivel ?? 8;
+      // Olheiros (cargos do utilizador): avaliação = qualidade (ganho por observação), quantidade = nº de observações,
+      // adaptabilidade = ritmo a que ganham familiaridade com ligas estrangeiras; olheiros de jovens só observam juniores.
+      const scouts = ms.filter((m) => m.cargo === 'olheiro' || m.cargo === 'olheiro_jovens');
+      const chefeM = ms.find((m) => m.cargo === 'chefe_recrutamento');
+      const chefe = chefeM ? (chefeM.atributos.avaliacao ?? chefeM.nivel) : 8;
+      const nOlheiros = ms.filter((m) => m.cargo === 'olheiro').length;
       const recrut = e.nivel(c, 'recrutamento');
       // Familiaridade: decai de 4 em 4 semanas (o mesmo ritmo, menos contas).
       if (Math.floor(segunda / 7) % 4 === 0) for (let li = 0; li < this.nLigas; li++) this.fam[c * this.nLigas + li] = Math.max(li === w.liga[c] ? 0.8 : 0, this.fam[c * this.nLigas + li] - 4 * S.familiaridade_desce);
-      scouts.forEach((sc, k) => {
-        const li = this.atribuicao[c][k];
+      scouts.forEach((sc, k0) => {
+        const jovens = sc.cargo === 'olheiro_jovens', at = this.atribuicao[c];
+        const li = jovens ? (at.length ? at[(k0 - nOlheiros) % at.length] : w.liga[c]) : at[k0];
         if (li === undefined) return;
         const L = w.ligas[li];
-        this.fam[c * this.nLigas + li] = Math.min(1, this.fam[c * this.nLigas + li] + S.familiaridade_sobe);
+        const adapt = sc.atributos.adaptabilidade ?? sc.nivel, qual = sc.atributos.avaliacao ?? sc.nivel, quant = sc.atributos.scout_quantidade ?? sc.nivel;
+        this.fam[c * this.nLigas + li] = Math.min(1, this.fam[c * this.nLigas + li] + S.familiaridade_sobe * (0.7 + (0.6 * adapt) / 20));
         const fam = this.fam[c * this.nLigas + li];
-        const obs = Math.round(S.observacoes * (1 + recrut / 10));
+        const obs = Math.round(S.observacoes * (1 + recrut / 10) * (0.7 + (0.6 * quant) / 20));
         for (let o = 0; o < obs; o++) {
           const alvo = L.clubes[rng.int(0, L.clubes.length - 1)];
+          if (jovens) { if (w.academia) { const jj = w.academia.jovemAleatorio(alvo, rng); if (jj >= 0) this.conhecer(c, jj, (S.ganho_base + S.ganho_por_nivel * qual) * (0.5 + 0.7 * fam) * (1 + S.chefe * chefe), segunda); } continue; }
           // Metade das observações nos titulares prováveis, metade no plantel inteiro (jovens incluídos).
           // Uma parte das observações vai aos juniores (sub-21, sub-18, academia).
-          if (w.academia && rng.chance(S.juniores)) { const jj = w.academia.jovemAleatorio(alvo, rng); if (jj >= 0) this.conhecer(c, jj, (S.ganho_base + S.ganho_por_nivel * sc.nivel) * (0.5 + 0.7 * fam) * (1 + S.chefe * chefe), segunda); continue; }
+          if (w.academia && rng.chance(S.juniores)) { const jj = w.academia.jovemAleatorio(alvo, rng); if (jj >= 0) this.conhecer(c, jj, (S.ganho_base + S.ganho_por_nivel * qual) * (0.5 + 0.7 * fam) * (1 + S.chefe * chefe), segunda); continue; }
           const t = rng.chance(0.5) ? this.topo[alvo] ?? [] : (w.plantel[alvo] ?? []);
           if (!t.length) continue;
           const j = t[rng.int(0, t.length - 1)];
           if (st.clube[j] !== alvo) continue;
-          this.conhecer(c, j, (S.ganho_base + S.ganho_por_nivel * sc.nivel) * (0.5 + 0.7 * fam) * (1 + S.chefe * chefe), segunda);
+          this.conhecer(c, j, (S.ganho_base + S.ganho_por_nivel * qual) * (0.5 + 0.7 * fam) * (1 + S.chefe * chefe), segunda);
         }
       });
     }

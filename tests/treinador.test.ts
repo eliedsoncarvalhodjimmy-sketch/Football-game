@@ -18,7 +18,7 @@ beforeAll(async () => { w = await mundo(); }, 60000);
 const comAtributos = (t: Treinador, a: Partial<Treinador['atributos']>): Treinador => ({ ...t, atributos: { ...t.atributos, ...a } });
 
 describe('treinadores gerados', () => {
-  it('um por clube, 7 atributos 1–20, os 6 perfis presentes, determinísticos', async () => {
+  it('um por clube, 7 atributos 1–20, os 8 estilos presentes, determinísticos', async () => {
     const ts = w.motor!.treinadores;
     expect(ts.length).toBe(w.clubes.length);
     for (const t of ts) for (const a of ATRIBUTOS_TREINADOR) { expect(t.atributos[a]).toBeGreaterThanOrEqual(1); expect(t.atributos[a]).toBeLessThanOrEqual(20); }
@@ -31,7 +31,7 @@ describe('treinadores gerados', () => {
   it('perfil e qualidade coerentes com a reputação do clube', () => {
     const ts = w.motor!.treinadores;
     const rep = (ids: string[]) => { const x = ts.filter((t) => ids.includes(t.perfil)); return x.reduce((s, t) => s + w.reputacao[t.clube], 0) / x.length; };
-    expect(rep(['ofensivo', 'pressao_alta'])).toBeGreaterThan(rep(['pragmatico', 'contra_ataque']));
+    expect(rep(['tiki_taka', 'gegenpressen'])).toBeGreaterThan(rep(['bloco_medio_baixo', 'contra_ataque']));
     const grandes = ts.filter((t) => w.reputacao[t.clube] >= 80), pequenos = ts.filter((t) => w.reputacao[t.clube] <= 40);
     const tac = (x: Treinador[]) => x.reduce((s, t) => s + t.atributos.tactica, 0) / x.length;
     expect(tac(grandes)).toBeGreaterThan(tac(pequenos) + 2);
@@ -79,8 +79,8 @@ describe('interferência do utilizador (3.3)', () => {
   const clube = () => w.ligaPorId('ENG1').clubes[4];
   it('aceita mais com capital alto, treinador adaptável e pouca autoridade; ignora mais no caso contrário', () => {
     const t = w.motor!.treinadores[clube()];
-    const aberto = comAtributos(t, { autoridade: 4, adaptabilidade: 18 });
-    const fechado = comAtributos(t, { autoridade: 19, adaptabilidade: 3 });
+    const aberto = comAtributos(t, { gestao: 4, adaptabilidade: 18 });
+    const fechado = comAtributos(t, { gestao: 19, adaptabilidade: 3 });
     const pa = probabilidades(aberto, { ...novaRelacao(aberto), capital: 90 }, 2);
     const pf = probabilidades(fechado, { ...novaRelacao(fechado), capital: 20 }, 2);
     expect(pa.aceita).toBeGreaterThan(0.7);
@@ -93,7 +93,7 @@ describe('interferência do utilizador (3.3)', () => {
   it('aceita: aplica a formação e o onze sugeridos, gasta capital e autoridade', () => {
     const c = clube();
     const st = w.jogadores!;
-    const t = comAtributos(w.motor!.treinadores[c], { autoridade: 2, adaptabilidade: 20 });
+    const t = comAtributos(w.motor!.treinadores[c], { gestao: 2, adaptabilidade: 20 });
     const dele = escolherOnze(st, w.plantel[c], t, dia, Rng.de(1));
     const outra = dele.plano.formacao.id === '4-4-2' ? '4-3-3' : '4-4-2';
     const suplente = dele.banco.find((j) => st.posNat[j] !== 0)!;
@@ -108,13 +108,13 @@ describe('interferência do utilizador (3.3)', () => {
     const r2 = { ...r, historico: [] };
     for (let k = 0; ; k++) { const x = sugerir(st, w.plantel[c], t, r2, { formacao: outra }, dia, Rng.de(6, k)); if (x.decisao === 'aceita') break; Object.assign(r2, { ...r, historico: [] }); }
     expect(r2.capital).toBeLessThan(100);
-    expect(r2.autoridade).toBeLessThan(t.atributos.autoridade * 5);
+    expect(r2.autoridade).toBeLessThan(t.atributos.gestao * 5);
   });
 
   it('ignora: joga o onze dele; parcial: aplica só parte do pedido', () => {
     const c = clube();
     const st = w.jogadores!;
-    const t = comAtributos(w.motor!.treinadores[c], { autoridade: 12, adaptabilidade: 10 });
+    const t = comAtributos(w.motor!.treinadores[c], { gestao: 12, adaptabilidade: 10 });
     const dele = escolherOnze(st, w.plantel[c], t, dia, Rng.de(1));
     const outra = dele.plano.formacao.id === '4-4-2' ? '4-3-3' : '4-4-2';
     const vistos = new Set<string>();
@@ -131,7 +131,7 @@ describe('interferência do utilizador (3.3)', () => {
     const c = clube();
     const st = w.jogadores!;
     const conflitoApos = (gestao: number) => {
-      const t = comAtributos(w.motor!.treinadores[c], { gestao, autoridade: 15, adaptabilidade: 6 });
+      const t = comAtributos(w.motor!.treinadores[c], { gestao, adaptabilidade: 6 });
       const r = novaRelacao(t);
       for (let k = 0; k < 8; k++) sugerir(st, w.plantel[c], t, r, { formacao: '5-3-2', instrucoes: { mentalidade: -2, linha: -1 } }, dia, Rng.de(8, k));
       return { r, t };

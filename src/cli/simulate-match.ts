@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs';
 import { LocalFileSource } from '../data/LocalFileSource.ts';
 import { carregarDados } from '../data/load.ts';
 import { construirMundo, diaInicioMundo, type World } from '../engine/world.ts';
-import { prepararLado, golosRapido, type Lado } from '../match/rapido.ts';
+import { prepararLados, golosRapido, type Lado } from '../match/rapido.ts';
 import { jogoDetalhado, type Evento, type ResultadoDetalhado } from '../match/detalhado.ts';
 import { PAPEIS } from '../config/papeis.ts';
 import { NOME_RATING, RATINGS } from '../config/ratings.ts';
@@ -98,7 +98,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (a.fora) f = w.clubes.findIndex((x) => x.id === a.fora);
   if (c < 0 || f < 0) throw new Error('Clube não encontrado (use o id do clube).');
   const rng = Rng.de(semente, 'simulate-match', c, f);
-  const casa = prepararLado(w, c, dia, rng), fora = prepararLado(w, f, dia, rng);
+  const [casa, fora] = prepararLados(w, c, f, dia, rng);
   const neutro = !!a.neutro;
   let L: string[];
   if (a.detailed) L = relatoDetalhado(w, casa, fora, jogoDetalhado(w, casa, fora, neutro, rng));

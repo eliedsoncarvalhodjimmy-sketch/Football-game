@@ -107,7 +107,7 @@ export class Academia {
   // ---------------------------------------------------------------- leitura
 
   nivelAcademia(c: number): number { return this.w.economia?.nivel(c, 'academia') ?? 5; }
-  coordenador(c: number): number { return this.w.economia?.staff.nivel(c, 'coordenador_academia') ?? 10; }
+  coordenador(c: number): number { return this.w.economia?.staff.coordenacaoAcademia(c) ?? 10; }
   shortlistMax(c: number): number { return Math.min(P.shortlist_maximo, Math.round(P.shortlist_base + P.shortlist_por_nivel * this.nivelAcademia(c))); }
   usoAcademia(c: number): number { const a = this.w.economia?.ia?.arquetipo[c]; return a ? PARAMETROS[a].academia : 0.5; }
 

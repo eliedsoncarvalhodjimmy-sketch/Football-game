@@ -27,12 +27,12 @@ export interface ParametrosArquetipo {
 }
 
 export const PARAMETROS: Record<Arquetipo, ParametrosArquetipo> = {
-  formador: { massa: -0.04, arriscaFFP: false, paciencia: 1.4, perfis: { formador: 2, ofensivo: 1.2, pressao_alta: 1.1, pragmatico: 0.6, contra_ataque: 0.9 }, academia: 0.9, divida: -0.1, infra: 1.2, crise: 'cortar_salarios' },
-  comprador_estrelas: { massa: 0.05, arriscaFFP: true, paciencia: 0.8, perfis: { ofensivo: 1.6, gestor: 1.5, pressao_alta: 1.2, formador: 0.7, pragmatico: 0.9 }, academia: 0.2, divida: 0.2, infra: 1.0, crise: 'arriscar_ffp' },
-  analitico: { massa: -0.02, arriscaFFP: false, paciencia: 1.1, perfis: { contra_ataque: 1.5, pressao_alta: 1.4, pragmatico: 1.3, gestor: 0.7 }, academia: 0.5, divida: 0, infra: 1.1, crise: 'vender_pico' },
-  magnata_impaciente: { massa: 0.06, arriscaFFP: true, paciencia: 0.5, perfis: { gestor: 1.6, ofensivo: 1.3, pragmatico: 1.2, formador: 0.5 }, academia: 0.2, divida: 0.3, infra: 1.0, crise: 'endividar_despedir' },
-  tradicional: { massa: 0, arriscaFFP: false, paciencia: 1.2, perfis: { pragmatico: 1.6, gestor: 1.5, contra_ataque: 1.4, pressao_alta: 0.8, ofensivo: 0.9 }, academia: 0.5, divida: 0, infra: 0.9, crise: 'aguentar' },
-  vendedor: { massa: -0.05, arriscaFFP: false, paciencia: 1.0, perfis: { formador: 1.6, contra_ataque: 1.4, pragmatico: 1.1, gestor: 0.8 }, academia: 0.8, divida: -0.1, infra: 1.0, crise: 'vender_melhor' },
+  formador: { massa: -0.04, arriscaFFP: false, paciencia: 1.4, perfis: { futebol_total: 1.6, tiki_taka: 1.3, gegenpressen: 1.1, pelas_alas: 1.0, contra_ataque: 0.9, bloco_medio_baixo: 0.8, jogo_direto: 0.7, catenaccio: 0.6 }, academia: 0.9, divida: -0.1, infra: 1.2, crise: 'cortar_salarios' },
+  comprador_estrelas: { massa: 0.05, arriscaFFP: true, paciencia: 0.8, perfis: { tiki_taka: 1.5, futebol_total: 1.3, gegenpressen: 1.3, pelas_alas: 1.2, contra_ataque: 0.9, jogo_direto: 0.8, bloco_medio_baixo: 0.8, catenaccio: 0.7 }, academia: 0.2, divida: 0.2, infra: 1.0, crise: 'arriscar_ffp' },
+  analitico: { massa: -0.02, arriscaFFP: false, paciencia: 1.1, perfis: { gegenpressen: 1.5, contra_ataque: 1.4, bloco_medio_baixo: 1.3, tiki_taka: 1.1, jogo_direto: 0.9, catenaccio: 0.8 }, academia: 0.5, divida: 0, infra: 1.1, crise: 'vender_pico' },
+  magnata_impaciente: { massa: 0.06, arriscaFFP: true, paciencia: 0.5, perfis: { pelas_alas: 1.4, tiki_taka: 1.3, gegenpressen: 1.2, jogo_direto: 1.1, bloco_medio_baixo: 0.8, catenaccio: 0.6 }, academia: 0.2, divida: 0.3, infra: 1.0, crise: 'endividar_despedir' },
+  tradicional: { massa: 0, arriscaFFP: false, paciencia: 1.2, perfis: { catenaccio: 1.5, bloco_medio_baixo: 1.5, contra_ataque: 1.4, jogo_direto: 1.3, tiki_taka: 0.8, futebol_total: 0.7 }, academia: 0.5, divida: 0, infra: 0.9, crise: 'aguentar' },
+  vendedor: { massa: -0.05, arriscaFFP: false, paciencia: 1.0, perfis: { contra_ataque: 1.5, pelas_alas: 1.3, gegenpressen: 1.1, jogo_direto: 1.1, bloco_medio_baixo: 1.0, tiki_taka: 0.9 }, academia: 0.8, divida: -0.1, infra: 1.0, crise: 'vender_melhor' },
 };
 
 /** As preferências estão equilibradas entre filosofias (média ≈ 1,1–1,2 por perfil), para que o mercado de treinadores não torne o mundo

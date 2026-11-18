@@ -105,7 +105,7 @@ const obs = [...w2.ligaPorId('ENG1').clubes].sort((x, y) => w2.reputacao[y] - w2
 const ligaBra = w2.ligas.indexOf(w2.ligaPorId('BRA1'));
 const alvoC = w2.ligaPorId('BRA1').clubes[0];
 const alvoJ = (w2.plantel[alvoC] ?? []).filter((j) => st2.clube[j] === alvoC && st2.idade(j, dia) <= 22).sort((a, b) => st2.pot[b] - st2.pot[a])[0] ?? w2.plantel[alvoC][0];
-s2.atribuicao[obs] = (w2.economia!.staff.porClube[obs] ?? []).filter((x) => x.cargo === 'scout').map(() => ligaBra);
+s2.atribuicao[obs] = (w2.economia!.staff.porClube[obs] ?? []).filter((x) => x.cargo === 'olheiro').map(() => ligaBra);
 p('', `## 7. Evolução do conhecimento de ${st2.nomes[alvoJ]} (${Math.floor(st2.idade(alvoJ, dia))} anos, ${w2.clubes[alvoC].nome}) pelo ${w2.clubes[obs].nome} em 10 semanas`, '', `Valores reais: OVR ${st2.ovrNat(alvoJ)}, potencial ${st2.pot[alvoJ]}. Os scouts do clube passam a cobrir o Brasileirão; na semana 4 o clube pede um relatório (observação dedicada).`, '', '| Semana | Conhecimento | OVR (intervalo) | Potencial (intervalo) | Estrelas | Ocultos visíveis | Familiaridade com a liga |', '|---:|---:|---|---|---|---|---:|');
 const d0 = Math.floor(Date.UTC(2026, 8, 7) / 864e5);
 for (let k = 0; k <= 10; k++) {

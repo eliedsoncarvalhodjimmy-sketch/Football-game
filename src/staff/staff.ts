@@ -1,7 +1,9 @@
-// Staff (Prompt 3, Bloco C): adjunto, treinador de GR, preparador físico, médico, scouts, coordenador da academia, analista.
-// Gerado por clube (nível pela reputação, salário pelo nível e pela riqueza do clube); editável em staff.csv.
+// Staff (cargos do utilizador): academia, recrutamento, equipa técnica, direcção financeira e comercial. Cada membro tem os
+// atributos do seu cargo (1–20) e um "nivel" (a média) para salário e mercado. Gerado por clube; editável em staff.csv.
 import { Rng } from '../core/rng.ts';
 import { CARGOS, STAFF as S, EFEITOS_STAFF as EF, type Cargo } from '../config/staff.ts';
+import { CARGO_POR_ID, AREAS_COACH, type AtributoStaff } from '../config/cargos.ts';
+import { ESTILOS_IDS, ESTILO_POR_ID, type IdEstilo } from '../config/estilos.ts';
 import { nomePessoa } from '../players/nomesPessoas.ts';
 import type { World } from '../engine/world.ts';
 import type { Treinador } from '../coaches/store.ts';
@@ -12,6 +14,12 @@ export interface MembroStaff {
   nome: string;
   cargo: Cargo;
   nivel: number;
+  /** Atributos do cargo (1–20); "estilo" fica em `estilo`. */
+  atributos: Partial<Record<AtributoStaff, number>>;
+  /** Treinadores (assistente, sub-21, sub-18): estilo e esquema preferidos. */
+  estilo?: { estilo: IdEstilo; esquema: string };
+  /** Coach: área de treino. */
+  area?: (typeof AREAS_COACH)[number];
   salario: number;
   contratoFim: number;
   clube: number;
@@ -20,6 +28,9 @@ export interface MembroStaff {
 }
 
 const clamp = (x: number, a: number, b: number) => (x < a ? a : x > b ? b : x);
+/** Atributo do treinador principal → atributo correspondente do assistente. */
+const DO_ASSISTENTE: Record<AtributoTreinador, AtributoStaff> = { tactica: 'conhecimento_tactico', motivacao: 'motivacao', desenvolvimento: 'treino', disciplina: 'disciplina', adaptabilidade: 'flexibilidade', gestao: 'gestao_pessoas', jovens: 'trabalho_jovens' };
+const POS_AREA: Record<string, number[]> = { ataque: [6, 7, 8, 9, 10, 11], defesa: [0, 1, 2, 3, 4, 5], posse: [5, 6, 7, 8] };
 
 export class StaffMundo {
   porClube: MembroStaff[][] = [];
@@ -33,25 +44,33 @@ export class StaffMundo {
   }
 
   gerarMembro(cargo: Cargo, rep: number, pais: string, rng: Rng, dia: number, c: number, receita: number): MembroStaff {
-    const nivel = clamp(Math.round(S.nivel_base + (S.nivel_por_reputacao * rep) / 100 + rng.normal(0, S.desvio)), 1, 20);
-    const anos = rng.int(S.anos[0], S.anos[1]);
-    return {
-      id: `st${++this.seq}`, nome: nomePessoa(pais, rng), cargo, nivel, salario: c >= 0 ? this.salario(c, cargo, nivel, receita) : 0,
-      contratoFim: dia + anos * 365, clube: c, idade: rng.int(28, 64), origem: 'gerado',
-    };
+    const base = clamp(S.nivel_base + (S.nivel_por_reputacao * rep) / 100 + rng.normal(0, S.desvio), 1, 20);
+    const atributos: Partial<Record<AtributoStaff, number>> = {};
+    for (const a of CARGO_POR_ID[cargo].atributos) if (a !== 'estilo') atributos[a] = clamp(Math.round(rng.normal(base, S.desvio_atributo)), 1, 20);
+    const vals = Object.values(atributos) as number[];
+    const nivel = clamp(Math.round(vals.reduce((t, x) => t + x, 0) / vals.length), 1, 20);
+    const m: MembroStaff = { id: `st${++this.seq}`, nome: nomePessoa(pais, rng), cargo, nivel, atributos, salario: c >= 0 ? this.salario(c, cargo, nivel, receita) : 0,
+      contratoFim: dia + rng.int(S.anos[0], S.anos[1]) * 365, clube: c, idade: rng.int(28, 64), origem: 'gerado' };
+    if (CARGO_POR_ID[cargo].atributos.includes('estilo')) { const e = ESTILOS_IDS[rng.int(0, ESTILOS_IDS.length - 1)]; m.estilo = { estilo: e, esquema: ESTILO_POR_ID[e].esquemas[rng.int(0, 2)] }; }
+    if (cargo === 'coach') m.area = AREAS_COACH[rng.int(0, AREAS_COACH.length - 1)];
+    return m;
   }
 
-  /** Staff de um clube: um de cada cargo, scouts pela reputação, analista nos clubes maiores. */
-  gerarClube(c: number, dia: number, receita: number) {
+  /** Quantos membros de um cargo: olheiros pelo nível do Recrutamento (1 por cada 2 níveis, máx. 5); olheiros de jovens pela reputação; o resto 1. */
+  quantos(cargo: Cargo, rep: number, recrutamento: number): number {
+    if (cargo === 'olheiro') return clamp(Math.ceil(recrutamento / S.olheiros_por_niveis), 1, S.olheiros_max);
+    if (cargo === 'olheiro_jovens') return Math.min(S.olheiros_jovens_max, Math.floor(rep / S.olheiros_jovens_reputacao));
+    return 1;
+  }
+
+  /** Staff de um clube. `recrutamento`: nível da infraestrutura de recrutamento (1–10). */
+  gerarClube(c: number, dia: number, receita: number, recrutamento?: number) {
     const w = this.w;
     const rng = Rng.de(w.semente, 'staff', w.clubes[c].id);
     const rep = w.reputacao[c];
+    const recr = recrutamento ?? clamp(Math.round(1 + rep / 12), 1, 10);
     const out: MembroStaff[] = [];
-    for (const cargo of CARGOS) {
-      if (cargo === 'analista' && rep < S.analista_reputacao) continue;
-      const n = cargo === 'scout' ? Math.min(S.scouts_max, 1 + Math.floor(rep / S.scouts_por_reputacao)) : 1;
-      for (let k = 0; k < n; k++) out.push(this.gerarMembro(cargo, rep, w.clubes[c].pais, rng, dia, c, receita));
-    }
+    for (const cargo of CARGOS) for (let k = 0; k < this.quantos(cargo, rep, recr); k++) out.push(this.gerarMembro(cargo, rep, w.clubes[c].pais, rng, dia, c, receita));
     this.porClube[c] = out;
   }
 
@@ -64,47 +83,71 @@ export class StaffMundo {
     }
   }
 
-  /** Custo anual do staff técnico do clube. */
   custo(c: number): number {
     let s = 0;
     for (const m of this.porClube[c] ?? []) s += m.salario;
     return s;
   }
 
-  /** Nível do cargo no clube (o melhor; scouts: a média). 10 se não houver ninguém. */
+  membros(c: number, cargo: Cargo): MembroStaff[] {
+    return (this.porClube[c] ?? []).filter((m) => m.cargo === cargo);
+  }
+
+  /** Nível do cargo no clube (o melhor; olheiros: a média). 6 se não houver ninguém. */
   nivel(c: number, cargo: Cargo): number {
-    const ms = (this.porClube[c] ?? []).filter((m) => m.cargo === cargo);
-    if (!ms.length) return cargo === 'analista' ? 10 : 6;
-    return cargo === 'scout' ? ms.reduce((s, m) => s + m.nivel, 0) / ms.length : Math.max(...ms.map((m) => m.nivel));
+    const ms = this.membros(c, cargo);
+    if (!ms.length) return 6;
+    return cargo === 'olheiro' || cargo === 'olheiro_jovens' ? ms.reduce((s, m) => s + m.nivel, 0) / ms.length : Math.max(...ms.map((m) => m.nivel));
+  }
+
+  /** Atributo de um cargo (o melhor membro); `def` se não houver ninguém. */
+  atr(c: number, cargo: Cargo, a: AtributoStaff, def = 6): number {
+    const ms = this.membros(c, cargo);
+    return ms.length ? Math.max(...ms.map((m) => m.atributos[a] ?? m.nivel)) : def;
   }
 
   // ---------------------------------------------------------------- efeitos (limitados)
 
-  /** Atributo do treinador com o adjunto: as fraquezas abaixo do nível do adjunto sobem uma fracção da diferença. */
+  /** Atributo do treinador com o assistente: as fraquezas abaixo do atributo correspondente do assistente sobem uma fracção. */
   atributoTreinador(c: number, t: Treinador, a: AtributoTreinador): number {
-    const adj = this.nivel(c, 'adjunto');
+    const adj = this.atr(c, 'treinador_assistente', DO_ASSISTENTE[a]);
     const v = t.atributos[a];
     return v < adj ? v + EF.adjunto * (adj - v) : v;
   }
 
-  /** Bónus de desenvolvimento dos guarda-redes (pontos). */
+  /** Bónus de desenvolvimento dos guarda-redes (treino de guarda-redes). */
   bonusGR(c: number): number {
-    return EF.treinador_gr * (this.nivel(c, 'treinador_gr') - 10);
+    return EF.treinador_gr * (this.atr(c, 'treinador_gr', 'treino_gr') - 10);
   }
 
-  /** Factor da taxa de lesões (preparador físico). */
+  /** Bónus do coach à evolução dos jogadores da sua área (pontos de desenvolvimento), pela posição natural. */
+  bonusCoach(c: number, posNat: number): number {
+    const m = this.membros(c, 'coach')[0];
+    if (!m || !m.area || m.area === 'tactica' || !POS_AREA[m.area].includes(posNat)) return 0;
+    return EF.coach_area_evolucao * ((m.atributos.treino_area ?? 10) - 10);
+  }
+
+  /** Factor da taxa de lesões: prevenção (o melhor entre o preparador físico e o fisioterapeuta). */
   factorTaxaLesao(c: number): number {
-    return clamp(1 - EF.preparador_fisico * (this.nivel(c, 'preparador_fisico') - 10), 1 - EF.limite, 1 + EF.limite);
+    const p = Math.max(this.atr(c, 'preparador_fisico', 'prevencao_lesoes'), this.atr(c, 'fisioterapeuta', 'prevencao_lesoes'));
+    return clamp(1 - EF.preparador_fisico * (p - 10), 1 - EF.limite, 1 + EF.limite);
   }
 
-  /** Factor dos dias de lesão (médico). */
+  /** Factor dos dias de lesão: fisioterapia e recuperação de lesões do fisioterapeuta. */
   factorDiasLesao(c: number): number {
-    return clamp(1 - EF.medico * (this.nivel(c, 'medico') - 10), 1 - EF.limite, 1 + EF.limite);
+    const v = (this.atr(c, 'fisioterapeuta', 'fisioterapia') + this.atr(c, 'fisioterapeuta', 'recuperacao_lesoes')) / 2;
+    return clamp(1 - EF.medico * (v - 10), 1 - EF.limite, 1 + EF.limite);
   }
 
-  /** Bónus do analista (fracção da força, dentro da parcela do treinador). */
+  /** Coach na área "Táctica": soma à parcela do treinador (substitui o antigo analista). */
   bonusAnalista(c: number): number {
-    return EF.analista * (this.nivel(c, 'analista') - 10);
+    const m = this.membros(c, 'coach')[0];
+    return m?.area === 'tactica' ? EF.coach_tactica * ((m.atributos.treino_area ?? 10) - 10) : 0;
+  }
+
+  /** Coordenação da academia: chefe de desenvolvimento juvenil (trabalho com jovens) e treinadores do sub-21 e sub-18 (treino). */
+  coordenacaoAcademia(c: number): number {
+    return 0.5 * this.atr(c, 'chefe_juvenil', 'trabalho_jovens', 10) + 0.25 * this.atr(c, 'treinador_sub21', 'treino', 10) + 0.25 * this.atr(c, 'treinador_sub18', 'treino', 10);
   }
 
   // ---------------------------------------------------------------- mercado (anual)
@@ -120,7 +163,7 @@ export class StaffMundo {
     const folga = orcamento - this.custo(c);
     if (folga <= 0 || !rng.chance(S.prob_melhoria)) return null;
     // O cargo mais fraco (excepto scouts).
-    const fraco = ms.filter((m) => m.cargo !== 'scout').sort((a, b) => a.nivel - b.nivel)[0];
+    const fraco = ms.filter((m) => m.cargo !== 'olheiro' && m.cargo !== 'olheiro_jovens').sort((a, b) => a.nivel - b.nivel)[0];
     if (!fraco) return null;
     const rep = this.w.reputacao[c];
     let melhor: { m: MembroStaff; origem: number } | null = null;
@@ -165,7 +208,7 @@ export class StaffMundo {
   }
 }
 
-/** staff.csv: id, nome, funcao (cargo), clube, nivel, salario, origem. Os do utilizador substituem o cargo gerado do clube. */
+/** staff.csv: id, nome, funcao (cargo), clube, nivel, salario, origem e, opcionalmente, uma coluna por atributo do cargo. */
 export function aplicarStaffCsv(sm: StaffMundo, w: World, linhas: Record<string, string>[], dia: number) {
   for (const l of linhas) {
     const c = w.clubes.findIndex((x) => x.id === l.clube);
@@ -174,7 +217,8 @@ export function aplicarStaffCsv(sm: StaffMundo, w: World, linhas: Record<string,
     const ms = sm.porClube[c] ?? [];
     const i = ms.findIndex((m) => m.cargo === cargo && m.origem === 'gerado');
     const m: MembroStaff = {
-      id: l.id || `${l.clube}_${cargo}`, nome: l.nome || cargo, cargo, nivel: clamp(Number(l.nivel) || 10, 1, 20), salario: Number(l.salario) || (i >= 0 ? ms[i].salario : 0),
+      id: l.id || `${l.clube}_${cargo}`, nome: l.nome || cargo, cargo, nivel: clamp(Number(l.nivel) || 10, 1, 20),
+      atributos: Object.fromEntries(CARGO_POR_ID[cargo].atributos.filter((a) => a !== 'estilo').map((a) => [a, clamp(Number(l[a]) || Number(l.nivel) || 10, 1, 20)])), salario: Number(l.salario) || (i >= 0 ? ms[i].salario : 0),
       contratoFim: dia + 2 * 365, clube: c, idade: Number(l.idade) || 45, origem: l.origem === 'real' ? 'real' : 'manual',
     };
     if (i >= 0) ms[i] = m; else ms.push(m);

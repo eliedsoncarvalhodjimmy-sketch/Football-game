@@ -52,7 +52,7 @@ export class MercadoTreinadores {
     t.clausula = t.salario * anos * MT.clausula;
     // Pedidos: os treinadores com mais reputação pedem mais (orçamento, reforços, autonomia).
     const r = (t.reputacao ?? 50) / 100;
-    t.pedidos = { orcamento: Math.round(100 * (0.05 + 0.15 * r)) / 100, reforcos: Math.round(1 + 4 * r), autonomia: Math.round(100 * clamp(0.3 + 0.5 * r + (t.atributos.autoridade - 10) / 40, 0, 1)) / 100 };
+    t.pedidos = { orcamento: Math.round(100 * (0.05 + 0.15 * r)) / 100, reforcos: Math.round(1 + 4 * r), autonomia: Math.round(100 * clamp(0.3 + 0.5 * r + (t.atributos.gestao - 10) / 40, 0, 1)) / 100 };
   }
 
   gerarLivres(dia: number, n: number) {

@@ -103,9 +103,10 @@ describe('mercado de treinadores', () => {
     const c = v.ligaPorId('GER2').clubes[3];
     e.ia.arquetipo[c] = 'formador';
     const t = v.motor!.treinadores[c];
-    t.perfil = 'pragmatico'; t.atributos.adaptabilidade = 2; t.moral = 60;
+    t.perfil = 'catenaccio'; t.atributos.adaptabilidade = 2; t.moral = 60;
     for (let k = 0; k < 18 && v.motor!.treinadores[c] === t && !t.conflito; k++) e.ia.mes(dia() + 30 * k);
-    expect(t.moral!).toBeLessThan(60);
+    // A moral desce com o choque (se não for despedido antes por resultados) e acaba em saída ou conflito.
+    expect(t.moral! < 60 || v.motor!.treinadores[c] !== t).toBe(true);
     expect(v.motor!.treinadores[c] !== t || t.conflito).toBe(true);
   }, 60000);
 
@@ -129,7 +130,7 @@ describe('staff', () => {
     for (let c = 0; c < w.clubes.length; c += 11) {
       if (w.liga[c] < 0) continue;
       const cargos = new Set(e.staff.porClube[c].map((m) => m.cargo));
-      for (const k of CARGOS.filter((x) => x !== 'analista')) expect(cargos.has(k)).toBe(true);
+      for (const k of CARGOS.filter((x) => x !== 'olheiro_jovens')) expect(cargos.has(k)).toBe(true);
       expect(e.staff.custo(c)).toBeGreaterThan(0);
       expect(Math.abs(e.staff.factorTaxaLesao(c) - 1)).toBeLessThanOrEqual(EFEITOS_STAFF.limite + 1e-9);
       expect(Math.abs(e.staff.factorDiasLesao(c) - 1)).toBeLessThanOrEqual(EFEITOS_STAFF.limite + 1e-9);

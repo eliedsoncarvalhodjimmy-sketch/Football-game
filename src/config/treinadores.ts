@@ -1,8 +1,15 @@
 // Treinadores (Fase 2). Atributos 1–20, perfis com formações e instruções preferidas.
 import type { Instrucoes } from './tacticas.ts';
+import { ESTILOS, type IdEstilo } from './estilos.ts';
 
-export const ATRIBUTOS_TREINADOR = ['tactica', 'motivacao', 'desenvolvimento', 'disciplina', 'adaptabilidade', 'gestao', 'autoridade'] as const;
+// Atributos (cargos do utilizador, data/staff/cargos.md): ids internos mantidos; nomes do utilizador. A "autoridade" saiu:
+// passa a sair da gestão de pessoas. "jovens" = trabalho com jovens. A disciplina fica (pedido do utilizador).
+export const ATRIBUTOS_TREINADOR = ['tactica', 'motivacao', 'desenvolvimento', 'disciplina', 'adaptabilidade', 'gestao', 'jovens'] as const;
 export type AtributoTreinador = (typeof ATRIBUTOS_TREINADOR)[number];
+export const NOME_ATRIBUTO_TREINADOR: Record<AtributoTreinador, string> = {
+  tactica: 'Conhecimento táctico', motivacao: 'Motivação', desenvolvimento: 'Treino', disciplina: 'Disciplina',
+  adaptabilidade: 'Flexibilidade e adaptabilidade táctica', gestao: 'Gestão de pessoas', jovens: 'Trabalho com jovens',
+};
 
 export interface Perfil {
   id: string;
@@ -15,14 +22,22 @@ export interface Perfil {
   papeis: Record<number, string>;
 }
 
-export const PERFIS: Perfil[] = [
-  { id: 'ofensivo', nome: 'Ofensivo / posse', formacoes: ['4-3-3', '4-2-3-1', '4-3-3F9'], instrucoes: { mentalidade: 1, pressao: 0, linha: 0, largura: 1, ritmo: -1 }, fortes: ['tactica'], papeis: { 0: 'gr_lib', 4: 'lat_ofe' } },
-  { id: 'contra_ataque', nome: 'Contra-ataque', formacoes: ['4-4-2', '4-2-3-1', '5-3-2'], instrucoes: { mentalidade: -1, pressao: 0, linha: -1, largura: 0, ritmo: 1 }, fortes: ['disciplina'], papeis: { 1: 'lat_def', 5: 'ext_inv', 8: 'ext_inv' } },
-  { id: 'pragmatico', nome: 'Pragmático / defensivo', formacoes: ['4-1-4-1', '4-4-2', '5-3-2'], instrucoes: { mentalidade: -1, pressao: 0, linha: 0, largura: -1, ritmo: 0 }, fortes: ['disciplina', 'tactica'], papeis: { 1: 'lat_def', 7: 'mc_cob' } },
-  { id: 'pressao_alta', nome: 'Pressão alta', formacoes: ['4-3-3', '4-2-3-1', '3-4-3'], instrucoes: { mentalidade: 1, pressao: 1, linha: 1, largura: 0, ritmo: 1 }, fortes: ['tactica', 'motivacao'], papeis: { 0: 'gr_lib', 10: 'pl_pre' } },
-  { id: 'formador', nome: 'Formador de jovens', formacoes: ['4-3-3', '4-4-2', '4-2-3-1'], instrucoes: { mentalidade: 0, pressao: 0, linha: 0, largura: 0, ritmo: 0 }, fortes: ['desenvolvimento'], papeis: {} },
-  { id: 'gestor', nome: 'Gestor de balneário', formacoes: ['4-4-2', '4-2-3-1', '4-1-4-1'], instrucoes: { mentalidade: 0, pressao: 0, linha: 0, largura: 0, ritmo: 0 }, fortes: ['gestao', 'motivacao', 'autoridade'], papeis: {} },
-];
+/** Os perfis dos treinadores são os 8 estilos do utilizador (src/config/estilos.ts): esquemas, instruções e atributos fortes. */
+const FORTES: Record<IdEstilo, AtributoTreinador[]> = {
+  tiki_taka: ['tactica'], gegenpressen: ['tactica', 'motivacao'], contra_ataque: ['disciplina'], catenaccio: ['disciplina', 'tactica'],
+  jogo_direto: ['motivacao'], pelas_alas: ['tactica'], futebol_total: ['tactica', 'adaptabilidade'], bloco_medio_baixo: ['disciplina'],
+};
+const PAPEIS_ESTILO: Partial<Record<IdEstilo, Record<number, string>>> = {
+  tiki_taka: { 0: 'gr_lib', 4: 'lat_ofe' }, gegenpressen: { 0: 'gr_lib', 10: 'pl_pre' }, contra_ataque: { 1: 'lat_def' }, catenaccio: {}, jogo_direto: { 10: 'pl_piv' }, pelas_alas: { 1: 'lat_ofe', 4: 'lat_ofe' },
+};
+export const PERFIS: Perfil[] = ESTILOS.map((e) => ({ id: e.id, nome: e.nome, formacoes: [...e.esquemas], instrucoes: { ...e.instrucoes }, fortes: FORTES[e.id], papeis: PAPEIS_ESTILO[e.id] ?? {} }));
+/** Peso de cada estilo pela reputação do clube: grandes mais Tiki-Taka/Gegenpressen/Futebol Total; pequenos mais blocos e jogo directo. */
+export const PESO_ESTILO_REPUTACAO: Record<IdEstilo, (rep: number) => number> = {
+  tiki_taka: (r) => 0.3 + r / 100, gegenpressen: (r) => 0.4 + r / 110, futebol_total: (r) => 0.15 + r / 160, pelas_alas: () => 0.8,
+  contra_ataque: (r) => 1.3 - r / 100, catenaccio: (r) => 0.9 - r / 140, jogo_direto: (r) => 1.1 - r / 110, bloco_medio_baixo: (r) => 1.3 - r / 100,
+};
+/** Treinadores com vocação além do estilo (atributos +3): formadores (treino e jovens) e gestores de balneário (gestão e motivação). */
+export const VOCACAO = { prob_formador: 0.15, prob_gestor: 0.15 };
 
 export const TREINADORES = {
   /** Nível médio dos atributos = base + peso × reputação do clube / 100 (σ = desvio). */
@@ -49,6 +64,8 @@ export const EFEITOS_TREINADOR = {
   moral_por_gestao: 0.2,
   /** Derrota: a perda de moral fica × (1 − (gestão − 10) × isto). */
   derrota_por_gestao: 0.03,
+  /** Trabalho com jovens: o bónus de evolução do jovem titular (≤ 21) × (1 + (jovens − 10) × isto). */
+  jovens_por_ponto: 0.04,
 };
 
 /**

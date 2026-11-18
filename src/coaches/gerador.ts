@@ -1,6 +1,7 @@
 // Gera um treinador fictício por clube, com perfil e qualidade coerentes com a reputação.
 import { Rng } from '../core/rng.ts';
-import { ATRIBUTOS_TREINADOR, PERFIS, TREINADORES as T } from '../config/treinadores.ts';
+import { ATRIBUTOS_TREINADOR, PERFIS, TREINADORES as T, PESO_ESTILO_REPUTACAO, VOCACAO } from '../config/treinadores.ts';
+import type { IdEstilo } from '../config/estilos.ts';
 import { nomePessoa } from '../players/nomesPessoas.ts';
 import type { Treinador } from './store.ts';
 import type { World } from '../engine/world.ts';
@@ -10,12 +11,13 @@ const clamp = (x: number) => Math.max(1, Math.min(20, Math.round(x)));
 export function gerarTreinador(w: World, c: number, rng: Rng, id = `${w.clubes[c].id}_t`): Treinador {
   const rep = w.reputacao[c];
   // Clubes grandes: mais perfis ofensivos e de pressão; pequenos: mais pragmáticos e de contra-ataque.
-  const pesos = PERFIS.map((p) => (p.id === 'ofensivo' || p.id === 'pressao_alta' ? 0.5 + rep / 100 : p.id === 'pragmatico' || p.id === 'contra_ataque' ? 1.5 - rep / 100 : 0.8));
+  const pesos = PERFIS.map((p) => Math.max(0.05, PESO_ESTILO_REPUTACAO[p.id as IdEstilo](rep)));
   let r = rng.next() * pesos.reduce((s, x) => s + x, 0);
   let perfil = PERFIS[0];
   for (let k = 0; k < PERFIS.length; k++) if ((r -= pesos[k]) < 0) { perfil = PERFIS[k]; break; }
   const nivel = T.nivel_base + (T.nivel_por_reputacao * rep) / 100;
-  const atributos = Object.fromEntries(ATRIBUTOS_TREINADOR.map((a) => [a, clamp(rng.normal(nivel + (perfil.fortes.includes(a) ? T.bonus_fortes : 0), T.desvio))])) as Treinador['atributos'];
+  const voc = rng.next(), extra: string[] = voc < VOCACAO.prob_formador ? ['desenvolvimento', 'jovens'] : voc < VOCACAO.prob_formador + VOCACAO.prob_gestor ? ['gestao', 'motivacao'] : [];
+  const atributos = Object.fromEntries(ATRIBUTOS_TREINADOR.map((a) => [a, clamp(rng.normal(nivel + (perfil.fortes.includes(a) || extra.includes(a) ? T.bonus_fortes : 0), T.desvio))])) as Treinador['atributos'];
   // A adaptabilidade não depende da reputação (há teimosos em todos os níveis).
   atributos.adaptabilidade = clamp(rng.normal(10.5, 4));
   return {

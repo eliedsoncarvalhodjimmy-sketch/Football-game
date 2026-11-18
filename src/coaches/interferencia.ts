@@ -48,7 +48,7 @@ const sig = (x: number) => 1 / (1 + Math.exp(-x));
 const clamp = (x: number, a = 0, b = 100) => Math.max(a, Math.min(b, x));
 
 export function novaRelacao(t: Treinador): RelacaoTreinador {
-  return { capital: I.capital_inicial, autoridade: t.atributos.autoridade * I.autoridade_por_ponto, conflito: 0, recentes: 0, historico: [] };
+  return { capital: I.capital_inicial, autoridade: t.atributos.gestao * I.autoridade_por_ponto, conflito: 0, recentes: 0, historico: [] };
 }
 
 export function nivelConflito(r: RelacaoTreinador): ResultadoSugestao['nivelConflito'] {
@@ -74,7 +74,7 @@ function alteracoes(sug: Sugestao, plano: EscolhaOnze): Alteracao[] {
 /** Probabilidades de aceitar / aceitar em parte / ignorar uma sugestão com `n` alterações. */
 export function probabilidades(t: Treinador, r: RelacaoTreinador, n: number) {
   const a = t.atributos;
-  const resistencia = ((a.autoridade - 10) / 10) * I.peso_autoridade_atributo + (r.autoridade / 100 - 0.5) * I.peso_autoridade_balneario
+  const resistencia = ((a.gestao - 10) / 10) * I.peso_autoridade_atributo + (r.autoridade / 100 - 0.5) * I.peso_autoridade_balneario
     - ((a.adaptabilidade - 10) / 10) * I.peso_adaptabilidade + (r.conflito / 100) * I.peso_conflito + I.peso_por_alteracao * n + I.peso_recentes * r.recentes;
   const abertura = ((r.capital - 50) / 50) * I.peso_capital;
   const s = abertura - resistencia + I.base;
@@ -136,7 +136,7 @@ function aplicarAlteracoes(st: PlayerStore, plantel: number[], t: Treinador, del
 export function recuperarSemana(t: Treinador, r: RelacaoTreinador) {
   const R = I.recuperacao;
   r.capital = clamp(r.capital + R.capital);
-  r.autoridade = Math.min(t.atributos.autoridade * I.autoridade_por_ponto, r.autoridade + R.autoridade);
+  r.autoridade = Math.min(t.atributos.gestao * I.autoridade_por_ponto, r.autoridade + R.autoridade);
   r.conflito = clamp(r.conflito - R.conflito * (0.5 + t.atributos.gestao / 20));
   r.recentes *= R.recentes;
 }

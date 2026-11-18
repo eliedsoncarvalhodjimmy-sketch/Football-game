@@ -221,8 +221,8 @@ export class IAClubes {
       if (compat < FL.choque_abaixo) {
         tr.moral = clamp((tr.moral ?? 70) - FL.moral_por_mes * (1.5 - tr.atributos.adaptabilidade / 20), 0, 100);
         if ((tr.moral ?? 70) < FL.moral_saida) {
-          const cede = clamp(0.5 + (w.reputacao[c] - tr.atributos.autoridade * 5) / 100, 0, 1);
-          if (tr.atributos.autoridade >= FL.conflito_autoridade && !tr.conflito) {
+          const cede = clamp(0.5 + (w.reputacao[c] - tr.atributos.gestao * 5) / 100, 0, 1);
+          if (tr.atributos.gestao >= FL.conflito_autoridade && !tr.conflito) {
             tr.conflito = true;
             this.confianca[c] = clamp(this.confianca[c] - 15, 0, 100);
             e.registar(dia, c, 'conflito', `${tr.nome} entra em conflito público com a direcção (filosofia ${NOME_ARQUETIPO[this.arquetipo[c]]} contra o seu estilo ${tr.perfil}; cede ${Math.round(100 * cede)}%)`);

@@ -44,15 +44,19 @@ export interface Instrucoes {
   linha: number; // −1 recuada, 0 normal, +1 subida
   largura: number; // −1 estreita, 0 normal, +1 larga
   ritmo: number; // −1 lento, 0 normal, +1 rápido
+  /** Passe (pedido do utilizador): −1 curto, 0 misto, +1 directo. Opcional nos dados antigos (= 0). */
+  passe?: number;
 }
 
-export const INSTRUCOES_NEUTRAS: Instrucoes = { mentalidade: 0, pressao: 0, linha: 0, largura: 0, ritmo: 0 };
+export const INSTRUCOES_NEUTRAS: Instrucoes = { mentalidade: 0, pressao: 0, linha: 0, largura: 0, ritmo: 0, passe: 0 };
 
 /**
  * Efeito de cada instrução nos ratings (fracção por unidade). Ex.: mentalidade +1 → criação +3%,
  * finalização +3%, transição defensiva −4%, defesa da área −2%.
  */
 export const EFEITO_INSTRUCOES: Record<keyof Instrucoes, Partial<Record<string, number>>> = {
+  // Passe directo: salta o meio-campo (mais jogo aéreo e transições rápidas, menos construção); curto: o contrário.
+  passe: { aereo: 0.04, transicao: 0.02, construcao: -0.03, criacao: -0.01 },
   mentalidade: { criacao: 0.03, finalizacao: 0.03, transicao: -0.04, defesa_area: -0.02 },
   pressao: { pressao: 0.06, transicao: -0.03, construcao: 0.01 },
   linha: { pressao: 0.03, transicao: -0.05, defesa_area: 0.01 },

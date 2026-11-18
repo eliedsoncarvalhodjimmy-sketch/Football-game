@@ -317,6 +317,8 @@ td.r, th.r { text-align: right; }
 .ag-l { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: rgba(11,13,16,.55); } .ag-l span { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #b9bcc2; } .ag-l b { color: #fff; font-size: 14px; }
 .filtros-msg { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; } .filtros-msg .chip { border: 0; cursor: pointer; min-height: 30px; }
 .staff-grupo h2 { flex-wrap: wrap; }
+.st-atrs { display: flex; flex-wrap: wrap; gap: 4px; max-width: 520px; } .st-a { display: inline-flex; gap: 4px; align-items: center; background: var(--cartao-2); border-radius: 6px; padding: 2px 7px; font-size: 11px; color: var(--suave); } .st-a b { font-family: var(--f-num); font-size: 13px; }
+.qa-t { color: #57c26a; } .qb-t { color: #d7e04a; } .qc-t { color: #f2c230; } .qd-t { color: #f08a3c; }
 .modal-cal2 { width: min(1240px, 100%); max-height: 94vh; padding: 0; display: grid; grid-template-columns: 1fr 270px; overflow: auto; color: #fff;
   background: radial-gradient(1200px 600px at 85% 10%, rgba(120,90,255,.35), transparent 60%), linear-gradient(135deg, #24185a 0%, #33228a 55%, #2a4aa8 100%); border-color: rgba(255,255,255,.12); }
 .c2-princ { padding: 22px 18px 18px 22px; min-width: 0; }
@@ -463,6 +465,11 @@ td.r, th.r { text-align: right; }
 .car-ic { grid-row: 1 / 4; font-size: 22px; } .car-k b { font-family: var(--f-num); font-size: 22px; font-weight: 600; line-height: 1.1; } .car-k small { color: var(--suave); font-size: 12px; }
 .car-par { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 @media (max-width: 760px) { .car-res { grid-template-columns: 1fr 1fr; } .car-par { grid-template-columns: 1fr; } }
+.est-esc { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.est-b { background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; min-height: 36px; }
+.est-b.on { background: var(--acento); border-color: var(--acento); color: #fff; font-weight: 600; }
+.est-info { display: grid; grid-template-columns: 1.3fr 1.3fr .6fr; gap: 8px; margin-bottom: 10px; } .est-info > div { background: var(--cartao-2); border-radius: 10px; padding: 8px 12px; display: grid; gap: 2px; } .est-info b { font-weight: 500; font-size: 13px; } .bom-t { color: var(--bom); } .mau-t { color: var(--mau); }
+@media (max-width: 760px) { .est-info { grid-template-columns: 1fr; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -1155,12 +1162,28 @@ function jogadorEcra() {
   </div>`;
 }
 
-let mentalidade = 'Equilibrada', formacao = '3-4-2-1';
+let mentalidade = 'Equilibrada', formacao = '4-3-3', estiloT = 'gegenpressen', passeT = 'Misto';
+// Estilos (src/config/estilos.ts): esquemas e atributos valorizados; quem neutraliza cada um.
+const ESTILOS_P = {
+  tiki_taka: ['Tiki-Taka', ['4-3-3', '4-2-3-1', '3-4-3'], 'Técnica, passe, primeiro toque, visão, decisões', 'Gegenpressen, contra-ataques pelos lados, blocos que fecham o meio', 'Curto'],
+  gegenpressen: ['Gegenpressen', ['4-2-3-1', '4-3-3', '4-4-2'], 'Resistência, determinação, trabalho em equipa, velocidade, agressividade', 'Jogo Direto, Tiki-Taka que sai da pressão, blocos baixos', 'Misto'],
+  contra_ataque: ['Contra-ataque', ['4-4-2', '4-2-3-1', '5-3-2'], 'Velocidade, aceleração, passe longo, decisões, concentração', 'Posse que não se expõe, Catenaccio, Bloco Médio-Baixo', 'Directo'],
+  catenaccio: ['Catenaccio', ['5-3-2', '5-4-1', '4-4-2'], 'Desarme, marcação, concentração, determinação, posicionamento, força', 'Remate de longe, bolas paradas, avançado forte no ar', 'Directo'],
+  jogo_direto: ['Jogo Direto', ['4-4-2', '4-2-3-1', '3-5-2'], 'Força, jogo aéreo, passe longo, determinação, finalização', 'Centrais fortes no ar, pressão alta', 'Directo'],
+  pelas_alas: ['Pelas Alas', ['4-4-2', '4-3-3', '3-5-2'], 'Velocidade, cruzamento, drible, resistência, posicionamento', 'Blocos baixos com centrais altos, Contra-ataque', 'Misto'],
+  futebol_total: ['Futebol Total', ['4-3-3', '3-4-3', '4-2-3-1'], 'Visão, decisões, técnica, passe, resistência, polivalência', 'Catenaccio, Bloco Médio-Baixo, Gegenpressen', 'Curto'],
+  bloco_medio_baixo: ['Bloco Médio-Baixo', ['4-4-2', '5-4-1', '4-1-4-1'], 'Posicionamento, concentração, trabalho em equipa, resistência', 'Remate de longe, avançado forte no ar, cruzamentos', 'Misto'],
+};
 const FORMACOES = {
   '3-4-2-1': [['PL', 50, 9, ['PL']], ['MO', 30, 26, ['MO', 'MC', 'ED', 'EE']], ['MO', 70, 26, ['MO', 'MC', 'EE', 'ED']], ['ALE', 9, 47, ['DE', 'EE']], ['MDC', 33, 47, ['MDC', 'MC']], ['MDC', 67, 47, ['MDC', 'MC']], ['ALD', 91, 47, ['DD', 'ED']], ['DC', 18, 69, ['DC', 'DE']], ['DC', 50, 69, ['DC']], ['DC', 82, 69, ['DC', 'DD']], ['GR', 50, 90, ['GR']]],
   '4-3-3': [['PL', 50, 10, ['PL']], ['EE', 17, 22, ['EE', 'ED']], ['ED', 83, 22, ['ED', 'EE']], ['MC', 30, 42, ['MC', 'MO']], ['MC', 70, 42, ['MC', 'MO']], ['MDC', 50, 58, ['MDC', 'MC']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
   '4-2-3-1': [['PL', 50, 10, ['PL']], ['EE', 16, 26, ['EE', 'ED']], ['MO', 50, 28, ['MO', 'MC']], ['ED', 84, 26, ['ED', 'EE']], ['MDC', 32, 50, ['MDC', 'MC']], ['MDC', 68, 50, ['MDC', 'MC']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
   '4-4-2': [['PL', 32, 11, ['PL']], ['PL', 68, 11, ['PL', 'MO']], ['EE', 13, 38, ['EE', 'ED']], ['MC', 37, 44, ['MC', 'MDC', 'MO']], ['MC', 63, 44, ['MC', 'MDC', 'MO']], ['ED', 87, 38, ['ED', 'EE']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
+  '4-1-4-1': [['PL', 50, 10, ['PL']], ['EE', 13, 30, ['EE', 'ED']], ['MC', 36, 36, ['MC', 'MO']], ['MC', 64, 36, ['MC', 'MO']], ['ED', 87, 30, ['ED', 'EE']], ['MDC', 50, 54, ['MDC', 'MC']], ['DE', 15, 66, ['DE']], ['DD', 85, 66, ['DD']], ['DC', 32, 78, ['DC']], ['DC', 68, 78, ['DC']], ['GR', 50, 92, ['GR']]],
+  '3-4-3': [['PL', 50, 10, ['PL']], ['EE', 18, 18, ['EE', 'ED']], ['ED', 82, 18, ['ED', 'EE']], ['ALE', 9, 44, ['DE', 'EE']], ['MC', 36, 46, ['MC', 'MDC']], ['MC', 64, 46, ['MC', 'MDC']], ['ALD', 91, 44, ['DD', 'ED']], ['DC', 25, 76, ['DC']], ['DC', 50, 79, ['DC']], ['DC', 75, 76, ['DC']], ['GR', 50, 92, ['GR']]],
+  '3-5-2': [['PL', 33, 11, ['PL']], ['PL', 67, 11, ['PL', 'MO']], ['ALE', 9, 42, ['DE', 'EE']], ['MC', 30, 40, ['MC', 'MO']], ['MDC', 50, 52, ['MDC', 'MC']], ['MC', 70, 40, ['MC', 'MO']], ['ALD', 91, 42, ['DD', 'ED']], ['DC', 25, 76, ['DC']], ['DC', 50, 79, ['DC']], ['DC', 75, 76, ['DC']], ['GR', 50, 92, ['GR']]],
+  '5-3-2': [['PL', 33, 12, ['PL']], ['PL', 67, 12, ['PL', 'MO']], ['MC', 28, 40, ['MC', 'MO']], ['MDC', 50, 48, ['MDC', 'MC']], ['MC', 72, 40, ['MC', 'MO']], ['ALE', 8, 62, ['DE', 'EE']], ['DC', 27, 77, ['DC']], ['DC', 50, 80, ['DC']], ['DC', 73, 77, ['DC']], ['ALD', 92, 62, ['DD', 'ED']], ['GR', 50, 92, ['GR']]],
+  '5-4-1': [['PL', 50, 12, ['PL']], ['EE', 13, 36, ['EE', 'ED']], ['MC', 37, 44, ['MC', 'MDC']], ['MC', 63, 44, ['MC', 'MDC']], ['ED', 87, 36, ['ED', 'EE']], ['ALE', 8, 62, ['DE', 'EE']], ['DC', 27, 77, ['DC']], ['DC', 50, 80, ['DC']], ['DC', 73, 77, ['DC']], ['ALD', 92, 62, ['DD', 'ED']], ['GR', 50, 92, ['GR']]],
 };
 const LINHA_POS = { GR: 'gr', DC: 'def', DD: 'def', DE: 'def', ALD: 'med', ALE: 'med', MDC: 'med', MC: 'med', MO: 'med', ED: 'ata', EE: 'ata', PL: 'ata' };
 const NOME_POS = { ALD: 'Ala direito', ALE: 'Ala esquerdo', GR: 'Guarda-redes', DD: 'Lateral direito', DE: 'Lateral esquerdo', DC: 'Defesa central', MDC: 'Médio defensivo', MC: 'Médio centro', MO: 'Médio ofensivo', ED: 'Extremo direito', EE: 'Extremo esquerdo', PL: 'Ponta de lança' };
@@ -1178,7 +1201,9 @@ function tacticaConteudo() {
   const mediaP = med(plantel), mediaO = med(caixas.map((c) => c[0]).filter(Boolean)), mediaS = med(caixas.map((c) => c[1]).filter(Boolean));
   const moralMedia = plantel.reduce((x, p) => x + p.moral, 0) / plantel.length;
   return `
-  <div class="filtros"><div class="seg" role="group" aria-label="Formação">${Object.keys(FORMACOES).map((f) => `<button data-form="${f}" class="${f === formacao ? 'on' : ''}">${f}</button>`).join('')}</div><span class="muted">Treinador: Hélder Quintela · perfil pressão alta</span><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div>
+  <div class="est-esc">${Object.entries(ESTILOS_P).map(([k, e]) => `<button class="est-b ${k === estiloT ? 'on' : ''}" data-estilo="${k}">${e[0]}</button>`).join('')}</div>
+  <div class="est-info"><div><span class="rot">Valoriza</span><b>${ESTILOS_P[estiloT][2]}</b></div><div><span class="rot">Neutralizado por</span><b>${ESTILOS_P[estiloT][3]}</b></div><div><span class="rot">Adequação do plantel</span><b class="${estiloT === 'catenaccio' || estiloT === 'futebol_total' ? 'mau-t' : 'bom-t'}">${estiloT === 'catenaccio' || estiloT === 'futebol_total' ? '−2,1%' : '+1,8%'}</b></div></div>
+  <div class="filtros"><div class="seg" role="group" aria-label="Esquema">${ESTILOS_P[estiloT][1].map((f) => `<button data-form="${f}" class="${f === formacao ? 'on' : ''}">${f}</button>`).join('')}</div><span class="muted">Treinador: Hélder Quintela · estilo preferido: Gegenpressen (4-2-3-1)</span><span class="chip">Autoridade para sugerir: 2 de 3 esta época</span></div>
   <div class="grelha">
     <section class="c s8">
       <div class="notas-eq">${[['Plantel', mediaP], ['Onze', mediaO], ['Profundidade', mediaS]].map(([t, v]) => `<div class="nota-eq ${corOvr(v)}"><b class="num">${v}</b><span>${t}</span></div>`).join('')}<div class="dinamica"><span class="rot">Dinâmica do grupo</span><b class="${moralMedia >= 14 ? 'pos' : moralMedia >= 11 ? '' : 'neg'}">${moralMedia >= 14 ? 'Positiva' : moralMedia >= 11 ? 'Estável' : 'Negativa'}</b></div></div>
@@ -1192,6 +1217,7 @@ function tacticaConteudo() {
         <label>Linha defensiva<div class="barra"><i style="width:64%"></i></div></label>
         <label>Ritmo<div class="barra"><i style="width:55%"></i></div></label>
         <label>Largura<div class="barra"><i style="width:70%"></i></div></label>
+        <label>Passe<div class="seg" role="group">${['Curto', 'Misto', 'Directo'].map((m) => `<button data-passe="${m}" class="${m === passeT ? 'on' : ''}">${m}</button>`).join('')}</div></label>
       </div>
       <div class="rot" style="margin:16px 0 10px">Como Presidente não escolhes o onze: o treinador decide. Podes sugerir; ele aceita, aceita em parte ou ignora, conforme a autoridade dele.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn">Sugerir titular</button><button class="btn">Sugerir formação</button><button class="btn prim">Enviar sugestão</button></div>
@@ -1755,28 +1781,35 @@ function escritorioEcra() {
 const fmtCurta = (d) => `${d.getUTCDate()} ${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][d.getUTCMonth()]}`;
 
 function staffEcra() {
+  // Cargos do utilizador (data/staff/cargos.md): 5 departamentos; cada membro com os atributos do cargo (1–20).
+  const T7 = ['Conhecimento táctico', 'Trabalho com jovens', 'Gestão de pessoas', 'Motivação', 'Flexibilidade', 'Treino', 'Disciplina'];
+  const OLH = ['Avaliação', 'Quantidade', 'Adaptabilidade', 'Determinação'];
+  const P = (cargo, nome, idade, nivel, atrs, sal, fim, extra = '') => { const r = avRng(avHash(nome)); return [cargo, nome, idade, nivel, atrs.map((a) => [a, Math.max(1, Math.min(20, Math.round(nivel + (r() - 0.5) * 6)))]), sal, fim, extra]; };
   const GRUPOS = [
-    ['Staff principal', 'Equipa técnica, saúde, análise e scouting da equipa principal', [
-      ['Treinador', 'Hélder Quintela', 54, 14, 'Pressão alta · desenvolvimento 15', '2028', 1.6],
-      ['1.º Adjunto', 'Rui Amieira', 47, 12, 'Táctica e preparação de jogo', '2027', 0.45],
-      ['2.º Adjunto', 'Paulo Carvide', 39, 10, 'Bolas paradas', '2027', 0.3],
-      ['Treinador de guarda-redes', 'Jorge Seixal', 51, 13, '+ evolução dos GR', '2028', 0.25],
-      ['Preparador físico', 'Marco Lourosa', 44, 15, 'Condição e prevenção de lesões', '2029', 0.3],
-      ['Fisioterapeuta', 'Ana Rebordão', 38, 14, '− dias de lesão', '2028', 0.2],
-      ['Analista', 'Inês Carvide', 31, 12, 'Estatísticas e relatórios', '2027', 0.15],
-      ['Olheiro principal', 'Luís Alcobia', 49, 13, 'Coordena os olheiros', '2027', 0.25],
-      ['Olheiro internacional', 'Diego Ferraz', 41, 12, 'Brasil e Argentina', '2028', 0.2]]],
-    ['Staff juvenil', 'Academia, sub-21 e sub-18', [
-      ['Gestor de academia', 'Carlos Ferrão', 58, 16, 'Qualidade do intake e evolução dos jovens', '2029', 0.35],
-      ['Treinador do sub-21', 'Paulo Teiouro', 45, 12, 'Evolução do sub-21 · minutos dos juniores', '2028', 0.15],
-      ['Treinador do sub-18', 'Nuno Barota', 40, 13, 'Evolução do sub-18 · prospectos', '2028', 0.12],
-      ['Olheiro de jovens', 'Samuel Quintela', 33, 11, 'Juniores e prospectos', '2027', 0.1]]],
-    ['Staff directivo', 'Direcção executiva do clube (responde ao Presidente)', [
-      ['Director Financeiro e Comercial', 'Teresa Valota', 46, 15, 'Orçamento, patrocínios, bilheteira e receitas comerciais (+5% receitas comerciais)', '2029', 0.4]]],
+    ['🏟️ Departamento de Academia', 'Formação: academia, sub-21 e sub-18', [
+      P('Chefe de Desenvolvimento Juvenil', 'Carlos Ferrão', 58, 16, ['Avaliação de potencial', 'Avaliação de habilidade', 'Trabalho com jovens', 'Determinação', 'Disciplina', 'Motivação'], 0.35, '2029'),
+      P('Treinador Sub-21', 'Paulo Teiouro', 45, 12, T7, 0.15, '2028', 'Pelas Alas · 4-3-3'),
+      P('Treinador Sub-18', 'Nuno Barota', 40, 13, T7, 0.12, '2028', 'Tiki-Taka · 4-3-3')]],
+    ['🔍 Departamento de Recrutamento', 'Olheiros: 1 por cada 2 níveis do Recrutamento (nível 6 → 3 olheiros; máximo 5)', [
+      P('Chefe de Recrutamento', 'Luís Alcobia', 49, 13, OLH, 0.25, '2027'),
+      P('Olheiro', 'Diego Ferraz', 41, 12, OLH, 0.2, '2028', 'Brasil e Argentina'),
+      P('Olheiro', 'Rui Sabugal', 37, 11, OLH, 0.15, '2027', 'Liga Portugal'),
+      P('Olheiro', 'Mehmet Aras', 44, 12, OLH, 0.15, '2028', 'Turquia e Grécia'),
+      P('Olheiro de Jovens', 'Samuel Quintela', 33, 11, OLH, 0.1, '2027', 'Portugal sub-17')]],
+    ['👔 Equipa Técnica Principal', 'Treinadores, preparação física e departamento médico', [
+      P('Treinador Principal', 'Hélder Quintela', 54, 14, T7, 1.6, '2028', 'Gegenpressen · 4-2-3-1'),
+      P('Treinador Assistente', 'Rui Amieira', 47, 12, T7, 0.45, '2027', 'Gegenpressen · 4-3-3'),
+      P('Coach (Treinador de Campo)', 'Paulo Carvide', 39, 11, ['Treino (Ataque)', 'Bolas paradas', 'Determinação', 'Disciplina', 'Motivação'], 0.3, '2027', 'Área: Ataque'),
+      P('Treinador de Guarda-redes', 'Jorge Seixal', 51, 13, ['Treino de guarda-redes', 'Determinação', 'Disciplina', 'Motivação'], 0.25, '2028'),
+      P('Preparador Físico', 'Marco Lourosa', 44, 15, ['Condição física', 'Prevenção de lesões', 'Disciplina', 'Motivação'], 0.3, '2029'),
+      P('Fisioterapeuta / Médico', 'Ana Rebordão', 38, 14, ['Fisioterapia', 'Recuperação de lesões', 'Prevenção de lesões', 'Gestão de pessoas'], 0.2, '2028')]],
+    ['💼 Diretor Financeiro', 'Contas, juros, previsões e negociação de transferências', [P('Diretor Financeiro', 'Teresa Valota', 46, 15, ['Gestão financeira', 'Negociação', 'Gestão de pessoas'], 0.4, '2029')]],
+    ['📈 Diretor Comercial', 'Patrocínios, merchandising, bilheteira e adeptos', [P('Diretor Comercial', 'Vasco Alcobia', 42, 13, ['Negociação', 'Marketing', 'Gestão de pessoas'], 0.35, '2028')]],
   ];
-  const todos = GRUPOS.flatMap((g) => g[2]), custo = todos.reduce((t, m) => t + m[6], 0);
-  const linha = ([c, n, i, v, ef, f, sal]) => `<tr><td class="muted">${c}</td><td><span class="nome-av">${avatarSvg({ id: 's:' + n, nome: n, pais: 'POR', idade: i, staff: true }, { tam: 28, kit: { fato: true } })}<b>${n}</b></span></td><td class="r">${i}</td><td class="r"><span class="ovr ${v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd'}">${v}</span></td><td>${ef}</td><td class="r sal">${salTxt(sal * 1e6)}</td><td class="r">${f}</td><td class="r"><button class="btn">Ver</button></td></tr>`;
-  const tabelas = GRUPOS.map(([t, sub, l]) => `<section class="c s12 staff-grupo"><h2>${t}<span class="chip" style="margin-left:8px">${l.length}</span><span class="rot" style="margin-left:10px;text-transform:none;letter-spacing:0;font-weight:400">${sub}</span></h2><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Efeito</th><th class="r">Salário</th><th class="r">Contrato</th><th class="r"></th></tr></thead><tbody>${l.map(linha).join('')}</tbody></table></div></section>`).join('');
+  const todos = GRUPOS.flatMap((g) => g[2]), custo = todos.reduce((t, m) => t + m[5], 0);
+  const cor = (v) => (v >= 15 ? 'qa' : v >= 13 ? 'qb' : v >= 11 ? 'qc' : 'qd');
+  const linha = ([c, n, i, v, atrs, sal, f, extra]) => `<tr><td class="muted">${c}${extra ? `<div class="rot">${extra}</div>` : ''}</td><td><span class="nome-av">${avatarSvg({ id: 's:' + n, nome: n, pais: 'POR', idade: i, staff: true }, { tam: 28, kit: { fato: true } })}<b>${n}</b></span></td><td class="r">${i}</td><td class="r"><span class="ovr ${cor(v)}">${v}</span></td><td><div class="st-atrs">${atrs.map(([a, x]) => `<span class="st-a"><span>${a}</span><b class="${cor(x)}-t">${x}</b></span>`).join('')}</div></td><td class="r sal">${salTxt(sal * 1e6)}</td><td class="r">${f}</td></tr>`;
+  const tabelas = GRUPOS.map(([t, sub, l]) => `<section class="c s12 staff-grupo"><h2>${t}<span class="chip" style="margin-left:8px">${l.length}</span><span class="rot" style="margin-left:10px;text-transform:none;letter-spacing:0;font-weight:400">${sub}</span></h2><div class="tab-wrap"><table><thead><tr><th>Cargo</th><th>Nome</th><th class="r">Idade</th><th class="r">Nível</th><th>Atributos (1–20)</th><th class="r">Salário</th><th class="r">Contrato</th></tr></thead><tbody>${l.map(linha).join('')}</tbody></table></div></section>`).join('');
   return `
   <div class="topo"><h1>Staff</h1><span class="sub">${todos.length} membros · custo anual ${custo.toFixed(1).replace('.', ',')} M€ (orçamento 5,5 M€)</span><div class="direita"><button class="btn">Mercado de treinadores</button><button class="btn prim">Contratar staff</button></div></div>
   <div class="grelha">${tabelas}</div>
@@ -2190,6 +2223,8 @@ function ligar(m) {
   m.querySelectorAll('tr[data-j]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.j; location.hash = 'jogador'; }));
   m.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', () => { verComo = b.dataset.ver; desenhar(); }));
   m.querySelectorAll('[data-form]').forEach((b) => b.addEventListener('click', () => { formacao = b.dataset.form; desenhar(); }));
+  m.querySelectorAll('[data-estilo]').forEach((b) => b.addEventListener('click', () => { estiloT = b.dataset.estilo; formacao = ESTILOS_P[estiloT][1][0]; passeT = ESTILOS_P[estiloT][4]; desenhar(); }));
+  m.querySelectorAll('[data-passe]').forEach((b) => b.addEventListener('click', () => { passeT = b.dataset.passe; desenhar(); }));
   m.querySelectorAll('[data-ment]').forEach((b) => b.addEventListener('click', () => { mentalidade = b.dataset.ment; desenhar(); }));
   m.querySelectorAll('[data-tab], #ver-tab').forEach((x) => x.addEventListener('click', () => { compSel = 'POR1'; tabComp = 'Classificação'; location.hash = 'classificacao'; }));
   m.querySelector('#ver-fin')?.addEventListener('click', () => { location.hash = 'financas'; });

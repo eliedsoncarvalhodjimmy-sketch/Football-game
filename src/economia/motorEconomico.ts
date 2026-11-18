@@ -242,7 +242,7 @@ export class Economia {
       this.ia.garantir(c + 1, this.arquetiposCsv);
       const t = w.motor.treinadores[c];
       if (t && t.estado === undefined) this.mercadoT.prepararEmpregado(t, c, dia, Rng.de(w.semente, 'contrato-treinador', w.clubes[c].id));
-      if (!this.staff.porClube[c]) this.staff.gerarClube(c, dia, s.receitaPrevista[c]);
+      if (!this.staff.porClube[c]) this.staff.gerarClube(c, dia, s.receitaPrevista[c], this.nivel(c, 'recrutamento'));
     }
     if (w.jogadores) {
       // Capacidade salarial do clube: a massa de mercado do plantel fica à volta do alvo × receita prevista.

@@ -32,4 +32,4 @@ export const SIMULACAO = {
  * Parâmetros do modo rápido com jogadores (Fase 2). Partem dos da Fase 1 e são afinados à parte, para o
  * modo 'reputacao' (alternativa da Fase 1) manter a sua calibração.
  */
-export const SIMULACAO_ONZE = { ...SIMULACAO, base: 1.245, casa: 1.17, rho: -0.02, empate_fator: 1.12 };
+export const SIMULACAO_ONZE = { ...SIMULACAO, base: 1.278, casa: 1.17, rho: -0.02, empate_fator: 1.12 };

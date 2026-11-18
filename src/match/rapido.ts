@@ -2,6 +2,7 @@
 // detalhado → golos esperados (fórmula da Fase 1) → Poisson com Dixon-Coles. Depois distribui
 // marcadores, assistências, remates, cartões, lesões, notas e minutos, e actualiza o estado
 // dos jogadores (condição, moral, forma, entrosamento, lesões, suspensões).
+import { aplicarEstilos, estiloDe } from './estilos.ts';
 import { Rng } from '../core/rng.ts';
 import { IDX } from '../config/atributos.ts';
 import { IDX_PAPEL, POSICOES } from '../config/papeis.ts';
@@ -81,6 +82,14 @@ export function prepararLado(w: World, c: number, dia: number, rng: Rng): Lado {
   const corr = w.motor!.correcao[c] ?? 0;
   const f = (1 + total) * (1 + parcelas.forma_epoca);
   return { clube: c, escolha, ratings, mod: total, parcelas, forcaAtaque: (ratings.forcaAtaque + corr) * f, forcaDefesa: (ratings.forcaDefesa + corr) * f };
+}
+
+/** Prepara os dois lados de um jogo e aplica os estilos tácticos (adequação e neutralização). */
+export function prepararLados(w: World, c: number, f: number, dia: number, rng: Rng): [Lado, Lado] {
+  const casa = prepararLado(w, c, dia, rng), fora = prepararLado(w, f, dia, rng);
+  const tr = w.motor!.treinadores;
+  aplicarEstilos(w.jogadores!, casa, fora, estiloDe(tr[c]?.perfil), estiloDe(tr[f]?.perfil));
+  return [casa, fora];
 }
 
 export function saoRivais(w: World, a: number, b: number): boolean {

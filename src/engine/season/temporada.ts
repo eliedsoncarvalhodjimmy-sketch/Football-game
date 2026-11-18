@@ -15,7 +15,7 @@ import { modelo } from '../calendar/scheduler.ts';
 import { jogoRapido, prolongamento, penaltis } from '../match/quickSim.ts';
 import { MOTOR } from '../../config/motor.ts';
 import { SIMULACAO_ONZE } from '../../config/simulacao.ts';
-import { prepararLado, golosRapido, registarLado, desempatePenaltis, saoRivais } from '../../match/rapido.ts';
+import { prepararLados, golosRapido, registarLado, desempatePenaltis, saoRivais } from '../../match/rapido.ts';
 
 export interface Estatisticas {
   jogos: number;
@@ -230,8 +230,7 @@ export class Temporada {
     const w = this.w;
     const dia = this.base + j.semana * 7 + j.dia;
     const rng = Rng.de(w.semente, 'jogo', this.ano, j.comp, j.ronda, j.casa, j.fora, j.ida ? 2 : 1);
-    const casa = prepararLado(w, j.casa, dia, rng);
-    const fora = prepararLado(w, j.fora, dia, rng);
+    const [casa, fora] = prepararLados(w, j.casa, j.fora, dia, rng);
     const { gc, gf, xg } = golosRapido(w, casa, fora, !!j.neutro, rng);
     j.r = { gc, gf };
     let duracao = 90;

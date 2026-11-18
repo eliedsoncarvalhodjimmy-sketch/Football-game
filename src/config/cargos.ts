@@ -35,7 +35,7 @@ export const NOME_DEPARTAMENTO: Record<Departamento, string> = {
   academia: 'Departamento de Academia', recrutamento: 'Departamento de Recrutamento', tecnica: 'Equipa Técnica Principal', financeiro: 'Diretor Financeiro', comercial: 'Diretor Comercial',
 };
 
-const TREINADOR: AtributoStaff[] = ['estilo', 'conhecimento_tactico', 'trabalho_jovens', 'gestao_pessoas', 'motivacao', 'flexibilidade', 'treino'];
+const TREINADOR: AtributoStaff[] = ['estilo', 'conhecimento_tactico', 'trabalho_jovens', 'gestao_pessoas', 'motivacao', 'flexibilidade', 'treino', 'disciplina']; // disciplina: pedido do utilizador
 const OLHEIRO: AtributoStaff[] = ['avaliacao', 'scout_quantidade', 'adaptabilidade', 'determinacao'];
 
 export interface CargoDef { id: string; num: number; nome: string; departamento: Departamento; atributos: AtributoStaff[]; quantos: [number, number] }
@@ -44,14 +44,14 @@ export const CARGOS_STAFF: CargoDef[] = [
   { id: 'treinador_sub21', num: 2, nome: 'Treinador Sub-21', departamento: 'academia', atributos: TREINADOR, quantos: [1, 1] },
   { id: 'treinador_sub18', num: 3, nome: 'Treinador Sub-18', departamento: 'academia', atributos: TREINADOR, quantos: [1, 1] },
   { id: 'chefe_recrutamento', num: 5, nome: 'Chefe de Recrutamento', departamento: 'recrutamento', atributos: OLHEIRO, quantos: [1, 1] },
-  { id: 'olheiro', num: 6, nome: 'Olheiro', departamento: 'recrutamento', atributos: OLHEIRO, quantos: [1, 6] },
+  { id: 'olheiro', num: 6, nome: 'Olheiro', departamento: 'recrutamento', atributos: OLHEIRO, quantos: [1, 5] }, // 1 por cada 2 níveis do Recrutamento
   { id: 'olheiro_jovens', num: 7, nome: 'Olheiro de Jovens', departamento: 'recrutamento', atributos: OLHEIRO, quantos: [0, 3] },
   { id: 'treinador_principal', num: 9, nome: 'Treinador Principal', departamento: 'tecnica', atributos: TREINADOR, quantos: [1, 1] },
-  { id: 'treinador_assistente', num: 10, nome: 'Treinador Assistente', departamento: 'tecnica', atributos: TREINADOR, quantos: [1, 2] },
-  { id: 'coach', num: 11, nome: 'Coach (Treinador de Campo)', departamento: 'tecnica', atributos: ['treino_area', 'bolas_paradas', 'determinacao', 'disciplina', 'motivacao'], quantos: [0, 4] },
+  { id: 'treinador_assistente', num: 10, nome: 'Treinador Assistente', departamento: 'tecnica', atributos: TREINADOR, quantos: [1, 1] },
+  { id: 'coach', num: 11, nome: 'Coach (Treinador de Campo)', departamento: 'tecnica', atributos: ['treino_area', 'bolas_paradas', 'determinacao', 'disciplina', 'motivacao'], quantos: [1, 1] },
   { id: 'treinador_gr', num: 12, nome: 'Treinador de Guarda-redes', departamento: 'tecnica', atributos: ['treino_gr', 'determinacao', 'disciplina', 'motivacao'], quantos: [1, 1] },
-  { id: 'preparador_fisico', num: 13, nome: 'Preparador Físico', departamento: 'tecnica', atributos: ['condicao_fisica', 'prevencao_lesoes', 'disciplina', 'motivacao'], quantos: [1, 2] },
-  { id: 'fisioterapeuta', num: 14, nome: 'Fisioterapeuta / Médico', departamento: 'tecnica', atributos: ['fisioterapia', 'recuperacao_lesoes', 'prevencao_lesoes', 'gestao_pessoas'], quantos: [1, 2] },
+  { id: 'preparador_fisico', num: 13, nome: 'Preparador Físico', departamento: 'tecnica', atributos: ['condicao_fisica', 'prevencao_lesoes', 'disciplina', 'motivacao'], quantos: [1, 1] },
+  { id: 'fisioterapeuta', num: 14, nome: 'Fisioterapeuta / Médico', departamento: 'tecnica', atributos: ['fisioterapia', 'recuperacao_lesoes', 'prevencao_lesoes', 'gestao_pessoas'], quantos: [1, 1] },
   { id: 'diretor_financeiro', num: 15, nome: 'Diretor Financeiro', departamento: 'financeiro', atributos: ['gestao_financeira', 'negociacao', 'gestao_pessoas'], quantos: [1, 1] },
   { id: 'diretor_comercial', num: 16, nome: 'Diretor Comercial', departamento: 'comercial', atributos: ['negociacao', 'marketing', 'gestao_pessoas'], quantos: [1, 1] },
 ];
