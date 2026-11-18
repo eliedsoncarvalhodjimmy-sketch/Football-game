@@ -445,6 +445,24 @@ td.r, th.r { text-align: right; }
 .hj-nota { border-radius: 6px; color: #111; font-family: var(--f-num); font-weight: 700; font-size: 18px; text-align: center; }
 .hj-info { font-size: 12px; color: #cfd3da; } .hj-ic { font-size: 13px; text-align: center; }
 @media (max-width: 640px) { .hj-jogo { grid-template-columns: minmax(0, 1fr) 44px 40px 40px 40px; } .hj-info { grid-column: 1 / -1; order: 9; } .hj-vs small { display: none; } }
+.nf-conf { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
+.nf-bloco { display: grid; gap: 12px; }
+.nf-sec h3 { margin: 0 0 6px; font-family: var(--f-num); font-size: 17px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #cfd3da; }
+.nf { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--cartao-2); margin-bottom: 6px; border-left: 3px solid transparent; }
+.nf.p-alto { border-left-color: var(--acento); } .nf.p-baixo { opacity: .9; }
+.nf-txt { display: grid; gap: 3px; } .nf-txt span { color: var(--suave); font-size: 13px; } .nf-txt .nf-cons { justify-self: start; color: var(--aviso); }
+.nf-ver { white-space: nowrap; min-height: 36px; }
+.nf-antigos { margin-top: 14px; } .nf-antigos summary { cursor: pointer; color: var(--suave); padding: 6px 0; }
+@media (max-width: 640px) { .nf { grid-template-columns: 1fr; } .nf-ver { justify-self: start; } }
+.mg { display: grid; grid-template-columns: 10px 1fr auto; gap: 10px; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--linha); padding: 10px 2px; color: var(--texto); font: inherit; cursor: pointer; }
+.mg .nl { width: 8px; height: 8px; border-radius: 50%; background: var(--acento); } .mg.lida .nl { background: transparent; } .mg.lida b { font-weight: 500; color: #cfd3da; }
+.mg-t { display: grid; } .mg-t small { color: var(--suave); font-size: 12px; }
+.mg-grupo { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); margin: 10px 0 2px; }
+.car-res { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.car-k { display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto auto; column-gap: 8px; padding: 10px 12px; border-radius: 10px; background: var(--cartao-2); margin-bottom: 8px; align-items: center; }
+.car-ic { grid-row: 1 / 4; font-size: 22px; } .car-k b { font-family: var(--f-num); font-size: 22px; font-weight: 600; line-height: 1.1; } .car-k small { color: var(--suave); font-size: 12px; }
+.car-par { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 760px) { .car-res { grid-template-columns: 1fr 1fr; } .car-par { grid-template-columns: 1fr; } }
 .pergunta { font-family: var(--f-num); font-size: 22px; line-height: 1.25; margin-bottom: 12px; }
 .respostas { display: grid; gap: 8px; }
 .resposta { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); color: var(--texto); border-radius: 10px; padding: 12px; font: inherit; cursor: pointer; min-height: 48px; }
@@ -657,7 +675,7 @@ const EVENTOS = new Map([['2026-11-16', 'Pausa internacional'], ['2026-11-17', '
 const emJanela = (d) => { const m = d.getUTCMonth(); return m === 0 || m === 6 || m === 7; };
 const COR_COMP = { liga: 'var(--c-liga)', taca: 'var(--c-taca)', ucl: 'var(--c-ucl)', uel: 'var(--c-uel)', uecl: 'var(--c-uecl)' };
 const MENSAGENS = [
-  { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
+  { de: 'Real Montalvo', assunto: 'Oferta de 7,5 M€ por Rafael Salouro', resp: ['Aceitar 7,5 M€', 'Negociar no Mercado', 'Recusar'], txt: 'Propomos 7,5 M€ à vista. Resposta até 16 de Novembro.', dia: '14 Nov', lida: false },
   { de: 'Treinador (Hélder Quintela)', grupo: 'Treinador', assunto: 'Pedido de reforço: médio defensivo', txt: 'Preciso de um médio defensivo titular para Janeiro. Prioridade alta.', dia: '14 Nov', lida: false, rel: 'reforco' },
   { de: 'Conselho de administração', assunto: 'Objectivos de Janeiro', txt: 'O conselho pede um médio defensivo sem passar o orçamento de 9,5 M€.', dia: '13 Nov', lida: false },
   { de: 'Capitão (Nuno Salares)', grupo: 'Capitão', assunto: 'O balneário pede folga depois do dérbi', txt: 'Em nome do grupo: depois de três jogos em oito dias, um dia de folga ajudava a recuperar. Deixo à tua decisão.', dia: '14 Nov', lida: false, resp: ['Dar a folga (moral +, condição +)', 'Recusar: o calendário não deixa'] },
@@ -1558,28 +1576,76 @@ const declDaSemana = (k) => DECLARACOES.filter((d) => d.semana === k).map((d) =>
 const NOME_EFEITO = { EQ: 'Moral do plantel', AD: 'Adeptos', DN: 'Conselho', IM: 'Reputação mediática', TR: 'Treinador', BL: 'Balneário', pressao: 'Pressão mediática', adeptos: 'Adeptos', moral: 'Moral do plantel', dono: 'Confiança do conselho', rel: 'Relação com o meio' };
 function efeitosTxt(e) { return Object.entries(e).filter(([, v]) => v).map(([k, v]) => `<span class="chip ${k === 'pressao' ? (v > 0 ? 'aviso' : 'bom') : v > 0 ? 'bom' : 'mau'}">${NOME_EFEITO[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}</span>`).join(' '); }
 function medidorPressao(v) { const cor = v >= 70 ? 'var(--mau)' : v >= 45 ? 'var(--aviso)' : 'var(--bom)'; const txt = v >= 70 ? 'Muito alta' : v >= 45 ? 'Moderada' : 'Baixa'; return `<div class="num" style="font-size:40px;line-height:1">${v}<span class="muted" style="font-size:16px">/100</span></div><div class="barra" style="margin:8px 0 4px"><i style="width:${v}%;background:${cor}"></i></div><div class="rot">${txt}</div>`; }
+// ---------- Feed de notícias (imprensa simplificada; regras em src/config/noticias.ts) ----------
+// A cada jogo do clube ou segunda-feira gera-se um bloco de 5–8 notícias: 2 do clube, 2 da liga, 2 de outras ligas, 1–2 de mercado.
+// Peso alto entra sempre; médio e baixo preenchem. Cada notícia tem "Ver mais" e, nalguns casos, uma consequência.
+const SECCOES = [['destaques', '📰', 'Destaques'], ['liga', '🏆', 'A tua liga'], ['outras_ligas', '🌍', 'Outras ligas'], ['mercado', '💰', 'Mercado e bastidores']];
+const LIGAS_FORA = [['ENG1', 'Premier League', ['Brackcombe Town', 'Ashworth Rovers', 'Kingsmere City', 'Holloway United']], ['ESP1', 'LaLiga', ['Athletic Ondarreta', 'Real Valdeluz', 'CD Almendral', 'Racing Costavela']], ['GER1', 'Bundesliga', ['SV Mühlwangen', 'Borussia Kaltental', 'FC Rheinau', 'Eintracht Lohberg']], ['ITA1', 'Serie A', ['Fontemarino Calcio', 'AS Valtorre', 'Sporting Lucerna', 'US Pietralta']]];
+let FEED = [], feedLidos = 0, blocosFeed = 0;
+function gerarBloco(dia) {
+  const r = avRng(avHash('feed|' + chave(dia) + '|' + blocosFeed)), pk = (a) => a[Math.floor(r() * a.length)], itens = [];
+  const pos = tabela.findIndex((t) => t.nome === CLUBE.nome) + 1, eu = tabela[pos - 1];
+  const passados = [...JOGOS.entries()].filter(([k]) => k < chave(dia)).sort((a, b) => (a[0] < b[0] ? 1 : -1)), ult = passados[0];
+  const add = (seccao, peso, titulo, texto, ver, extra = {}) => itens.push({ seccao, peso, titulo, texto, ver, ...extra });
+  // Destaques (o teu clube)
+  if (ult) { const [gm, gs] = [Math.floor(r() * 4), Math.floor(r() * 3)], adv = ult[1].adv, res = gm > gs ? 'vence' : gm === gs ? 'empata com' : 'perde com';
+    add('destaques', 'alto', `${CLUBE.curto} ${res} ${adv} (${gm}-${gs})${gm > gs && pos <= 6 ? ` e segue em ${pos}.º` : ''}`, gm - gs >= 3 ? 'Exibição convincente, a equipa dominou do princípio ao fim.' : gm > gs ? 'Três pontos suados que mantêm a equipa na luta.' : gm === gs ? 'Um ponto que sabe a pouco.' : 'Derrota que deixa o balneário inquieto.', { rot: 'Ver classificação', ir: 'classificacao' }); }
+  const jovem = [...plantel].filter((p) => p.idade <= 21).sort((a, b) => b.ovr - a.ovr)[0];
+  if (jovem && r() < 0.6) add('destaques', 'alto', `Jovem ${jovem.nome} rouba a atenção com exibição de gala`, `Nota ${(7.6 + r() * 1.2).toFixed(1).replace('.', ',')} e ${r() < 0.5 ? 'um golo' : 'uma assistência'} aos ${jovem.idade} anos.`, { rot: 'Ver perfil', ir: 'jogador', n: jovem.n });
+  const alvo = plantel[22], clubeX = MENSAGENS[0].de; // a proposta que está nas mensagens
+  if (r() < 0.55) add('destaques', 'alto', `${clubeX} negoceia a contratação de ${alvo.nome}`, 'Fontes próximas falam numa proposta formal nos próximos dias.', { rot: 'Ver mensagem', ir: 'mensagem' }, { consequencia: 'Proposta recebida nas mensagens' });
+  const lesionado = plantel.find((p) => p.lesao);
+  if (lesionado && r() < 0.5) add('destaques', 'alto', `Preocupação: ${lesionado.nome} sai lesionado`, `Diagnóstico: ${lesionado.lesao.toLowerCase()}.`, { rot: 'Ver perfil', ir: 'jogador', n: lesionado.n });
+  const insat = [...plantel].sort((a, b) => a.moral - b.moral)[0];
+  if (insat.moral <= 9 && r() < 0.4) add('destaques', 'alto', `${insat.nome} está insatisfeito com os minutos`, 'O jogador quer mais oportunidades e o agente já fala com outros clubes.', { rot: 'Ver perfil', ir: 'jogador', n: insat.n }, { consequencia: `Moral de ${insat.nome} em risco` });
+  // A tua liga
+  add('liga', 'alto', `${CLUBE.curto} ${r() < 0.5 ? 'sobe' : 'mantém-se'} no ${pos}.º lugar após a jornada`, `${eu.pts} pontos em ${eu.j} jogos.`, { rot: 'Ver classificação', ir: 'classificacao' });
+  const lider = tabela[0], ultimo = tabela[tabela.length - 1];
+  add('liga', 'medio', r() < 0.5 ? `${lider.nome} tropeça e a liga aperta` : `${lider.nome} isola-se na liderança`, `O líder soma ${lider.pts} pontos.`, { rot: 'Ver classificação', ir: 'classificacao' });
+  if (r() < 0.5) add('liga', 'medio', `${ultimo.nome} afunda-se no último lugar`, `Apenas ${ultimo.pts} pontos e o treinador sob pressão.`, { rot: 'Ver classificação', ir: 'classificacao' });
+  // Outras ligas (1–2)
+  for (const [cod, nome, clubes] of [pk(LIGAS_FORA), pk(LIGAS_FORA)].filter((x, i, a) => a.indexOf(x) === i)) add('outras_ligas', 'medio', r() < 0.5 ? `${nome}: ${pk(clubes)} perde e deixa a liderança` : `Surpresa na ${nome}: ${pk(clubes)} no top 4`, 'A jornada baralhou o topo da tabela.', { rot: 'Ver classificação', ir: 'classificacao', liga: cod });
+  // Mercado e bastidores
+  const estrela = pk(LISTADOS.slice(0, 20));
+  add('mercado', 'medio', `${pk(CLUBES_M)[0]} prepara proposta de ${fE(Math.round((estrela.preco * 1.6 + 2) * 10) * 1e5)} por ${estrela.nome}`, `${estrela.pos} de ${estrela.idade} anos do ${estrela.clube[0]}.`, { rot: 'Ver jogador no mercado', ir: 'transferencias' });
+  if (r() < 0.35) add('mercado', 'baixo', `${pk(['Atlético Pouso das Pedras', 'CA Puerto Lirio'])} vende joia para a Europa`, 'Avançado de 18 anos assina por cinco épocas.', { rot: 'Ver transferências', ir: 'transferencias' });
+  if (r() < 0.25) add('mercado', 'baixo', `${pk(['Asteras Oristathmos', 'Vitória de Castro Marim'])} em crise financeira: jogadores à venda`, 'O clube aceita propostas abaixo do valor de mercado.', { rot: 'Ver transferências', ir: 'transferencias' }, { consequencia: 'Oportunidades de mercado abaixo do valor' });
+  if (r() < 0.2) add('mercado', 'baixo', `${plantel.sort((a, b) => b.g - a.g)[0].nome} chega aos 50 golos pelo clube`, 'Um marco para a história recente do clube.', { rot: 'Ver perfil', ir: 'jogador', n: plantel[0].n });
+  plantel.sort((a, b) => a.n - b.n);
+  // Declarações do utilizador (entrevistas) entram nos destaques
+  for (const d of DECLARACOES.filter((x) => !x.noFeed)) { d.noFeed = true; itens.unshift({ seccao: 'destaques', peso: 'alto', titulo: d.titulo, texto: d.texto, ver: { rot: 'Ver imprensa', ir: 'imprensa' }, declaracao: true }); }
+  // Selecção: peso alto sempre; quotas; 5–8 notícias
+  const quota = { destaques: 2, liga: 2, outras_ligas: 2, mercado: 2 }, out = [];
+  for (const p of ['alto', 'medio', 'baixo']) for (const it of itens.filter((x) => x.peso === p)) { const usados = out.filter((x) => x.seccao === it.seccao).length; if (out.length < 8 && (p === 'alto' || usados < quota[it.seccao])) out.push(it); }
+  blocosFeed++;
+  return { data: new Date(dia), itens: out };
+}
+FEED = [gerarBloco(new Date(hoje.getTime() - 7 * 864e5)), gerarBloco(hoje)]; feedLidos = FEED.length;
+const novasNoticias = () => FEED.slice(feedLidos).reduce((a, b) => a + b.itens.length, 0);
+const linhaFeed = (it, i, b) => `<div class="nf p-${it.peso}"><div class="nf-txt"><b>${it.titulo}</b>${it.texto ? `<span>${it.texto}</span>` : ''}${it.consequencia ? `<span class="chip aviso nf-cons">⚡ ${it.consequencia}</span>` : ''}</div><button class="btn nf-ver" data-ver="${b}:${i}">${it.ver.rot} ›</button></div>`;
+const blocoHtml = (b, k, compacto) => SECCOES.map(([s, ic, nome]) => { const its = b.itens.map((it, i) => [it, i]).filter(([it]) => it.seccao === s); return its.length ? `<div class="nf-sec"><h3>${ic} ${nome}</h3>${its.map(([it, i]) => linhaFeed(it, i, k)).join('')}</div>` : ''; }).join('');
+function abrirNoticia(b, i) {
+  const it = FEED[b].itens[i], v = it.ver; modal = null;
+  if (v.ir === 'classificacao') { compSel = v.liga ?? 'POR1'; tabComp = 'Classificação'; location.hash = 'classificacao'; }
+  else if (v.ir === 'jogador') { jogadorSel = v.n; location.hash = 'jogador'; }
+  else if (v.ir === 'transferencias') { tabMercado = 'Transferências'; location.hash = 'mercado'; }
+  else if (v.ir === 'mensagem') { modal = 'msg'; msgAberta = 0; }
+  else if (v.ir === 'imprensa') modal = 'imprensa';
+  desenhar(); if (modal) desenharModal();
+}
+
 function imprensaEcra() {
-  const sem = DESTAQUES[semanaImprensa % DESTAQUES.length];
-  return `<section class="banner-mercado banner-imprensa"><img src="imprensa/estudio.jpg" alt=""><div class="bm-topo"><h1>Imprensa</h1><span>Opinião, análise, pressão e entrevistas</span></div><button class="btn imp-fechar" id="fechar">Fechar</button></section>
-  <div class="grelha">
-    <section class="c s8"><h2>Destaques desta semana<span class="acao"><button class="btn" id="b-semana">Ver resumo da semana</button></span></h2>
-      ${[...declDaSemana(semanaImprensa), ...sem].map(linhaNoticia).join('')}</section>
-    <section class="c s4"><h2>Pressão mediática</h2>${medidorPressao(pressaoMedia)}
-      <div style="margin-top:12px">${kv([['Resultados recentes', '<span class="chip bom">a aliviar</span>'], ['Expectativa do conselho', '<span class="chip aviso">Europa</span>'], ['Rumores de mercado', '<span class="chip aviso">3 activos</span>'], ['Polémicas', '<span class="chip">nenhuma</span>']])}</div></section>
-    <section class="c s6 entrevistas"><div class="ent-foto"><img src="imprensa/microfone.jpg" alt=""></div><h2 style="margin-top:12px">Pedidos de entrevista</h2>
-      ${PEDIDOS_ENTREVISTA.map((x, i) => `<div class="linha-kv"><span><b>${x.meio}</b><div class="rot">${x.quando} · ${x.n} perguntas</div></span><span style="display:flex;gap:6px;align-items:center">${x.estado === 'pendente' ? `<button class="btn" data-recusa="${i}">Recusar</button><button class="btn prim" data-entrev="${i}">Dar entrevista</button>` : `<span class="chip ${x.estado === 'dada' ? 'bom' : 'mau'}">${x.estado === 'dada' ? 'Dada' : 'Recusada'}</span>`}</span></div>`).join('')}
-      <div class="rot" style="margin-top:8px">Recusar uma entrevista baixa a relação com o meio (−5) e pode virar notícia.</div></section>
-    <section class="c s12 reagir"><div class="reagir-foto"><img src="imprensa/reacao-relvado.jpg" alt=""></div><div><h2>Reagir</h2><div class="rot" style="margin-bottom:6px">As tuas respostas e reacções viram notícia.</div>
-      ${TEMAS_REACAO.map((t, i) => `<div class="tema-reacao"><div><b>${t.tema}</b><div class="rot">${t.origem}</div></div>${t.feito ? `<span class="chip ${t.feito === 'silêncio' ? '' : 'info'}">${t.feito === 'silêncio' ? 'Ignorado' : 'Respondido'}</span>` : `<div class="op-reacao">${t.opcoes.map((o, j) => `<button class="btn" data-reagir="${i}:${j}">${o.texto}</button>`).join('')}</div>`}</div>`).join('')}</div></section>
-    <section class="c s6"><h2>Opinião</h2>${OPINIOES.map(([quem, meio, t, txt]) => `<div class="noticia">${tomChip(t)}<div><b>${quem}</b> <span class="rot">· ${meio}</span><div style="margin-top:4px">"${txt}"</div></div></div>`).join('')}</section>
-    <section class="c s12"><h2>Histórico de imprensa · promessas e declarações de risco</h2>${HIST_IMP.length ? `<div class="tab-wrap"><table><thead><tr><th>Data</th><th>Meio</th><th>Tipo</th><th>O que disseste</th><th>Compromisso / risco</th><th>Estado</th></tr></thead><tbody>${HIST_IMP.map((h) => `<tr><td>${h.data}</td><td>${h.meio}</td><td><span class="chip ${h.tipo === 'Promessa' ? 'aviso' : 'mau'}">${h.tipo}</span></td><td>"${h.resposta}"</td><td class="muted">${h.detalhe}</td><td><span class="chip">${h.estado}</span></td></tr>`).join('')}</tbody></table></div>` : '<div class="rot">Ainda não há promessas nem declarações de risco. Ficam aqui com a data, o que disseste e o estado (pendente, cumprida, falhada).</div>'}<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><span class="rot">Efeitos acumulados:</span>${efeitosTxt(EST_IMP) || '<span class="chip">nenhum</span>'}</div></section>
-    <section class="c s12"><h2>Relação com os meios</h2><div class="tab-wrap"><table><thead><tr><th>Meio</th><th>Tipo</th><th>Linha editorial</th><th>Relação</th></tr></thead><tbody>${MEIOS.map((x) => `<tr><td><b>${x.nome}</b></td><td>${x.tipo}</td><td class="muted">${x.linha}</td><td style="min-width:160px"><div style="display:flex;align-items:center;gap:8px"><div class="barra" style="flex:1"><i style="width:${x.rel}%;background:${x.rel >= 60 ? 'var(--bom)' : x.rel >= 45 ? 'var(--aviso)' : 'var(--mau)'}"></i></div><b>${x.rel}</b></div></td></tr>`).join('')}</tbody></table></div></section>
-  </div>`;
+  feedLidos = FEED.length;
+  const [ult, ...antigos] = [...FEED].reverse(), k0 = FEED.length - 1, pend = PEDIDOS_ENTREVISTA.filter((x) => x.estado === 'pendente');
+  return `<section class="banner-mercado banner-imprensa"><img src="imprensa/estudio.jpg" alt=""><div class="bm-topo"><h1>Imprensa</h1><span>As notícias da jornada · ${fmtData(ult.data)}</span></div><button class="btn imp-fechar" id="fechar">Fechar</button></section>
+  ${pend.length ? `<div class="nf-conf"><span>🎙️ <b>${pend.length} pedido${pend.length > 1 ? 's' : ''} de conferência de imprensa</b> · ${pend.map((x) => x.meio).join(', ')}</span><span style="display:flex;gap:6px">${pend.map((x) => `<button class="btn prim" data-entrev="${PEDIDOS_ENTREVISTA.indexOf(x)}">Responder: ${x.meio}</button>`).join('')}</span></div>` : ''}
+  <div class="nf-bloco">${blocoHtml(ult, k0)}</div>
+  ${antigos.length ? `<details class="nf-antigos"><summary>Jornadas anteriores (${antigos.length})</summary>${antigos.map((b, i) => `<div class="nf-bloco"><div class="rot" style="margin-bottom:6px">${fmtData(b.data)}</div>${blocoHtml(b, k0 - 1 - i)}</div>`).join('')}</details>` : ''}`;
 }
 function modalSemana() {
-  const sem = DESTAQUES[semanaImprensa % DESTAQUES.length], capa = CAPAS_SEMANA[semanaImprensa % CAPAS_SEMANA.length];
-  return `<div class="modal modal-rel" role="dialog" aria-label="Destaques da semana na imprensa">${capaRelatorio('Destaques da semana na imprensa', `Semana ${46 + semanaImprensa} · pressão mediática ${pressaoMedia}/100`, capa)}<div class="modal-corpo">
-    ${[...declDaSemana(semanaImprensa - 1), ...sem].map(linhaNoticia).join('')}
+  const b = FEED[FEED.length - 1], capa = CAPAS_SEMANA[semanaImprensa % CAPAS_SEMANA.length], top = b.itens.filter((x) => x.peso === 'alto').concat(b.itens.filter((x) => x.peso !== 'alto')).slice(0, 5);
+  return `<div class="modal modal-rel" role="dialog" aria-label="Destaques da semana">${capaRelatorio('Destaques da semana na imprensa', fmtData(b.data), capa)}<div class="modal-corpo">
+    ${top.map((it) => linhaFeed(it, b.itens.indexOf(it), FEED.length - 1)).join('')}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" data-ir="imprensa">Abrir Imprensa</button><button class="btn prim" id="fechar">Continuar</button></div></div></div>`;
 }
 function modalEntrevista() {
@@ -1665,22 +1731,25 @@ function premiosEcra() {
 
 // ---------- Escritório: dashboard curto (desportivo, financeiro, institucional) e mensagens ----------
 function escritorioEcra() {
-  const pos = tabela.findIndex((t) => t.nome === CLUBE.nome) + 1, eu = tabela[pos - 1], pj = proximoJogo(), bil = efeitoBilhete(precoBilhete);
-  const nome = PERFIL_ACTIVO ? PERFIL_ACTIVO.nome.split(' ')[0] : 'Presidente';
-  const sem = (v, bom, mau) => (v >= bom ? 'bom' : v >= mau ? 'aviso' : 'mau');
-  const kpi = (rot, val, sub, est) => `<div class="kpi"><span class="rot">${rot}</span><b class="num">${val}</b>${sub ? `<span class="kpi-sub ${est ?? ''}">${sub}</span>` : ''}</div>`;
-  const cartao = (t, ic, est, kpis, ir) => `<section class="c s4 dash"><h2><span class="dash-pt ${est}"></span>${t}<a class="acao" href="#${ir}">Abrir ›</a></h2><div class="kpis">${kpis.join('')}</div></section>`;
-  const naoLidas = MENSAGENS.filter((x) => !x.lida).length;
-  return `<section class="banner-mercado banner-esc"><img src="escritorio.jpg" alt=""><div class="bm-topo"><h1>Escritório</h1><span>Bom dia, ${nome}. ${fmtData(hoje)}</span></div></section>
+  // Resumo da carreira do Presidente (no protótipo: a época em curso; na app acumula todas as épocas da carreira).
+  const nome = PERFIL_ACTIVO ? PERFIL_ACTIVO.nome : 'Presidente', eu = tabela.find((t) => t.nome === CLUBE.nome);
+  const taca = { j: 2, v: 2, e: 0, d: 0 }, uel = { j: 5, v: 3, e: 1, d: 1 }, J = eu.j + taca.j + uel.j, V = eu.v + taca.v + uel.v, E = eu.e + taca.e + uel.e, D = eu.d + taca.d + uel.d;
+  const compras = [['Bruno Corança', 'CF Alvarenga', 3_400_000], ['Mateus Valota', 'Atlético Pouso das Pedras', 1_200_000], ...(NEG.estado === 'assinado' ? [['Yusuf Taşsoy', 'Kızılpınarspor', NEG.acordo]] : [])];
+  const vendas = [['Tiago Marouro', 'Real Montalvo', 5_200_000], ['Ivo Barota', 'SV Mühlwangen', 2_750_000]];
+  const maior = (l) => l.reduce((a, b) => (b[2] > a[2] ? b : a)), soma = (l) => l.reduce((t, x) => t + x[2], 0);
+  const mc = maior(compras), mv = maior(vendas), mm = [...plantel].sort((a, b) => b.g - a.g)[0];
+  const kpi = (ic, rot, val, sub = '') => `<div class="car-k"><span class="car-ic">${ic}</span><span class="rot">${rot}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+  return `<section class="banner-mercado banner-esc"><img src="escritorio.jpg" alt=""><div class="bm-topo"><h1>Escritório</h1><span>A carreira de ${nome} · Presidente do ${CLUBE.nome} desde Julho de 2026</span></div></section>
   <div class="grelha">
-    ${cartao('Desportivo', 'liga', pos <= 4 ? 'bom' : pos <= 10 ? 'aviso' : 'mau', [kpi('Liga', `${pos}.º`, `${eu.pts} pts · forma ${eu.forma.slice(-3).join('')}`, pos <= 5 ? 'bom' : 'aviso'), kpi('Objectivo', 'Top 5', pos <= 5 ? 'dentro do objectivo' : 'abaixo do objectivo', pos <= 5 ? 'bom' : 'mau'), kpi('Próximo jogo', pj ? fmtCurta(pj.d) : '—', pj ? `${pj.j.casa ? 'casa' : 'fora'} · ${pj.j.adv}` : '')], 'classificacao')}
-    ${cartao('Financeiro', 'financas', 'bom', [kpi('Caixa', '18,4 M€', '+2,1 M€ este mês', 'bom'), kpi('Resultado previsto', '+4,8 M€', 'época 2026/27', 'bom'), kpi('Massa salarial', '94%', '31,2 de 33,0 M€', 'aviso')], 'financas')}
-    ${cartao('Institucional', 'staff', sem(Math.min(72, bil.satisf), 60, 40), [kpi('Conselho', '72/100', 'confiança', sem(72, 60, 40)), kpi('Adeptos', `${bil.satisf}/100`, '48 300 sócios', sem(bil.satisf, 60, 40)), kpi('Imprensa', `${pressaoMedia}/100`, 'pressão mediática', pressaoMedia >= 70 ? 'mau' : pressaoMedia >= 45 ? 'aviso' : 'bom')], 'financas')}
-    <section class="c s8"><h2>Mensagens${naoLidas ? `<span class="chip aviso" style="margin-left:8px">${naoLidas} por ler</span>` : ''}</h2>
-      <div class="filtros-msg">${GRUPOS_MSG.map((g) => { const n = g === 'Todas' ? MENSAGENS.length : MENSAGENS.filter((x) => x.grupo === g).length; return `<button class="chip ${g === filtroMsg ? 'info' : ''}" data-fmsg="${g}">${g} · ${n}</button>`; }).join('')}</div>
-      ${MENSAGENS.map((x, i) => [x, i]).filter(([x]) => filtroMsg === 'Todas' || x.grupo === filtroMsg).map(([x, i]) => `<div class="msg clic ${x.lida ? 'lida' : ''}" data-msgesc="${i}" role="button" tabindex="0"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('') || '<div class="rot">Sem mensagens deste remetente.</div>'}</section>
-    <section class="c s4 agenda"><img src="escritorio-cafe.jpg" alt=""><div class="agenda-txt"><h2 style="color:#fff">Hoje</h2>
-      ${[['Jogo', pj && chave(pj.d) === chave(hoje) ? `${pj.j.adv} · 20:30` : 'sem jogo'], ['Imprensa', PEDIDOS_ENTREVISTA.filter((x) => x.estado === 'pendente').length + ' pedidos de entrevista'], ['Mercado', emJanela(hoje) ? 'janela aberta' : 'janela fechada'], ['Conselho', 'reunião no fim de Janeiro']].map(([a, b]) => `<div class="ag-l"><span>${a}</span><b>${b}</b></div>`).join('')}</div></section>
+    <section class="c s12"><h2>Resultados</h2><div class="car-res">${kpi('🏟️', 'Jogos', J)}${kpi('✅', 'Vitórias', V, `${Math.round(V / J * 100)}%`)}${kpi('➖', 'Empates', E)}${kpi('❌', 'Derrotas', D)}${kpi('🏆', 'Títulos', 0, 'ainda à espera do primeiro')}</div></section>
+    <section class="c s6"><h2>Mercado</h2>
+      ${kpi('⬇️', 'Maior contratação', `${mc[0]}`, `vindo do ${mc[1]} por ${fE(mc[2])}`)}
+      ${kpi('⬆️', 'Maior venda', `${mv[0]}`, `para o ${mv[1]} por ${fE(mv[2])}`)}
+      <div class="car-par">${kpi('💸', 'Total em contratações', fE(soma(compras)))}${kpi('💰', 'Total em vendas', fE(soma(vendas)))}</div></section>
+    <section class="c s6"><h2>Clube e adeptos</h2>
+      ${kpi('🏦', 'Total aportado no clube', fE(15_000_000), 'aumento de capital, Julho de 2026')}
+      ${kpi('⚽', 'Melhor marcador numa época', mm.nome, `${mm.g} golos em ${mm.j} jogos · 2026/27`)}
+      ${kpi('👥', 'Maior assistência em casa', `${(31_850).toLocaleString('pt-PT')} adeptos`, `vs Real Montalvo · 2026/27`)}</section>
   </div>`;
 }
 const fmtCurta = (d) => `${d.getUTCDate()} ${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][d.getUTCMonth()]}`;
@@ -2014,7 +2083,7 @@ function desenhar() {
   const topo = `<div class="barra-topo"><div class="data"><b>${hoje.getUTCDate()} ${MESES[hoje.getUTCMonth()].slice(0, 3)} ${hoje.getUTCFullYear()}</b><span>${DSEM[hoje.getUTCDay()]} · Época 2026/27</span></div>
     <button class="icone-btn" id="b-cal" aria-label="Calendário">${svg('cal')}</button>
     <button class="icone-btn" id="b-msg" aria-label="Mensagens">${svg('env')}${naoLidas ? `<span class="badge">${naoLidas}</span>` : ''}</button>
-    <button class="icone-btn" id="b-imp" aria-label="Imprensa" title="Imprensa">${svg('imprensa')}${PEDIDOS_ENTREVISTA.some((x) => x.estado === 'pendente') ? '<span class="badge">!</span>' : ''}</button>
+    <button class="icone-btn" id="b-imp" aria-label="Imprensa" title="Imprensa">${svg('imprensa')}${novasNoticias() ? `<span class="badge">${novasNoticias()}</span>` : PEDIDOS_ENTREVISTA.some((x) => x.estado === 'pendente') ? '<span class="badge">!</span>' : ''}</button>
     <button class="icone-btn" id="b-guardar" aria-label="Guardar o progresso" title="Guardar o progresso">${svg('guardar')}</button>
     ${PERFIL_ACTIVO ? `<button class="perfil-chip" id="b-perfil" title="Perfil e sessão">${avatarHtml(PERFIL_ACTIVO, 30)}<span><b>${PERFIL_ACTIVO.nome.split(' ')[0]}</b><small>${CARGO}</small></span></button>` : ''}
     <button class="btn prim continuar" id="b-cont">Continuar ${svg('seta').replace('<svg', '<svg style="width:16px;height:16px;vertical-align:-3px"')}</button></div>`;
@@ -2064,7 +2133,9 @@ function desenharModal() {
     else
     if (ab && !ab.rel && ab.resp) el.innerHTML = `<div class="modal" role="dialog" aria-label="${ab.assunto}"><div class="modal-cab"><h3>${ab.assunto}</h3><button class="btn" id="fechar">Fechar</button></div><div class="rot">${ab.de} · ${ab.dia}</div><p style="margin:12px 0">${ab.txt}</p>${ab.respondida ? `<div class="chip bom">Respondeste: ${ab.respondida}</div>` : `<div class="respostas">${ab.resp.map((r, i) => `<button class="resposta" data-respmsg="${i}" style="grid-template-columns:1fr"><span>${r}</span></button>`).join('')}</div>`}<div style="display:flex;justify-content:flex-start;margin-top:12px"><button class="btn" id="voltar-msg">← Mensagens</button></div></div>`;
     else if (ab?.rel) el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="${ab.assunto}">${capaRelatorio(ab.assunto, `${ab.de} · ${ab.dia}`, ab.rel === 'reforco' ? 'pedido-treinador.jpg' : 'relatorio.jpg')}<div class="modal-corpo">${RELATORIOS[ab.rel]()}<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="voltar-msg">← Mensagens</button><button class="btn" id="fechar">Fechar</button></div></div></div>`;
-    else el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="modal-cab" style="justify-content:flex-end"><button class="btn" id="fechar">Fechar</button></div>${MENSAGENS.map((x, i) => `<div class="msg ${x.lida ? 'lida' : ''}" data-msg="${i}"><span class="nl"></span><div><b>${x.assunto}</b><div class="de">${x.de}</div><div style="margin-top:4px">${x.txt}</div></div><span class="de">${x.dia}${x.rel ? '<br><span class="chip info" style="margin-top:4px">Relatório</span>' : ''}</span></div>`).join('')}</div></div>`;
+    else { const decide = (x) => !!x.resp || x.rel === 'reforco', lin = (x) => `<button class="mg ${x.lida ? 'lida' : ''}" data-msg="${MENSAGENS.indexOf(x)}"><span class="nl"></span><span class="mg-t"><b>${x.assunto}</b><small>${x.de.replace(/\s*\(.*\)/, '')} · ${x.dia}</small></span>${decide(x) && !x.respondida ? '<span class="chip aviso">Decidir</span>' : x.respondida ? '<span class="chip bom">Respondida</span>' : x.rel ? '<span class="chip info">Relatório</span>' : ''}</button>`;
+      const a = MENSAGENS.filter(decide), b = MENSAGENS.filter((x) => !decide(x));
+      el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="mg-grupo">A decidir · ${a.length}</div>${a.map(lin).join('')}<div class="mg-grupo">Para ler · ${b.length}</div>${b.map(lin).join('')}<div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn" id="fechar">Fechar</button></div></div></div>`; }
   }
   document.body.appendChild(el);
   el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
@@ -2073,6 +2144,7 @@ function desenharModal() {
   el.querySelector('#pr-saltar')?.addEventListener('click', () => { clearTimeout(cer.timer); cer.mostrados = PREMIOS[ETAPAS_PREMIO[cer.etapa].k].length; desenharModal(); });
   el.querySelector('#pr-seguinte')?.addEventListener('click', () => { cer = { etapa: cer.etapa + 1, mostrados: 0 }; desenharModal(); passoCerimonia(); });
   el.querySelectorAll('[data-ir]').forEach((b) => b.addEventListener('click', () => { modal = 'imprensa'; desenharModal(); }));
+  el.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', () => { const [k, i] = b.dataset.ver.split(':').map(Number); abrirNoticia(k, i); }));
   el.querySelectorAll('[data-reagir]').forEach((b) => b.addEventListener('click', () => { const [i, j] = b.dataset.reagir.split(':').map(Number), t = TEMAS_REACAO[i], o = t.opcoes[j]; t.feito = o.tom;
     if (o.titulo) { declarar(t.origem.split(' · ')[0], o.titulo, `Reacção a: ${t.tema}`, o.img, o.efeitos); reacao = { t, o }; modal = 'reacao'; daImprensa = true; desenhar(); desenharModal(); } else { const y = el.querySelector('.modal').scrollTop; desenharModal(); document.querySelector('.modal').scrollTop = y; } }));
   el.querySelector('#b-semana')?.addEventListener('click', () => { modal = 'semana'; daImprensa = true; desenharModal(); });
@@ -2096,7 +2168,7 @@ function desenharModal() {
       desenhar();
     }
     desenharModal(); }));
-  el.querySelectorAll('[data-respmsg]').forEach((b) => b.addEventListener('click', () => { const ab = MENSAGENS[msgAberta]; ab.respondida = ab.resp[+b.dataset.respmsg]; desenharModal(); }));
+  el.querySelectorAll('[data-respmsg]').forEach((b) => b.addEventListener('click', () => { const ab = MENSAGENS[msgAberta]; ab.respondida = ab.resp[+b.dataset.respmsg]; if (/Mercado/.test(ab.respondida)) { modal = null; msgAberta = null; tabMercado = 'Visão geral'; location.hash = 'mercado'; desenhar(); return; } desenharModal(); }));
   el.querySelector('#voltar-msg')?.addEventListener('click', () => { msgAberta = null; desenharModal(); });
   const mv = (dm) => { const b = mesCal ?? new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); mesCal = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + dm, 1)); desenharModal(); };
   el.querySelector('#cal-ant')?.addEventListener('click', () => mv(-1));
@@ -2109,7 +2181,7 @@ function desenharModal() {
 function ligar(m) {
   m.querySelector('#b-cal').addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
   m.querySelector('#b-msg').addEventListener('click', () => { modal = 'msg'; desenharModal(); });
-  m.querySelector('#b-cont').addEventListener('click', () => { hoje = new Date(hoje.getTime() + 864e5); guardarProgresso(false); if (hoje.getUTCDay() === 1) { semanaImprensa++; modal = 'semana'; } desenhar(); if (modal === 'semana') desenharModal(); });
+  m.querySelector('#b-cont').addEventListener('click', () => { const ontem = hoje; hoje = new Date(hoje.getTime() + 864e5); guardarProgresso(false); if (JOGOS.get(chave(ontem)) || hoje.getUTCDay() === 1) { FEED.push(gerarBloco(hoje)); FEED = FEED.slice(-12); feedLidos = Math.min(feedLidos, FEED.length - 1); } if (hoje.getUTCDay() === 1) { semanaImprensa++; modal = 'semana'; } desenhar(); if (modal === 'semana') desenharModal(); });
   m.querySelectorAll('[data-pos]').forEach((b) => b.addEventListener('click', () => { filtroPos = b.dataset.pos; desenhar(); }));
   const f = m.querySelector('#f-pesq'); if (f) f.addEventListener('input', () => { pesquisa = f.value; const pos = f.selectionStart; desenhar(); const g = document.getElementById('f-pesq'); g.focus(); g.setSelectionRange(pos, pos); });
   m.querySelectorAll('[data-jj]').forEach((t) => t.addEventListener('click', () => { jogadorSel = +t.dataset.jj; location.hash = 'jogador'; }));
