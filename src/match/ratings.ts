@@ -55,7 +55,8 @@ const INTERIORES = new Set([IDX_PAPEL.mc_b2b, IDX_PAPEL.mo_che, IDX_PAPEL.mc_cri
 /** Referência de cada rating: Σ das contribuições média das formações (com os papéis por defeito). */
 const REFERENCIA: Record<Rating, number> = (() => {
   const ref = Object.fromEntries(RATINGS.map((r) => [r, 0])) as Record<Rating, number>;
-  for (const f of FORMACOES) for (const l of f.lugares) for (const [k, v] of Object.entries(CONTRIB_NORM[l.papel] ?? {})) ref[k as Rating] += v! / FORMACOES.length;
+  const refs = FORMACOES.filter((f) => !f.semReferencia);
+  for (const f of refs) for (const l of f.lugares) for (const [k, v] of Object.entries(CONTRIB_NORM[l.papel] ?? {})) ref[k as Rating] += v! / refs.length;
   ref.gr = 1;
   return ref;
 })();

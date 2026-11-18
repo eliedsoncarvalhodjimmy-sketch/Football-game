@@ -13,6 +13,8 @@ export interface Formacao {
   id: string;
   nome: string;
   lugares: Lugar[]; // 11, o GR primeiro
+  /** Fora da média de referência dos ratings (formações acrescentadas depois da calibração, para não a deslocar). */
+  semReferencia?: boolean;
 }
 
 const GR: Lugar = { pos: 'GR', papel: 'gr_cla', x: 4, y: 50 };
@@ -28,6 +30,7 @@ export const FORMACOES: Formacao[] = [
   { id: '3-4-3', nome: '3-4-3', lugares: [GR, L('DC', 'dc_def', 18, 70), L('DC', 'dc_def', 16, 50), L('DC', 'dc_con', 18, 30), L('ALD', 'ala', 50, 92), L('MC', 'mc_b2b', 46, 60), L('MC', 'mc_cri', 46, 40), L('ALE', 'ala', 50, 8), L('ED', 'ext_inv', 76, 80), L('PL', 'pl_fin', 84, 50), L('EE', 'ext_inv', 76, 20)] },
   { id: '5-3-2', nome: '5-3-2', lugares: [GR, L('ALD', 'ala', 30, 92), L('DC', 'dc_def', 16, 70), L('DC', 'dc_def', 14, 50), L('DC', 'dc_con', 16, 30), L('ALE', 'ala', 30, 8), L('MC', 'mc_cob', 46, 64), L('MDC', 'mdc_tri', 36, 50), L('MC', 'mc_b2b', 46, 36), L('PL', 'pl_fin', 80, 58), L('PL', 'pl_pre', 78, 42)] },
   { id: '4-4-2L', nome: '4-4-2 losango', lugares: [GR, ...QUATRO, L('MDC', 'mdc_tri', 34, 50), L('MC', 'mc_b2b', 50, 68), L('MC', 'mc_cri', 50, 32), L('MO', 'mo_10', 64, 50), L('PL', 'pl_fin', 82, 58), L('PL', 'pl_pre', 80, 42)] },
+  { id: '5-4-1', nome: '5-4-1', semReferencia: true, lugares: [GR, L('ALD', 'ala', 28, 92), L('DC', 'dc_def', 16, 70), L('DC', 'dc_def', 14, 50), L('DC', 'dc_con', 16, 30), L('ALE', 'ala', 28, 8), L('ED', 'ext_cla', 52, 86), L('MC', 'mc_cob', 44, 62), L('MC', 'mc_b2b', 46, 38), L('EE', 'ext_cla', 52, 14), L('PL', 'pl_piv', 80, 50)] },
   // 4-3-3 igual ao anterior, mas com o avançado-centro como falso 9 (os interiores entram mais na área).
   { id: '4-3-3F9', nome: '4-3-3 (falso 9)', lugares: [GR, ...QUATRO, L('MDC', 'mdc_con', 36, 50), L('MC', 'mc_b2b', 52, 66), L('MC', 'mc_cri', 52, 34), L('ED', 'ext_inv', 76, 86), L('PL', 'pl_f9', 74, 50), L('EE', 'ext_inv', 76, 14)] },
 ];
