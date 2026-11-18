@@ -12,36 +12,68 @@ Protótipo: Academia e Recrutamento › Academia (separadores **Percurso**, **In
 - Aos 22 anos, o jogador sobe à principal, é vendido ou é libertado. Isto mantém o que já existe em `PROMOCAO`.
 - O contrato profissional aos 18 (`CONTRATO_JUNIOR`) não muda.
 
-### 2. Intake anual de 3 a 5 jovens por clube
-- Em Junho entram 3 a 5 jovens de 15–16 anos por clube, directamente no Sub-18. Hoje são 6 a 12, e vão para os prospectos.
-- O volume dentro de 3–5 depende da academia, da reputação e da dimensão do país. Esta fórmula já existe.
-- O potencial sobe para compensar o menor volume, e é recalibrado com uma corrida longa (ver ponto 6).
+### 2. Intake anual de 6 a 12 jovens por clube (resposta: mantém)
+- Em Junho entram 6 a 12 jovens de 15–16 anos por clube, directamente no Sub-18.
+  - O volume depende do nível da academia e do Recrutamento, como hoje.
+  - O potencial médio não muda.
 - O relatório do intake é simples: posição, idade, altura, peso, OVR e PT em intervalo, e uma palavra de personalidade.
-  - A largura do intervalo depende da avaliação do Chefe de Desenvolvimento Juvenil (`avaliacao_potencial` e `avaliacao_habilidade`).
+  - A largura do intervalo depende do Chefe de Desenvolvimento Juvenil.
   - O intervalo estreita com os jogos.
-- Se o Sub-18 estiver cheio, o gestor da academia propõe libertar os mais fracos. No caso da IA, isto é automático.
+- Sem a camada de prospectos, o Sub-18 (15–18 anos) recebe cerca de 9 jovens por ano, ao longo de 4 idades. Ver a pergunta 1.
 
-### 3. Ligas Sub-18 e Sub-21
-- Há uma liga Sub-18 e uma liga Sub-21 para cada divisão principal simulada, com os mesmos clubes da 1.ª divisão.
-  - Os clubes das divisões inferiores ficam numa liga juvenil regional agregada por país, sem tabela visível.
-- Os jogos são simulados em segundo plano com o simulador rápido (`prepararLados` com o onze mais forte do escalão), sem tácticas.
-  - O estilo do treinador Sub-18 e do treinador Sub-21 entra pelo efeito de estilo já existente.
-- O jogo guarda a classificação, os resultados por jornada e, por jogador, jogos, golos, assistências e nota.
-- Os minutos reais nestas ligas substituem os `MINUTOS_JUVENIS` fixos na fórmula de evolução.
-  - O nível de competição é a força média da liga.
-  - Quem não joga evolui menos, tal como na equipa principal.
-- Custo de desempenho: com cerca de 2 × (n.º de 1.ªs divisões) ligas de 18 clubes, a semana fica perto de +30% de jogos rápidos. Vou medir isto. Se pesar demasiado, simulo só o resultado e distribuo os golos pelos jogadores, sem lances.
+### 3. Ligas Sub-18 e Sub-21 em todos os países do mundo (resposta)
+- **1.ª e 2.ª divisão juntas** numa só liga por escalão (ex.: Portugal tem 18 + 18 = 36 clubes).
+  - Todos contra todos a uma volta: n − 1 jornadas, 35 em Portugal e 43 em Inglaterra.
+  - Os **8 primeiros vão ao playoff**: quartos de final (1–8, 4–5, 2–7, 3–6) e meias-finais a uma mão em casa do melhor classificado, final em campo neutro.
+  - As jornadas encaixam nas semanas de Agosto a Abril; o playoff joga-se em Maio. Com 43 jornadas, há semanas com duas jornadas.
+- **3.ª e 4.ª divisão:** amigáveis semanais entre clubes do mesmo país, sem tabela. Dão minutos e entram na evolução.
+- Países com uma só divisão no jogo: liga só com essa divisão, com a mesma regra do playoff.
+- Os jogos são simulados com o simulador rápido, sem tácticas.
+  - O onze é escolhido automaticamente entre os jogadores do escalão.
+  - Entram o estilo do treinador do escalão e o "trabalho com jovens".
+- O jogo guarda a classificação, os resultados, o playoff e, por jogador, jogos, golos, assistências e nota. O histórico guarda os campeões.
+- Os minutos reais substituem os `MINUTOS_JUVENIS` fixos na evolução.
+- Desempenho: meço o custo semanal. Se passar de +30%, simulo só o resultado, sem lances, e distribuo golos e notas pelos jogadores.
 
 ### 4. Missões do olheiro de jovens
-- Escolhes o país, a posição (Todas, GR, Defesas, Médios ou Avançados) e a duração (2, 4 ou 8 semanas).
-- O custo depende do país (deslocação) e da duração.
-- No fim da missão chega um relatório com 2 a 10 nomes:
-  - mais nomes com mais `scout_quantidade` e mais semanas;
-  - intervalos mais estreitos com mais `avaliacao`;
-  - menos perda de qualidade fora da região de origem com `adaptabilidade`.
-- Cada nome mostra a posição, a data de nascimento, a altura, o peso, o OVR e o PT em intervalo, e o clube actual.
-- Os nomes são jovens reais do mundo, dos Sub-18 e Sub-21 dos clubes desse país. O botão **Contratar** abre a negociação já existente, com compensação de formação.
-- Cada olheiro de jovens faz uma missão de cada vez (0–3 olheiros, ou seja, 0–3 missões em simultâneo). Sem olheiros de jovens, não há missões.
+- **Mapa-mundo interactivo.** São elegíveis os países do mapa enviado, mais Angola, Senegal, Camarões e Costa do Marfim (73 países; a lista está em `ELEGIVEIS` no protótipo).
+  - Os outros países aparecem a cinzento, sem rede de scouting.
+  - Há zoom por região (Europa, Américas, África, Ásia e Oceânia) e uma lista equivalente para teclado e acessibilidade.
+- Escolhes a posição (Todas, GR, Defesas, Médios ou Avançados) e a duração: **2, 4, 8 ou 12 semanas**.
+- **Custo por semana (clube na Europa):**
+
+  | Zona | Custo por semana |
+  | --- | --- |
+  | Próprio país | €1.500 |
+  | África | €2.000 |
+  | Américas | €2.500 |
+  | Europa | €3.000 |
+  | Médio Oriente | €3.500 |
+  | Ásia e Oceânia | €4.500 |
+
+  - Para clubes de outros continentes, a tabela é relativa: o próprio continente é a zona barata seguinte ao próprio país.
+- O relatório traz 2 a 10 nomes, com mais nomes para mais `scout_quantidade` e mais semanas.
+  - Os intervalos são mais estreitos com mais `avaliacao`.
+  - A `adaptabilidade` reduz a perda de precisão fora da região do olheiro.
+- Cada nome mostra a posição, a data de nascimento, a altura, o peso, OVR e PT em intervalo, o clube e, se houver, a qualidade típica em que se destaca.
+- Os nomes são jovens reais do mundo, dos escalões dos clubes desse país. Contratar abre a negociação com compensação de formação.
+- Há 1 missão por olheiro de jovens, ou seja, 0 a 3 em simultâneo (resposta: concordo).
+
+### 4b. Perfil típico de cada país (tendência, não regra)
+- **Atributos.** Cada país tem 3 qualidades típicas. Um jovem gerado nesse país recebe +1 a +3 nos atributos ligados a essas qualidades, com probabilidade de cerca de 60%.
+  - O OVR médio não sobe: a soma é compensada nos outros atributos.
+  - Cerca de 40% dos jovens não seguem o perfil.
+- **Rostos.** Cada país aponta para uma região de rosto (tom de pele, cabelo, traços): europa_sul, europa_norte, africa, lusofonia_africa, america_sul, america_central, norte_africa, asia_leste, asia_sul e mundo.
+  - Sempre com variação: o tom de pele é uma distribuição, não um valor fixo.
+- **Nomes.** Os nomes vêm da língua do país.
+- A proposta de perfis está em `PERFIS_PAIS` no protótipo. Exemplos:
+  - Brasil: Técnica, Drible e Criatividade;
+  - Espanha: Passe, Visão e Técnica;
+  - Itália: Posicionamento, Marcação e Decisões;
+  - África Ocidental: Força, Velocidade e Explosão;
+  - nórdicos: Força, Cabeceamento e Trabalho;
+  - Japão: Técnica, Trabalho e Disciplina.
+- Vai para `src/config/paises.ts` (perfil, região do rosto e língua por país) e é aplicado em `src/players/` na geração dos jovens.
 
 ### 5. O que se mantém
 - O aliciamento (`ALICIAMENTO`): agora incide sobre jovens do Sub-18 com potencial alto.
@@ -63,8 +95,18 @@ Protótipo: Academia e Recrutamento › Academia (separadores **Percurso**, **In
 - O separador **Competições** mostra a Liga Sub-18 e a Liga Sub-21, cada uma com Classificação, Resultados e Estatísticas.
 - No Scouting ficam as missões do olheiro de jovens.
 
-## Perguntas (PARAGEM)
-1. **Intake 3–5:** confirmas a descida de 6–12 para 3–5 por clube, com o potencial recalibrado para o mundo manter o mesmo número de craques?
-2. **Ligas juvenis:** devem existir para todos os países com liga no jogo (só a 1.ª divisão, com as outras agregadas), ou só para o país do teu clube?
-3. **Missões:** concordas com 2, 4 ou 8 semanas e com um custo de €1.500 a €4.500 por semana, conforme o país?
-4. **Missões em simultâneo:** uma por cada olheiro de jovens (0–3)?
+## Respostas (Paragem 1)
+- O intake mantém-se em 6 a 12 por clube, conforme a academia e o Recrutamento.
+- Ligas em todos os países: 1.ª e 2.ª divisão juntas a uma volta e playoff dos 8 primeiros; 3.ª e 4.ª divisão com amigáveis semanais.
+- Missões de 2, 4, 8 ou 12 semanas. Os custos são aceites; África e Américas mais baratas a partir da Europa.
+- 1 missão por olheiro de jovens.
+- Mapa interactivo com os países elegíveis e perfil típico por país (atributos e rostos).
+
+## Perguntas (PARAGEM 2)
+1. **Tamanho do Sub-18:** com 6–12 jovens por ano e 4 idades (15–18), o Sub-18 chegaria a cerca de 36. Opções:
+   - (a) subir o máximo do Sub-18 para 30; em Julho, o gestor da academia propõe libertar o excedente (recomendado);
+   - (b) manter 18 e libertar cerca de metade de cada intake logo no primeiro ano.
+2. **Perfis por país:** concordas com a lista proposta? Podes enviar correcções país a país.
+3. **Elegíveis:** confirmas os países que li no mapa?
+   - Incluí: na América Central, Guatemala, Honduras e El Salvador; no Médio Oriente, Israel e Arábia Saudita; em África, Gana; em toda a Europa, menos a Bielorrússia.
+   - Ficam de fora: Cabo Verde, Malta e outras ilhas pequenas, que não aparecem no mapa de 110 m. Posso acrescentá-las na lista.
