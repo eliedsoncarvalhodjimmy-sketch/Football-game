@@ -1,9 +1,11 @@
 // Gerador procedural de rostos de jogadores (estilo cartoon vectorial: contorno preto grosso, cores planas,
 // sombreamento simples, cabeça e ombros de frente, fundo transparente). Sem imagens nem IA: tudo em path SVG.
 //
-// Determinístico: a semente é hashSeed(id + '|' + nome) e um PRNG mulberry32 escolhe cada camada; o mesmo jogador tem
-// sempre a mesma cara. A nacionalidade escolhe o preset (distribuições ponderadas); a idade muda a cara (rugas, grisalho,
-// cara mais redonda e sem barba nos mais novos). A posição não muda o rosto.
+// Determinismo absoluto: toda a aleatoriedade vem do PRNG mulberry32 com semente; nenhuma camada usa Math.random(),
+// Date.now() nem crypto. A semente é imutável: hashSeed(playerId) + hashSeed(faceNationality) — o nome NÃO entra (mudar
+// o nome não muda a cara). `faceNationality` é a nacionalidade de criação, guardada à parte da nacionalidade actual:
+// uma mudança de nacionalidade (naturalização) não regenera o rosto. `faceVersion` fixa a versão do algoritmo.
+// A idade muda a cara (rugas, grisalho; mais redonda e sem barba nos mais novos). A posição não muda o rosto.
 import type { Acessorios, ClubKit, Ctx, EyeColorId, FaceShapeId, FaceTraits, HairColorId } from './faceParts/contexto.ts';
 import { clamp, entre, hashSeed, mulberry32, ponderado, type Rand } from './faceParts/shared.ts';
 import { paletaPele, desenharPescoco } from './faceParts/Skin.tsx';
@@ -25,16 +27,34 @@ export type { ClubKit, FaceTraits };
 export interface Player {
   id: string;
   nome: string;
-  /** Código ISO alfa-2 (AO, BR, PT, ...) ou o código do jogo (POR, BRA, ...). */
+  /** Nacionalidade actual: código ISO alfa-2 (AO, BR, PT, ...) ou o código do jogo (POR, BRA, ...). */
   nacionalidade: string;
+  /** Nacionalidade usada para gerar o rosto (fixada na criação; por omissão, a actual). */
+  faceNationality?: string;
+  /** Versão do algoritmo do rosto (fixada na criação; por omissão, a actual). */
+  faceVersion?: FaceVersion;
   idade: number;
   posicao: string;
   clubeId: string;
   overall?: number;
 }
 
-/** Semente do jogador: id + nome. */
-export const sementeJogador = (p: Pick<Player, 'id' | 'nome'>) => hashSeed(`${p.id}|${p.nome}`);
+/** Versões do algoritmo. Uma versão publicada nunca muda: um algoritmo novo entra como "v2" e os jogadores antigos
+ *  continuam com a versão que têm guardada. */
+export type FaceVersion = 'v1';
+export const FACE_VERSAO_ATUAL: FaceVersion = 'v1';
+export const FACE_VERSOES: readonly FaceVersion[] = ['v1'];
+
+/** Nacionalidade de criação do rosto (a guardada; senão a actual). */
+export const nacionalidadeRosto = (p: Pick<Player, 'nacionalidade' | 'faceNationality'>) => (p.faceNationality || p.nacionalidade || '').toUpperCase();
+
+/** Semente imutável: hashSeed(playerId) + hashSeed(nacionalidade de criação). O nome não entra. */
+export const sementeJogador = (p: Pick<Player, 'id' | 'nacionalidade' | 'faceNationality'>) => (hashSeed(p.id) + hashSeed(nacionalidadeRosto(p))) >>> 0;
+
+/** Campos a guardar no jogador quando é criado (rosto fixo para sempre). */
+export function camposRosto(p: Pick<Player, 'nacionalidade' | 'faceNationality' | 'faceVersion'>): { faceNationality: string; faceVersion: FaceVersion } {
+  return { faceNationality: nacionalidadeRosto(p), faceVersion: p.faceVersion ?? FACE_VERSAO_ATUAL };
+}
 
 // ---------------------------------------------------------------- escolha dos traços
 
@@ -59,7 +79,7 @@ function pesoCabelo(id: string, base: number, pele: number, idade: number): numb
 export function gerarTracos(p: Player): FaceTraits {
   const seed = sementeJogador(p);
   const r: Rand = mulberry32(seed);
-  const pr = presetDe(p.nacionalidade);
+  const pr = presetDe(nacionalidadeRosto(p));
   const idade = clamp(Math.round(p.idade || 25), 15, 45);
   const jovem = idade < 18;
 
@@ -120,7 +140,7 @@ export function gerarTracos(p: Player): FaceTraits {
   const aparelho = boca === 7 && idade < 23 && r() < 0.35;
 
   return {
-    seed, nacionalidade: p.nacionalidade, idade, pele, forma, ajuste, olhos, corOlhos, sobrancelhas, nariz, boca, cabelo, corCabelo, barba, corBarba, barbaGrisalha, rugas,
+    seed, nacionalidade: nacionalidadeRosto(p), idade, pele, forma, ajuste, olhos, corOlhos, sobrancelhas, nariz, boca, cabelo, corCabelo, barba, corBarba, barbaGrisalha, rugas,
     acessorios: { brincos, brincoTipo, tatuagem, cicatriz, sardas, oculos, aparelho },
   };
 }
@@ -165,13 +185,44 @@ export interface OpcoesRosto {
   largura?: number;
 }
 
-/** Rosto completo de um jogador em SVG (texto). viewBox 0 0 200 240, fundo transparente. */
-export function generatePlayerFace(player: Player, opcoes: OpcoesRosto = {}): string {
+/** Algoritmo v1 (congelado): traços + camadas → SVG. */
+function rostoV1(player: Player, kit: ClubKit, largura?: number): string {
   const t = gerarTracos(player);
-  const kit = opcoes.kit ?? kitDoClube(player.clubeId);
   const c = contextoRosto(t, `f${t.seed.toString(36)}${hashSeed(kit.primaryColor + kit.secondaryColor + kit.pattern + (kit.collar ?? '')).toString(36).slice(0, 4)}`);
-  const tam = opcoes.largura ? ` width="${opcoes.largura}" height="${Math.round((opcoes.largura * 240) / 200)}"` : '';
+  const tam = largura ? ` width="${largura}" height="${Math.round((largura * 240) / 200)}"` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240"${tam} role="img">${desenharCamadas(c, kit)}</svg>`;
+}
+
+const ALGORITMOS: Record<FaceVersion, (p: Player, kit: ClubKit, largura?: number) => string> = { v1: rostoV1 };
+
+/** Memoização por jogador (id), com o que muda o desenho: versão, nacionalidade de criação, idade e equipamento.
+ *  Limitada (LRU simples): os mais antigos saem quando passa do máximo. */
+const CACHE_MAX = 4000;
+const cache = new Map<string, string>();
+export function limparCacheRostos() { cache.clear(); }
+export const tamanhoCacheRostos = () => cache.size;
+
+/** Rosto completo de um jogador em SVG (texto). Função pura: o mesmo jogador dá sempre o mesmo texto.
+ *  viewBox 0 0 200 240, fundo transparente. */
+export function generatePlayerFace(player: Player, opcoes: OpcoesRosto = {}): string {
+  const versao = player.faceVersion ?? FACE_VERSAO_ATUAL;
+  const algoritmo = ALGORITMOS[versao];
+  if (!algoritmo) throw new Error(`Versão de rosto desconhecida: ${versao}`);
+  const kit = opcoes.kit ?? kitDoClube(player.clubeId);
+  const idade = clamp(Math.round(player.idade || 25), 15, 45);
+  const chave = `${versao}|${player.id}|${nacionalidadeRosto(player)}|${idade}|${kit.primaryColor}|${kit.secondaryColor}|${kit.pattern}|${kit.collar ?? ''}|${opcoes.largura ?? ''}`;
+  const em = cache.get(chave);
+  if (em !== undefined) { cache.delete(chave); cache.set(chave, em); return em; }
+  const svg = algoritmo(player, kit, opcoes.largura);
+  cache.set(chave, svg);
+  if (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value!);
+  return svg;
+}
+
+/** Sem memoização (para medir o custo real e para os testes). */
+export function generatePlayerFaceSemCache(player: Player, opcoes: OpcoesRosto = {}): string {
+  const versao = player.faceVersion ?? FACE_VERSAO_ATUAL;
+  return ALGORITMOS[versao](player, opcoes.kit ?? kitDoClube(player.clubeId), opcoes.largura);
 }
 
 /** Ids dos formatos (reexportado para a página de teste). */

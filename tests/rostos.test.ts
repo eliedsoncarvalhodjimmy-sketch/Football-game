@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { generatePlayerFace, gerarTracos, hashSeed, kitDoClube, type Player } from '../src/players/faceGenerator.ts';
+import { generatePlayerFaceSemCache as generatePlayerFace, gerarTracos, hashSeed, kitDoClube, type Player } from '../src/players/faceGenerator.ts';
 import { TONS_PELE } from '../src/players/faceParts/Skin.tsx';
 import { IDS_FORMATO } from '../src/players/faceParts/FaceShape.tsx';
 import { FORMAS_OLHOS, CORES_OLHOS } from '../src/players/faceParts/Eyes.tsx';
@@ -19,11 +19,11 @@ const muitos = (nac: string, k = 500, idade?: number) => Array.from({ length: k 
 const frac = <T>(xs: T[], f: (x: T) => boolean) => xs.filter(f).length / xs.length;
 
 describe('determinismo e SVG', () => {
-  it('o mesmo jogador dá sempre o mesmo SVG; outro id ou nome muda a cara; a posição não muda o rosto', () => {
+  it('o mesmo jogador dá sempre o mesmo SVG; outro id muda a cara; o nome e a posição não mudam o rosto', () => {
     const a = generatePlayerFace(jog(1, 'PT')), b = generatePlayerFace(jog(1, 'PT'));
     expect(a).toBe(b);
     expect(generatePlayerFace(jog(2, 'PT'))).not.toBe(a);
-    expect(generatePlayerFace({ ...jog(1, 'PT'), nome: 'Outro' })).not.toBe(a);
+    expect(generatePlayerFace({ ...jog(1, 'PT'), nome: 'Outro' })).toBe(a);
     expect(generatePlayerFace({ ...jog(1, 'PT'), posicao: 'GR' })).toBe(a);
     expect(hashSeed('abc')).toBe(hashSeed('abc'));
   });

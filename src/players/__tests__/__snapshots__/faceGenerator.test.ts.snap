@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`versão do algoritmo (faceVersion) > impressão digital da v1: um rosto de referência não muda (se este teste falhar, o algoritmo v1 foi alterado — crie uma v2) 1`] = `"ebb33de1"`;

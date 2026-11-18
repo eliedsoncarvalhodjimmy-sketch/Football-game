@@ -1,16 +1,16 @@
 // Card do jogador: rosto + nome + posição + idade + overall (a posição só aparece no card, não muda o rosto).
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { generatePlayerFace, type ClubKit, type Player } from './faceGenerator.ts';
 import { presetDe } from './nationalityPresets.ts';
 
-/** Rosto em SVG (gerado uma vez por jogador e equipamento). */
-export function PlayerFace({ player, kit, largura }: { player: Player; kit?: ClubKit; largura?: number }) {
+/** Rosto em SVG (o texto vem da cache do gerador; o componente só volta a desenhar se o rosto mudar). */
+export const PlayerFace = memo(function PlayerFace({ player, kit, largura }: { player: Player; kit?: ClubKit; largura?: number }) {
   const svg = useMemo(
     () => generatePlayerFace(player, { kit }),
-    [player.id, player.nome, player.nacionalidade, player.idade, player.clubeId, kit?.primaryColor, kit?.secondaryColor, kit?.pattern, kit?.collar],
+    [player.id, player.faceNationality, player.faceVersion, player.nacionalidade, player.idade, player.clubeId, kit?.primaryColor, kit?.secondaryColor, kit?.pattern, kit?.collar],
   );
   return <div className="pf-rosto" style={largura ? { width: largura } : undefined} dangerouslySetInnerHTML={{ __html: svg }} />;
-}
+});
 
 /** Cor do overall (como nos jogos de gestão: verde alto, amarelo médio, laranja baixo). */
 function corOverall(o: number): string {
@@ -20,7 +20,7 @@ function corOverall(o: number): string {
   return '#d9792b';
 }
 
-export function PlayerCard({ player, kit }: { player: Player; kit?: ClubKit }) {
+export const PlayerCard = memo(function PlayerCard({ player, kit }: { player: Player; kit?: ClubKit }) {
   const ovr = player.overall ?? 0;
   return (
     <article className="pf-card">
@@ -35,7 +35,7 @@ export function PlayerCard({ player, kit }: { player: Player; kit?: ClubKit }) {
       </div>
     </article>
   );
-}
+});
 
 /** Estilos do card (sem dependências): inseridos uma vez pela página que usa o card. */
 export const ESTILOS_CARD = `

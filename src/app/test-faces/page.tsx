@@ -1,7 +1,7 @@
 // Página de teste dos rostos (/test-faces): 48 jogadores ao acaso em grelha, filtros por nacionalidade e por clube
 // (muda a camisola), "Gerar novos 48" e a prova de determinismo ("Mesmo seed = mesma cara").
 import { useMemo, useState } from 'react';
-import { generatePlayerFace, mulberry32, type ClubKit, type Player } from '../../players/faceGenerator.ts';
+import { camposRosto, generatePlayerFace, generatePlayerFaceSemCache, mulberry32, type ClubKit, type Player } from '../../players/faceGenerator.ts';
 import { ESTILOS_CARD, PlayerCard, PlayerFace } from '../../players/PlayerCard.tsx';
 import { ISO2_DE_FIFA, NACIONALIDADES } from '../../players/nationalityPresets.ts';
 import { nomePessoa } from '../../players/nomesPessoas.ts';
@@ -32,10 +32,12 @@ export function gerarJogadoresTeste(lote: number, nacionalidade: string): Player
     const nac = nacionalidade || NACIONALIDADES[Math.floor(r() * NACIONALIDADES.length)].codigo;
     const nome = nomePessoa(FIFA_DE_ISO2[nac] ?? 'ENG', Rng.de(lote, 'nome', i));
     const idade = 16 + Math.floor(r() * 21);
-    out.push({
+    const p: Player = {
       id: `t${lote}-${i}`, nome, nacionalidade: nac, idade, posicao: POSICOES[Math.floor(r() * POSICOES.length)],
       clubeId: CLUBES_TESTE[Math.floor(r() * CLUBES_TESTE.length)].id, overall: 55 + Math.floor(r() * 36),
-    });
+    };
+    // Na criação fixam-se a nacionalidade do rosto e a versão do algoritmo (como o jogo fará ao criar um jogador).
+    out.push({ ...p, ...camposRosto(p) });
   }
   return out;
 }
@@ -66,21 +68,32 @@ export default function TestFacesPage() {
   const jogadores = useMemo(() => gerarJogadoresTeste(lote, nacionalidade), [lote, nacionalidade]);
   const kitDe = (p: Player) => KIT_POR_CLUBE[clube || p.clubeId];
 
-  // Desempenho: 100 rostos (texto SVG) por medição.
+  // Desempenho: 100 rostos sem cache (custo real), medido com performance.now() e mostrado na consola.
   const tempo100 = useMemo(() => {
     const ps = gerarJogadoresTeste(lote + 1000, nacionalidade).concat(gerarJogadoresTeste(lote + 2000, nacionalidade), gerarJogadoresTeste(lote + 3000, nacionalidade)).slice(0, 100);
     const t0 = performance.now();
-    for (const p of ps) generatePlayerFace(p, { kit: kitDe(p) });
-    return performance.now() - t0;
-  }, [lote, nacionalidade, clube]);
-
-  /** Gera os 48 rostos outra vez do zero e compara com os primeiros: o mesmo seed tem de dar o mesmo SVG. */
-  function provarDeterminismo() {
-    const a = jogadores.map((p) => generatePlayerFace(p, { kit: kitDe(p) }));
-    const t0 = performance.now();
-    const b = gerarJogadoresTeste(lote, nacionalidade).map((p) => generatePlayerFace(p, { kit: kitDe(p) }));
+    for (const p of ps) generatePlayerFaceSemCache(p, { kit: kitDe(p) });
     const ms = performance.now() - t0;
-    setProva({ iguais: a.filter((x, i) => x === b[i]).length, total: a.length, ms });
+    console.info(`[rostos] 100 rostos gerados (sem cache) em ${ms.toFixed(1)} ms`);
+    return ms;
+  }, [lote, nacionalidade, clube]);
+  useMemo(() => {
+    const t0 = performance.now();
+    for (const p of jogadores) generatePlayerFace(p, { kit: kitDe(p) });
+    console.info(`[rostos] lote ${lote}: 48 rostos prontos em ${(performance.now() - t0).toFixed(1)} ms (com cache)`);
+  }, [jogadores, clube]);
+
+  /** Gera os 48 rostos outra vez do zero (sem cache) e compara: o mesmo seed tem de dar o mesmo SVG. Também muda o nome
+   *  e a nacionalidade actual de cada jogador: o rosto não pode mudar (seed = id + nacionalidade de criação). */
+  function provarDeterminismo() {
+    const a = jogadores.map((p) => generatePlayerFaceSemCache(p, { kit: kitDe(p) }));
+    const t0 = performance.now();
+    const b = gerarJogadoresTeste(lote, nacionalidade).map((p) => generatePlayerFaceSemCache(p, { kit: kitDe(p) }));
+    const ms = performance.now() - t0;
+    const c = jogadores.map((p) => generatePlayerFaceSemCache({ ...p, nome: p.nome + ' Júnior', nacionalidade: p.nacionalidade === 'PT' ? 'BR' : 'PT' }, { kit: kitDe(p) }));
+    const iguais = a.filter((x, i) => x === b[i] && x === c[i]).length;
+    console.info(`[rostos] prova: ${iguais}/${a.length} idênticos (de novo, e com nome e nacionalidade mudados) em ${ms.toFixed(1)} ms`);
+    setProva({ iguais, total: a.length, ms });
   }
 
   return (
@@ -107,10 +120,11 @@ export default function TestFacesPage() {
       {prova && (
         <section className="tf-prova" aria-live="polite">
           <PlayerFace player={jogadores[0]} kit={kitDe(jogadores[0])} />
-          <PlayerFace player={{ ...jogadores[0] }} kit={kitDe(jogadores[0])} />
+          <PlayerFace player={{ ...jogadores[0], nome: jogadores[0].nome + ' Júnior', nacionalidade: jogadores[0].nacionalidade === 'PT' ? 'BR' : 'PT' }} kit={kitDe(jogadores[0])} />
           <div>
             <div className={prova.iguais === prova.total ? 'tf-ok' : 'tf-erro'}>{prova.iguais} de {prova.total} rostos idênticos ao gerar de novo</div>
-            <div className="tf-nota">Mesmo id + nome → mesma semente → o mesmo SVG, byte a byte ({prova.ms.toFixed(1)} ms para os 48).</div>
+            <div className="tf-nota">Mesmo id + nacionalidade de criação → mesma semente → o mesmo SVG, byte a byte ({prova.ms.toFixed(1)} ms para os 48).</div>
+            <div className="tf-nota">À direita, o mesmo jogador com outro nome e outra nacionalidade actual: o rosto não muda.</div>
           </div>
         </section>
       )}
