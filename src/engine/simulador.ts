@@ -68,6 +68,7 @@ export class Simulador {
         if (ac0 && new Date(d * 86400000).getUTCDate() === 15) {
           evoluirMes(this.w, st, d, { parteMinutos: (i) => ac0.minutos(i), desenvolvimentoTreinador: (c) => ac0.desenvolvimento(c) + (this.w.economia?.bonusTreino(c) ?? 0) }, (i) => ac0.escalao[i] !== 0);
           ac0.aplicarTeto(d);
+          ac0.ligas.zerarMinutos();
         }
         // Mercado mensal (renovações, listagens, índices) no dia 8: não se soma à evolução e à economia do dia 1.
         if (new Date(d * 86400000).getUTCDate() === 8) this.w.mercado?.mes(d);
@@ -94,6 +95,7 @@ export class Simulador {
       }
     }
     this.w.motor?.semana();
+    this.w.academia?.semana(this.segunda);
     for (const [g, t] of [...this.temporadas]) {
       const local = Math.round((this.segunda - t.base) / 7);
       if (local < 0) continue; // ainda não começou (ex.: ano civil antes de Janeiro de 2027)

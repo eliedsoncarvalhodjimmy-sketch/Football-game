@@ -3,7 +3,7 @@ import { describe, expect, it, beforeAll } from 'vitest';
 import { mundo } from './helpers.ts';
 import type { World } from '../src/engine/world.ts';
 import { ESC } from '../src/academia/academia.ts';
-import { ESCALOES, PROSPECTOS, COMPENSACAO } from '../src/config/academia.ts';
+import { ESCALOES, COMPENSACAO, INTAKE } from '../src/config/academia.ts';
 import { ControladorIA } from '../src/club/controlador.ts';
 import { ovrAlvoClube } from '../src/players/gerador.ts';
 
@@ -12,19 +12,19 @@ const dia = Math.floor(Date.UTC(2026, 7, 1) / 864e5);
 beforeAll(async () => { w = await mundo(); }, 60000);
 
 describe('estrutura', () => {
-  it('dois escalões (sub-18, sub-21) e a shortlist de prospectos, fora da equipa principal; ~40 000 registos individuais', () => {
+  it('cadeia Intake → Sub-18 (máx. 30) → Sub-21, fora da equipa principal; sem prospectos nem agregado', () => {
     const ac = w.academia!, st = w.jogadores!;
     const k = ac.contagens();
     expect(k.individuais).toBeGreaterThan(30000);
-    expect(k.individuais).toBeLessThan(45000);
-    expect(k.agregado).toBeGreaterThan(0);
+    expect(k.individuais).toBeLessThan(50000);
+    expect(ESCALOES.sub18.maximo).toBe(30);
     for (const c of w.ligaPorId('ENG1').clubes) {
       expect(ac.sub18[c].length).toBeLessThanOrEqual(ESCALOES.sub18.maximo);
+      expect(ac.sub18[c].length).toBeGreaterThan(18);
       expect(ac.sub21[c].length).toBeLessThanOrEqual(ESCALOES.sub21.maximo);
-      expect(ac.prospectos[c].length).toBeLessThanOrEqual(PROSPECTOS.shortlist_maximo);
       for (const j of ac.jovens(c)) { expect(st.clube[j]).toBe(c); expect(w.plantel[c]).not.toContain(j); }
       for (const j of ac.sub21[c]) { expect(st.idade(j, dia)).toBeGreaterThanOrEqual(18.9); expect(ac.escalao[j]).toBe(ESC.sub21); }
-      for (const j of ac.prospectos[c]) expect(st.idade(j, dia)).toBeLessThan(18);
+      for (const j of ac.sub18[c]) { expect(st.idade(j, dia)).toBeLessThan(19); expect(st.idade(j, dia)).toBeGreaterThanOrEqual(15); }
     }
   });
 
@@ -36,25 +36,28 @@ describe('estrutura', () => {
     const n0 = e.clubes.infra[k];
     e.clubes.infra[k] = 10;
     expect(ac.potencialMedio(c)).toBeGreaterThan(base);
-    expect(ac.shortlistMax(c)).toBeGreaterThanOrEqual(PROSPECTOS.shortlist_base + 4);
+    expect(ac.volumeIntake(c)).toBeGreaterThanOrEqual(INTAKE.minimo);
+    expect(ac.volumeIntake(c)).toBeLessThanOrEqual(INTAKE.maximo);
     e.clubes.infra[k] = n0;
     expect(ac.potencialMedio(c, 'BRA')).toBeGreaterThan(ac.potencialMedio(c, 'KSA'));
     const bra = w.ligaPorId('BRA1').clubes[0], sco = w.ligaPorId('SCO1').clubes[0];
     expect(ac.volumeIntake(bra) + 2).toBeGreaterThan(ac.volumeIntake(sco));
   });
 
-  it('juniores evoluem pelos minutos do escalão e pelo coordenador (não pelo treinador principal)', () => {
+  it('juniores evoluem pelos minutos reais nas ligas juvenis e pelo coordenador (não pelo treinador principal)', () => {
     const ac = w.academia!;
     const c = w.ligaPorId('ENG1').clubes[0];
-    const j = ac.sub21[c][0], p = ac.prospectos[c][0];
+    const j = ac.sub21[c][0], p = ac.sub18[c][0];
+    ac.ligas.minMes[j] = 330; ac.ligas.minMes[p] = 0;
     expect(ac.minutos(j)).toBeGreaterThan(ac.minutos(p));
+    ac.ligas.minMes[j] = 0;
     expect(ac.minutos(j)).toBeLessThanOrEqual(1);
     expect(ac.desenvolvimento(c)).toBeGreaterThanOrEqual(1);
   });
 });
 
 describe('passagem de época', () => {
-  it('promove sub-21 com nível, passa os sub-18 de 19 anos ao sub-21, enche o sub-18 com prospectos, faz o intake', () => {
+  it('promove sub-21 com nível, passa os sub-18 de 19 anos ao sub-21, deixa o sub-18 no máximo', () => {
     const ac = w.academia!, st = w.jogadores!;
     const c = w.ligaPorId('NED1').clubes[3];
     // Abre vagas na equipa principal (abaixo do mínimo: alguns arquétipos deixam as vagas acima do mínimo para o mercado).
@@ -66,14 +69,54 @@ describe('passagem de época', () => {
     for (let k = 0; k < 39; k++) st.atr[j * 39 + k] = Math.min(20, st.atr[j * 39 + k] + 7);
     st.recalcular(j);
     st.pot[j] = 95;
-    const p0 = ac.promovidos.length, n0 = st.n;
+    const p0 = ac.promovidos.length;
     ac.fimDeEpoca(c, dia - 40);
     expect(ac.promovidos.length).toBeGreaterThan(p0);
     expect(w.plantel[c]).toContain(j);
     expect(ac.escalao[j]).toBe(ESC.nenhum);
-    expect(st.n).toBeGreaterThan(n0); // intake
     expect(ac.sub18[c].length).toBeLessThanOrEqual(ESCALOES.sub18.maximo);
     expect(w.plantel[c].filter((x) => st.clube[x] === c).length).toBeGreaterThanOrEqual(22);
+  });
+
+  it('intake de Junho: 6–12 jovens de 15–16 anos entram directamente no Sub-18; relatório simples', () => {
+    const ac = w.academia!, st = w.jogadores!;
+    const c = w.ligaPorId('POR1').clubes[1];
+    const d = Math.floor(Date.UTC(2027, 5, 1) / 864e5);
+    const n0 = ac.sub18[c].length, vol = ac.volumeIntake(c);
+    ac.intake(c, d);
+    expect(ac.sub18[c].length).toBe(n0 + vol);
+    expect(ac.ultimoIntake[c].jogadores.length).toBe(vol);
+    for (const j of ac.ultimoIntake[c].jogadores) { expect(ac.escalao[j]).toBe(ESC.sub18); const a = st.idade(j, d); expect(a).toBeGreaterThanOrEqual(15); expect(a).toBeLessThan(17); }
+    const r = ac.relatorioIntake(c, d);
+    expect(r.length).toBe(vol);
+    for (const x of r) {
+      expect(x.ovr[0]).toBeLessThanOrEqual(st.ovrNat(x.jogador)); expect(x.ovr[1]).toBeGreaterThanOrEqual(st.ovrNat(x.jogador));
+      expect(x.pt[0]).toBeLessThanOrEqual(st.pot[x.jogador]); expect(x.pt[1]).toBeGreaterThanOrEqual(st.pot[x.jogador]);
+      expect(x.personalidade.length).toBeGreaterThan(3);
+      expect(x.altura).toBeGreaterThan(150); expect(x.peso).toBeGreaterThan(40);
+    }
+  });
+
+  it('excedente do Sub-18: a IA liberta logo; o utilizador recebe a proposta do gestor e decide', () => {
+    const ac = w.academia!;
+    const [a, b] = [w.ligaPorId('ITA1').clubes[2], w.ligaPorId('ITA1').clubes[3]];
+    const d = Math.floor(Date.UTC(2027, 5, 1) / 864e5);
+    for (let k = 0; k < 3; k++) { ac.intake(a, d + k); ac.intake(b, d + k); }
+    expect(ac.sub18[a].length).toBeGreaterThan(ESCALOES.sub18.maximo);
+    ac.fimDeEpoca(a, d + 50);
+    expect(ac.sub18[a].length).toBeLessThanOrEqual(ESCALOES.sub18.maximo);
+    const e = w.economia!;
+    const u = new ControladorIA() as unknown as { tipo: string };
+    Object.defineProperty(u, 'tipo', { value: 'utilizador' });
+    e.controladores[b] = u as never;
+    ac.fimDeEpoca(b, d + 50);
+    const prop = ac.excedente.get(b)!;
+    expect(prop.jogadores.length).toBe(ac.sub18[b].length - ESCALOES.sub18.maximo);
+    // O utilizador fica com um da proposta: liberta os outros.
+    ac.decidirExcedente(b, d + 60, prop.jogadores.slice(1));
+    expect(ac.sub18[b]).toContain(prop.jogadores[0]);
+    expect(ac.excedente.has(b)).toBe(false);
+    delete e.controladores[b];
   });
 
   it('fora da curva: um sub-18 de 16 anos muito acima do escalão sobe ao sub-21 ou à equipa principal', () => {
@@ -114,7 +157,7 @@ describe('mercado de jovens', () => {
     expect(ac.compensacao(j, peq, dia)).toBeLessThan(v);
   });
 
-  it('aliciamento: um clube grande leva um prospecto que conhece e paga a compensação', () => {
+  it('aliciamento: um clube grande leva um jovem do Sub-18 que conhece e paga a compensação', () => {
     const ac = w.academia!, st = w.jogadores!, e = w.economia!;
     const peq = w.ligaPorId('POR1').clubes.at(-2)!, gr = w.ligaPorId('ENG1').clubes[1];
     const j = ac.sub18[peq].find((x) => st.idade(x, dia) >= 16.2 && st.idade(x, dia) < 18)!;
@@ -130,34 +173,27 @@ describe('mercado de jovens', () => {
 });
 
 describe('dados para a interface', () => {
-  it('shortlist: o próprio clube vê tudo; um rival vê intervalos (nevoeiro)', () => {
+  it('Sub-18: o próprio clube vê tudo; um rival vê intervalos (nevoeiro)', () => {
     const ac = w.academia!, sc = w.mercado!.scouting;
     const c = w.ligaPorId('ESP1').clubes[4], rival = w.ligaPorId('ESP1').clubes[6];
-    const r = ac.resumoProspectos(c, dia);
+    const r = ac.resumoSub18(c, dia);
     expect(r.length).toBeGreaterThan(5);
     expect(typeof r[0].ovr).toBe('number');
     expect(r[0].estrelas[1] - r[0].estrelas[0]).toBeLessThanOrEqual(0.5);
-    expect(['promover_sub18', 'promover_sub21', 'promover_principal', 'manter', 'emprestar', 'vender', 'libertar']).toContain(r[0].conselho);
+    expect(['promover_sub21', 'promover_principal', 'manter', 'emprestar', 'vender', 'libertar']).toContain(r[0].conselho);
     sc.conhecer(rival, r[0].jogador, 20, dia);
-    const v = ac.resumoProspectos(c, dia, rival);
+    const v = ac.resumoSub18(c, dia, rival);
     const x = v.find((y) => y.jogador === r[0].jogador)!;
     expect(Array.isArray(x.ovr)).toBe(true);
     expect(x.conhecimento).toBeLessThan(100);
   });
 
-  it('estatísticas leves dos jovens só no clube do utilizador', () => {
-    const ac = w.academia!, e = w.economia!;
+  it('relatório do intake com intervalos que contêm o valor real', () => {
+    const ac = w.academia!;
     const c = w.ligaPorId('ENG1').clubes[3];
-    const u = new ControladorIA() as unknown as { tipo: string };
-    Object.defineProperty(u, 'tipo', { value: 'utilizador' });
-    e.controladores[c] = u as never;
-    ac.mes(dia + 31);
-    const js = ac.jovens(c);
-    expect(js.some((j) => (ac.estat.get(j)?.jogos ?? 0) > 0)).toBe(true);
-    const outro = w.ligaPorId('ENG1').clubes[4];
-    expect(ac.jovens(outro).some((j) => ac.estat.has(j))).toBe(false);
-    delete e.controladores[c];
-    void ovrAlvoClube;
+    ac.intake(c, dia + 300);
+    expect(ac.relatorioIntake(c, dia + 300).length).toBe(ac.volumeIntake(c));
+    void ovrAlvoClube; void ControladorIA;
   });
 });
 

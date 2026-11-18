@@ -6,4 +6,9 @@ export const CONFEDERACAO_PAIS: Record<string, string> = {
   JPN: 'AFC', KSA: 'AFC', KOR: 'AFC', UAE: 'AFC',
   USA: 'CONCACAF', MEX: 'CONCACAF',
   MAR: 'CAF', NGA: 'CAF', CIV: 'CAF', SEN: 'CAF', EGY: 'CAF', GHA: 'CAF', RSA: 'CAF', COD: 'CAF', TUN: 'CAF', ALG: 'CAF',
+  // Países elegíveis para o olheiro de jovens (plano juvenil).
+  IRL: 'UEFA', LUX: 'UEFA', FIN: 'UEFA', ISL: 'UEFA', BIH: 'UEFA', MNE: 'UEFA', MKD: 'UEFA', ALB: 'UEFA', KOS: 'UEFA', SVN: 'UEFA', SVK: 'UEFA', BUL: 'UEFA',
+  RUS: 'UEFA', MDA: 'UEFA', LTU: 'UEFA', LVA: 'UEFA', EST: 'UEFA',
+  CHI: 'CONMEBOL', PER: 'CONMEBOL', BOL: 'CONMEBOL', PAR: 'CONMEBOL', VEN: 'CONMEBOL', CAN: 'CONCACAF',
+  CMR: 'CAF', ANG: 'CAF', CHN: 'AFC', IND: 'AFC', AUS: 'AFC', NZL: 'OFC',
 };

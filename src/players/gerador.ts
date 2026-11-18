@@ -8,6 +8,7 @@ import { GERACAO_JOGADORES as G } from '../config/geracaoJogadores.ts';
 import { FORCA } from '../config/forca.ts';
 import { PlayerStore, PESOS_PAPEL } from './store.ts';
 import { nomePessoa } from './nomesPessoas.ts';
+import { PAISES_SCOUT, PERFIS_PAIS, QUALIDADES, EFEITO_PERFIL } from '../config/scoutingJovem.ts';
 import type { World } from '../engine/world.ts';
 
 const E_GR = new Uint8Array(N_ATR);
@@ -52,6 +53,19 @@ export interface OpcoesJogador {
   ovr: number;
   potencial: number;
   clube: number;
+  /** Jovens da academia e das missões: segue o perfil típico do país (tendência, não regra), sem subir o OVR. */
+  perfilPais?: boolean;
+}
+
+/** Qualidades típicas do país que o jogador segue (nenhuma em ~40% dos casos). Sorteio próprio por id (não mexe no rng). */
+export function qualidadesPerfil(id: string, pais: string): string[] {
+  const ps = PAISES_SCOUT[pais];
+  if (!ps) return [];
+  const r = Rng.de(0, 'perfil-pais', id);
+  if (!r.chance(EFEITO_PERFIL.prob)) return [];
+  const q = [...PERFIS_PAIS[ps.perfil]];
+  r.shuffle(q);
+  return q.slice(0, r.int(EFEITO_PERFIL.qualidades[0], EFEITO_PERFIL.qualidades[1]));
 }
 
 /** Cria um jogador com atributos ajustados para o OVR pretendido. Devolve o índice. */
@@ -75,6 +89,11 @@ export function gerarJogador(st: PlayerStore, rng: Rng, o: OpcoesJogador): numbe
   // Idade: jovens com menos força; veteranos com menos velocidade e aceleração.
   if (o.idade < 20) { atr[IDX.for] -= 2; atr[IDX.equ] -= 1; }
   if (o.idade > 30) for (const k of [IDX.ace, IDX.vel, IDX.agi]) atr[k] -= (o.idade - 30) * 0.6;
+  // Perfil do país (só jovens da academia e das missões): soma pontos às qualidades típicas; o ajuste a seguir repõe o OVR.
+  if (o.perfilPais) {
+    const r = Rng.de(0, 'perfil-pontos', o.id);
+    for (const q of qualidadesPerfil(o.id, o.pais)) for (const id of QUALIDADES[q] ?? []) { const k = ATRIBUTOS.findIndex((a) => a.id === id); if (k >= 0) atr[k] += r.int(EFEITO_PERFIL.pontos[0], EFEITO_PERFIL.pontos[1]); }
+  }
   // Ajuste iterativo: desloca os atributos relevantes até a adequação média à posição bater no alvo.
   for (let it = 0; it < 8; it++) {
     for (let k = 0; k < N_ATR; k++) atr[k] = clamp(Math.round(atr[k]), 1, 20);

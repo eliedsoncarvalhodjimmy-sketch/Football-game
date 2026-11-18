@@ -62,6 +62,10 @@ const P: Record<string, PerfilPessoa> = {
     ap_ini: ['Ade', 'Oko', 'Mensa', 'Nwa', 'Osei', 'Mba', 'Dlami', 'Ola', 'Asa', 'Ike'], ap_fim: ['yemi', 'nkwo', 'h', 'eze', 'bonsu', 'ku', 'ni', 'wale', 'moah', 'chukwu'] },
   af_fr: { nomes: ['Moussa', 'Ibrahima', 'Cheikh', 'Mamadou', 'Yao', 'Serge', 'Arnaud', 'Junior', 'Abdoulaye', 'Christian', 'Didier', 'Ousmane', 'Lamine', 'Jean'],
     ap_ini: ['Diall', 'Kou', 'Tra', 'Ndi', 'Sangar', 'Kab', 'Mbe', 'Dio', 'Kon', 'Yao'], ap_fim: ['o', 'assi', 'oré', 'aye', 'é', 'ila', 'ki', 'uf', 'até', 'bi'] },
+  zh: { nomes: ['Wei', 'Hao', 'Jun', 'Lei', 'Yang', 'Tao', 'Bo', 'Peng', 'Chao', 'Kai'],
+    ap_ini: ['Wang', 'Li', 'Zhang', 'Liu', 'Chen', 'Zhao', 'Huang', 'Zhou', 'Wu', 'Xu'], ap_fim: [''], formato: '{A} {N}' },
+  hi: { nomes: ['Arjun', 'Rohan', 'Aarav', 'Vikram', 'Sunil', 'Rahul', 'Anil', 'Karan', 'Sandesh', 'Lallian'],
+    ap_ini: ['Shar', 'Ku', 'Si', 'Pa', 'Na', 'Re', 'Gup', 'Ma', 'Chha', 'Bho'], ap_fim: ['ma', 'mar', 'ngh', 'tel', 'ir', 'ddy', 'ta', 'lik', 'tri', 'sale'] },
 };
 
 const LINGUA_POR_PAIS: Record<string, string> = {
@@ -70,6 +74,10 @@ const LINGUA_POR_PAIS: Record<string, string> = {
   DEN: 'nordico', NOR: 'nordico', SWE: 'nordico', GRE: 'el', CYP: 'el', CZE: 'cs', CRO: 'hr', SRB: 'hr', POL: 'pl', HUN: 'hu',
   UKR: 'uk', ROU: 'ro', ISR: 'he', AZE: 'az', KSA: 'ar', UAE: 'ar', EGY: 'ar', MAR: 'ar', TUN: 'ar', ALG: 'ar',
   JPN: 'ja', KOR: 'ko', NGA: 'af_en', GHA: 'af_en', RSA: 'af_en', SEN: 'af_fr', CIV: 'af_fr', COD: 'af_fr',
+  // Países elegíveis para o olheiro de jovens (plano juvenil); aproximações por língua/região.
+  IRL: 'en', CAN: 'en', AUS: 'en', NZL: 'en', LUX: 'fr', FIN: 'nordico', ISL: 'nordico', BIH: 'hr', MNE: 'hr', MKD: 'hr', SVN: 'hr', KOS: 'hr', ALB: 'hr',
+  SVK: 'cs', BUL: 'uk', RUS: 'uk', MDA: 'ro', LTU: 'pl', LVA: 'pl', EST: 'nordico', CHI: 'es_am', PER: 'es_am', BOL: 'es_am', PAR: 'es_am', VEN: 'es_am',
+  CMR: 'af_fr', ANG: 'pt', CHN: 'zh', IND: 'hi',
 };
 
 export function linguaDoPais(pais: string): string {

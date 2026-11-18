@@ -102,11 +102,14 @@ Protótipo: Academia e Recrutamento › Academia (separadores **Percurso**, **In
 - 1 missão por olheiro de jovens.
 - Mapa interactivo com os países elegíveis e perfil típico por país (atributos e rostos).
 
-## Perguntas (PARAGEM 2)
-1. **Tamanho do Sub-18:** com 6–12 jovens por ano e 4 idades (15–18), o Sub-18 chegaria a cerca de 36. Opções:
-   - (a) subir o máximo do Sub-18 para 30; em Julho, o gestor da academia propõe libertar o excedente (recomendado);
-   - (b) manter 18 e libertar cerca de metade de cada intake logo no primeiro ano.
-2. **Perfis por país:** concordas com a lista proposta? Podes enviar correcções país a país.
-3. **Elegíveis:** confirmas os países que li no mapa?
-   - Incluí: na América Central, Guatemala, Honduras e El Salvador; no Médio Oriente, Israel e Arábia Saudita; em África, Gana; em toda a Europa, menos a Bielorrússia.
-   - Ficam de fora: Cabo Verde, Malta e outras ilhas pequenas, que não aparecem no mapa de 110 m. Posso acrescentá-las na lista.
+## Respostas (Paragem 2)
+- Sub-18 com máximo 30; o gestor da academia propõe libertar o excedente na passagem de época (opção a).
+- Perfis por país: sem correcções.
+- Elegíveis: retirar Guatemala, Honduras e El Salvador; não acrescentar ilhas pequenas.
+
+## Estado: implementado no motor
+- Bloco 1 (cadeia, intake, excedente, relatório do intake): `src/academia/academia.ts`, `src/config/academia.ts` — DECISIONS 168.
+- Bloco 2 (ligas Sub-18 e Sub-21, playoff, amigáveis, minutos reais): `src/academia/ligasJuvenis.ts` — DECISIONS 169.
+- Bloco 3 (missões, elegíveis, perfis por país): `src/scouting/missoesJovens.ts`, `src/config/scoutingJovem.ts` — DECISIONS 170.
+- Testes: `tests/academia.test.ts`, `tests/ligasJuvenis.test.ts`, `tests/missoesJovens.test.ts`.
+- Falta a ligação à interface real (Prompt 5): os ecrãs do protótipo já mostram o que o motor fornece.

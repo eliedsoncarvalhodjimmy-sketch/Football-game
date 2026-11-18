@@ -1,8 +1,7 @@
 // Academia e juniores (Prompt 4, Bloco C).
-// Dois escalões por clube (sub-18, sub-21) e a academia (prospectos 15–17). Só os escalões e a shortlist de prospectos
-// são jogadores individuais (PlayerStore, com o clube preenchido mas FORA de w.plantel, que é a equipa principal);
-// os restantes jovens da academia são um agregado (quantos, por idade e faixa de qualidade).
-// Sem jogos de juniores: os minutos e o nível de competição entram na evolução como um número por escalão.
+// Cadeia juvenil (plano juvenil): Intake (Junho, 6–12 por clube) → Sub-18 (15–18, máx. 30) → Sub-21 (19–21) → equipa principal.
+// Todos os juniores são jogadores individuais (PlayerStore, com o clube preenchido mas FORA de w.plantel, que é a equipa
+// principal). Já não há prospectos nem agregado. O excedente do Sub-18 sai na passagem de época, por proposta do gestor.
 import { Rng } from '../core/rng.ts';
 import { POSICOES, PAPEIS_DA_POSICAO, type Posicao } from '../config/papeis.ts';
 import { ATRIBUTOS, N_ATR } from '../config/atributos.ts';
@@ -10,11 +9,13 @@ import { GERACAO_JOGADORES as G } from '../config/geracaoJogadores.ts';
 import { PESOS_PAPEL } from '../players/store.ts';
 import { CONFEDERACAO_PAIS } from '../config/paises.ts';
 import {
-  ESCALOES, PROSPECTOS as P, INTAKE as I, MINUTOS_JUVENIS as MJ, DESENVOLVIMENTO_JUVENIL as DJ, PROMOCAO as PR,
-  ALICIAMENTO as AL, COMPENSACAO as CO, ESTATISTICAS_JUVENIS as EJ, FORCA_JUVENIL as FJ, TABELA_JOVENS as TJ, daTabela,
+  ESCALOES, EXCEDENTE as EX, CORTE_RELATIVO, RELATORIO_INTAKE as RI, PERSONALIDADE, PERSONALIDADE_NEUTRA, INTAKE as I, MINUTOS_JUVENIS as MJ, DESENVOLVIMENTO_JUVENIL as DJ, PROMOCAO as PR,
+  ALICIAMENTO as AL, COMPENSACAO as CO, FORCA_JUVENIL as FJ, TABELA_JOVENS as TJ, daTabela,
   INCLINACAO_TABELA, DESLOCAMENTO_FRACOS, TETO_JUNIOR, CRESCIMENTO_ATE_18, POTENCIAL_DINAMICO as PD, CONTRATO_JUNIOR as CJ,
 } from '../config/academia.ts';
 import { PARAMETROS } from '../config/arquetipos.ts';
+import { LigasJuvenis } from './ligasJuvenis.ts';
+import { MissoesJovens } from '../scouting/missoesJovens.ts';
 
 const GRUPO: Record<string, string> = { GR: 'GR', DC: 'DEF', DD: 'DEF', DE: 'DEF', ALD: 'DEF', ALE: 'DEF', MDC: 'MED', MC: 'MED', MO: 'MED', ED: 'AVA', EE: 'AVA', PL: 'AVA' };
 import { gerarJogador, ovrAlvoClube } from '../players/gerador.ts';
@@ -22,14 +23,12 @@ import { diaInicioMundo, type World } from '../engine/world.ts';
 import { fimDeEpoca as fimDeEpocaContrato, indiceRiqueza } from '../economia/contratos.ts';
 import { CONTRATO as CONTRATO_J } from '../config/contratosJogador.ts';
 
-/** 0 = não é júnior (equipa principal ou sem clube); 1 = sub-21; 2 = sub-18; 3 = prospecto da academia. */
-export const ESC = { nenhum: 0, sub21: 1, sub18: 2, prospecto: 3 } as const;
-export const NOME_ESCALAO = ['equipa principal', 'sub-21', 'sub-18', 'academia'];
-const N_IDADES = 3; // agregado: 15, 16, 17
-const NF = P.faixas.length;
+/** 0 = não é júnior (equipa principal ou sem clube); 1 = sub-21; 2 = sub-18. */
+export const ESC = { nenhum: 0, sub21: 1, sub18: 2 } as const;
+export const NOME_ESCALAO = ['equipa principal', 'sub-21', 'sub-18'];
 const clamp = (x: number, a: number, b: number) => (x < a ? a : x > b ? b : x);
 
-export type Conselho = 'promover_sub18' | 'promover_sub21' | 'promover_principal' | 'manter' | 'emprestar' | 'vender' | 'libertar';
+export type Conselho = 'promover_sub21' | 'promover_principal' | 'manter' | 'emprestar' | 'vender' | 'libertar';
 
 export interface LinhaProspecto {
   jogador: number;
@@ -46,7 +45,29 @@ export interface LinhaProspecto {
   conhecimento: number;
 }
 
-export interface EstatJovem { jogos: number; golos: number; assist: number; notas: number }
+/** Uma linha do relatório do intake (simples, sem atributos). */
+export interface LinhaIntake {
+  jogador: number;
+  nome: string;
+  pais: string;
+  posicao: string;
+  idade: number;
+  altura: number;
+  peso: number;
+  ovr: [number, number];
+  pt: [number, number];
+  personalidade: string;
+  tom: string;
+}
+
+/** Altura (cm) e peso (kg) derivados da posição, da idade e da semente do jogador (o PlayerStore não os guarda). */
+const ALTURA_POS: Record<string, number> = { GR: 190, DC: 187, DD: 178, DE: 178, ALD: 177, ALE: 177, MDC: 182, MC: 179, MO: 176, ED: 175, EE: 175, PL: 183 };
+export function corpoJogador(id: string, pos: string, idade: number): { altura: number; peso: number } {
+  const r = Rng.de(0, 'corpo', id);
+  const cresc = Math.max(0, 18 - idade);
+  const altura = Math.round((ALTURA_POS[pos] ?? 180) + (r.next() - 0.5) * 12 - 2 * cresc);
+  return { altura, peso: Math.round(altura - 106 + (r.next() - 0.4) * 9 - 2.5 * cresc) };
+}
 
 const estrelas = (pot: number) => clamp(Math.round(((pot - 40) / 12) * 2) / 2, 0.5, 5);
 
@@ -58,11 +79,14 @@ export class Academia {
   entrada = new Int32Array(0);
   sub18: number[][] = [];
   sub21: number[][] = [];
-  prospectos: number[][] = [];
-  /** Agregado por clube: idade (15, 16, 17) × faixa de qualidade → quantidade. */
-  agregado: Uint16Array[] = [];
-  /** Estatísticas leves dos jovens do clube do utilizador (nos clubes da IA não se guardam). */
-  estat = new Map<number, EstatJovem>();
+  /** Último intake de cada clube (dia e jogadores), para o relatório. */
+  ultimoIntake: { dia: number; jogadores: number[] }[] = [];
+  /** Proposta de libertação do excedente do Sub-18 (clubes do utilizador; a IA decide logo). */
+  excedente = new Map<number, { dia: number; jogadores: number[] }>();
+  /** Ligas Sub-18 e Sub-21 (todos os países): jogos, estatísticas e minutos para a evolução. */
+  ligas: LigasJuvenis;
+  /** Missões do olheiro de jovens. */
+  missoes: MissoesJovens;
   /** Registo: promoções à equipa principal (para a comparação formador × comprador) e aliciamentos. */
   promovidos: { dia: number; clube: number; jogador: number; idade: number; ovr: number; foraDaCurva: boolean; motivo: string }[] = [];
   aliciados: { dia: number; de: number; para: number; jogador: number; compensacao: number }[] = [];
@@ -84,6 +108,8 @@ export class Academia {
 
   constructor(public w: World) {
     const dia = diaInicioMundo();
+    this.ligas = new LigasJuvenis(w, this);
+    this.missoes = new MissoesJovens(w, this);
     this.garantir();
     for (let l = 0; l < w.ligas.length; l++) { const v = this.ovrLiga(l); if (v > 0) this.refLiga.set(l, v); }
     this.paises();
@@ -92,7 +118,7 @@ export class Academia {
     this.aplicarTeto(dia);
   }
 
-  private garantir() {
+  garantir() {
     const cap = this.w.jogadores!.cap;
     if (this.escalao.length < cap) {
       const e = new Uint8Array(cap); e.set(this.escalao); this.escalao = e;
@@ -100,37 +126,32 @@ export class Academia {
       const n = new Int32Array(cap); n.set(this.entrada); this.entrada = n;
     }
     this.w.mercado?.contratos.garantir(cap);
+    this.ligas?.garantir();
     const n = this.w.clubes.length;
-    while (this.sub18.length < n) { this.sub18.push([]); this.sub21.push([]); this.prospectos.push([]); this.agregado.push(new Uint16Array(N_IDADES * NF)); }
+    while (this.sub18.length < n) { this.sub18.push([]); this.sub21.push([]); this.ultimoIntake.push({ dia: -1, jogadores: [] }); }
   }
 
   // ---------------------------------------------------------------- leitura
 
   nivelAcademia(c: number): number { return this.w.economia?.nivel(c, 'academia') ?? 5; }
   coordenador(c: number): number { return this.w.economia?.staff.coordenacaoAcademia(c) ?? 10; }
-  shortlistMax(c: number): number { return Math.min(P.shortlist_maximo, Math.round(P.shortlist_base + P.shortlist_por_nivel * this.nivelAcademia(c))); }
   usoAcademia(c: number): number { const a = this.w.economia?.ia?.arquetipo[c]; return a ? PARAMETROS[a].academia : 0.5; }
 
   /** Todos os juniores individuais do clube. */
-  jovens(c: number): number[] { return [...(this.sub21[c] ?? []), ...(this.sub18[c] ?? []), ...(this.prospectos[c] ?? [])]; }
+  jovens(c: number): number[] { return [...(this.sub21[c] ?? []), ...(this.sub18[c] ?? [])]; }
 
   /** Um júnior individual ao acaso (para os scouts), sem criar listas. */
   jovemAleatorio(c: number, rng: Rng): number {
-    const a = this.sub21[c]?.length ?? 0, b = this.sub18[c]?.length ?? 0, d = this.prospectos[c]?.length ?? 0;
-    const n = a + b + d;
-    if (!n) return -1;
-    let k = rng.int(0, n - 1);
-    if (k < a) return this.sub21[c][k];
-    k -= a;
-    if (k < b) return this.sub18[c][k];
-    return this.prospectos[c][k - b];
+    const a = this.sub21[c]?.length ?? 0, b = this.sub18[c]?.length ?? 0;
+    if (!a && !b) return -1;
+    const k = rng.int(0, a + b - 1);
+    return k < a ? this.sub21[c][k] : this.sub18[c][k - a];
   }
 
-  /** Minutos (0–1) que entram na evolução de um júnior: escalão, nível da academia e campeonato do país. */
+  /** Minutos (0–1) que entram na evolução de um júnior: minutos reais nas ligas juvenis, nível da academia e campeonato do país. */
   minutos(j: number): number {
     const c = this.w.jogadores!.clube[j];
-    const e = this.escalao[j];
-    const base = e === ESC.sub21 ? MJ.sub21 : e === ESC.sub18 ? MJ.sub18 : MJ.prospecto;
+    const base = this.ligas.parteMinutos(j);
     const l = c >= 0 ? this.w.liga[c] : -1;
     const fd = l >= 0 ? this.w.ligas[l].regras.forca_desportiva : 30;
     return clamp(base + MJ.por_nivel_academia * (this.nivelAcademia(c) - 5) + (MJ.por_campeonato * fd) / 100, 0, 1);
@@ -263,7 +284,7 @@ export class Academia {
     let ovr = pot - (pot - jv.ovr18) * Math.exp(CRESCIMENTO_ATE_18.k * (18 - idade));
     if (idade < TETO_JUNIOR.idade) ovr = Math.min(ovr, this.teto);
     ovr = clamp(ovr, 8, 95);
-    const j = gerarJogador(st, rng, { id: `${this.w.clubes[c].id}_a${++this.seq}`, pais, pos: this.posicaoAleatoria(rng), idade, dia, ovr, potencial: clamp(pot, ovr, 99), clube: c });
+    const j = gerarJogador(st, rng, { id: `${this.w.clubes[c].id}_a${++this.seq}`, pais, pos: this.posicaoAleatoria(rng), idade, dia, ovr, potencial: clamp(pot, ovr, 99), clube: c, perfilPais: true });
     this.garantir();
     this.escalao[j] = esc;
     this.ovrInicio[j] = st.ovrNat(j);
@@ -278,21 +299,10 @@ export class Academia {
     const rng = Rng.de(w.semente, 'academia-inicial', w.clubes[c].id);
     // Os escalões já existentes: os que sobreviveram às selecções anteriores (o melhor de dois sorteios).
     const melhor = () => { const a = this.sortearJovem(c, rng), b = this.sortearJovem(c, rng); return a.pot >= b.pot ? a : b; };
-    const n18 = ESCALOES.sub18.maximo - 2, n21 = ESCALOES.sub21.maximo - 2;
+    // Sub-18: quatro idades de intakes, já depois das saídas (até 2 abaixo do máximo); Sub-21: 2 abaixo do máximo.
+    const n18 = Math.min(ESCALOES.sub18.maximo - 2, Math.round(3.3 * this.volumeIntake(c))), n21 = ESCALOES.sub21.maximo - 2;
     for (let k = 0; k < n21; k++) this.sub21[c].push(this.gerarJovem(c, 19 + rng.next() * 3, melhor(), dia, rng, ESC.sub21));
-    for (let k = 0; k < n18; k++) this.sub18[c].push(this.gerarJovem(c, 15.5 + rng.next() * 3.4, melhor(), dia, rng, ESC.sub18));
-    for (let k = 0; k < this.shortlistMax(c); k++) this.prospectos[c].push(this.gerarJovem(c, 15 + rng.next() * 2.9, melhor(), dia, rng, ESC.prospecto));
-    // Agregado: o resto de três intakes.
-    const vol = this.volumeIntake(c);
-    const ag = this.agregado[c];
-    const L = ovrAlvoClube(w, c);
-    for (let a = 0; a < N_IDADES; a++) for (let k = 0; k < vol - Math.round(this.shortlistMax(c) / 3); k++) ag[a * NF + this.faixa(this.sortearJovem(c, rng).pot - L)]++;
-  }
-
-  private faixa(dPot: number): number {
-    let f = 0;
-    for (let k = 0; k < NF; k++) if (dPot >= P.faixas[k]) f = k;
-    return f;
+    for (let k = 0; k < n18; k++) this.sub18[c].push(this.gerarJovem(c, 15 + rng.next() * 3.9, melhor(), dia, rng, ESC.sub18));
   }
 
   volumeIntake(c: number): number {
@@ -308,7 +318,7 @@ export class Academia {
     const st = this.w.jogadores!;
     const c = st.clube[j];
     if (c < 0) return;
-    for (const L of [this.sub18, this.sub21, this.prospectos]) { const a = L[c]; const k = a?.indexOf(j) ?? -1; if (k >= 0) a.splice(k, 1); }
+    for (const L of [this.sub18, this.sub21]) { const a = L[c]; const k = a?.indexOf(j) ?? -1; if (k >= 0) a.splice(k, 1); }
     this.escalao[j] = ESC.nenhum;
   }
 
@@ -316,7 +326,6 @@ export class Academia {
   libertar(j: number, dia: number) {
     const st = this.w.jogadores!;
     this.tirar(j);
-    this.estat.delete(j);
     // A maior parte dos libertados segue para divisões abaixo das simuladas (deixa o mundo do jogo); alguns ficam livres.
     const fica = Rng.de(this.w.semente, 'libertado', j).chance(PR.prob_livre);
     if (this.w.mercado && fica && st.ovrNat(j) >= PR.livre_minimo && st.idade(j, dia) >= 17) this.w.mercado.tornarLivre(j, dia);
@@ -336,7 +345,7 @@ export class Academia {
     this.tirar(j);
     this.w.jogadores!.clube[j] = c;
     this.escalao[j] = esc;
-    (esc === ESC.sub21 ? this.sub21 : esc === ESC.sub18 ? this.sub18 : this.prospectos)[c].push(j);
+    (esc === ESC.sub21 ? this.sub21 : this.sub18)[c].push(j);
   }
 
   // ---------------------------------------------------------------- fim de época
@@ -351,24 +360,24 @@ export class Academia {
   /** Limiar de promoção à equipa principal (o formador cede mais lugar aos da casa). */
   limiarPromocao(c: number): number { return this.ovrOrdem(c, PR.ordem_referencia) - PR.margem_promocao - PR.margem_por_academia * (this.usoAcademia(c) - 0.5); }
 
-  /** Passagem de época de um clube: promoções, transições de escalão, shortlist, agregado e intake. */
+  /** Passagem de época de um clube (fim de Julho): contratos aos 18, promoções, transições de escalão e excedente do Sub-18. */
   fimDeEpoca(c: number, dia: number) {
     const w = this.w, st = w.jogadores!;
     if (w.liga[c] < 0) return;
     this.garantir();
     const rng = Rng.de(w.semente, 'academia', w.clubes[c].id, dia);
-    for (const L of [this.sub18, this.sub21, this.prospectos]) L[c] = L[c].filter((j) => st.clube[j] === c && this.escalao[j]);
+    for (const L of [this.sub18, this.sub21]) L[c] = L[c].filter((j) => st.clube[j] === c && this.escalao[j]);
     // Clube que entrou do exterior (ou voltou): cria a academia como a dos clubes iniciais.
-    if (!this.sub18[c].length && !this.sub21[c].length && !this.prospectos[c].length && !this.agregado[c].some((x) => x > 0)) this.iniciarClube(c, dia);
+    if (!this.sub18[c].length && !this.sub21[c].length) this.iniciarClube(c, dia);
     const idade = (j: number) => st.idade(j, dia + 60); // idade na época que começa
     const L = ovrAlvoClube(w, c);
-    // Corte de qualidade (sub-21, shortlist): relativo à média do intake do clube, já com a âncora da liga.
-    const corte = this.potencialEsperado(c, dia) + P.corte_relativo;
+    // Corte de qualidade (contrato aos 18, sub-21): relativo à média do intake do clube, já com a âncora da liga.
+    const corte = this.potencialEsperado(c, dia) + CORTE_RELATIVO;
     const plantel = () => w.plantel[c].filter((j) => st.clube[j] === c).length;
     const ord = (a: number[]) => a.sort((x, y) => st.ovrNat(y) + 0.3 * st.pot[y] - st.ovrNat(x) - 0.3 * st.pot[x]);
 
     // 0. Contrato profissional obrigatório aos 18: o coordenador propõe, o dono aprova (IA: os que passam o corte); senão sai.
-    for (const j of [...this.sub21[c], ...this.sub18[c], ...this.prospectos[c]]) {
+    for (const j of [...this.sub21[c], ...this.sub18[c]]) {
       if (idade(j) < CJ.idade) continue;
       const temContrato = st.salario[j] > 0 && st.fimContrato[j] > dia + 30;
       if (temContrato) continue;
@@ -430,47 +439,67 @@ export class Academia {
     // Sub-21 acima do limite: saem os piores.
     while (this.sub21[c].length > ESCALOES.sub21.maximo) this.libertar(ord([...this.sub21[c]]).pop()!, dia);
 
-    // 3. Prospectos → sub-18 (vagas, os melhores); aos 18 sem lugar saem.
-    for (const j of ord([...this.prospectos[c]])) {
-      if (this.sub18[c].length < ESCALOES.sub18.maximo && (idade(j) >= 16 || st.pot[j] >= p75)) this.moverPara(j, ESC.sub18, c);
-      else if (idade(j) >= 18) this.libertar(j, dia);
-    }
-
-    // 4. Agregado: envelhece, alguns despontam (passam a individuais).
-    const ag = this.agregado[c];
-    for (let f = 0; f < NF; f++) {
-      for (let a = 0; a < N_IDADES; a++) {
-        let n = ag[a * NF + f], desp = 0;
-        for (let k = 0; k < n; k++) if (rng.chance(P.despontar)) desp++;
-        n -= desp;
-        ag[a * NF + f] = n;
-        for (let k = 0; k < desp; k++) { const pot = clamp(Math.round(L + P.faixas[f] + 3 + P.despontar_bonus + rng.normal(0, 2)), 10, 99); this.prospectos[c].push(this.gerarJovem(c, 15.2 + a + rng.next() * 0.7, { pot, ovr18: Math.min(pot - 1, this.teto, Math.round(pot - 14 - rng.next() * 8)) }, dia, rng, ESC.prospecto)); }
-      }
-    }
-    // Os de 17 saem do agregado (deixam a academia); os outros fazem anos.
-    for (let f = 0; f < NF; f++) { ag[2 * NF + f] = ag[1 * NF + f]; ag[1 * NF + f] = ag[f]; ag[f] = 0; }
-
-    // 5. Intake: os que entram na shortlist viram individuais; os outros vão para o agregado.
-    const vol = this.volumeIntake(c);
-    const max = this.shortlistMax(c);
-    for (let k = 0; k < vol; k++) {
-      const pais = this.paisIntake(c, rng);
-      const jv = this.sortearJovem(c, rng, pais, dia);
-      const pot = jv.pot;
-      const pior = this.prospectos[c].length ? Math.min(...this.prospectos[c].map((j) => st.pot[j])) : -1;
-      if (this.prospectos[c].length < max || pot > pior) {
-        this.prospectos[c].push(this.gerarJovem(c, I.idade[0] + rng.next() * (I.idade[1] - I.idade[0] + 0.9), jv, dia, rng, ESC.prospecto, pais));
-      } else ag[this.faixa(pot - L)]++;
-    }
-    // 6. Shortlist: fica com os N de maior potencial; os que não evoluem saem (ou voltam ao agregado).
-    const pros = [...this.prospectos[c]].sort((x, y) => st.pot[y] - st.pot[x]);
-    for (const [k, j] of pros.entries()) {
-      if (k < max && st.pot[j] >= corte) continue;
-      const a = Math.floor(idade(j)) - 15;
-      if (a >= 0 && a < N_IDADES && st.pot[j] >= corte - 6) { ag[a * NF + this.faixa(st.pot[j] - L)]++; this.tirar(j); st.clube[j] = -2; }
-      else this.libertar(j, dia);
+    // 3. Excedente do Sub-18 (o intake de Junho entra todo): o gestor propõe libertar os piores; a IA decide logo.
+    const exc = this.propostaExcedente(c, dia);
+    if (exc.length) {
+      if (w.economia?.controlador(c).tipo === 'utilizador') this.excedente.set(c, { dia, jogadores: exc });
+      else for (const j of exc) this.libertar(j, dia);
     }
     for (const j of this.jovens(c)) this.ovrInicio[j] = st.ovrNat(j);
+  }
+
+  /** Quem o gestor da academia propõe libertar para o Sub-18 voltar ao máximo (os de menor OVR + potencial; os mais velhos pesam menos). */
+  propostaExcedente(c: number, dia: number): number[] {
+    const st = this.w.jogadores!;
+    const n = this.sub18[c].length - ESCALOES.sub18.maximo;
+    if (n <= 0) return [];
+    const val = (j: number) => st.ovrNat(j) + 0.6 * st.pot[j] - 2 * Math.max(0, st.idade(j, dia) - 16);
+    return [...this.sub18[c]].sort((a, b) => val(a) - val(b)).slice(0, n);
+  }
+
+  /** Decisão do utilizador sobre o excedente: liberta os indicados (por omissão, a proposta do gestor). */
+  decidirExcedente(c: number, dia: number, libertar?: number[]) {
+    const p = this.excedente.get(c);
+    this.excedente.delete(c);
+    for (const j of libertar ?? p?.jogadores ?? []) if (this.w.jogadores!.clube[j] === c && this.escalao[j] === ESC.sub18) this.libertar(j, dia);
+  }
+
+  /** Intake de Junho: 6–12 jovens de 15–16 anos entram directamente no Sub-18. */
+  intake(c: number, dia: number) {
+    const w = this.w;
+    if (w.liga[c] < 0) return;
+    this.garantir();
+    const rng = Rng.de(w.semente, 'intake', w.clubes[c].id, dia);
+    const novos: number[] = [];
+    for (let k = 0, vol = this.volumeIntake(c); k < vol; k++) {
+      const pais = this.paisIntake(c, rng);
+      const jv = this.sortearJovem(c, rng, pais, dia);
+      const j = this.gerarJovem(c, I.idade[0] + rng.next() * (I.idade[1] - I.idade[0] + 0.9), jv, dia, rng, ESC.sub18, pais);
+      this.sub18[c].push(j);
+      novos.push(j);
+    }
+    this.ultimoIntake[c] = { dia, jogadores: novos };
+  }
+
+  /** Relatório do intake (posição, idade, altura, peso, OVR e PT em intervalo, personalidade numa palavra). */
+  relatorioIntake(c: number, dia: number): LinhaIntake[] {
+    const w = this.w, st = w.jogadores!;
+    const aval = (w.economia?.staff.atr(c, 'chefe_juvenil', 'avaliacao_potencial', 10) ?? 10) + (w.economia?.staff.atr(c, 'chefe_juvenil', 'avaliacao_habilidade', 10) ?? 10);
+    const base = Math.max(RI.minimo, RI.meia_largura_base - RI.por_ponto * (aval / 2 - 10));
+    const out: LinhaIntake[] = [];
+    for (const j of this.ultimoIntake[c]?.jogadores ?? []) {
+      if (st.clube[j] !== c) continue;
+      const jogos = this.ligas.jogos[j] ?? 0;
+      const m = Math.max(RI.minimo, Math.round(base * Math.max(0.3, 1 - RI.por_jogo * jogos)));
+      // Intervalo deslocado ao acaso (estável por jogador), para não centrar sempre no valor real.
+      const r = Rng.de(w.semente, 'intake-rel', j);
+      const ovr = st.ovrNat(j), pot = st.pot[j], dO = r.int(1 - m, m - 1), dP = r.int(1 - m, m - 1);
+      const pers = PERSONALIDADE.find((x) => { const v = st.oculto(j, x.oculto); return (x.min === undefined || v >= x.min) && (x.max === undefined || v <= x.max); }) ?? PERSONALIDADE_NEUTRA;
+      const pos = POSICOES[st.posNat[j]], idade = st.idade(j, dia), corpo = corpoJogador(st.ids[j], pos, idade);
+      out.push({ jogador: j, nome: st.nomes[j], pais: st.paises[st.pais[j]] ?? '', posicao: pos, idade: Math.floor(idade), altura: corpo.altura, peso: corpo.peso,
+        ovr: [clamp(ovr + dO - m, 1, 99), clamp(ovr + dO + m, 1, 99)], pt: [clamp(pot + dP - m, 1, 99), clamp(pot + dP + m, 1, 99)], personalidade: pers.nome, tom: pers.tom });
+    }
+    return out.sort((a, b) => b.pt[1] - a.pt[1]);
   }
 
   /** Primeiro contrato profissional (aos 18): salário mínimo da liga/divisão, até aos 22; cláusula de aumento após N jogos. */
@@ -539,7 +568,6 @@ export class Academia {
     for (let c = 0; c < this.sub18.length; c++) {
       if (w.liga[c] >= 0) continue;
       for (const j of this.jovens(c)) this.libertar(j, dia);
-      this.agregado[c].fill(0);
     }
   }
 
@@ -555,20 +583,39 @@ export class Academia {
     return anos * cat.por_ano;
   }
 
+  /** Semana: ligas juvenis e missões do olheiro de jovens. */
+  semana(segunda: number) {
+    this.ligas.semana(segunda);
+    this.missoes.semana(segunda);
+  }
+
+  /** Recebe na academia um jovem de fora do mundo (missão do olheiro): Sub-18 ou Sub-21 pela idade; contrato aos 18. */
+  receberExterno(j: number, c: number, dia: number) {
+    const st = this.w.jogadores!;
+    this.garantir();
+    const esc = st.idade(j, dia) >= 19 ? ESC.sub21 : ESC.sub18;
+    this.moverPara(j, esc, c);
+    this.entrada[j] = dia;
+    this.ovrInicio[j] = st.ovrNat(j);
+    if (this.w.mercado) { this.w.mercado.contratos.chegada[j] = dia; this.w.mercado.contratos.formadoClube[j] = c; }
+    if (st.idade(j, dia) >= CJ.idade) this.contratoJunior(j, c, dia);
+    const lista = esc === ESC.sub21 ? this.sub21 : this.sub18, max = esc === ESC.sub21 ? ESCALOES.sub21.maximo : ESCALOES.sub18.maximo;
+    if (lista[c].length > max) { const pior = lista[c].filter((x) => x !== j).sort((a, b) => st.pot[a] - st.pot[b])[0]; if (pior !== undefined) this.libertar(pior, dia); }
+  }
+
   /** Transfere um júnior para a academia de outro clube, pagando a compensação de formação. */
   transferirJovem(j: number, para: number, dia: number): number {
     const w = this.w, st = w.jogadores!, e = w.economia;
     const de = st.clube[j];
     const valor = this.compensacao(j, para, dia);
     if (e) { e.clubes.lancar(para, 'aquisicoes', valor); e.clubes.lancar(de, 'transferencias', valor); }
-    const esc = st.idade(j, dia) >= 19 ? ESC.sub21 : st.idade(j, dia) >= 17 || this.escalao[j] !== ESC.prospecto ? ESC.sub18 : ESC.prospecto;
-    const lista = esc === ESC.sub21 ? this.sub21 : esc === ESC.sub18 ? this.sub18 : this.prospectos;
+    const esc = st.idade(j, dia) >= 19 ? ESC.sub21 : ESC.sub18;
+    const lista = esc === ESC.sub21 ? this.sub21 : this.sub18;
     this.moverPara(j, esc, para);
     // Sem vaga: sai o pior do escalão de destino.
-    const max = esc === ESC.sub21 ? ESCALOES.sub21.maximo : esc === ESC.sub18 ? ESCALOES.sub18.maximo : this.shortlistMax(para);
+    const max = esc === ESC.sub21 ? ESCALOES.sub21.maximo : ESCALOES.sub18.maximo;
     if (lista[para].length > max) { const pior = lista[para].filter((x) => x !== j).sort((a, b) => st.pot[a] - st.pot[b])[0]; if (pior !== undefined) this.libertar(pior, dia); }
     this.entrada[j] = dia;
-    this.estat.delete(j);
     if (w.mercado) {
       w.mercado.contratos.chegada[j] = dia;
       w.mercado.registo.push({ dia, tipo: 'formacao', jogador: j, de, para, fee: valor, valor, idade: Math.floor(st.idade(j, dia)), ovr: st.ovrNat(j) });
@@ -577,7 +624,7 @@ export class Academia {
     return valor;
   }
 
-  /** Aliciamento anual (Julho): clubes maiores levam os melhores prospectos (16–18) de clubes menores que conhecem. */
+  /** Aliciamento anual (Julho): clubes maiores levam os melhores jovens do Sub-18 (16–18) de clubes menores que conhecem. */
   aliciar(dia: number) {
     const w = this.w, st = w.jogadores!, m = w.mercado, e = w.economia;
     if (!m || !e) return;
@@ -589,7 +636,7 @@ export class Academia {
       let melhor = -1, mv = -Infinity;
       for (const j of sc.conhecidos(c)) {
         const d = st.clube[j];
-        if (d < 0 || d === c || (this.escalao[j] !== ESC.sub18 && this.escalao[j] !== ESC.prospecto)) continue;
+        if (d < 0 || d === c || this.escalao[j] !== ESC.sub18) continue;
         if (w.reputacao[c] < w.reputacao[d] + AL.diferenca_reputacao) continue;
         const a = st.idade(j, dia);
         if (a < AL.idade[0] || a >= AL.idade[1] + 1) continue;
@@ -614,34 +661,13 @@ export class Academia {
   mes(dia: number) {
     const w = this.w, e = w.economia;
     const mes = new Date(dia * 864e5).getUTCMonth();
+    if (mes === I.mes) for (let c = 0; c < w.clubes.length; c++) this.intake(c, dia);
     if (mes === 6) this.aliciar(dia);
+    // Excedente do Sub-18 que o utilizador não decidiu até ao prazo: aplica-se a proposta do gestor.
+    if (mes === EX.prazo_utilizador_mes) for (const c of [...this.excedente.keys()]) this.decidirExcedente(c, dia);
     if (!e) return;
     // Salários dos juniores com contrato profissional.
     for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0) { const f = this.folhaJuniores(c); if (f) e.clubes.lancar(c, 'salarios', f / 12); }
-    for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0 && e.controlador(c).tipo === 'utilizador') this.estatisticasMes(c, dia);
-  }
-
-  /** Estatísticas leves (jogos, golos, assistências, nota) coerentes com o OVR face ao escalão. Só o clube do utilizador. */
-  estatisticasMes(c: number, dia: number) {
-    const st = this.w.jogadores!;
-    const rng = Rng.de(this.w.semente, 'estat-juvenis', c, dia);
-    for (const [esc, lista] of [['sub21', this.sub21[c]], ['sub18', this.sub18[c]], ['prospecto', this.prospectos[c]]] as const) {
-      const med = lista.length ? lista.reduce((s, j) => s + st.ovrNat(j), 0) / lista.length : 50;
-      for (const j of lista) {
-        const r = this.estat.get(j) ?? { jogos: 0, golos: 0, assist: 0, notas: 0 };
-        const rel = (st.ovrNat(j) - med) / 10;
-        const jogos = Math.max(0, Math.round(EJ.jogos_mes[esc] * clamp(0.6 + 0.4 * rel, 0.2, 1) + rng.normal(0, 0.6)));
-        const pos = POSICOES[st.posNat[j]];
-        const ataque = pos === 'PL' ? 0.45 : pos === 'ED' || pos === 'EE' || pos === 'MO' ? 0.25 : pos === 'MC' ? 0.1 : pos === 'GR' ? 0 : 0.04;
-        for (let k = 0; k < jogos; k++) {
-          if (rng.chance(ataque * clamp(1 + rel, 0.4, 2))) r.golos++;
-          if (rng.chance(ataque * 0.7 * clamp(1 + rel, 0.4, 2))) r.assist++;
-          r.notas += Math.round(clamp(6.6 + 0.4 * rel + rng.normal(0, 0.5), 4, 10) * 10);
-        }
-        r.jogos += jogos;
-        this.estat.set(j, r);
-      }
-    }
   }
 
   // ---------------------------------------------------------------- dados para a interface (Prompt 5)
@@ -652,25 +678,23 @@ export class Academia {
     const L = ovrAlvoClube(this.w, c);
     const e = this.escalao[j], a = st.idade(j, dia), ovr = st.ovrNat(j), pot = st.pot[j];
     const limiar = this.limiarPromocao(c);
-    if (pot < this.potencialEsperado(c, this.diaLiga) + P.corte_relativo) return 'libertar';
+    if (pot < this.potencialEsperado(c, this.diaLiga) + CORTE_RELATIVO) return 'libertar';
     if (ovr >= limiar) return 'promover_principal';
-    if (e === ESC.prospecto) {
+    if (e === ESC.sub18) {
       const med21 = this.sub21[c].length ? this.sub21[c].map((x) => st.ovrNat(x)).sort((x, y) => x - y)[this.sub21[c].length >> 1] : L - 15;
-      if (ovr >= med21) return 'promover_sub21';
-      return a >= 16 ? 'promover_sub18' : 'manter';
+      return (ovr >= limiar - 8 && a >= 17) || ovr >= med21 ? 'promover_sub21' : 'manter';
     }
-    if (e === ESC.sub18) return ovr >= limiar - 8 && a >= 17 ? 'promover_sub21' : 'manter';
     if (a >= 20 && ovr >= limiar - 8) return 'emprestar';
     if (a >= 21) return ovr >= L - 20 ? 'vender' : 'libertar';
     return 'manter';
   }
 
-  /** Ecrã de resumo dos prospectos (15–17) de um clube visto por `observador` (o próprio: conhecimento total; outros: nevoeiro). */
-  resumoProspectos(c: number, dia: number, observador = c): LinhaProspecto[] {
+  /** Ecrã de resumo dos jovens do Sub-18 (15–17) de um clube visto por `observador` (o próprio: conhecimento total; outros: nevoeiro). */
+  resumoSub18(c: number, dia: number, observador = c): LinhaProspecto[] {
     const w = this.w, st = w.jogadores!, sc = w.mercado?.scouting;
     const proprio = observador === c;
     const out: LinhaProspecto[] = [];
-    for (const j of [...this.prospectos[c], ...this.sub18[c].filter((x) => st.idade(x, dia) < 18)]) {
+    for (const j of this.sub18[c].filter((x) => st.idade(x, dia) < 18)) {
       const n = proprio ? 100 : sc?.nivel(observador, j, dia) ?? 0;
       if (!proprio && n < 1) continue;
       const pos = POSICOES[st.posNat[j]];
@@ -698,14 +722,13 @@ export class Academia {
   }
 
   /** Contagens (para os relatórios). */
-  contagens(): { individuais: number; sub18: number; sub21: number; prospectos: number; agregado: number } {
+  contagens(): { individuais: number; sub18: number; sub21: number } {
     const s = (L: number[][]) => L.reduce((a, b) => a + b.length, 0);
-    const ag = this.agregado.reduce((a, b) => a + b.reduce((x, y) => x + y, 0), 0);
-    return { individuais: s(this.sub18) + s(this.sub21) + s(this.prospectos), sub18: s(this.sub18), sub21: s(this.sub21), prospectos: s(this.prospectos), agregado: ag };
+    return { individuais: s(this.sub18) + s(this.sub21), sub18: s(this.sub18), sub21: s(this.sub21) };
   }
 
   bytes(): number {
     const c = this.contagens();
-    return this.escalao.byteLength + this.ovrInicio.byteLength + this.entrada.byteLength + c.individuais * 8 + this.agregado.length * N_IDADES * NF * 2 + this.estat.size * 48;
+    return this.escalao.byteLength + this.ovrInicio.byteLength + this.entrada.byteLength + c.individuais * 8 + this.ultimoIntake.reduce((a, x) => a + x.jogadores.length * 4, 0) + this.ligas.bytes();
   }
 }

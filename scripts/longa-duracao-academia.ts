@@ -60,11 +60,11 @@ const formadosPorArq = () => {
   return r;
 };
 
-// Geração a seguir: os prospectos de 15 anos de um clube formador médio de uma liga média.
+// Geração a seguir: os jovens de 15 anos do Sub-18 de um clube formador médio de uma liga média.
 const formadores = [...w.ligaPorId('POR1').clubes, ...w.ligaPorId('NED1').clubes].filter((c) => e.ia?.arquetipo[c] === 'formador').sort((a, b) => w.reputacao[b] - w.reputacao[a]);
 const clubeG = formadores[0] ?? w.ligaPorId('POR1').clubes[0];
 const dia0 = Math.floor(Date.UTC(2026, 7, 1) / 864e5);
-const geracao = [...ac.prospectos[clubeG], ...ac.sub18[clubeG]].filter((j) => st.idade(j, dia0) < 16.5).slice(0, 8);
+const geracao = [...ac.sub18[clubeG]].filter((j) => st.idade(j, dia0) < 16.5).slice(0, 8);
 const percurso = new Map<number, string[]>(geracao.map((j) => [j, []]));
 const estadoJ = (j: number) => {
   const c = st.clube[j];
@@ -77,12 +77,12 @@ const estadoJ = (j: number) => {
 };
 for (const j of geracao) percurso.get(j)!.push(estadoJ(j));
 
-const resumo0 = ac.resumoProspectos(clubeG, dia0).slice(0, 10);
+const resumo0 = ac.resumoSub18(clubeG, dia0).slice(0, 10);
 const inicio = ovrLiga();
 // Nível esperado (reputação × força desportiva) de cada liga, no início: para separar a deriva de uma subida real de reputação.
 const nivelLiga = () => Object.fromEntries(ligas.map((l) => [l.regras.id, l.clubes.reduce((a, c) => a + ovrAlvoClube(w, c), 0) / Math.max(1, l.clubes.length)]));
 const nivel0 = nivelLiga();
-const linhas: { epoca: number; ovr: Record<string, number>; faltas: number; tamanhoMin: number; idade: number; jogadores: number; individuais: number; agregado: number; n: number }[] = [];
+const linhas: { epoca: number; ovr: Record<string, number>; faltas: number; tamanhoMin: number; idade: number; jogadores: number; individuais: number; n: number }[] = [];
 const sim = new Simulador(w, true);
 const semanas: number[] = [];
 const promovidosAntes = { n: 0 };
@@ -93,7 +93,7 @@ sim.aoFechar = (t) => {
   const activos = w.plantel.flatMap((js, c) => (w.liga[c] >= 0 ? js.filter((j) => st.clube[j] === c) : []));
   const f = ultimaFalta.v ?? faltas();
   const k = ac.contagens();
-  linhas.push({ epoca: t.ano, ovr: ovrLiga(), faltas: f.n, tamanhoMin: f.tamanhoMin, idade: activos.reduce((a, j) => a + st.idade(j, sim.segunda), 0) / activos.length, jogadores: activos.length, individuais: k.individuais, agregado: k.agregado, n: st.n });
+  linhas.push({ epoca: t.ano, ovr: ovrLiga(), faltas: f.n, tamanhoMin: f.tamanhoMin, idade: activos.reduce((a, j) => a + st.idade(j, sim.segunda), 0) / activos.length, jogadores: activos.length, individuais: k.individuais, n: st.n });
   for (const j of geracao) percurso.get(j)!.push(estadoJ(j));
   for (const x of ac.promovidos.slice(promovidosAntes.n)) { const a = e.ia?.arquetipo[x.clube] ?? '?'; promPorArq[a] = (promPorArq[a] ?? 0) + 1; }
   promovidosAntes.n = ac.promovidos.length;
@@ -133,7 +133,7 @@ p(`| Plantel mais curto (pior época) | ${Math.min(...linhas.map((l) => l.tamanh
 const idades = linhas.map((l) => l.idade);
 p(`| Idade média dos plantéis (mín.–máx.) | ${Math.min(...idades).toFixed(2)}–${Math.max(...idades).toFixed(2)} | estável (±1) | ${ok(Math.max(...idades) - Math.min(...idades) <= 1)} |`);
 p(`| Juniores individuais (início → fim) | ${ac.contagens().individuais.toLocaleString('pt-PT')} (época 1: ${k0.individuais.toLocaleString('pt-PT')}) | ~40 000 | |`);
-p(`| Jovens no agregado (fim) | ${kN.agregado.toLocaleString('pt-PT')} | — | |`, '');
+p('');
 p('| Época | ' + deriva.slice(0, 8).map((x) => x.id).join(' | ') + ' | faltas | idade | jogadores | juniores | registos |', '|---|' + deriva.slice(0, 8).map(() => '---:').join('|') + '|---:|---:|---:|---:|---:|');
 p(`| início | ${deriva.slice(0, 8).map((x) => inicio[x.id].toFixed(1)).join(' | ')} | | | | | |`);
 for (const l of linhas) p(`| ${l.epoca} | ${deriva.slice(0, 8).map((x) => l.ovr[x.id].toFixed(1)).join(' | ')} | ${l.faltas} | ${l.idade.toFixed(2)} | ${l.jogadores} | ${l.individuais} | ${l.n} |`);
@@ -145,18 +145,18 @@ for (const a of Object.keys(fN).sort((x, y) => fN[y].formados / fN[y].clubes - f
   p(`| ${a} | ${x.clubes} | ${(y.formados / y.clubes).toFixed(1)} → ${(x.formados / x.clubes).toFixed(1)} | ${(x.titulares / x.clubes).toFixed(1)} | ${((promPorArq[a] ?? 0) / x.clubes / N).toFixed(2)} |`);
 }
 
-p('', `## 3. Shortlist de prospectos do ${w.clubes[clubeG].nome} (${w.ligas[w.liga[clubeG]]?.regras.id ?? ''}, formador), no início — 10 exemplos (dados para a interface)`, '');
+p('', `## 3. Sub-18 do ${w.clubes[clubeG].nome} (${w.ligas[w.liga[clubeG]]?.regras.id ?? ''}, formador), no início — 10 exemplos (dados para a interface)`, '');
 p('| Nome | Idade | Pos. | Escalão | Atributos principais | OVR | Potencial (estrelas) | Evolução | Estado | Conselho |', '|---|---:|---|---|---|---:|---|---:|---|---|');
 for (const r of resumo0) p(`| ${r.nome} | ${r.idade} | ${r.posicao} | ${r.escalao} | ${r.atributos.map((a) => `${a.id} ${a.valor}`).join(', ')} | ${r.ovr} | ${r.estrelas[0]}–${r.estrelas[1]} | ${r.evolucao ?? '—'} | ${r.estado} | ${r.conselho.replace('_', ' ')} |`);
 // O mesmo clube visto por um rival (nevoeiro).
-const rival = w.ligas[w.liga[clubeG]].clubes.find((c) => c !== clubeG && ac.resumoProspectos(clubeG, sim.segunda, c).length) ?? -1;
+const rival = w.ligas[w.liga[clubeG]].clubes.find((c) => c !== clubeG && ac.resumoSub18(clubeG, sim.segunda, c).length) ?? -1;
 if (rival >= 0) {
-  const vis = ac.resumoProspectos(clubeG, sim.segunda, rival).slice(0, 5);
-  p('', `Os prospectos do ${w.clubes[clubeG].nome} vistos pelo ${w.clubes[rival].nome} no fim (nevoeiro do scouting):`, '', '| Nome | Idade | Conhecimento | OVR (intervalo) | Potencial (estrelas) |', '|---|---:|---:|---|---|');
+  const vis = ac.resumoSub18(clubeG, sim.segunda, rival).slice(0, 5);
+  p('', `Os jovens do Sub-18 do ${w.clubes[clubeG].nome} vistos pelo ${w.clubes[rival].nome} no fim (nevoeiro do scouting):`, '', '| Nome | Idade | Conhecimento | OVR (intervalo) | Potencial (estrelas) |', '|---|---:|---:|---|---|');
   for (const r of vis) p(`| ${r.nome} | ${r.idade} | ${r.conhecimento}% | ${Array.isArray(r.ovr) ? `${r.ovr[0]}–${r.ovr[1]}` : r.ovr} | ${r.estrelas[0]}–${r.estrelas[1]} |`);
 }
 
-p('', `## 4. Uma geração de prospectos do ${w.clubes[clubeG].nome} (15 anos em 2026) até à equipa principal`, '', 'Formato: escalão OVR/potencial (clube, se saiu).', '');
+p('', `## 4. Uma geração do Sub-18 do ${w.clubes[clubeG].nome} (15 anos em 2026) até à equipa principal`, '', 'Formato: escalão OVR/potencial (clube, se saiu).', '');
 p('| Jogador | ' + ['início', ...linhas.map((l) => String(l.epoca))].slice(0, 10).join(' | ') + ' |', '|---|' + Array(Math.min(10, linhas.length + 1)).fill('---').join('|') + '|');
 for (const [j, h] of percurso) p(`| ${st.nomes[j]} (${POSICOES[st.posNat[j]]}) | ${h.slice(0, 10).join(' | ')} |`);
 
