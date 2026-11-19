@@ -4,7 +4,7 @@
 // fim de jejum, recordes).
 import type { World } from '../engine/world.ts';
 import type { RegistoEpoca } from '../engine/history.ts';
-import { NOMES_EQUIVALENTES, PREMIOS_HISTORICO, FACTOS_HISTORICO as FH } from '../config/historico.ts';
+import { NOMES_EQUIVALENTES, PREMIOS_HISTORICO, FACTOS_HISTORICO as FH, INICIO_HISTORICO } from '../config/historico.ts';
 
 export interface LinhaHistorico {
   /** "2025–26" (ou "1929" nas épocas de ano civil). */
@@ -120,19 +120,30 @@ export class HistoricoMundo {
     return out;
   }
 
-  /** Histórico completo de uma competição: épocas reais e depois as do jogo (as do jogo substituem reais da mesma época). */
-  competicao(id: string, registos: RegistoEpoca[]): LinhaHistorico[] {
+  /** Todas as épocas (incluindo as anteriores ao início oficial da competição): para contar títulos e escrever factos. */
+  private completo(id: string, registos: RegistoEpoca[]): LinhaHistorico[] {
     const jogo = this.doJogo(id, registos);
     const epJogo = new Set(jogo.map((l) => l.epoca));
     return [...(this.real.get(id) ?? []).filter((l) => !epJogo.has(l.epoca)), ...jogo].sort((a, b) => a.ano - b.ano || (a.fonte === 'real' ? -1 : 1));
   }
 
+  /** Ano a partir do qual a competição conta (ex.: Bundesliga 1963). */
+  inicio(id: string): number { return INICIO_HISTORICO[id] ?? 0; }
+
+  /** Histórico de uma competição: épocas reais desde o início oficial e depois as do jogo. */
+  competicao(id: string, registos: RegistoEpoca[]): LinhaHistorico[] {
+    const ini = this.inicio(id);
+    return this.completo(id, registos).filter((l) => l.ano >= ini);
+  }
+
   /** Títulos por clube (nome canónico), do mais titulado para o menos; com os anos. */
-  titulos(id: string, registos: RegistoEpoca[]): { clube: string; titulos: number; vices: number; epocas: string[] }[] {
-    const m = new Map<string, { clube: string; titulos: number; vices: number; epocas: string[] }>();
-    const get = (n: string) => { const c = nomeCanonico(n); let x = m.get(c); if (!x) { x = { clube: c, titulos: 0, vices: 0, epocas: [] }; m.set(c, x); } return x; };
-    for (const l of this.competicao(id, registos)) {
-      if (l.campeao) { const x = get(l.campeao); x.titulos++; x.epocas.push(l.epoca); }
+  /** `titulos` inclui os títulos anteriores ao início oficial da competição (não se apagam); `anteriores` diz quantos são. */
+  titulos(id: string, registos: RegistoEpoca[]): { clube: string; titulos: number; anteriores: number; vices: number; epocas: string[] }[] {
+    const m = new Map<string, { clube: string; titulos: number; anteriores: number; vices: number; epocas: string[] }>();
+    const get = (n: string) => { const c = nomeCanonico(n); let x = m.get(c); if (!x) { x = { clube: c, titulos: 0, anteriores: 0, vices: 0, epocas: [] }; m.set(c, x); } return x; };
+    const ini = this.inicio(id);
+    for (const l of this.completo(id, registos)) {
+      if (l.campeao) { const x = get(l.campeao); x.titulos++; if (l.ano < ini) x.anteriores++; x.epocas.push(l.epoca); }
       if (l.vice) get(l.vice).vices++;
     }
     return [...m.values()].sort((a, b) => b.titulos - a.titulos || b.vices - a.vices || a.clube.localeCompare(b.clube));
@@ -140,7 +151,7 @@ export class HistoricoMundo {
 
   /** Factos para as notícias sobre o campeão de uma época (já registada no histórico). */
   factosTitulo(id: string, epoca: string, registos: RegistoEpoca[]): string[] {
-    const L = this.competicao(id, registos);
+    const L = this.completo(id, registos);
     const i = L.findIndex((l) => l.epoca === epoca);
     if (i < 0 || !L[i].campeao) return [];
     const nome = nomeCanonico(L[i].campeao);

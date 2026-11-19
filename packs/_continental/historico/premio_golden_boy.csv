@@ -1,10 +1,26 @@
-# Troféu Kopa = Golden Boy no jogo (melhor sub-21). Não vem nos PDFs: preenchido pelo assistente, a confirmar pelo utilizador (falta 2026).
+# Golden Boy (prémio da Tuttosport, melhor sub-21 a jogar na Europa) = Golden Boy do jogo. Fonte: Golden Boy (prémio) — Wikipédia (PDF do utilizador). Dois clubes = mudou de clube no ano do prémio.
 ano,jogador,clube,vencedor_honorario,clube_honorario,nota,origem
-2018,Kylian Mbappé,Paris Saint-Germain,,,,manual
-2019,Matthijs de Ligt,Juventus,,,premiado pela época no Ajax,manual
-2020,,,,,não atribuído (pandemia de COVID-19),manual
-2021,Pedri,Barcelona,,,,manual
-2022,Gavi,Barcelona,,,,manual
-2023,Jude Bellingham,Real Madrid,,,,manual
-2024,Lamine Yamal,Barcelona,,,,manual
-2025,Lamine Yamal,Barcelona,,,,manual
+2003,Rafael van der Vaart,Ajax,,,,real
+2004,Wayne Rooney,Everton / Manchester United,,,,real
+2005,Lionel Messi,Barcelona,,,,real
+2006,Cesc Fàbregas,Arsenal,,,,real
+2007,Sergio Agüero,Atlético de Madrid,,,,real
+2008,Anderson,Manchester United,,,,real
+2009,Alexandre Pato,Milan,,,,real
+2010,Mario Balotelli,Internazionale / Manchester City,,,,real
+2011,Mario Götze,Borussia Dortmund,,,,real
+2012,Isco,Málaga,,,,real
+2013,Paul Pogba,Juventus,,,,real
+2014,Raheem Sterling,Liverpool,,,,real
+2015,Anthony Martial,Monaco / Manchester United,,,,real
+2016,Renato Sanches,Benfica / Bayern de Munique,,,,real
+2017,Kylian Mbappé,Monaco / Paris Saint-Germain,,,,real
+2018,Matthijs de Ligt,Ajax,,,,real
+2019,João Félix,Benfica / Atlético de Madrid,,,,real
+2020,Erling Haaland,Borussia Dortmund,,,,real
+2021,Pedri,Barcelona,,,,real
+2022,Gavi,Barcelona,,,,real
+2023,Jude Bellingham,Borussia Dortmund / Real Madrid,,,,real
+2024,Lamine Yamal,Barcelona,,,,real
+2025,Désiré Doué,Paris Saint-Germain,,,,real
+2026,Pau Cubarsí,Barcelona,,,,real

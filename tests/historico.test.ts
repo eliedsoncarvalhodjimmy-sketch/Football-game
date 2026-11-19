@@ -39,13 +39,30 @@ describe('dados reais', () => {
     expect(h.factosTitulo('ITA1', '2019–20', []).join(' ')).toMatch(/Juventus soma 9 títulos seguidos/);
   });
 
-  it('Bola de Ouro (Melhor do Mundo) e Troféu Kopa (Golden Boy)', () => {
+  it('início oficial de cada competição (Bundesliga 1963, Ligue 1 1980, Primeira Liga 1960, Serie A 1930); os títulos anteriores continuam a contar', () => {
+    const h = w.historico!;
+    expect(h.competicao('GER1', [])[0].epoca).toBe('1963–64');
+    expect(h.competicao('FRA1', [])[0].epoca).toBe('1980–81');
+    expect(h.competicao('POR1', [])[0].epoca).toBe('1960–61');
+    expect(h.competicao('ITA1', [])[0].epoca).toBe('1930–31');
+    const b = h.titulos('GER1', []).find((x) => x.clube === 'Bayern de Munique')!;
+    expect(b.anteriores).toBe(1);
+    expect(h.titulos('POR1', []).find((x) => x.clube === 'Benfica')!.titulos).toBe(38);
+  });
+
+  it('Golden Boy (PDF do utilizador) e Troféu Yashin (Melhor guarda-redes)', () => {
+    const h = w.historico!;
+    expect(h.premios('golden_boy')[0]).toMatchObject({ ano: 2003 });
+    expect(h.premios('golden_boy').find((p) => p.ano === 2026)!.jogador).toBe('Pau Cubarsí');
+    expect(h.premios('guarda_redes').find((p) => p.ano === 2019)!.jogador).toBe('Alisson');
+  });
+
+  it('Bola de Ouro (Melhor do Mundo)', () => {
     const h = w.historico!;
     const bo = h.premios('melhor_do_mundo');
     expect(bo[0]).toMatchObject({ ano: 1956, jogador: 'Stanley Matthews' });
     expect(bo.find((p) => p.ano === 2026)!.jogador).toBe('Harry Kane');
     expect(h.maisPremiados('melhor_do_mundo')[0]).toMatchObject({ jogador: 'Lionel Messi', vezes: 8 });
-    expect(h.premios('golden_boy').find((p) => p.ano === 2023)!.jogador).toBe('Jude Bellingham');
   });
 });
 

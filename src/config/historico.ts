@@ -24,11 +24,15 @@ export const NOMES_EQUIVALENTES: Record<string, string[]> = {
   'SC Braga': ['Braga'],
 };
 
+/** Ano a partir do qual conta o histórico de cada competição (resposta do utilizador). As épocas anteriores ficam nos
+ *  ficheiros e continuam a contar nos títulos dos clubes ("não se apagam"), mas não aparecem na lista da competição. */
+export const INICIO_HISTORICO: Record<string, number> = { GER1: 1963, FRA1: 1980, POR1: 1960, ITA1: 1930 };
+
 /** Ficheiros de histórico de prémios (packs/_continental/historico/premio_<id>.csv) — os ids dos prémios do jogo. */
 export const PREMIOS_HISTORICO = {
   melhor_do_mundo: { nome: 'Melhor do Mundo (Bola de Ouro)', ficheiro: 'premio_melhor_do_mundo' },
-  golden_boy: { nome: 'Golden Boy (Troféu Kopa)', ficheiro: 'premio_golden_boy' },
-  guarda_redes: { nome: 'Melhor guarda-redes', ficheiro: 'premio_guarda_redes' },
+  golden_boy: { nome: 'Golden Boy', ficheiro: 'premio_golden_boy' },
+  guarda_redes: { nome: 'Melhor guarda-redes (Troféu Yashin)', ficheiro: 'premio_guarda_redes' },
 } as const;
 
 /** Factos para as notícias quando há um campeão: a partir de quantos anos sem títulos é "jejum". */
