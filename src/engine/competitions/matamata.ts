@@ -76,6 +76,8 @@ export class MataMata implements Competicao {
     return out;
   }
 
+  jogosPrevistos(s: number): JogoR[] { return this.abertos.filter((j) => j.semana === s && !j.r); }
+
   private criarRonda(cfg: RondaCfg) {
     const ordem = [...this.emProva].sort((a, b) => this.seed(a) - this.seed(b));
     // Na 1.ª ronda: depois dela devem ficar 2^(rondas-1) clubes (ou metade, numa eliminatória de ronda única).

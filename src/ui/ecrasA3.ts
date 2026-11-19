@@ -118,7 +118,7 @@ export function htmlNegociacao(v: VistaNegociacao, r: RascNeg) {
     <div class="np-nome">${esc(p.nome.split(' ').slice(0, -1).join(' '))} <b>${esc(p.nome.split(' ').slice(-1)[0])}</b></div>`;
   const orc = `<div class="np-orc"><span style="width:28px;height:28px;display:grid;place-items:center;flex:none">${svg('financas')}</span><div><div class="np-l"><span>Orçamento de transferências</span><b>${fE(v.orcamento.transferencias)}</b></div><div class="np-l"><span>Folga salarial</span><b>${fE(v.orcamento.salarialLivre)}/ano</b></div></div></div>`;
   if (n.fase !== 'clube' && n.fase !== 'jogador') {
-    const fim: Record<string, string> = { registo: 'Acordo fechado: faltam os exames médicos e o registo (na semana que vem).', concluida: `${p.nome} assinou pelo teu clube.`, rompeu: `${v.vendedor} terminou a negociação: a tensão chegou ao limite.`, rompeu_jogador: 'O agente terminou as conversas: o jogador não quer vir.', desistiu: 'Terminaste a negociação.', falhou: n.fala };
+    const fim: Record<string, string> = { registo: 'Acordo fechado: faltam os exames médicos e o registo (na semana que vem).', concluida: n.tipo === 'renovacao' ? n.fala : `${p.nome} assinou pelo teu clube.`, rompeu: `${v.vendedor} terminou a negociação: a tensão chegou ao limite.`, rompeu_jogador: 'O agente terminou as conversas: o jogador não quer vir.', desistiu: 'Terminaste a negociação.', falhou: n.fala };
     return cab + `<div class="grelha"><section class="c s12"><div class="painel-cab"><span class="ic">${svg('troca')}</span><div><h3>${esc(fim[n.fase] ?? n.fala)}</h3><div class="rot">${esc(n.fala)}</div></div>${['rompeu', 'rompeu_jogador', 'desistiu', 'falhou'].includes(n.fase) ? `<button class="btn" style="margin-left:auto" data-negociar="${p.id}:${n.tipo}">Tentar de novo</button>` : ''}</div></section>${hist}</div>`;
   }
   const cena = (ops: string) => `<div class="neg2-cena"><img src="./img/negociacao-${n.ronda % 2 ? (n.fase === 'clube' ? 2 : 1) : (n.fase === 'clube' ? 1 : 2)}.jpg" alt="Negociação">
@@ -156,7 +156,7 @@ export function htmlNegociacao(v: VistaNegociacao, r: RascNeg) {
   const eur = (k: string, rot: string, val: number) => `<label class="np-campo"><span>${rot}</span><input data-eur="${k}" inputmode="numeric" autocomplete="off" value="${fE(val)}"></label>`;
   const b = ct.bonus;
   return cab + `<div class="grelha"><section class="c s12 neg2">${cena(`<button class="neg2-op prim" data-neg="enviar">Enviar proposta</button><button class="neg2-op" data-neg="papel">Papel: ${ct.papel}</button><button class="neg2-op" data-neg="anos">Duração: ${ct.anos} ${ct.anos === 1 ? 'ano' : 'anos'}</button><button class="neg2-op" data-neg="clausula">Cláusula de rescisão: ${ct.clausula ? 'sim' : 'não'}</button><button class="neg2-op" data-neg="bonus">Bónus por objectivos: ${b ? 'sim' : 'não'}</button>`)}
-    <aside class="neg2-painel">${orc}<div class="np-tit">Proposta ao jogador / <span>Contrato</span></div>${jog}
+    <aside class="neg2-painel">${orc}<div class="np-tit">${n.tipo === 'renovacao' ? 'Renovação' : 'Proposta ao jogador'} / <span>Contrato</span></div>${jog}
       <div class="np-l np-pad"><span>Salário actual</span><b>${p.salarioActual ? `${fE(p.salarioActual)}/ano` : '—'}</b></div>
       <div class="np-sec"><span class="np-ic">✎</span>Contrato</div>
       <div class="np-l np-pad"><span>Papel no plantel</span><b>${ct.papel} <small class="muted">(pede ${pe.papel})</small></b></div>

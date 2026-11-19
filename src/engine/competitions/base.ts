@@ -31,6 +31,8 @@ export interface Competicao {
   /** Regista um jogo já simulado. */
   registar(j: JogoR): void;
   terminada(): boolean;
+  /** Jogos já marcados para a semana, sem criar rondas nem sortear nada (leitura para a interface). */
+  jogosPrevistos?(semana: number): JogoR[];
 }
 
 /** Vencedor de um jogo decisivo (considera a 1.ª mão, prolongamento e penáltis). */

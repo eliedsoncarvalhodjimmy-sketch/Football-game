@@ -1,7 +1,7 @@
 // Números da interface (Prompt 5, Bloco A).
 
 /** Versão do motor gravada em cada jogo: uma gravação de outra versão pode reconstruir um mundo diferente. */
-export const VERSAO_MOTOR = '2026.11-a3';
+export const VERSAO_MOTOR = '2026.11-a4';
 
 export const INTERFACE = {
   /** Ranhuras de gravação por conta. */

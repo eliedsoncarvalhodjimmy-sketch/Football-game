@@ -161,7 +161,8 @@ export class IAClubes {
         }
       }
       // Staff: renovações e melhoria de um cargo.
-      const novo = e.staff.epoca(c, dia, e.clubes.receitaPrevista[c], e.clubes.orcStaff[c] - e.custoTreinador(c), rng, (cl, v, origem) => {
+      // Clube do utilizador: só renovações e idade (as contratações de staff são dele).
+      const novo = e.staff.epoca(c, dia, e.clubes.receitaPrevista[c], w.motor!.clubeUtilizador === c ? -Infinity : e.clubes.orcStaff[c] - e.custoTreinador(c), rng, (cl, v, origem) => {
         e.clubes.lancar(cl, 'staff', v);
         if (origem !== undefined && origem >= 0) e.clubes.lancar(origem, 'outras', v);
       });
@@ -198,6 +199,7 @@ export class IAClubes {
         continue;
       }
       // 2. Confiança pelos resultados (posição actual face à esperada).
+      const doUtilizador = m.clubeUtilizador === c; // o Presidente decide o treinador, a crise e os despedimentos
       const a = actual.get(c);
       const desde = tr.carreira?.at(-1)?.desde ?? 0;
       if (a && a[2] >= CF.jornadas_minimas && dia - desde >= CF.carencia_dias) {
@@ -206,13 +208,13 @@ export class IAClubes {
         // Despedimento por resultados: paciência do dono e do arquétipo; lua de mel do dono = paciência máxima.
         const pac = d ? (dia < d.luaDeMelAte ? 2 : (0.5 + d.atributos.paciencia / 20) * arq.paciencia) : arq.paciencia;
         // Só despede se estiver abaixo do esperado; o limiar tem um tecto (mesmo o dono mais impaciente não despede quem cumpre).
-        if (a[0] > esperada && this.confianca[c] < Math.min(CF.limiar_maximo, CF.limiar / pac) && rng.chance(CF.prob_despedir)) {
+        if (!doUtilizador && a[0] > esperada && this.confianca[c] < Math.min(CF.limiar_maximo, CF.limiar / pac) && rng.chance(CF.prob_despedir)) {
           e.mercadoT.despedir(c, dia, 'resultados', rng, `${a[0]}.º, esperado ${esperada}.º`);
           continue;
         }
       }
       // 3. Justa causa (indisciplina, escândalo), rara.
-      if (rng.chance((DP.justa_causa_anual / 12) * (1.5 - tr.atributos.disciplina / 20))) {
+      if (!doUtilizador && rng.chance((DP.justa_causa_anual / 12) * (1.5 - tr.atributos.disciplina / 20))) {
         e.mercadoT.despedir(c, dia, 'justa_causa', rng, rng.chance(0.5) ? 'indisciplina' : 'escândalo');
         continue;
       }
@@ -226,14 +228,14 @@ export class IAClubes {
             tr.conflito = true;
             this.confianca[c] = clamp(this.confianca[c] - 15, 0, 100);
             e.registar(dia, c, 'conflito', `${tr.nome} entra em conflito público com a direcção (filosofia ${NOME_ARQUETIPO[this.arquetipo[c]]} contra o seu estilo ${tr.perfil}; cede ${Math.round(100 * cede)}%)`);
-          } else if (rng.chance(0.3)) {
+          } else if (!doUtilizador && rng.chance(0.3)) {
             e.mercadoT.despedir(c, dia, 'mutuo_acordo', rng, `choque de filosofia: ${NOME_ARQUETIPO[this.arquetipo[c]]} contra ${tr.perfil}`);
             continue;
           }
         }
       } else tr.moral = clamp((tr.moral ?? 70) + 2, 0, 85);
       // 5. Reacção à crise (uma vez por época), pelo arquétipo.
-      if (e.clubes.saude[c] >= 2 && !this.reagiu[c]) { this.reagiu[c] = 1; this.crise(c, dia, rng); }
+      if (!doUtilizador && e.clubes.saude[c] >= 2 && !this.reagiu[c]) { this.reagiu[c] = 1; this.crise(c, dia, rng); }
     }
   }
 

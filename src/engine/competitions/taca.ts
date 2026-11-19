@@ -80,6 +80,8 @@ export class Taca implements Competicao {
     return this.abertos.filter((j) => j.semana === s && !j.r);
   }
 
+  jogosPrevistos(s: number): JogoR[] { return this.abertos.filter((j) => j.semana === s && !j.r); }
+
   private criarRonda() {
     const r = this.ronda;
     const pool = [...this.emProva, ...(this.entrantes[r] ?? [])];

@@ -169,7 +169,7 @@ export class MercadoTreinadores {
   }
 
   /** Despedimento: indemnização pelo motivo, imagem do clube junto dos treinadores, novo treinador. */
-  despedir(c: number, dia: number, motivo: 'resultados' | 'justa_causa' | 'mutuo_acordo', rng: Rng, texto = '') {
+  despedir(c: number, dia: number, motivo: 'resultados' | 'justa_causa' | 'mutuo_acordo', rng: Rng, texto = '', novo?: Treinador) {
     const w = this.w, e = this.e;
     const t = w.motor!.treinadores[c];
     const restante = Math.max(0, ((t.contratoFim ?? dia) - dia) / 365) * (t.salario ?? 0);
@@ -190,7 +190,7 @@ export class MercadoTreinadores {
     const nomes = { resultados: 'despedido por resultados', justa_causa: 'despedido por justa causa', mutuo_acordo: 'sai por mútuo acordo' };
     e.registar(dia, c, 'treinador_despedido', `${t.nome} ${nomes[motivo]}${texto ? ` (${texto})` : ''}: indemnização de ${euros(custo)}${nota}`, custo);
     this.sair(c, t, dia, motivo);
-    this.procurar(c, dia, rng);
+    if (novo) this.contratar(c, novo, dia, rng); else this.procurar(c, dia, rng);
   }
 
   /** O treinador demite-se (sem indemnização). */

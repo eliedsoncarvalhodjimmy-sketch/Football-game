@@ -2,6 +2,8 @@
 // como no protótipo aprovado; pedidos de empréstimo; ofertas recebidas à espera de resposta; listagens e shortlist.
 // Tudo determinístico (sem sorteios): as respostas dependem só do estado do mundo e das propostas, por isso os comandos
 // gravados reproduzem as mesmas negociações ao carregar.
+import { RENOVACAO } from '../config/negociacaoUtilizador.ts';
+import { fimDeEpoca } from '../economia/contratos.ts';
 import { NEG_CLUBE as NC, NEG_EMPRESTIMO as NE, NEG_JOGADOR as NJ, OFERTAS_RECEBIDAS as OR, SHORTLIST as SL } from '../config/negociacaoUtilizador.ts';
 import { CONHECIMENTO } from '../config/scouting.ts';
 import { ESTATUTOS } from '../config/contratosJogador.ts';
@@ -11,7 +13,7 @@ import type { Mercado, Negocio } from './mercado.ts';
 import type { World } from '../engine/world.ts';
 
 export type Papel = (typeof NJ.papeis)[number];
-export type TipoNeg = 'transferencia' | 'emprestimo' | 'livre' | 'clausula';
+export type TipoNeg = 'transferencia' | 'emprestimo' | 'livre' | 'clausula' | 'renovacao';
 export type FaseNeg = 'clube' | 'jogador' | 'registo' | 'concluida' | 'rompeu' | 'rompeu_jogador' | 'desistiu' | 'falhou';
 
 export interface PropostaClube { valor: number; vendaFutura: number; parcelas: string; troca: number | null }
@@ -86,6 +88,16 @@ export class MercadoUtilizador {
     const w = this.w, st = this.st, m = this.m, c = this.clube;
     if (this.activa(j)) throw new Error('Já estás a negociar este jogador.');
     const vend = st.clube[j];
+    if (tipo === 'renovacao') {
+      if (vend !== c) throw new Error('Só renovas jogadores do teu clube.');
+      if (m.contratos.emprestimo.has(j)) throw new Error('O jogador está emprestado ao teu clube.');
+      if ((st.fimContrato[j] - dia) / 365 > RENOVACAO.anos_maximos) throw new Error(`Só se renova com ${RENOVACAO.anos_maximos} anos ou menos de contrato.`);
+      const n: NegUtilizador = { id: ++this.seq, tipo, jogador: j, vendedor: c, fase: 'jogador', ronda: 1, tensao: NJ.tensao_inicial, fala: '', inicio: dia,
+        pedido: 0, piso: 0, acordo: 0, ultimaClube: null, emprestimo: null, pede: null, pede0: null, ultimaJogador: null, negocio: null, historico: [{ dia, texto: 'Proposta de renovação' }] };
+      this.paraJogador(n, dia);
+      this.negs.push(n);
+      return n;
+    }
     if (vend === c) throw new Error('O jogador já é do teu clube.');
     if (tipo === 'livre' && vend !== -3) throw new Error('O jogador não está livre.');
     if (tipo !== 'livre' && vend < 0) throw new Error('O jogador não tem clube.');
@@ -133,6 +145,8 @@ export class MercadoUtilizador {
     const st = this.st, j = n.jogador;
     let sal = salarioPedido(this.w, j, this.m.salarioMercado(j, this.clube, dia));
     if (n.tipo === 'livre') sal = Math.max(sal * 0.85, this.m.contratos.salarioAnterior.get(j) ?? 0);
+    // Renovação: nunca pede menos do que ganha, e o descontentamento encarece.
+    if (n.tipo === 'renovacao') sal = Math.max(sal, st.salario[j]) * (1 + this.m.contratos.descontentamento[j] / 200);
     sal = r3(sal);
     const papel = this.papelPedido(j, dia);
     const agente = r3(Math.max(NJ.agente_fee * n.acordo, NJ.agente_salario * sal));
@@ -214,6 +228,7 @@ export class MercadoUtilizador {
     if (av.bonusInvalido) { n.fala = `Agente: "Jogos sem sofrer golos é só para guarda-redes e defesas."`; return n; }
     if (av.ok) {
       n.historico.push({ dia, texto: `${nome} aceita: ${fE(p.salario)}/ano, ${p.papel.toLowerCase()}, ${p.anos} ${p.anos === 1 ? 'ano' : 'anos'}` });
+      if (n.tipo === 'renovacao') return this.renovar(n, p, dia);
       const u = n.ultimaClube;
       return this.registar(n, dia, { parcelas: u?.parcelas ?? 'vista', vendaFutura: u?.vendaFutura ?? 0, troca: u?.troca ?? null, premio: p.premio, agente: p.agente, anos: p.anos, clausula: p.clausula, bonus: p.bonus }, p);
     }
@@ -248,10 +263,29 @@ export class MercadoUtilizador {
     return n;
   }
 
+  /** Renovação aceite: contrato novo já (salário, anos, papel, cláusula, bónus); prémio e agente pagos agora. */
+  private renovar(n: NegUtilizador, p: PropostaJogador, dia: number) {
+    const st = this.st, k = this.m.contratos, j = n.jogador, s = this.w.economia!.clubes;
+    st.salario[j] = p.salario;
+    st.fimContrato[j] = fimDeEpoca(this.w, this.clube, dia + 60, p.anos);
+    k.estatuto[j] = ESTATUTOS.indexOf(NJ.estatuto[p.papel]);
+    k.descontentamento[j] = 0;
+    this.m.bonus(j);
+    if (p.clausula > 0) { k.clausula[j] = p.clausula; k.clausulaDesde[j] = dia; }
+    if (p.bonus && p.bonus.modo === 'Por cada') { if (p.bonus.tipo === 'Golos') k.bonusGolo[j] = p.bonus.valor; else if (p.bonus.tipo === 'Jogos') k.bonusJogo[j] = p.bonus.valor; else if (p.bonus.tipo === 'Assistências') k.bonusAssist[j] = p.bonus.valor; }
+    if (p.premio) s.lancar(this.clube, 'aquisicoes', p.premio);
+    if (p.agente) s.lancar(this.clube, 'agentes', p.agente);
+    this.m.recalcularFolha(this.clube);
+    st.moral[j] = Math.min(20, st.moral[j] + 2);
+    n.fase = 'concluida';
+    n.fala = `${st.nomes[j]} renovou até ${new Date(st.fimContrato[j] * 864e5).getUTCFullYear()}.`;
+    return n;
+  }
+
   /** Acordo completo: o negócio segue para os exames e o registo no motor do mercado (na semana seguinte). */
   private registar(n: NegUtilizador, dia: number, termos: TermosUtilizador | null, p?: PropostaJogador) {
     const m = this.m, st = this.st;
-    const neg = m.abrir(n.tipo === 'clausula' ? 'clausula' : n.tipo, n.jogador, this.clube, dia, n.acordo, n.acordo, {} as never);
+    const neg = m.abrir(n.tipo === 'renovacao' ? 'livre' : n.tipo, n.jogador, this.clube, dia, n.acordo, n.acordo, {} as never);
     if (!neg) return this.falhar(n, dia, 'Já há um negócio aberto por este jogador.');
     neg.estado = 'exames';
     neg.pedido = n.acordo;

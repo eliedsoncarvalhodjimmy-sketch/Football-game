@@ -12,9 +12,16 @@ import type { Temporada } from '../engine/season/temporada.ts';
 import { VERSAO_MOTOR } from '../config/interface.ts';
 import { POSICOES } from '../config/papeis.ts';
 import { vistaMercado, vistaNegociacao, vistaScouting, vistaAcademia, type VistaMercado, type VistaNegociacao, type VistaScouting, type VistaAcademia } from './vistasA3.ts';
+import { vistaStaff, vistaFinancas, vistaInfra, vistaCompeticoes, vistaEscritorio, type VistaStaff, type VistaFinancas, type VistaInfra, type VistaCompeticoes, type VistaEscritorio } from './vistasA4.ts';
 import { MercadoUtilizador, type TipoNeg, type PropostaJogador } from '../mercado/mercadoUtilizador.ts';
 import type { PosicaoMissao } from '../scouting/missoesJovens.ts';
 import { SCOUTS } from '../config/scouting.ts';
+import { TIPOS_INFRA } from '../config/infraestruturas.ts';
+import { N_INFRA } from '../club/store.ts';
+import { custoObra } from '../club/controlador.ts';
+import { indiceRiqueza } from '../economia/contratos.ts';
+import { Rng } from '../core/rng.ts';
+import { STAFF_UTILIZADOR, BILHETE_UTILIZADOR, OBRAS_UTILIZADOR } from '../config/negociacaoUtilizador.ts';
 import { FORMACAO_POR_ID, type Instrucoes } from '../config/tacticas.ts';
 import { vistaPlantel, vistaJogador, vistaTactica, zonasLiga, escalaoDe, type VistaPlantel, type VistaJogador, type VistaTactica } from './vistas.ts';
 
@@ -40,12 +47,28 @@ export type Comando =
   | { tipo: 'missao'; pais: string; posicao: PosicaoMissao; semanas: number }
   | { tipo: 'contratarJovem'; jogador: string }
   | { tipo: 'excedente'; libertar: string[] }
-  | { tipo: 'libertarJovem'; jogador: string };
+  | { tipo: 'libertarJovem'; jogador: string }
+  // A4: staff, treinador, finanças, infraestruturas
+  | { tipo: 'contratarStaff'; membro: string }
+  | { tipo: 'despedirStaff'; membro: string }
+  | { tipo: 'despedirTreinador'; motivo: 'resultados' | 'mutuo_acordo'; novo: string | null }
+  | { tipo: 'obra'; infra: (typeof TIPOS_INFRA)[number] }
+  | { tipo: 'orcamentos'; transferencias: number }
+  | { tipo: 'precoBilhete'; factor: number };
+
+/** Carreira do Presidente (acumulada nas semanas jogadas; reconstrói-se com a gravação). */
+export interface Carreira {
+  inicio: number; jogos: number; v: number; e: number; d: number; gm: number; gs: number;
+  maiorVitoria: { texto: string; dif: number } | null;
+  melhorMarcador: { nome: string; golos: number; jogos: number; epoca: string } | null;
+}
 /** Comando guardado no registo: aplica-se antes de simular a semana `semana` (0 = antes da primeira). */
 export interface ComandoRegistado { semana: number; tipo: Comando['tipo']; dados: Comando }
-export type PedidoVista = { ecra: 'plantel' } | { ecra: 'jogador'; jogador: string } | { ecra: 'tactica'; formacao?: string } | { ecra: 'mercado' } | { ecra: 'negociacao'; id: number } | { ecra: 'scouting' } | { ecra: 'academia' };
+export type PedidoVista = { ecra: 'plantel' } | { ecra: 'jogador'; jogador: string } | { ecra: 'tactica'; formacao?: string } | { ecra: 'mercado' } | { ecra: 'negociacao'; id: number } | { ecra: 'scouting' } | { ecra: 'academia' }
+  | { ecra: 'staff' } | { ecra: 'financas' } | { ecra: 'infra' } | { ecra: 'competicoes'; comp?: string } | { ecra: 'escritorio' };
 export type Vista = { ecra: 'plantel'; dados: VistaPlantel } | { ecra: 'jogador'; dados: VistaJogador } | { ecra: 'tactica'; dados: VistaTactica }
-  | { ecra: 'mercado'; dados: VistaMercado } | { ecra: 'negociacao'; dados: VistaNegociacao } | { ecra: 'scouting'; dados: VistaScouting } | { ecra: 'academia'; dados: VistaAcademia };
+  | { ecra: 'mercado'; dados: VistaMercado } | { ecra: 'negociacao'; dados: VistaNegociacao } | { ecra: 'scouting'; dados: VistaScouting } | { ecra: 'academia'; dados: VistaAcademia }
+  | { ecra: 'staff'; dados: VistaStaff } | { ecra: 'financas'; dados: VistaFinancas } | { ecra: 'infra'; dados: VistaInfra } | { ecra: 'competicoes'; dados: VistaCompeticoes } | { ecra: 'escritorio'; dados: VistaEscritorio };
 
 /** Tudo o que é preciso para reconstruir um jogo. */
 export interface RegistoJogo {
@@ -110,6 +133,7 @@ export class Sessao {
     prog('motor', 0.85, 'A preparar o calendário e o motor');
     this.sim = new Simulador(this.w);
     this.clube = -1;
+    this.carreira = null;
     this.registo = { versaoMotor: VERSAO_MOTOR, semente, clube: '', perfil: { nome: '', perfilDono: '' }, semanas: 0, comandos: [] };
     prog('pronto', 1, 'Mundo pronto');
     return this.paises();
@@ -214,6 +238,64 @@ export class Sessao {
         ac.decidirExcedente(c, dia, lib);
         break;
       }
+      case 'contratarStaff': {
+        const e = w.economia!, sm = e.staff;
+        const mb = sm.livres.find((x) => x.id === cmd.membro);
+        if (!mb) throw new Error('Esse membro já não está livre.');
+        const ocupados = (sm.porClube[c] ?? []).filter((x) => x.cargo === mb.cargo).length;
+        const max = sm.quantos(mb.cargo, w.reputacao[c], e.nivel(c, 'recrutamento'));
+        if (ocupados >= max) throw new Error(`Já tens ${max} no cargo: despede primeiro.`);
+        sm.livres = sm.livres.filter((x) => x !== mb);
+        const sal = sm.salario(c, mb.cargo, mb.nivel, e.clubes.receitaPrevista[c]);
+        sm.porClube[c].push({ ...mb, clube: c, salario: sal, contratoFim: dia + 3 * 365 });
+        e.registar(dia, c, 'staff', `contrata ${mb.nome} (${mb.cargo}, nível ${mb.nivel})`, sal);
+        break;
+      }
+      case 'despedirStaff': {
+        const e = w.economia!, sm = e.staff;
+        const mb = (sm.porClube[c] ?? []).find((x) => x.id === cmd.membro);
+        if (!mb) throw new Error('Esse membro não é do teu staff.');
+        const custo = Math.max(0, (mb.contratoFim - dia) / 365) * mb.salario * STAFF_UTILIZADOR.indemnizacao;
+        if (custo > 0) e.clubes.lancar(c, 'indemnizacoes', custo);
+        sm.porClube[c] = sm.porClube[c].filter((x) => x !== mb);
+        sm.livres.push({ ...mb, clube: -1, salario: 0 });
+        e.registar(dia, c, 'staff', `despede ${mb.nome} (${mb.cargo}): indemnização de ${Math.round(custo)} €`, custo);
+        break;
+      }
+      case 'despedirTreinador': {
+        const e = w.economia!, mt = e.mercadoT;
+        const novo = cmd.novo ? mt.livres.find((t) => t.id === cmd.novo) : undefined;
+        if (cmd.novo && !novo) throw new Error('Esse treinador já não está livre.');
+        if (novo && mt.probAceitar(novo, c) < 0.5) throw new Error(`${novo.nome} não aceita vir para o clube.`);
+        mt.despedir(c, dia, cmd.motivo, Rng.de(w.semente, 'despedir-utilizador', dia, w.clubes[c].id), 'decisão do presidente', novo);
+        break;
+      }
+      case 'obra': {
+        const e = w.economia!, s = e.clubes, k = TIPOS_INFRA.indexOf(cmd.infra);
+        if (k < 0) throw new Error('Infraestrutura desconhecida.');
+        const nivel = s.infra[c * N_INFRA + k];
+        if (nivel >= 10) throw new Error('Já está no nível máximo.');
+        if (s.obraFim[c * N_INFRA + k] > dia) throw new Error('Já há uma obra em curso nesta infraestrutura.');
+        const { custo } = custoObra(cmd.infra, nivel, indiceRiqueza(w, c));
+        if (s.caixa[c] < OBRAS_UTILIZADOR.caixa_minima * custo) throw new Error('Não há caixa para arrancar esta obra.');
+        e.iniciarObra(c, cmd.infra, dia);
+        break;
+      }
+      case 'orcamentos': {
+        const s = w.economia!.clubes;
+        const total = s.orcSalarios[c] + s.orcTransferencias[c];
+        const t = Math.round(cmd.transferencias);
+        if (!(t >= 0 && t <= total)) throw new Error('Valor fora do orçamento total.');
+        s.orcTransferencias[c] = t;
+        s.orcSalarios[c] = total - t;
+        break;
+      }
+      case 'precoBilhete': {
+        const B = BILHETE_UTILIZADOR;
+        if (!(cmd.factor >= B.minimo - 1e-9 && cmd.factor <= B.maximo + 1e-9)) throw new Error('Preço fora dos limites.');
+        w.economia!.precoBilhete.set(c, Math.round(cmd.factor * 100) / 100);
+        break;
+      }
       case 'libertarJovem': {
         const j = idx(cmd.jogador), ac = w.academia!;
         if (!ac.escalao[j]) throw new Error('Só se libertam jogadores do Sub-18 e do Sub-21 aqui.');
@@ -240,6 +322,11 @@ export class Sessao {
   vista(p: PedidoVista): Vista {
     const w = this.w!, dia = this.sim!.segunda;
     if (p.ecra === 'plantel') return { ecra: 'plantel', dados: vistaPlantel(w, this.clube, dia) };
+    if (p.ecra === 'staff') return { ecra: 'staff', dados: vistaStaff(w, this.clube, dia) };
+    if (p.ecra === 'financas') { const t = this.temporada(); return { ecra: 'financas', dados: vistaFinancas(w, this.clube, dia, t ? rotuloEpoca({ grupo: t.grupo, epoca: t.ano }) : '') }; }
+    if (p.ecra === 'infra') return { ecra: 'infra', dados: vistaInfra(w, this.clube, dia) };
+    if (p.ecra === 'competicoes') return { ecra: 'competicoes', dados: vistaCompeticoes(w, this.clube, this.temporada(), this.sim!.historico, p.comp) };
+    if (p.ecra === 'escritorio') return { ecra: 'escritorio', dados: vistaEscritorio(w, this.clube, dia, this.registo?.perfil.nome ?? '', this.carreira, this.sim!.historico) };
     if (p.ecra === 'mercado') return { ecra: 'mercado', dados: vistaMercado(w, this.clube, dia) };
     if (p.ecra === 'negociacao') return { ecra: 'negociacao', dados: vistaNegociacao(w, this.clube, p.id, dia) };
     if (p.ecra === 'scouting') return { ecra: 'scouting', dados: vistaScouting(w, this.clube, dia) };
@@ -251,10 +338,35 @@ export class Sessao {
   }
 
   /** Avança uma semana. */
+  carreira: Carreira | null = null;
+
   avancar(): JogoR[] {
+    const t = this.temporada();
+    const ep = t ? rotuloEpoca({ grupo: t.grupo, epoca: t.ano }) : '';
+    // Melhor marcador da época (antes de o fecho da época zerar as estatísticas).
+    this.notarMarcador(ep);
     const jogos = this.sim!.simularSemana();
     this.registo!.semanas++;
+    const c = this.clube, w = this.w!;
+    const k = (this.carreira ??= { inicio: this.sim!.segunda - 7, jogos: 0, v: 0, e: 0, d: 0, gm: 0, gs: 0, maiorVitoria: null, melhorMarcador: null });
+    for (const j of jogos) {
+      if (!j.r || (j.casa !== c && j.fora !== c)) continue;
+      const casa = j.casa === c, gm = casa ? j.r.gc : j.r.gf, gs = casa ? j.r.gf : j.r.gc;
+      k.jogos++; k.gm += gm; k.gs += gs;
+      if (gm > gs) k.v++; else if (gm < gs) k.d++; else k.e++;
+      if (gm - gs > (k.maiorVitoria?.dif ?? 0)) k.maiorVitoria = { dif: gm - gs, texto: `${w.clubes[j.casa].nome} ${j.r.gc}–${j.r.gf} ${w.clubes[j.fora].nome}` };
+    }
     return jogos;
+  }
+
+  private notarMarcador(epoca: string) {
+    if (!this.carreira || !this.w) return;
+    const st = this.w.jogadores!, c = this.clube;
+    for (const j of this.w.plantel[c] ?? []) {
+      if (st.clube[j] !== c) continue;
+      const m = this.carreira.melhorMarcador;
+      if (st.eGolos[j] > (m?.golos ?? 0)) this.carreira.melhorMarcador = { nome: st.nomes[j], golos: st.eGolos[j], jogos: st.eJogos[j], epoca };
+    }
   }
 
   /** Reconstrói um jogo gravado (mesmo mundo, mesmas semanas e comandos). */
@@ -309,7 +421,7 @@ export class Sessao {
     if (t) {
       for (const j of t.jogos) if (j.casa === c || j.fora === c) meus.push(j);
       for (let s = t.semana; s < t.semana + 12 && !proximo; s++) {
-        for (const cp of t.comps) for (const j of cp.jogosDaSemana(s)) if ((j.casa === c || j.fora === c) && !j.r && (!proximo || j.semana * 7 + j.dia < proximo.semana * 7 + proximo.dia)) proximo = j;
+        for (const cp of t.comps) for (const j of cp.jogosPrevistos?.(s) ?? []) if ((j.casa === c || j.fora === c) && !j.r && (!proximo || j.semana * 7 + j.dia < proximo.semana * 7 + proximo.dia)) proximo = j;
       }
     }
     const zonas = l >= 0 ? zonasLiga(w, l) : [];

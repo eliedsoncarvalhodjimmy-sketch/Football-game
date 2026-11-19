@@ -73,3 +73,17 @@ export const OFERTAS_RECEBIDAS = { espera_dias: 14 };
 
 /** Shortlist do utilizador: máximo de jogadores e observações extra por semana (cada olheiro observa x da shortlist). */
 export const SHORTLIST = { maximo: 30, observacoes_por_olheiro: 2 };
+
+/** A4 — decisões do utilizador fora do mercado. */
+export const RENOVACAO = {
+  /** Só se renova quem tem até N anos de contrato. */
+  anos_maximos: 2,
+};
+export const STAFF_UTILIZADOR = {
+  /** Despedir um membro do staff: indemnização = x × o salário que faltava pagar. */
+  indemnizacao: 0.5,
+};
+/** Preço dos bilhetes (multiplicador do preço base do clube): a ocupação desce com (1/preço)^elasticidade. */
+export const BILHETE_UTILIZADOR = { minimo: 0.6, maximo: 1.6, passo: 0.05, elasticidade: 0.55 };
+/** Obras: a caixa tem de cobrir pelo menos x do custo total para arrancar. */
+export const OBRAS_UTILIZADOR = { caixa_minima: 0.25 };

@@ -702,6 +702,7 @@ export class Mercado {
       if (!doUtilizador) for (const j of e.controlador(c).listarParaVenda?.(w, e, c) ?? []) if (st.clube[j] === c && !this.contratos.listado[j]) this.contratos.listado[j] = 1;
       // Renovações (último ano de contrato): os melhores e os jovens de potencial.
       for (const [i, j] of pl.entries()) {
+        if (doUtilizador) break; // as renovações do utilizador fazem-se no Escritório
         const anos = (st.fimContrato[j] - dia) / 365;
         if (anos > 1 || anos < 0 || this.contratos.preContrato[j] >= 0) continue;
         const quer = i < IA.renovar_melhores || (st.idade(j, dia) <= 23 && st.pot[j] >= st.ovrNat(j) + 5);

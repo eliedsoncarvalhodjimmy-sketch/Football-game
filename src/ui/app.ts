@@ -11,6 +11,8 @@ import type { Instrucoes } from '../config/tacticas.ts';
 import { htmlInicio, htmlPlantel, htmlJogador, htmlTactica, tabelaLiga, type UiPlantel, type Rascunho } from './ecras.ts';
 import { htmlMercado, htmlNegociacao, htmlAcademia, htmlScouting, rascunhoInicial, type UiMercado, type UiAcademia, type RascNeg } from './ecrasA3.ts';
 import { eventoA3, mudancaA3, entradaA3, SELECTOR, ligarA3 } from './eventosA3.ts';
+import { htmlStaff, htmlFinancas, htmlInfra, htmlCompeticoes, htmlEscritorio, type UiStaff, type UiComp } from './ecrasA4.ts';
+import { eventoA4, mudancaA4, entradaA4, SELECTOR_A4, ligarA4 } from './eventosA4.ts';
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const fE = (v: number) => `€${Math.round(v).toLocaleString('pt-PT')}`;
@@ -238,12 +240,15 @@ const INFERIOR = ['inicio', 'plantel', 'mercado', 'classificacao'];
 
 // Estado dos ecrãs da A2.
 const UI: { plantel: UiPlantel; jogador: string | null; voltar: string; vista: Vista | null; rascunho: Rascunho | null; formacaoVer: string | null;
-  mercado: UiMercado; academia: UiAcademia; neg: number | null; rascNeg: RascNeg | null; rascNegId: number | null; extra: Vista | null } = {
+  mercado: UiMercado; academia: UiAcademia; neg: number | null; rascNeg: RascNeg | null; rascNegId: number | null; extra: Vista | null;
+  staff: UiStaff; comp: UiComp; orcRasc: number | null } = {
   plantel: { tab: 'principal', filtro: 'Todos', pesquisa: '' }, jogador: null, voltar: 'plantel', vista: null, rascunho: null, formacaoVer: null,
   mercado: { tab: 'geral', pesquisa: '', pos: '', idade: '', liga: '', conh: '' },
   academia: { ala: 'academia', tab: 'Percurso', escJ: 0, tabJ: 'Classificação', pais: 'BRA', posicao: 'Avançados', semanas: 4, missao: null, zoom: 'Mundo', excedente: null, ligasScout: null },
   neg: null, rascNeg: null, rascNegId: null, extra: null,
+  staff: { cargo: '', trocarTreinador: false, motivo: 'mutuo_acordo' }, comp: { comp: '', tab: 'Classificação', premio: 'melhor_do_mundo' }, orcRasc: null,
 };
+ligarA4({ UI, comando: (c) => comando(c), carregarVista: () => carregarVista(), desenharVista: (a) => desenharVista(a) });
 ligarA3({
   UI, ecra: () => E.ecra, definirEcra: (e) => { E.ecra = e; }, comando: (c) => comando(c), carregarVista: () => carregarVista(),
   desenharVista: (a) => desenharVista(a), irPara: (e) => irPara(e), ecraJogo: () => ecraJogo(),
@@ -253,7 +258,7 @@ function ecraJogo() {
   const r = E.resumo!;
   document.documentElement.style.setProperty('--acento', r.clube.cores[0]);
   document.documentElement.style.setProperty('--acento-2', r.clube.cores[1]);
-  const activo = E.ecra === 'jogador' ? (UI.voltar === 'jogador' ? 'plantel' : UI.voltar) : E.ecra === 'negociacao' ? 'mercado' : E.ecra;
+  const activo = E.ecra === 'jogador' ? (UI.voltar === 'jogador' ? 'plantel' : UI.voltar) : E.ecra === 'negociacao' ? (['escritorio', 'mercado'].includes(UI.voltar) ? UI.voltar : 'mercado') : E.ecra;
   const nav = (k: string, t: string) => `<a class="nav ${k === activo ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${t}</a>`;
   raiz().innerHTML = `<div class="app">
     <nav class="lateral" aria-label="Navegação principal"><div class="marca">${escudo(r.clube.cores)}<div><b>FutCEO</b><small>${esc(r.clube.nome)}</small></div></div>
@@ -298,15 +303,15 @@ async function avancar() {
 /** Ecrãs que só precisam do resumo (os outros pedem uma vista ao worker). */
 function conteudoSincrono(r: Resumo): string | null {
   if (E.ecra === 'inicio') return htmlInicio(r);
-  if (E.ecra === 'classificacao') return `<div class="topo"><h1>Competições</h1><span class="sub">${esc(r.clube.ligaNome)} · época ${r.epoca}</span></div><section class="c">${tabelaLiga(r, true)}</section><section class="c em-breve" style="margin-top:12px"><h2>Mais em breve</h2><div>Calendário, taças, competições continentais, estatísticas e histórico chegam na parte A4.</div></section>`;
-  if (['plantel', 'jogador', 'mercado', 'negociacao', 'academia'].includes(E.ecra)) return null;
+  if (['plantel', 'jogador', 'mercado', 'negociacao', 'academia', 'staff', 'financas', 'infra', 'classificacao', 'escritorio'].includes(E.ecra)) return null;
   const [, t, parte] = ECRAS.find((x) => x[0] === E.ecra)!;
   return `<div class="topo"><h1>${t}</h1></div><section class="c em-breve"><h2>Em construção</h2><div>Este ecrã chega na parte ${parte} do Bloco A. O desenho é o do protótipo.</div></section>`;
 }
 
 async function carregarVista() {
   const ecra = E.ecra;
-  const pedido: PedidoVista = ecra === 'jogador' ? { ecra: 'jogador', jogador: UI.jogador! } : ecra === 'mercado' ? { ecra: 'mercado' } : ecra === 'negociacao' ? { ecra: 'negociacao', id: UI.neg! }
+  const pedido: PedidoVista = ecra === 'staff' ? { ecra: 'staff' } : ecra === 'financas' ? { ecra: 'financas' } : ecra === 'infra' ? { ecra: 'infra' } : ecra === 'escritorio' ? { ecra: 'escritorio' }
+    : ecra === 'classificacao' ? { ecra: 'competicoes', ...(UI.comp.comp ? { comp: UI.comp.comp } : {}) } : ecra === 'jogador' ? { ecra: 'jogador', jogador: UI.jogador! } : ecra === 'mercado' ? { ecra: 'mercado' } : ecra === 'negociacao' ? { ecra: 'negociacao', id: UI.neg! }
     : ecra === 'academia' ? (UI.academia.ala === 'scouting' ? { ecra: 'scouting' } : { ecra: 'academia' })
     : UI.plantel.tab === 'tactica' ? { ecra: 'tactica', ...(UI.formacaoVer ? { formacao: UI.formacaoVer } : {}) } : { ecra: 'plantel' };
   const extra: PedidoVista | null = pedido.ecra === 'tactica' ? { ecra: 'plantel' } : pedido.ecra === 'scouting' ? { ecra: 'mercado' } : null;
@@ -327,7 +332,12 @@ async function carregarVista() {
 function desenharVista(alvo: HTMLElement) {
   const v = UI.vista, x = UI.extra;
   if (!v) return;
-  if (v.ecra === 'mercado') alvo.innerHTML = htmlMercado(v.dados, UI.mercado);
+  if (v.ecra === 'staff') alvo.innerHTML = htmlStaff(v.dados, UI.staff);
+  else if (v.ecra === 'financas') alvo.innerHTML = htmlFinancas(v.dados, UI.orcRasc);
+  else if (v.ecra === 'infra') alvo.innerHTML = htmlInfra(v.dados);
+  else if (v.ecra === 'competicoes') alvo.innerHTML = htmlCompeticoes(v.dados, UI.comp);
+  else if (v.ecra === 'escritorio') alvo.innerHTML = htmlEscritorio(v.dados);
+  else if (v.ecra === 'mercado') alvo.innerHTML = htmlMercado(v.dados, UI.mercado);
   else if (v.ecra === 'negociacao') {
     if (!UI.rascNeg || UI.rascNegId !== v.dados.neg.id) { UI.rascNeg = rascunhoInicial(v.dados); UI.rascNegId = v.dados.neg.id; }
     alvo.innerHTML = htmlNegociacao(v.dados, UI.rascNeg);
@@ -346,10 +356,11 @@ function desenharVista(alvo: HTMLElement) {
 /** Eventos do conteúdo (delegação): navegação, filtros do plantel, promoções e a táctica. */
 function ligarConteudo(alvo: HTMLElement) {
   alvo.addEventListener('click', async (ev) => {
-    const el = (ev.target as HTMLElement).closest<HTMLElement>(SELECTOR);
+    const el = (ev.target as HTMLElement).closest<HTMLElement>(`${SELECTOR},${SELECTOR_A4}`);
     if (!el) return;
     const d = el.dataset;
     if (await eventoA3(el, alvo)) return;
+    if (await eventoA4(el, alvo)) return;
     if (d.promover) { ev.stopPropagation(); return promover(d.promover, d.nome ?? '', d.para ?? ''); }
     if (d.titular) {
       const [k, id] = d.titular.split(':');
@@ -384,10 +395,10 @@ function ligarConteudo(alvo: HTMLElement) {
       if (await comando(cmd)) { UI.rascunho = null; UI.formacaoVer = null; void carregarVista(); }
     }
   });
-  alvo.addEventListener('change', (ev) => mudancaA3(ev.target as HTMLElement, alvo));
+  alvo.addEventListener('change', (ev) => { if (!mudancaA4(ev.target as HTMLElement, alvo)) mudancaA3(ev.target as HTMLElement, alvo); });
   alvo.addEventListener('input', (ev) => {
     const t = ev.target as HTMLInputElement;
-    if (entradaA3(t, alvo)) return;
+    if (entradaA4(t, alvo) || entradaA3(t, alvo)) return;
     if (t.id !== 'f-pesq') return;
     UI.plantel.pesquisa = t.value;
     if (UI.vista?.ecra === 'plantel') {

@@ -30,6 +30,8 @@ export class CompLiga implements Competicao {
     return this.porSemana.get(s) ?? [];
   }
 
+  jogosPrevistos(s: number): JogoR[] { return this.porSemana.get(s) ?? []; }
+
   registar(j: JogoR) {
     this.tabela.registar(j.casa, j.fora, j.r!.gc, j.r!.gf);
     this.registados++;

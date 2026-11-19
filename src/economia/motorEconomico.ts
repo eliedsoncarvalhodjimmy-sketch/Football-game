@@ -5,6 +5,7 @@
 //   - abertura de época: contratos dos novos, receita prevista e orçamentos (decisão do controlador).
 // A economia não mexe na força das equipas (até ao mercado do Prompt 4): só as instalações de treino e médicas
 // têm efeitos pequenos e limitados no jogo.
+import { BILHETE_UTILIZADOR } from '../config/negociacaoUtilizador.ts';
 import { Rng } from '../core/rng.ts';
 import type { World } from '../engine/world.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
@@ -331,6 +332,18 @@ export class Economia {
     return tv + bilhete + this.clubes.patrocinio[c] + this.clubes.paraquedas[c];
   }
 
+  /** Preço dos bilhetes escolhido pelo utilizador (multiplicador; 1 = o preço base do clube). */
+  precoBilhete = new Map<number, number>();
+
+  /** Lança a obra do tipo dado (próximo nível): custo pago por semana até ao fim. */
+  iniciarObra(c: number, tipo: (typeof TIPOS_INFRA)[number], dia: number) {
+    const s = this.clubes, k = TIPOS_INFRA.indexOf(tipo);
+    const { custo, semanas } = custoObra(tipo, s.infra[c * N_INFRA + k], indiceRiqueza(this.w, c));
+    s.obraFim[c * N_INFRA + k] = dia + semanas * 7;
+    s.obraSemanal[c * N_INFRA + k] = custo / semanas;
+    return { custo, semanas };
+  }
+
   /** Receita de bilheteira de um jogo em casa (adversário −1 = médio). */
   receitaJogo(c: number, adv: number, tipo: 'liga' | 'taca' | 'continental' | 'playoff'): number {
     const w = this.w, s = this.clubes;
@@ -346,6 +359,8 @@ export class Economia {
     if (tipo === 'continental') { preco *= B.preco_continental; ocup += B.ocupacao_continental; }
     else if (tipo === 'taca') preco *= B.preco_taca;
     else if (tipo === 'playoff') { preco *= B.preco_playoff; ocup += B.ocupacao_continental; }
+    const f = this.precoBilhete.get(c);
+    if (f) { preco *= f; ocup *= Math.pow(1 / f, BILHETE_UTILIZADOR.elasticidade); }
     return s.capacidade[c] * clamp(ocup, B.ocupacao.min, 1) * preco;
   }
 
@@ -401,12 +416,7 @@ export class Economia {
       // Em crise (caixa negativa) suspende as obras em curso.
       if (s.caixa[c] < 0) for (let k = 0; k < N_INFRA; k++) if (s.obraSemanal[c * N_INFRA + k]) { s.obraSemanal[c * N_INFRA + k] = 0; s.obraFim[c * N_INFRA + k] = 0; }
       const tipo = this.controlador(c).obra(w, this, c, dia);
-      if (tipo) {
-        const k = TIPOS_INFRA.indexOf(tipo);
-        const { custo, semanas } = custoObra(tipo, s.infra[c * N_INFRA + k], indiceRiqueza(w, c));
-        s.obraFim[c * N_INFRA + k] = dia + semanas * 7;
-        s.obraSemanal[c * N_INFRA + k] = custo / semanas;
-      }
+      if (tipo) this.iniciarObra(c, tipo, dia);
       gerirMes(this, c, dia);
     }
     if (this.w.motor && this.w.jogadores) this.ia.mes(dia);

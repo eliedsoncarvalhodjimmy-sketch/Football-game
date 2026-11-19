@@ -86,6 +86,12 @@ export class GruposEliminatorias implements Competicao {
     return [...out, ...this.ko.jogosDaSemana(s)];
   }
 
+  jogosPrevistos(s: number): JogoR[] {
+    const out: JogoR[] = [];
+    for (const g of this.grupos) for (const j of g.jogos) if (j.semana === s) out.push(j);
+    return [...out, ...this.ko.jogosPrevistos(s)];
+  }
+
   registar(j: JogoR) {
     if (j.comp === this.id) {
       this.grupos.find((g) => g.clubes.includes(j.casa))!.tabela.registar(j.casa, j.fora, j.r!.gc, j.r!.gf);

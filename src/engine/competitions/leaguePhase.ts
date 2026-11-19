@@ -245,6 +245,8 @@ export class FaseLigaUEFA implements Competicao {
     return [...this.jogos.filter((j) => j.semana === s), ...this.playoff.jogosDaSemana(s), ...this.final.jogosDaSemana(s)];
   }
 
+  jogosPrevistos(s: number): JogoR[] { return [...this.jogos.filter((j) => j.semana === s), ...this.playoff.jogosPrevistos(s), ...this.final.jogosPrevistos(s)]; }
+
   registar(j: JogoR) {
     if (j.comp === this.id) { this.tabela.registar(j.casa, j.fora, j.r!.gc, j.r!.gf); this.registados++; }
     else if (j.comp === this.playoff.id) this.playoff.registar(j);
