@@ -17,7 +17,8 @@
     "players": "tsx src/cli/players.ts",
     "simulate-match": "tsx src/cli/simulate-match.ts",
     "club": "tsx src/cli/club.ts",
-    "imprensa": "tsx src/cli/imprensa.ts"
+    "imprensa": "tsx src/cli/imprensa.ts",
+    "exemplo-decisao": "tsx src/cli/exemplo-decisao.ts"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
