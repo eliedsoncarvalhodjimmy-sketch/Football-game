@@ -2395,8 +2395,9 @@ function desenhar() {
 // intervalo para falar com o treinador, e no fim (notas, homem do jogo, outros resultados). A simulação é a do jogo
 // (src/engine/jogo2d/Simulacao2D.ts, motor de decisão v1), empacotada em FutCEO2D.
 let JG = null, jgRaf = null;
-// Velocidade: ticks de 100 ms simulados por segundo real. 1× = 1 minuto de jogo em 3 segundos (200 ticks/s); 2× é a omissão.
-const JG_VEL = [['1×', 200], ['2×', 400], ['4×', 800], ['8×', 1600]];
+// Velocidade: ticks de 100 ms simulados por segundo real. 1× = o jogo inteiro (90 min) em 15 minutos reais, ou seja,
+// 1 minuto de jogo em 10 segundos (60 ticks/s); 2× é a omissão.
+const JG_VEL = [['1×', 60], ['2×', 120], ['4×', 240], ['8×', 480]];
 const JG_ESTILO = 'gegenpressen', JG_FORM = '4-3-3';
 function gerarJogo() {
   const pj = proximoJogo(), adv = pj.j.adv, casa = pj.j.casa;
