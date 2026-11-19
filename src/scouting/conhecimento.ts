@@ -41,6 +41,8 @@ export class Scouting {
   fam: Float32Array;
   /** Ligas atribuídas aos scouts de cada clube. */
   atribuicao: number[][] = [];
+  /** Atribuições escolhidas pelo utilizador (não são refeitas nas janelas). */
+  fixas = new Set<number>();
   /** Top 14 de cada clube (para o conhecimento dos adversários nos jogos), actualizado todos os meses. */
   private topo: number[][] = [];
   private base: number;

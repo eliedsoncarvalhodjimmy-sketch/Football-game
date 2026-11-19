@@ -305,7 +305,7 @@ async function carregarVista() {
     if (!alvo) return;
     if (v.vista.ecra === 'plantel') alvo.innerHTML = htmlPlantel(v.vista.dados, UI.plantel);
     else if (v.vista.ecra === 'jogador') alvo.innerHTML = htmlJogador(v.vista.dados);
-    else {
+    else if (v.vista.ecra === 'tactica') {
       const t = v.vista.dados;
       if (!UI.rascunho) UI.rascunho = { estilo: null, formacao: t.formacao, instrucoes: { ...t.instrucoes }, onze: null, trocas: {} };
       const pl = n?.vista.ecra === 'plantel' ? n.vista.dados : null;

@@ -19,6 +19,8 @@ import { aceita, salarioPedido, actualizarDescontentamento, pontuarProposta } fr
 import { salarioMercado, indiceRiqueza, fimDeEpoca } from '../economia/contratos.ts';
 import type { World } from '../engine/world.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
+import type { MercadoUtilizador, TermosUtilizador } from './mercadoUtilizador.ts';
+import { NEG_CLUBE } from '../config/negociacaoUtilizador.ts';
 
 export type TipoNegocio = 'transferencia' | 'livre' | 'emprestimo' | 'clausula' | 'pre_contrato' | 'formacao';
 export type EstadoNegocio = 'oferta' | 'termos' | 'exames' | 'registo' | 'concluido' | 'falhou';
@@ -44,6 +46,10 @@ export interface Negocio {
   motivo?: string;
   /** Empréstimo: fracção do salário paga pelo clube que recebe, opção/obrigação de compra. */
   emprestimo?: { salario: number; opcao: number; obrigacao: boolean };
+  /** Negócio fechado pelo utilizador (Prompt 5): os termos que ele acordou substituem os sorteados. */
+  util?: TermosUtilizador;
+  /** Oferta por um jogador do utilizador à espera da resposta dele. */
+  aguardaUtilizador?: boolean;
 }
 
 export interface Parcela { pagador: number; recebedor: number; valor: number; dia: number }
@@ -81,6 +87,8 @@ export class Mercado {
   private emprestaveis = new Map<string, number[]>();
   private ordem = new Map<number, number>();
   private hoje = 0;
+  /** Mercado do clube do utilizador (Prompt 5): negociações, ofertas recebidas, shortlist. */
+  util: MercadoUtilizador | null = null;
 
   constructor(public w: World, clausulasCsv: Record<string, string>[] = []) {
     const st = w.jogadores!;
@@ -225,6 +233,11 @@ export class Mercado {
     }
   }
 
+  /** Listados para venda e emprestáveis (todos os grupos), para a interface do Mercado. */
+  todosListados(): number[] { return GRUPOS.flatMap((g) => this.listados.get(g) ?? []); }
+  todosEmprestaveis(): number[] { return GRUPOS.flatMap((g) => this.emprestaveis.get(g) ?? []); }
+  todosLivres(): number[] { return GRUPOS.flatMap((g) => this.livres.get(g) ?? []); }
+
   /** Amostra de até n jogadores do grupo com OVR em [a, b] (pesquisa binária no índice). */
   amostra(g: string, a: number, b: number, n: number, rng: Rng): number[] {
     const ovr = this.ovrGrupo.get(g)!, idx = this.porGrupo.get(g)!;
@@ -341,6 +354,11 @@ export class Mercado {
     const rival = this.interessados(n.jogador);
     if (n.estado === 'oferta') {
       if (n.tipo === 'emprestimo' && this.plantel(n.vendedor).length <= K_MIN) return this.falhar(n, `${w.clubes[n.vendedor].nome} não empresta: plantel no mínimo`);
+      if (n.tipo === 'emprestimo' && this.util && n.vendedor === this.util.clube) {
+        const r = this.util.respostaOferta(n);
+        if (r === 'aguarda') { n.aguardaUtilizador = true; return; }
+        if (r !== 'aceitar') return this.falhar(n, r === 'expirou' ? `${w.clubes[n.vendedor].nome} não respondeu ao pedido de empréstimo` : `${w.clubes[n.vendedor].nome} recusa emprestar`);
+      }
       if (n.tipo === 'emprestimo') { n.estado = 'termos'; n.rondas.push({ dia: n.dia, texto: `${w.clubes[n.vendedor].nome} aceita emprestar` }); return; }
       if (st.clube[n.jogador] !== n.vendedor) return this.falhar(n, 'o jogador já saiu do clube');
       // O vendedor não fica abaixo do plantel mínimo (excepto na venda forçada).
@@ -350,7 +368,17 @@ export class Mercado {
       const pp = precoPedido(w, this, n.jogador, n.comprador, n.dia, rival.length);
       n.pedido = pp.preco;
       // Contra-proposta do vendedor igualada: aceita.
-      const resp = n.contra && n.oferta >= n.contra ? 'aceitar' : e.controlador(n.vendedor).responderOferta?.(w, e, n.vendedor, { jogador: n.jogador, comprador: n.comprador, oferta: n.oferta, pedido: n.pedido }) ?? this.respostaIA(n);
+      let resp: 'aceitar' | 'recusar' | { contra: number };
+      if (n.contra && n.oferta >= n.contra) resp = 'aceitar';
+      else if (this.util && n.vendedor === this.util.clube) {
+        // Jogador do utilizador: a oferta espera a resposta dele (Mercado → Ofertas).
+        const r = this.util.respostaOferta(n);
+        if (r === 'aguarda') { n.aguardaUtilizador = true; return; }
+        n.aguardaUtilizador = false;
+        if (r === 'expirou') return this.falhar(n, `${w.clubes[n.vendedor].nome} não respondeu à oferta`);
+        if (r === 'recusar') return this.falhar(n, `${w.clubes[n.vendedor].nome} recusa vender`);
+        resp = r;
+      } else resp = e.controlador(n.vendedor).responderOferta?.(w, e, n.vendedor, { jogador: n.jogador, comprador: n.comprador, oferta: n.oferta, pedido: n.pedido }) ?? this.respostaIA(n);
       if (resp === 'aceitar') {
         // Leilão: com outros interessados, o preço sobe em lances de +5% até só sobrar quem pode pagar.
         const outros = rival.filter((x) => x !== n && x.estado === 'oferta');
@@ -461,11 +489,17 @@ export class Mercado {
       const fee = n.tipo === 'livre' ? 0 : n.oferta;
       if (fee > 0) {
         // Pagamento: sempre um valor à vista; só alguns vendedores aceitam o resto em parcelas.
-        const aceitaParcelas = fee > CONTRATO.parcelas_acima && rng.chance(CONTRATO.parcelas_aceita[Math.min(2, s.saude[de])]);
-        const vista = aceitaParcelas ? Math.round((fee * (CONTRATO.parcelas_vista[0] + rng.next() * (CONTRATO.parcelas_vista[1] - CONTRATO.parcelas_vista[0]))) / 100000) * 100000 : fee;
+        const U = n.util, parcU = U ? NEG_CLUBE.parcelas.find((x) => x.id === U.parcelas) ?? NEG_CLUBE.parcelas[0] : null;
+        const aceitaParcelas = parcU ? parcU.n > 0 : fee > CONTRATO.parcelas_acima && rng.chance(CONTRATO.parcelas_aceita[Math.min(2, s.saude[de])]);
+        const vista = parcU ? Math.round(fee * parcU.vista) : aceitaParcelas ? Math.round((fee * (CONTRATO.parcelas_vista[0] + rng.next() * (CONTRATO.parcelas_vista[1] - CONTRATO.parcelas_vista[0]))) / 100000) * 100000 : fee;
         s.lancar(para, 'aquisicoes', vista);
         s.lancar(de, 'transferencias', vista);
-        if (vista < fee) {
+        if (vista < fee && parcU) {
+          const resto = fee - vista;
+          s.dividaParcelas[para] += resto;
+          for (let a = 1; a <= parcU.n; a++) this.parcelas.push({ pagador: para, recebedor: de, valor: resto / parcU.n, dia: n.dia + a * parcU.dias });
+          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${parcU.n} parcelas de ${M(resto / parcU.n)}` });
+        } else if (vista < fee) {
           let u = rng.next() * CONTRATO.esquemas.reduce((a, x) => a + x.peso, 0);
           const esq = CONTRATO.esquemas.find((x) => (u -= x.peso) < 0) ?? CONTRATO.esquemas[0];
           const nP = rng.int(esq.max === 1 ? 1 : 2, esq.max);
@@ -474,7 +508,7 @@ export class Mercado {
           for (let a = 1; a <= nP; a++) this.parcelas.push({ pagador: para, recebedor: de, valor: resto / nP, dia: n.dia + a * esq.dias });
           n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${nP} parcela(s) ${esq.nome}(is) de ${M(resto / nP)}` });
         } else n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(fee)} à vista` });
-        s.lancar(para, 'agentes', CONTRATO.agentes * fee);
+        s.lancar(para, 'agentes', n.util ? n.util.agente : CONTRATO.agentes * fee);
         // % de venda futura a favor de um clube anterior.
         const vf = k.vendaFutura.get(j);
         if (vf && vf.clube !== para) {
@@ -486,7 +520,16 @@ export class Mercado {
         }
         // Cláusulas novas: recompra (vendedor formador/vendedor, jovem) e % de venda futura.
         const arq = e.ia?.arquetipo[de];
-        if ((arq === 'formador' || arq === 'vendedor') && st.idade(j, n.dia) <= 22 && rng.chance(CONTRATO.prob_recompra)) {
+        if (n.util) {
+          // Termos do utilizador: a % de venda futura acordada (e nada sorteado); o jogador da troca passa para o vendedor.
+          if (n.util.vendaFutura > 0) k.vendaFutura.set(j, { clube: de, pct: n.util.vendaFutura / 100, sobreLucro: false, custo: fee });
+          const t = n.util.troca;
+          if (t !== null && st.clube[t] === para) {
+            this.mover(t, para, de, n.dia);
+            k.listado[t] = 0;
+            n.rondas.push({ dia: n.dia, texto: `${st.nomes[t]} segue para o ${w.clubes[de].nome} na troca` });
+          }
+        } else if ((arq === 'formador' || arq === 'vendedor') && st.idade(j, n.dia) <= 22 && rng.chance(CONTRATO.prob_recompra)) {
           k.recompra.set(j, { clube: de, valor: Math.round(fee * CONTRATO.recompra_multiplo), ate: n.dia + CONTRATO.recompra_anos * 365 });
           n.rondas.push({ dia: n.dia, texto: `cláusula de recompra: o ${w.clubes[de].nome} pode recomprar por ${M(fee * CONTRATO.recompra_multiplo)} durante ${CONTRATO.recompra_anos} anos` });
         } else if (rng.chance(CONTRATO.prob_venda_futura)) {
@@ -499,18 +542,23 @@ export class Mercado {
         this.vendasJanela.set(de, (this.vendasJanela.get(de) ?? 0) + fee);
         if (n.tipo === 'clausula') this.estat.clausulas++; else this.estat.transferencias++;
       } else {
-        s.lancar(para, 'agentes', CONTRATO.agentes * n.salario);
+        s.lancar(para, 'agentes', n.util ? n.util.agente : CONTRATO.agentes * n.salario);
         this.estat.livres++;
       }
-      // Contrato novo.
+      // Contrato novo (os anos acordados pelo utilizador, ou sorteados pela idade).
       const [a0, a1] = CONTRATO.anos(st.idade(j, n.dia));
       st.salario[j] = n.salario;
-      st.fimContrato[j] = fimDeEpoca(w, para, n.dia + 60, rng.int(a0, a1));
+      st.fimContrato[j] = fimDeEpoca(w, para, n.dia + 60, n.util ? n.util.anos : rng.int(a0, a1));
+      if (n.util?.premio) s.lancar(para, 'aquisicoes', n.util.premio);
       k.estatuto[j] = ESTATUTOS.indexOf(n.estatuto);
       k.clausula[j] = 0; k.listado[j] = 0; k.descontentamento[j] = 0; k.livreDesde[j] = 0; k.preContrato[j] = -1; k.salarioAnterior.delete(j);
       k.emprestimo.delete(j);
       this.bonus(j);
-      this.talvezClausula(j, para, n.dia, rng);
+      if (n.util) {
+        if (n.util.clausula > 0) { k.clausula[j] = n.util.clausula; k.clausulaDesde[j] = n.dia; }
+        const b = n.util.bonus;
+        if (b && b.modo === 'Por cada') { if (b.tipo === 'Golos') k.bonusGolo[j] = b.valor; else if (b.tipo === 'Jogos') k.bonusJogo[j] = b.valor; else if (b.tipo === 'Assistências') k.bonusAssist[j] = b.valor; }
+      } else this.talvezClausula(j, para, n.dia, rng);
       this.estruturaSalarial(para, j);
       if (de >= 0) this.mover(j, de, para, n.dia);
       else { st.clube[j] = para; w.plantel[para].push(j); k.chegada[j] = n.dia; const g = this.livres.get(this.grupo(j))!; const i = g.indexOf(j); if (i >= 0) g.splice(i, 1); }
@@ -579,6 +627,7 @@ export class Mercado {
       }
     }
     this.negocios = this.negocios.filter((n) => n.estado !== 'concluido' && n.estado !== 'falhou');
+    this.util?.semana(segunda);
     if (this.concluidos.length > 4000) this.concluidos = this.concluidos.slice(-2000);
   }
 
@@ -589,7 +638,7 @@ export class Mercado {
     this.scouting.actualizarTopo();
     // Os scouts são reatribuídos no início de cada janela (Julho e Janeiro).
     const mes = new Date(dia * 864e5).getUTCMonth();
-    if (mes === 0 || mes === 6) for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0) this.scouting.atribuir(c, Rng.de(w.semente, 'scouts', w.clubes[c].id, dia));
+    if (mes === 0 || mes === 6) for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0 && !this.scouting.fixas.has(c)) this.scouting.atribuir(c, Rng.de(w.semente, 'scouts', w.clubes[c].id, dia));
     for (let c = 0; c < w.clubes.length; c++) {
       if (w.liga[c] < 0) continue;
       const rng = Rng.de(w.semente, 'mercado-mes', w.clubes[c].id, dia);
@@ -603,19 +652,20 @@ export class Mercado {
       // Listagens: excedentes por grupo, intenções da IA do clube, venda forçada.
       const porG = new Map<string, number[]>();
       for (const j of pl) { const g = this.grupo(j); porG.set(g, [...(porG.get(g) ?? []), j]); }
-      for (const [g, js] of porG) {
+      const doUtilizador = this.util?.clube === c;
+      if (!doUtilizador) for (const [g, js] of porG) {
         const exc = js.length - (IA.minimos[g] + IA.excedente);
         // (exc ≤ 0: nenhum excedente; slice(-0) devolveria o grupo inteiro.)
         if (exc > 0) for (const j of js.slice(-exc)) if (!this.contratos.listado[j]) this.contratos.listado[j] = 1;
       }
-      for (const j of e.controlador(c).listarParaVenda?.(w, e, c) ?? []) if (st.clube[j] === c && !this.contratos.listado[j]) this.contratos.listado[j] = 1;
+      if (!doUtilizador) for (const j of e.controlador(c).listarParaVenda?.(w, e, c) ?? []) if (st.clube[j] === c && !this.contratos.listado[j]) this.contratos.listado[j] = 1;
       // Renovações (último ano de contrato): os melhores e os jovens de potencial.
       for (const [i, j] of pl.entries()) {
         const anos = (st.fimContrato[j] - dia) / 365;
         if (anos > 1 || anos < 0 || this.contratos.preContrato[j] >= 0) continue;
         const quer = i < IA.renovar_melhores || (st.idade(j, dia) <= 23 && st.pot[j] >= st.ovrNat(j) + 5);
         // Quem não vai ser renovado é posto à venda no último ano (melhor do que sair a custo zero).
-        if (!quer || st.idade(j, dia) > 34) { if (!this.contratos.listado[j] && st.idade(j, dia) <= 33) this.contratos.listado[j] = 1; continue; }
+        if (!quer || st.idade(j, dia) > 34) { if (!doUtilizador && !this.contratos.listado[j] && st.idade(j, dia) <= 33) this.contratos.listado[j] = 1; continue; }
         if (!rng.chance(0.35)) continue;
         // A oferta não desce abaixo de x × o salário actual (o clube quer mantê-lo).
         const sal = Math.round(Math.max(salarioPedido(w, j, this.salarioMercado(j, c, dia)), IA.renovacao_minimo_actual * st.salario[j]) / 1000) * 1000;

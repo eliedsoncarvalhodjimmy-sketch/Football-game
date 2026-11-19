@@ -37,12 +37,15 @@ export interface VistaJogador {
   linha: LinhaJogador;
   clube: string; cores: [string, string]; pais: string; altura: number; peso: number; pe: string;
   posicoes: { pos: Posicao; nome: string; nivel: 'natural' | 'competente' | 'aprende' }[];
-  grupos: { grupo: GrupoAtributo; nome: string; atributos: { nome: string; v: number }[] }[];
+  grupos: { grupo: GrupoAtributo; nome: string; atributos: { nome: string; v: number; int?: [number, number] }[] }[];
   papeis: { nome: string; v: number }[];
   potencial: [number, number];
   minutos: number; notaMedia: number | null; lesoesEpoca: number;
   valor: number | null;
   meu: boolean;
+  /** Jogador de outro clube: o que o scouting sabe (conhecimento %, OVR em intervalo) e o que se pode fazer. */
+  scouting: { conhecimento: number; ovr: [number, number]; scout: string | null; vies: string | null } | null;
+  mercado: { listado: boolean; shortlist: boolean; negociacao: number | null; clausula: number; livre: boolean; emprestavel: boolean } | null;
 }
 
 export interface CaixaTactica { pos: Posicao; x: number; y: number; jogadores: { j: number; id: string; nome: string; idade: number; ovr: number; pos: Posicao; lesionado: boolean }[] }
@@ -123,7 +126,7 @@ export function vistaJogador(w: World, j: number, dia: number, clubeUtilizador: 
   const gr = linha.pos === 'GR';
   const grupos = (['tecnico', 'mental', 'fisico', 'guarda_redes'] as GrupoAtributo[])
     .filter((g) => (gr ? g !== 'tecnico' : g !== 'guarda_redes') || (gr && g === 'tecnico'))
-    .map((g) => ({ grupo: g, nome: GRUPO_NOME[g], atributos: ATRIBUTOS.map((a, k) => ({ a, k })).filter((x) => x.a.grupo === g).map((x) => ({ nome: x.a.nome, v: st.atr[j * N_ATR + x.k] })) }));
+    .map((g) => ({ grupo: g, nome: GRUPO_NOME[g], atributos: ATRIBUTOS.map((a, k) => ({ a, k })).filter((x) => x.a.grupo === g).map((x) => ({ nome: x.a.nome as string, v: st.atr[j * N_ATR + x.k], int: undefined as [number, number] | undefined })) }));
   const posicoes: VistaJogador['posicoes'] = [];
   for (let p = 0; p < N_POS; p++) {
     const f = st.fam[j * N_POS + p];
@@ -133,10 +136,24 @@ export function vistaJogador(w: World, j: number, dia: number, clubeUtilizador: 
   }
   const papeis = PAPEIS_DA_POSICAO[linha.pos].map((r) => ({ nome: PAPEIS[r].nome, v: Math.round(st.adequacao(j, r)) })).sort((a, b) => b.v - a.v);
   const valor = Math.round(valorMercado(w, j, dia));
+  const meu = c === clubeUtilizador;
+  const m = w.mercado;
+  let scouting: VistaJogador['scouting'] = null;
+  if (!meu && m) {
+    // Outro clube: atributos em intervalo, OVR e potencial estimados pelo que os olheiros viram.
+    const rel = m.scouting.relatorio(clubeUtilizador, j, dia);
+    for (const g of grupos) for (const a of g.atributos) { const id = ATRIBUTOS.find((x) => x.nome === a.nome)!.id; const iv = rel.atributos[id]; a.int = iv; a.v = Math.round((iv[0] + iv[1]) / 2); }
+    scouting = { conhecimento: rel.conhecimento, ovr: [rel.ovr.min, rel.ovr.max], scout: rel.scout, vies: rel.vies };
+    linha.ovr = rel.ovr.estimado;
+    for (const r of papeis) r.v = 0;
+  }
+  const pot: [number, number] = scouting && m ? (() => { const p = m.scouting.estimarPotencial(clubeUtilizador, j, dia); return [p.min, p.max] as [number, number]; })() : potencialEstimado(st, j);
+  const mercado: VistaJogador['mercado'] = m ? { listado: m.contratos.listado[j] > 0, shortlist: !!m.util?.shortlist.includes(j), negociacao: m.util?.activa(j)?.id ?? null, clausula: m.contratos.clausula[j] || 0, livre: c === -3,
+    emprestavel: c >= 0 && !meu && !m.contratos.emprestimo.has(j) } : null;
   return {
     linha, clube: c >= 0 ? w.clubes[c].nome : 'Sem clube', cores: c >= 0 ? w.clubes[c].cores : ['#555', '#ddd'], pais: linha.pais,
-    altura: corpo.altura, peso: corpo.peso, pe: PE[st.pe[j]] ?? 'Direito', posicoes, grupos, papeis, potencial: potencialEstimado(st, j),
-    minutos: st.eMinutos[j], notaMedia: st.eJogos[j] ? r1(st.eNotas[j] / st.eJogos[j] / 10) : null, lesoesEpoca: st.eLesoes[j], valor, meu: c === clubeUtilizador,
+    altura: corpo.altura, peso: corpo.peso, pe: PE[st.pe[j]] ?? 'Direito', posicoes, grupos, papeis, potencial: pot,
+    minutos: st.eMinutos[j], notaMedia: st.eJogos[j] ? r1(st.eNotas[j] / st.eJogos[j] / 10) : null, lesoesEpoca: st.eLesoes[j], valor, meu, scouting, mercado,
   };
 }
 

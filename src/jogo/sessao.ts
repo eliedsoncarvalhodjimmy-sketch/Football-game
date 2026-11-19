@@ -11,6 +11,10 @@ import type { JogoR } from '../engine/competitions/base.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
 import { VERSAO_MOTOR } from '../config/interface.ts';
 import { POSICOES } from '../config/papeis.ts';
+import { vistaMercado, vistaNegociacao, vistaScouting, vistaAcademia, type VistaMercado, type VistaNegociacao, type VistaScouting, type VistaAcademia } from './vistasA3.ts';
+import { MercadoUtilizador, type TipoNeg, type PropostaJogador } from '../mercado/mercadoUtilizador.ts';
+import type { PosicaoMissao } from '../scouting/missoesJovens.ts';
+import { SCOUTS } from '../config/scouting.ts';
 import { FORMACAO_POR_ID, type Instrucoes } from '../config/tacticas.ts';
 import { vistaPlantel, vistaJogador, vistaTactica, zonasLiga, escalaoDe, type VistaPlantel, type VistaJogador, type VistaTactica } from './vistas.ts';
 
@@ -21,11 +25,27 @@ export type Progresso = (etapa: Etapa, fraccao: number, texto: string) => void;
 export type Comando =
   | { tipo: 'sugerir'; formacao?: string; instrucoes?: Partial<Instrucoes>; onze?: string[] }
   | { tipo: 'cancelarSugestao' }
-  | { tipo: 'promover'; jogador: string };
+  | { tipo: 'promover'; jogador: string }
+  // A3: mercado
+  | { tipo: 'negociar'; jogador: string; negocio: TipoNeg }
+  | { tipo: 'propostaClube'; id: number; valor: number; vendaFutura: number; parcelas: string; troca: string | null }
+  | { tipo: 'propostaEmprestimo'; id: number; salario: number; opcao: number }
+  | { tipo: 'propostaJogador'; id: number; proposta: PropostaJogador }
+  | { tipo: 'desistir'; id: number }
+  | { tipo: 'responderOferta'; negocio: number; resposta: 'aceitar' | 'recusar' | { contra: number } }
+  | { tipo: 'listar'; jogador: string; listado: boolean }
+  | { tipo: 'shortlist'; jogador: string; marcar: boolean }
+  // A3: scouting e academia
+  | { tipo: 'atribuirScouts'; ligas: string[] }
+  | { tipo: 'missao'; pais: string; posicao: PosicaoMissao; semanas: number }
+  | { tipo: 'contratarJovem'; jogador: string }
+  | { tipo: 'excedente'; libertar: string[] }
+  | { tipo: 'libertarJovem'; jogador: string };
 /** Comando guardado no registo: aplica-se antes de simular a semana `semana` (0 = antes da primeira). */
 export interface ComandoRegistado { semana: number; tipo: Comando['tipo']; dados: Comando }
-export type PedidoVista = { ecra: 'plantel' } | { ecra: 'jogador'; jogador: string } | { ecra: 'tactica'; formacao?: string };
-export type Vista = { ecra: 'plantel'; dados: VistaPlantel } | { ecra: 'jogador'; dados: VistaJogador } | { ecra: 'tactica'; dados: VistaTactica };
+export type PedidoVista = { ecra: 'plantel' } | { ecra: 'jogador'; jogador: string } | { ecra: 'tactica'; formacao?: string } | { ecra: 'mercado' } | { ecra: 'negociacao'; id: number } | { ecra: 'scouting' } | { ecra: 'academia' };
+export type Vista = { ecra: 'plantel'; dados: VistaPlantel } | { ecra: 'jogador'; dados: VistaJogador } | { ecra: 'tactica'; dados: VistaTactica }
+  | { ecra: 'mercado'; dados: VistaMercado } | { ecra: 'negociacao'; dados: VistaNegociacao } | { ecra: 'scouting'; dados: VistaScouting } | { ecra: 'academia'; dados: VistaAcademia };
 
 /** Tudo o que é preciso para reconstruir um jogo. */
 export interface RegistoJogo {
@@ -119,6 +139,7 @@ export class Sessao {
     this.clube = c;
     w.motor?.definirClubeUtilizador(c);
     if (w.economia) w.economia.controladores[c] = new ControladorUtilizador();
+    if (w.mercado) w.mercado.util = new MercadoUtilizador(w, w.mercado, c);
     this.registo = { ...this.registo!, clube: clubeId, perfil };
   }
 
@@ -141,6 +162,64 @@ export class Sessao {
         break;
       }
       case 'cancelarSugestao': m.sugestao = null; break;
+      case 'negociar': {
+        const j = st.idx(cmd.jogador);
+        if (j === undefined) throw new Error('Jogador desconhecido.');
+        this.util().abrir(j, cmd.negocio, dia);
+        break;
+      }
+      case 'propostaClube': {
+        const t = cmd.troca ? idx(cmd.troca) : null;
+        this.util().propostaClube(cmd.id, { valor: cmd.valor, vendaFutura: cmd.vendaFutura, parcelas: cmd.parcelas, troca: t }, dia);
+        break;
+      }
+      case 'propostaEmprestimo': this.util().propostaEmprestimo(cmd.id, { salario: cmd.salario, opcao: cmd.opcao }, dia); break;
+      case 'propostaJogador': this.util().propostaJogador(cmd.id, cmd.proposta, dia); break;
+      case 'desistir': this.util().desistir(cmd.id, dia); break;
+      case 'responderOferta': this.util().responder(cmd.negocio, cmd.resposta); break;
+      case 'listar': this.util().listar(idx(cmd.jogador), cmd.listado); break;
+      case 'shortlist': {
+        const j = st.idx(cmd.jogador);
+        if (j === undefined) throw new Error('Jogador desconhecido.');
+        this.util().marcar(j, cmd.marcar);
+        break;
+      }
+      case 'atribuirScouts': {
+        const sc = w.mercado!.scouting;
+        const max = (w.economia?.staff.porClube[c] ?? []).filter((x) => x.cargo === 'olheiro').length * SCOUTS.ligas_por_scout;
+        const ligas = cmd.ligas.map((id) => w.ligas.findIndex((l) => l.regras.id === id));
+        if (ligas.some((l) => l < 0)) throw new Error('Liga desconhecida.');
+        if (ligas.length > max) throw new Error(`Os teus olheiros cobrem no máximo ${max} liga(s).`);
+        sc.atribuicao[c] = ligas;
+        sc.fixas.add(c);
+        break;
+      }
+      case 'missao': {
+        const r = w.academia!.missoes.enviar(c, { pais: cmd.pais, posicao: cmd.posicao, semanas: cmd.semanas }, dia);
+        if (typeof r === 'string') throw new Error(r.charAt(0).toUpperCase() + r.slice(1) + '.');
+        break;
+      }
+      case 'contratarJovem': {
+        const j = st.idx(cmd.jogador);
+        if (j === undefined) throw new Error('Jogador desconhecido.');
+        const r = w.academia!.missoes.contratar(c, j, dia);
+        if (typeof r === 'string') throw new Error(r.charAt(0).toUpperCase() + r.slice(1) + '.');
+        break;
+      }
+      case 'excedente': {
+        const ac = w.academia!;
+        if (!ac.excedente.has(c)) throw new Error('Não há decisão de excedente pendente.');
+        const lib = cmd.libertar.map(idx);
+        if (ac.sub18[c].length - lib.length > 30) throw new Error('O Sub-18 continua acima do máximo (30).');
+        ac.decidirExcedente(c, dia, lib);
+        break;
+      }
+      case 'libertarJovem': {
+        const j = idx(cmd.jogador), ac = w.academia!;
+        if (!ac.escalao[j]) throw new Error('Só se libertam jogadores do Sub-18 e do Sub-21 aqui.');
+        ac.libertar(j, dia);
+        break;
+      }
       case 'promover': {
         const j = idx(cmd.jogador), ac = w.academia!, e = escalaoDe(w, j);
         if (e === 'sub21') ac.promover(j, dia, false, 'utilizador');
@@ -151,10 +230,20 @@ export class Sessao {
     }
   }
 
+  private util(): MercadoUtilizador {
+    const u = this.w!.mercado?.util;
+    if (!u) throw new Error('Mercado indisponível.');
+    return u;
+  }
+
   /** Vistas dos ecrãs (só leitura). */
   vista(p: PedidoVista): Vista {
     const w = this.w!, dia = this.sim!.segunda;
     if (p.ecra === 'plantel') return { ecra: 'plantel', dados: vistaPlantel(w, this.clube, dia) };
+    if (p.ecra === 'mercado') return { ecra: 'mercado', dados: vistaMercado(w, this.clube, dia) };
+    if (p.ecra === 'negociacao') return { ecra: 'negociacao', dados: vistaNegociacao(w, this.clube, p.id, dia) };
+    if (p.ecra === 'scouting') return { ecra: 'scouting', dados: vistaScouting(w, this.clube, dia) };
+    if (p.ecra === 'academia') return { ecra: 'academia', dados: vistaAcademia(w, this.clube, dia) };
     if (p.ecra === 'tactica') return { ecra: 'tactica', dados: vistaTactica(w, this.clube, dia, p.formacao) };
     const j = w.jogadores!.idx(p.jogador);
     if (j === undefined) throw new Error('Jogador desconhecido.');
