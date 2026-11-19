@@ -50,11 +50,12 @@ describe('dados reais', () => {
     expect(h.titulos('POR1', []).find((x) => x.clube === 'Benfica')!.titulos).toBe(38);
   });
 
-  it('Golden Boy (PDF do utilizador) e Troféu Yashin (Melhor guarda-redes)', () => {
+  it('Golden Boy e Troféu Yashin (Melhor guarda-redes), dos PDFs do utilizador', () => {
     const h = w.historico!;
     expect(h.premios('golden_boy')[0]).toMatchObject({ ano: 2003 });
     expect(h.premios('golden_boy').find((p) => p.ano === 2026)!.jogador).toBe('Pau Cubarsí');
     expect(h.premios('guarda_redes').find((p) => p.ano === 2019)!.jogador).toBe('Alisson');
+    expect(h.premios('guarda_redes').find((p) => p.ano === 2026)!.jogador).toBe('Unai Simón');
   });
 
   it('Bola de Ouro (Melhor do Mundo)', () => {

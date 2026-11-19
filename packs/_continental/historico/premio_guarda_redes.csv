@@ -1,9 +1,10 @@
-# Troféu Yashin (France Football) = Melhor guarda-redes do jogo. Não vem nos PDFs: preenchido pelo assistente (2019–2025), a confirmar; falta 2026.
-ano,jogador,clube,vencedor_honorario,clube_honorario,nota,origem
-2019,Alisson,Liverpool,,,,manual
-2020,,,,,não atribuído (pandemia de COVID-19),manual
-2021,Gianluigi Donnarumma,Milan / Paris Saint-Germain,,,,manual
-2022,Thibaut Courtois,Real Madrid,,,,manual
-2023,Emiliano Martínez,Aston Villa,,,,manual
-2024,Emiliano Martínez,Aston Villa,,,,manual
-2025,Gianluigi Donnarumma,Paris Saint-Germain / Manchester City,,,,manual
+# Troféu Yashin (France Football) = Melhor guarda-redes do jogo. Fonte: Troféu Yashin — Wikipédia (PDF do utilizador).
+ano,jogador,clube,pontos,segundo,clube_segundo,terceiro,clube_terceiro,vencedor_honorario,clube_honorario,nota,origem
+2019,Alisson,Liverpool,795,Marc-André ter Stegen,Barcelona,Ederson,Manchester City,,,,real
+2020,,,,,,,,,,cancelado (pandemia de COVID-19),real
+2021,Gianluigi Donnarumma,Paris Saint-Germain,594,Édouard Mendy,Chelsea,Jan Oblak,Atlético de Madrid,,,,real
+2022,Thibaut Courtois,Real Madrid,456,Alisson,Liverpool,Ederson,Manchester City,,,,real
+2023,Emiliano Martínez,Aston Villa,290,Ederson,Manchester City,Yassine Bounou,Al-Hilal,,,,real
+2024,Emiliano Martínez,Aston Villa,276,Unai Simón,Athletic Bilbao,Andriy Lunin,Real Madrid,,,,real
+2025,Gianluigi Donnarumma,Paris Saint-Germain,486,Alisson,Liverpool,Yann Sommer,Inter de Milão,,,,real
+2026,Unai Simón,Athletic Bilbao,,David Raya,Arsenal,Thibaut Courtois,Real Madrid,,,,real
