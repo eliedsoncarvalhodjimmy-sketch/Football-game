@@ -341,6 +341,12 @@ export class Academia {
     this.promovidos.push({ dia, clube: c, jogador: j, idade: Math.floor(st.idade(j, dia)), ovr: st.ovrNat(j), foraDaCurva, motivo });
   }
 
+  /** Sobe um jogador do Sub-18 ao Sub-21 (decisão do utilizador). */
+  subirAoSub21(j: number) {
+    if (this.escalao[j] !== ESC.sub18) throw new Error('Não está no Sub-18.');
+    this.moverPara(j, ESC.sub21, this.w.jogadores!.clube[j]);
+  }
+
   private moverPara(j: number, esc: number, c: number) {
     this.tirar(j);
     this.w.jogadores!.clube[j] = c;

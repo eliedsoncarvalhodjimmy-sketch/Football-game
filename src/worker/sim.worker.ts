@@ -19,6 +19,8 @@ self.onmessage = async (ev: MessageEvent<Pedido>) => {
       case 'carregar': await sessao.carregar(p.registo, prog); estado(); break;
       case 'avancar': for (let k = 0; k < p.semanas; k++) sessao.avancar(); estado(); break;
       case 'resumo': estado(); break;
+      case 'comando': sessao.comando(p.comando); estado(); break;
+      case 'vista': responder({ id: p.id, tipo: 'vista', vista: sessao.vista(p.pedido) }); break;
     }
   } catch (e) {
     responder({ id: p.id, tipo: 'erro', msg: (e as Error).message });

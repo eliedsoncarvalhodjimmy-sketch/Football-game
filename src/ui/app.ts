@@ -6,7 +6,9 @@ import { guardar, listar, apagar, ranhuraLivre, type Gravacao } from '../storage
 import { PERFIS_DONO, IDADE_MINIMA_PERFIL, FOTO_PERFIL } from '../config/perfis.ts';
 import { INTERFACE, DICAS, VERSAO_MOTOR } from '../config/interface.ts';
 import { svg, escudo } from './icones.ts';
-import type { PaisEscolha, RegistoJogo, Resumo } from '../jogo/sessao.ts';
+import type { PaisEscolha, RegistoJogo, Resumo, Comando, PedidoVista, Vista } from '../jogo/sessao.ts';
+import type { Instrucoes } from '../config/tacticas.ts';
+import { htmlInicio, htmlPlantel, htmlJogador, htmlTactica, tabelaLiga, type UiPlantel, type Rascunho } from './ecras.ts';
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const fE = (v: number) => `€${Math.round(v).toLocaleString('pt-PT')}`;
@@ -106,24 +108,38 @@ function novaCarreira() {
   ecraPerfil();
 }
 
+/** "dd/mm/aaaa" → "aaaa-mm-dd", ou null se a data não existir. */
+function ptParaIso(t: string): string | null {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(t.trim());
+  if (!m) return null;
+  const [, dd, mm, aa] = m, d = new Date(Date.UTC(+aa, +mm - 1, +dd));
+  return d.getUTCFullYear() === +aa && d.getUTCMonth() === +mm - 1 && d.getUTCDate() === +dd && +aa >= 1900 ? `${aa}-${mm}-${dd}` : null;
+}
+
 function ecraPerfil(erro = '') {
   const d = E.rascunho;
-  const max = `${new Date().getUTCFullYear() - IDADE_MINIMA_PERFIL}-12-31`;
+  const isoParaPt = (iso?: string) => (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso.split('-').reverse().join('/') : iso ?? '');
   const el = painel(1, `<h2>Perfil de jogo</h2><form id="en-form"><label>Nome<input id="en-nome" required maxlength="40" value="${esc(d.nome ?? '')}"></label>
-    <div class="en-duas"><label>Data de nascimento<input id="en-nasc" type="date" required value="${d.nascimento ?? ''}" max="${max}"></label><label>Nacionalidade<select id="en-nac" required><option value="">Escolher…</option>${NACIONALIDADES.map((n) => `<option ${d.nacionalidade === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div>
+    <div class="en-duas"><label>Data de nascimento<input id="en-nasc" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" required autocomplete="bday" value="${isoParaPt(d.nascimento)}"></label><label>Nacionalidade<select id="en-nac" required><option value="">Escolher…</option>${NACIONALIDADES.map((n) => `<option ${d.nacionalidade === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div>
     <div class="en-rot">Perfil de partida (modo Dono)</div>
     <div class="en-cartoes">${PERFIS_DONO.map((x, i) => `<label class="en-cartao ${d.perfilDono === x.id ? 'on' : ''}"><input type="radio" name="en-perf" value="${x.id}" ${d.perfilDono === x.id ? 'checked' : ''}><span class="en-num">${i + 1}</span><span><span>${esc(x.texto)}</span><span class="en-ef">${esc(x.resumo)}</span></span></label>`).join('')}</div>
     ${erro ? `<div class="en-erro" role="alert">${erro}</div>` : ''}<div class="en-nav"><button type="button" class="btn" id="en-voltar">‹ Voltar</button><button class="btn prim" type="submit">Seguinte ›</button></div></form>`);
   const ler = () => {
     d.nome = (el.querySelector('#en-nome') as HTMLInputElement).value.trim();
-    d.nascimento = (el.querySelector('#en-nasc') as HTMLInputElement).value;
+    d.nascimento = ptParaIso((el.querySelector('#en-nasc') as HTMLInputElement).value) ?? (el.querySelector('#en-nasc') as HTMLInputElement).value;
     d.nacionalidade = (el.querySelector('#en-nac') as HTMLSelectElement).value;
     d.perfilDono = (el.querySelector('input[name="en-perf"]:checked') as HTMLInputElement | null)?.value ?? d.perfilDono;
   };
+  const nasc = el.querySelector('#en-nasc') as HTMLInputElement;
+  nasc.addEventListener('input', () => {
+    const n = nasc.value.replace(/\D/g, '').slice(0, 8);
+    nasc.value = n.length > 4 ? `${n.slice(0, 2)}/${n.slice(2, 4)}/${n.slice(4)}` : n.length > 2 ? `${n.slice(0, 2)}/${n.slice(2)}` : n;
+  });
   el.querySelectorAll('input[name="en-perf"]').forEach((r) => r.addEventListener('change', () => { ler(); ecraPerfil(); }));
   el.querySelector('#en-voltar')!.addEventListener('click', ecraCarreiras);
   el.querySelector('#en-form')!.addEventListener('submit', (e) => {
     e.preventDefault(); ler();
+    if (!ptParaIso(isoParaPt(d.nascimento))) { ecraPerfil('Data de nascimento inválida (dd/mm/aaaa).'); return; }
     const idade = d.nascimento ? (Date.now() - Date.parse(d.nascimento)) / 3.15576e10 : 0;
     const er = !d.nome ? 'Falta o nome.' : idade < IDADE_MINIMA_PERFIL ? `É preciso ter pelo menos ${IDADE_MINIMA_PERFIL} anos.` : !d.nacionalidade ? 'Falta a nacionalidade.' : !d.perfilDono ? 'Escolhe um perfil de partida.' : '';
     if (er) ecraPerfil(er); else ecraFoto();
@@ -218,21 +234,37 @@ const ECRAS: [string, string, string][] = [
 ];
 const INFERIOR = ['inicio', 'plantel', 'mercado', 'classificacao'];
 
+// Estado dos ecrãs da A2.
+const UI: { plantel: UiPlantel; jogador: string | null; voltar: string; vista: Vista | null; rascunho: Rascunho | null; formacaoVer: string | null } = {
+  plantel: { tab: 'principal', filtro: 'Todos', pesquisa: '' }, jogador: null, voltar: 'plantel', vista: null, rascunho: null, formacaoVer: null,
+};
+
 function ecraJogo() {
   const r = E.resumo!;
   document.documentElement.style.setProperty('--acento', r.clube.cores[0]);
   document.documentElement.style.setProperty('--acento-2', r.clube.cores[1]);
-  const nav = (k: string, t: string) => `<a class="nav ${k === E.ecra ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${t}</a>`;
+  const activo = E.ecra === 'jogador' ? 'plantel' : E.ecra;
+  const nav = (k: string, t: string) => `<a class="nav ${k === activo ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${t}</a>`;
   raiz().innerHTML = `<div class="app">
     <nav class="lateral" aria-label="Navegação principal"><div class="marca">${escudo(r.clube.cores)}<div><b>FutCEO</b><small>${esc(r.clube.nome)}</small></div></div>
       ${ECRAS.map(([k, t]) => nav(k, t)).join('')}<div style="flex:1"></div><a class="nav" href="#" id="b-menu">${svg('seta')}Menu principal</a></nav>
-    <main class="principal" id="principal">${barraTopo(r)}${conteudo(r)}</main>
-    <nav class="inferior" aria-label="Navegação">${INFERIOR.map((k) => `<a class="${k === E.ecra ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${ECRAS.find((x) => x[0] === k)![1].split(' ')[0]}</a>`).join('')}<a href="#" id="b-menu2">${svg('mais')}Menu</a></nav></div>`;
+    <main class="principal" id="principal">${barraTopo(r)}<div id="conteudo">${conteudoSincrono(r) ?? '<div class="rot" style="padding:24px">A carregar…</div>'}</div></main>
+    <nav class="inferior" aria-label="Navegação">${INFERIOR.map((k) => `<a class="${k === activo ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${ECRAS.find((x) => x[0] === k)![1].split(' ')[0]}</a>`).join('')}<a href="#" id="b-menu2">${svg('mais')}Menu</a></nav></div>`;
   const el = raiz();
-  el.querySelectorAll<HTMLElement>('[data-ecra]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); E.ecra = a.dataset.ecra!; ecraJogo(); }));
+  el.querySelectorAll<HTMLElement>('[data-ecra]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); irPara(a.dataset.ecra!); }));
   for (const id of ['#b-menu', '#b-menu2']) el.querySelector(id)?.addEventListener('click', async (e) => { e.preventDefault(); await gravar(true); await ecraCarreiras(); });
   el.querySelector('#b-continuar')!.addEventListener('click', avancar);
   el.querySelector('#b-guardar')!.addEventListener('click', async () => { await gravar(false); const b = el.querySelector('#gravado') as HTMLElement; b.textContent = 'Gravado'; setTimeout(() => (b.textContent = ''), 1800); });
+  ligarConteudo(el.querySelector('#conteudo')!);
+  if (conteudoSincrono(r) === null) void carregarVista();
+}
+
+function irPara(ecra: string) {
+  if (ecra !== 'jogador') UI.voltar = ecra;
+  E.ecra = ecra;
+  if (ecra === 'plantel' && UI.plantel.tab === 'tactica') UI.plantel.tab = 'principal';
+  ecraJogo();
+  document.getElementById('principal')?.scrollTo(0, 0);
 }
 
 function barraTopo(r: Resumo) {
@@ -247,26 +279,109 @@ async function avancar() {
   try {
     const r = await pedir<'estado'>({ tipo: 'avancar', semanas: 1 });
     E.resumo = r.resumo; E.registo = r.registo;
+    UI.rascunho = null; UI.formacaoVer = null;
     if (E.registo.semanas % INTERFACE.gravacao_automatica_semanas === 0) await gravar(true);
   } catch (e) { alert(`Erro na simulação: ${(e as Error).message}`); }
   E.aAvancar = false; ecraJogo();
 }
 
-function conteudo(r: Resumo) {
-  if (E.ecra !== 'inicio') {
-    const [, t, parte] = ECRAS.find((x) => x[0] === E.ecra)!;
-    return `<div class="topo"><h1>${t}</h1></div><section class="c em-breve"><h2>Em construção</h2><div>Este ecrã chega na parte ${parte} do Bloco A. O desenho é o do protótipo.</div></section>`;
+/** Ecrãs que só precisam do resumo (os outros pedem uma vista ao worker). */
+function conteudoSincrono(r: Resumo): string | null {
+  if (E.ecra === 'inicio') return htmlInicio(r);
+  if (E.ecra === 'classificacao') return `<div class="topo"><h1>Competições</h1><span class="sub">${esc(r.clube.ligaNome)} · época ${r.epoca}</span></div><section class="c">${tabelaLiga(r, true)}</section><section class="c em-breve" style="margin-top:12px"><h2>Mais em breve</h2><div>Calendário, taças, competições continentais, estatísticas e histórico chegam na parte A4.</div></section>`;
+  if (E.ecra === 'plantel' || E.ecra === 'jogador') return null;
+  const [, t, parte] = ECRAS.find((x) => x[0] === E.ecra)!;
+  return `<div class="topo"><h1>${t}</h1></div><section class="c em-breve"><h2>Em construção</h2><div>Este ecrã chega na parte ${parte} do Bloco A. O desenho é o do protótipo.</div></section>`;
+}
+
+async function carregarVista() {
+  const ecra = E.ecra;
+  const pedido: PedidoVista = ecra === 'jogador' ? { ecra: 'jogador', jogador: UI.jogador! } : UI.plantel.tab === 'tactica' ? { ecra: 'tactica', ...(UI.formacaoVer ? { formacao: UI.formacaoVer } : {}) } : { ecra: 'plantel' };
+  try {
+    const [v, n] = await Promise.all([pedir<'vista'>({ tipo: 'vista', pedido }), pedido.ecra === 'tactica' ? pedir<'vista'>({ tipo: 'vista', pedido: { ecra: 'plantel' } }) : Promise.resolve(null)]);
+    if (E.ecra !== ecra) return;
+    UI.vista = v.vista;
+    const alvo = document.getElementById('conteudo');
+    if (!alvo) return;
+    if (v.vista.ecra === 'plantel') alvo.innerHTML = htmlPlantel(v.vista.dados, UI.plantel);
+    else if (v.vista.ecra === 'jogador') alvo.innerHTML = htmlJogador(v.vista.dados);
+    else {
+      const t = v.vista.dados;
+      if (!UI.rascunho) UI.rascunho = { estilo: null, formacao: t.formacao, instrucoes: { ...t.instrucoes }, onze: null, trocas: {} };
+      const pl = n?.vista.ecra === 'plantel' ? n.vista.dados : null;
+      alvo.innerHTML = htmlTactica(t, UI.rascunho, { principal: pl?.principal.length ?? 0, sub21: pl?.sub21.length ?? 0, sub18: pl?.sub18.length ?? 0 });
+    }
+  } catch (e) {
+    const alvo = document.getElementById('conteudo');
+    if (alvo) alvo.innerHTML = `<section class="c"><div class="en-erro">Não foi possível abrir: ${esc((e as Error).message)}</div></section>`;
   }
-  const j = (x: NonNullable<Resumo['proximo']>) => `<div class="jogo-l"><span class="muted">${x.data}</span><span><b>${esc(x.casa)}</b> – <b>${esc(x.fora)}</b><div class="rot">${esc(x.comp)}</div></span>${x.resultado ? `<span><b class="num" style="font-size:18px">${x.emCasa ? `${x.gc}-${x.gf}` : `${x.gf}-${x.gc}`}</b> <span class="res ${x.resultado}">${x.resultado}</span></span>` : '<span class="chip info">próximo</span>'}</div>`;
-  return `<div class="topo"><h1>Início</h1><span class="sub">${esc(r.clube.nome)} · ${esc(r.clube.ligaNome)}</span></div>
-  <div class="grelha">
-    <section class="c s6"><h2>Próximo jogo</h2>${r.proximo ? j(r.proximo) : '<div class="rot">Sem jogos marcados nas próximas semanas.</div>'}</section>
-    <section class="c s3"><h2>Posição</h2><div class="num grande">${r.posicao ?? '–'}<span class="muted" style="font-size:20px">.º</span></div><div class="rot">${esc(r.clube.ligaNome)}</div></section>
-    <section class="c s3"><h2>Caixa</h2><div class="num grande" style="font-size:30px">${r.clube.caixa !== null ? fM(r.clube.caixa) : '–'}</div><div class="rot">Reputação ${r.clube.reputacao}</div></section>
-    <section class="c s6"><h2>Últimos resultados</h2>${r.ultimos.length ? r.ultimos.map(j).join('') : '<div class="rot">A época ainda não começou para o clube.</div>'}</section>
-    <section class="c s6"><h2>Classificação</h2><div class="tab-wrap"><table><thead><tr><th class="r">#</th><th>Clube</th><th class="r">J</th><th class="r">V</th><th class="r">E</th><th class="r">D</th><th class="r">DG</th><th class="r">Pts</th></tr></thead><tbody>${r.tabela.map((x) => `<tr class="${x.meu ? 'meu' : ''}"><td class="r">${x.pos}</td><td>${esc(x.clube)}</td><td class="r">${x.j}</td><td class="r">${x.v}</td><td class="r">${x.e}</td><td class="r">${x.d}</td><td class="r">${x.dg > 0 ? '+' : ''}${x.dg}</td><td class="r"><b>${x.pts}</b></td></tr>`).join('')}</tbody></table></div></section>
-    <section class="c s12"><div class="rot">Parte A1 do Bloco A: a estrutura da app (carregamento, entrada, perfil, clube, gravações) e um Início mínimo. Os outros ecrãs chegam nas partes seguintes.</div></section>
-  </div>`;
+}
+
+/** Eventos do conteúdo (delegação): navegação, filtros do plantel, promoções e a táctica. */
+function ligarConteudo(alvo: HTMLElement) {
+  alvo.addEventListener('click', async (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-jogador],[data-ir],[data-tabp],[data-filtro],[data-promover],[data-voltar],[data-estilo],[data-form],[data-instr],[data-titular],[data-repor],[data-cancelar],[data-enviar]');
+    if (!el) return;
+    const d = el.dataset;
+    if (d.promover) { ev.stopPropagation(); return promover(d.promover, d.nome ?? '', d.para ?? ''); }
+    if (d.titular) {
+      const [k, id] = d.titular.split(':');
+      UI.rascunho!.trocas[Number(k)] = id;
+      return void carregarVista();
+    }
+    if (d.jogador) { UI.jogador = d.jogador; if (E.ecra !== 'jogador') UI.voltar = E.ecra; E.ecra = 'jogador'; ecraJogo(); document.getElementById('principal')?.scrollTo(0, 0); return; }
+    if (d.ir) { if (d.ir === 'tactica') { UI.plantel.tab = 'tactica'; E.ecra = 'plantel'; UI.voltar = 'plantel'; ecraJogo(); } else irPara(d.ir); return; }
+    if (d.voltar) { E.ecra = UI.voltar; ecraJogo(); return; }
+    if (d.tabp) { UI.plantel.tab = d.tabp as UiPlantel['tab']; return void carregarVista(); }
+    if (d.filtro) { UI.plantel.filtro = d.filtro; return void carregarVista(); }
+    const v = UI.vista?.ecra === 'tactica' ? UI.vista.dados : null;
+    const r = UI.rascunho;
+    if (!v || !r) return;
+    if (d.estilo) {
+      const e = v.estilos.find((x) => x.id === d.estilo)!;
+      UI.rascunho = { estilo: e.id, formacao: e.esquemas[0], instrucoes: { ...e.instrucoes, passe: e.instrucoes.passe ?? 0 }, onze: null, trocas: {} };
+      UI.formacaoVer = e.esquemas[0];
+      return void carregarVista();
+    }
+    if (d.form) { r.formacao = d.form; r.trocas = {}; UI.formacaoVer = d.form; return void carregarVista(); }
+    if (d.instr) { const [k, val] = d.instr.split(':'); (r.instrucoes as unknown as Record<string, number>)[k] = Number(val); return void carregarVista(); }
+    if (d.repor) { UI.rascunho = null; UI.formacaoVer = null; return void carregarVista(); }
+    if (d.cancelar) { await comando({ tipo: 'cancelarSugestao' }); UI.rascunho = null; UI.formacaoVer = null; return void carregarVista(); }
+    if (d.enviar) {
+      const instr: Partial<Instrucoes> = {};
+      for (const k of Object.keys(r.instrucoes) as (keyof Instrucoes)[]) if ((r.instrucoes[k] ?? 0) !== (v.instrucoesTreinador[k] ?? 0)) instr[k] = r.instrucoes[k];
+      const trocou = Object.keys(r.trocas).length > 0;
+      const onze = trocou ? v.caixas.map((cx, k) => r.trocas[k] ?? cx.jogadores[0]?.id).filter((x): x is string => !!x) : undefined;
+      const cmd: Comando = { tipo: 'sugerir', ...(r.formacao !== v.formacaoTreinador ? { formacao: r.formacao } : {}), ...(Object.keys(instr).length ? { instrucoes: instr } : {}), ...(onze && onze.length === 11 ? { onze } : {}) };
+      if (!cmd.formacao && !cmd.instrucoes && !cmd.onze) { alert('A sugestão é igual ao plano do treinador.'); return; }
+      if (await comando(cmd)) { UI.rascunho = null; UI.formacaoVer = null; void carregarVista(); }
+    }
+  });
+  alvo.addEventListener('input', (ev) => {
+    const t = ev.target as HTMLInputElement;
+    if (t.id !== 'f-pesq') return;
+    UI.plantel.pesquisa = t.value;
+    if (UI.vista?.ecra === 'plantel') {
+      alvo.innerHTML = htmlPlantel(UI.vista.dados, UI.plantel);
+      const f = alvo.querySelector<HTMLInputElement>('#f-pesq')!;
+      f.focus(); f.setSelectionRange(f.value.length, f.value.length);
+    }
+  });
+}
+
+/** Envia um comando ao motor (fica no registo da gravação). */
+async function comando(cmd: Comando): Promise<boolean> {
+  try {
+    const r = await pedir<'estado'>({ tipo: 'comando', comando: cmd });
+    E.resumo = r.resumo; E.registo = r.registo;
+    await gravar(true);
+    return true;
+  } catch (e) { alert((e as Error).message); return false; }
+}
+
+async function promover(id: string, nome: string, para: string) {
+  if (!confirm(`Promover ${nome} para ${para}?`)) return;
+  if (await comando({ tipo: 'promover', jogador: id })) void carregarVista();
 }
 
 // ---------------------------------------------------------------- arranque

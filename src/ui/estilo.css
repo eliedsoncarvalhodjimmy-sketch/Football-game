@@ -632,5 +632,16 @@ body { margin: 0; }
 .res.V { background: var(--bom); } .res.E { background: #6b7280; } .res.D { background: var(--mau); }
 .aviso-gravar { font-size: 12px; color: var(--suave); }
 @media (max-width: 640px) { .contas { grid-template-columns: 1fr; } .esc-filtros { grid-template-columns: 1fr; } }
-/* A1: tabela do Início cabe no cartão (nomes longos cortados) */
-.c .tab-wrap table td:nth-child(2) { max-width: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A2: rostos procedurais, sugestões na táctica, instruções compactas */
+.rosto { display: inline-block; flex: none; border-radius: 6px; overflow: hidden; background: linear-gradient(180deg, #3a7a52, #23553a); }
+.rosto svg { width: 100%; height: 100%; display: block; }
+.hj-avatar .rosto { border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.dl.sug { box-shadow: inset 3px 0 0 var(--c-uel); }
+.dl:not(.tit):hover { background: rgba(255,255,255,.06); }
+.seg-peq { display: flex; width: 100%; } .seg-peq button { flex: 1; padding: 6px 4px; font-size: 12px; min-height: 30px; }
+.instr { display: grid; gap: 10px; } .instr label { display: grid; gap: 4px; font-size: 13px; color: var(--suave); }
+.legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12px; color: var(--suave); } .legenda span { display: inline-flex; align-items: center; gap: 5px; }
+.pt-cor { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.tab-liga td.nome-tab { width: 100%; }
+.tab-liga td.nome-tab b { display: block; max-width: min(46vw, 320px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.linha-kv.clic { cursor: pointer; } .linha-kv.clic:hover { background: rgba(255,255,255,.03); }
