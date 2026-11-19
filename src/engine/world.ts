@@ -9,6 +9,7 @@ import { registarReferencia } from '../players/evolucao.ts';
 import { Economia } from '../economia/motorEconomico.ts';
 import { Mercado } from '../mercado/mercado.ts';
 import { Academia } from '../academia/academia.ts';
+import { HistoricoMundo } from '../historico/historico.ts';
 import { Rng } from '../core/rng.ts';
 import { vagasIniciais, type EntradaLiga } from './season/qualify.ts';
 import { PlayerStore } from '../players/store.ts';
@@ -83,6 +84,8 @@ export class World {
   mercado: Mercado | null = null;
   /** Academia e juniores (Prompt 4, Bloco C). */
   academia: Academia | null = null;
+  /** Histórico das competições e dos prémios (real + jogo). */
+  historico: HistoricoMundo | null = null;
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -181,6 +184,8 @@ export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World
   w.qualificados = vagasIniciais(w);
   if (op.jogadores !== false) gerarJogadoresMundo(w, d, op.afinar !== false);
   if (op.jogadores !== false && op.economia !== false) iniciarEconomia(w, d);
+  // Histórico real das competições e dos prémios (PDFs do utilizador); as épocas do jogo juntam-se à medida que passam.
+  w.historico = new HistoricoMundo(w, d.historico ?? {});
   return w;
 }
 

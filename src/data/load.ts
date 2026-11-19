@@ -40,6 +40,9 @@ export interface Dados {
   continental: Continental | null;
   /** Erros de leitura (JSON inválido, ficheiros em falta). */
   erros: string[];
+  /** Histórico real (antes do início do jogo), por competição ou prémio: ficheiros `historico/<ID>.csv` dos pacotes
+   *  (ex.: ENG1, UCL, premio_melhor_do_mundo). */
+  historico: Record<string, Record<string, string>[]>;
   /** Contagens de registos por pacote e origem, para o validate-pack. */
   contagens: Record<string, Record<string, Record<Origem | 'sem_origem', number>>>;
 }
@@ -74,8 +77,14 @@ export async function carregarDados(ds: DataSource): Promise<Dados> {
   const pacotes: Pacote[] = [];
   const contagens: Dados['contagens'] = {};
   let continental: Continental | null = null;
+  const historico: Dados['historico'] = {};
 
   for (const id of await ds.listarPacotes()) {
+    for (const f of await ds.listarFicheiros(id, 'historico')) {
+      if (!f.endsWith('.csv')) continue;
+      const t = await ds.lerTexto(id, `historico/${f}`);
+      if (t) historico[f.replace(/\.csv$/, '')] = parseCsv(t);
+    }
     if (id === '_continental') {
       const comps: CompContinental[] = [];
       for (const f of await ds.listarFicheiros(id, 'competicoes')) {
@@ -115,5 +124,5 @@ export async function carregarDados(ds: DataSource): Promise<Dados> {
     tacas.sort((a, b) => manifest.tacas.indexOf(a.id) - manifest.tacas.indexOf(b.id));
     pacotes.push({ manifest, ligas, tacas, clubes, overrides, jogadores, financas: extra.financas, estadios: extra.estadios, rivalidades: extra.rivalidades, donos: extra.donos, arquetipos: extra.arquetipos, staffCsv: extra.staff, clausulas: extra.clausulas });
   }
-  return { pacotes, continental, erros, contagens };
+  return { pacotes, continental, historico, erros, contagens };
 }

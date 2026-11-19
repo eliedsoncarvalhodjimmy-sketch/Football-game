@@ -1,7 +1,8 @@
 // Parser CSV mínimo (vírgula, aspas duplas, cabeçalho na 1.ª linha).
 
 export function parseCsv(texto: string): Record<string, string>[] {
-  const linhas = splitLinhas(texto.replace(/^﻿/, ''));
+  // Linhas começadas por '#' são comentários (fonte, notas), antes do cabeçalho.
+  const linhas = splitLinhas(texto.replace(/^﻿/, '').replace(/^(#[^\n]*\n)+/, ''));
   if (linhas.length === 0) return [];
   const cab = linhas[0].map((c) => c.trim());
   return linhas.slice(1)

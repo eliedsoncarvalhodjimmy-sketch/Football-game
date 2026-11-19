@@ -2,6 +2,7 @@
 // play-offs, barragens e clubes exteriores), vagas continentais da época
 // seguinte e actualização da reputação. Só corre depois de TODAS as
 // competições terminarem.
+import { atribuirPremios } from '../../premios/premios.ts';
 import { Rng, hash32 } from '../../core/rng.ts';
 import { REPUTACAO } from '../../config/reputacao.ts';
 import { GERACAO } from '../../config/geracao.ts';
@@ -228,6 +229,8 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
   if (w.jogadores) {
     const dia = t.base + 51 * 7;
     const st = w.jogadores;
+    // Prémios individuais (Melhor do Mundo, Golden Boy, guarda-redes) da época de Agosto–Maio, antes de zerar as estatísticas.
+    if (grupo === 'ago_mai') atribuirPremios(w, reg, dia);
     // Potencial dinâmico (Bloco C), com os minutos da época que acaba.
     w.academia?.ajustarPotenciais([...t.ligas.values()].flatMap((c) => c.clubes), dia);
     for (const [id, c] of t.ligas) {
