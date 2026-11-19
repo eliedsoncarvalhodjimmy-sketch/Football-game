@@ -495,6 +495,9 @@ tr.corte-po td { border-bottom: 2px solid #1f7a45; }
 .po-eq svg { width: 16px; height: 18px; flex: none; }
 .po-eq { display: flex; gap: 6px; align-items: center; font-size: 13px; padding: 4px 6px; border-radius: 6px; min-height: 26px; } .po-eq span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 700px) { .playoff { grid-template-columns: 1fr; } }
+.sc-grelha { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.sc-membro { display: flex; gap: 10px; background: var(--cartao-2); border-radius: 12px; padding: 10px; align-items: flex-start; } .sc-membro .avatar-svg { border-radius: 10px; flex: none; }
+.sc-info { display: grid; gap: 4px; min-width: 0; } .sc-atr { display: flex; flex-wrap: wrap; gap: 4px; } .sc-atr .chip { font-size: 11px; } .sc-tarefa .chip { white-space: normal; }
 .cadeia { display: flex; align-items: stretch; gap: 6px; flex-wrap: wrap; }
 .cad { flex: 1 1 180px; display: grid; gap: 4px; text-align: left; background: var(--cartao-2); border: 1px solid var(--linha); border-radius: 12px; padding: 12px; color: var(--texto); font: inherit; cursor: pointer; }
 .cad:hover { border-color: var(--acento); } .cad .num { font-size: 28px; } .cad small { color: #cfd3da; }
@@ -1825,6 +1828,21 @@ function escritorioEcra() {
 }
 const fmtCurta = (d) => `${d.getUTCDate()} ${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][d.getUTCMonth()]}`;
 
+// Equipa de recrutamento (cargos do utilizador): partilhada pelo ecrã do Staff e pela aba de Recrutamento.
+// Olheiros: 1 por cada 2 níveis do Recrutamento (nível 6 → 3; máximo 5). Olheiros de jovens: 0–3 (1 missão cada).
+const NIVEL_RECRUTAMENTO = 6;
+const EQUIPA_SCOUT = [
+  { cargo: 'Chefe de Recrutamento', nome: 'Luís Alcobia', idade: 49, nivel: 13, sal: 0.25, fim: '2027', extra: 'Coordena o departamento', tarefa: 'Coordena os relatórios · reunião à segunda-feira' },
+  { cargo: 'Olheiro', nome: 'Diego Ferraz', idade: 41, nivel: 12, sal: 0.2, fim: '2028', extra: 'Brasil e Argentina', tarefa: 'A observar: Brasileirão · avançados · 4 semanas' },
+  { cargo: 'Olheiro', nome: 'Rui Sabugal', idade: 37, nivel: 11, sal: 0.15, fim: '2027', extra: 'Liga Portugal', tarefa: 'A observar: Liga Portugal 2 · médios · 2 semanas' },
+  { cargo: 'Olheiro', nome: 'Mehmet Aras', idade: 44, nivel: 12, sal: 0.15, fim: '2028', extra: 'Turquia e Grécia', tarefa: '' },
+  { cargo: 'Olheiro de Jovens', nome: 'Samuel Quintela', idade: 33, nivel: 11, sal: 0.1, fim: '2027', extra: 'Jovens 15–18 anos', tarefa: '' },
+  { cargo: 'Olheiro de Jovens', nome: 'Rui Taveira', idade: 29, nivel: 10, sal: 0.08, fim: '2028', extra: 'Jovens 15–18 anos', tarefa: '' },
+];
+const ATR_OLHEIRO = ['Avaliação', 'Quantidade', 'Adaptabilidade', 'Determinação'];
+/** Atributos de um membro (mesma semente que o ecrã do Staff: os valores coincidem nos dois sítios). */
+const atrsMembro = (nome, nivel, atrs) => { const r = avRng(avHash(nome)); return atrs.map((a) => [a, Math.max(1, Math.min(20, Math.round(nivel + (r() - 0.5) * 6)))]); };
+
 function staffEcra() {
   // Cargos do utilizador (data/staff/cargos.md): 5 departamentos; cada membro com os atributos do cargo (1–20).
   const T7 = ['Conhecimento táctico', 'Trabalho com jovens', 'Gestão de pessoas', 'Motivação', 'Flexibilidade', 'Treino', 'Disciplina'];
@@ -1836,11 +1854,7 @@ function staffEcra() {
       P('Treinador Sub-21', 'Paulo Teiouro', 45, 12, T7, 0.15, '2028', 'Pelas Alas · 4-3-3'),
       P('Treinador Sub-18', 'Nuno Barota', 40, 13, T7, 0.12, '2028', 'Tiki-Taka · 4-3-3')]],
     ['🔍 Departamento de Recrutamento', 'Olheiros: 1 por cada 2 níveis do Recrutamento (nível 6 → 3 olheiros; máximo 5)', [
-      P('Chefe de Recrutamento', 'Luís Alcobia', 49, 13, OLH, 0.25, '2027'),
-      P('Olheiro', 'Diego Ferraz', 41, 12, OLH, 0.2, '2028', 'Brasil e Argentina'),
-      P('Olheiro', 'Rui Sabugal', 37, 11, OLH, 0.15, '2027', 'Liga Portugal'),
-      P('Olheiro', 'Mehmet Aras', 44, 12, OLH, 0.15, '2028', 'Turquia e Grécia'),
-      P('Olheiro de Jovens', 'Samuel Quintela', 33, 11, OLH, 0.1, '2027', 'Portugal sub-17')]],
+      ...EQUIPA_SCOUT.map((m) => P(m.cargo, m.nome, m.idade, m.nivel, OLH, m.sal, m.fim, m.extra))]],
     ['👔 Equipa Técnica Principal', 'Treinadores, preparação física e departamento médico', [
       P('Treinador Principal', 'Hélder Quintela', 54, 14, T7, 1.6, '2028', 'Gegenpressen · 4-2-3-1'),
       P('Treinador Assistente', 'Rui Amieira', 47, 12, T7, 0.45, '2027', 'Gegenpressen · 4-3-3'),
@@ -2025,13 +2039,21 @@ function academiaEcra() {
     ${tabAcad === 'Intake' ? academiaIntake() : tabAcad === 'Competições' ? academiaCompeticoes() : academiaPercurso()}
   </div>`;
   const foto = `<section class="c s12" style="padding:0;overflow:hidden;position:relative">${salaScouting()}<div style="position:absolute;left:16px;bottom:14px;background:rgba(11,13,16,.75);padding:8px 12px;border-radius:10px"><div class="num" style="font-size:22px">Departamento de scouting</div><div class="rot">Reunião semanal de relatórios · segunda-feira</div></div></section>`;
-  const olheiros = [['Olheiro principal', 'Luís Alcobia', 13, 'Coordena · Portugal'], ['Olheiro de jovens', 'Samuel Quintela', 11, 'Sub-18 e sub-21 de Portugal e Espanha'], ['Olheiro internacional', 'Diego Ferraz', 12, 'Brasileirão e Argentina'], ['Analista', 'Inês Carvide', 12, 'Estatísticas dos alvos e adversários']];
+  // Missões em curso atribuídas aos olheiros de jovens, pela ordem.
+  const jovens = EQUIPA_SCOUT.filter((m) => m.cargo === 'Olheiro de Jovens'), emCurso = MISSOES.filter((x) => x.estado === 'em curso');
+  const tarefa = (m) => { if (m.cargo !== 'Olheiro de Jovens') return m.tarefa; const k = jovens.indexOf(m), x = emCurso[k]; return x ? `Em missão: ${nomePais(x.pais)} · ${x.pos} · regressa a ${x.fim}` : ''; };
+  const nOlh = EQUIPA_SCOUT.filter((m) => m.cargo === 'Olheiro').length, maxOlh = Math.min(5, Math.floor(NIVEL_RECRUTAMENTO / 2));
+  const cartao = (m) => { const t = tarefa(m); return `<div class="sc-membro">${avatarSvg({ id: 's:' + m.nome, nome: m.nome, pais: 'POR', idade: m.idade, staff: true }, { tam: 46, kit: { fato: true } })}<div class="sc-info"><div><b>${m.nome}</b> <span class="muted">· ${m.cargo} · ${m.idade} anos</span></div><div class="rot">${m.extra} · nível ${m.nivel}</div>
+      <div class="sc-atr">${atrsMembro(m.nome, m.nivel, ATR_OLHEIRO).map(([a, v]) => `<span class="chip ${v >= 15 ? 'bom' : v >= 10 ? '' : 'aviso'}">${a} <b>${v}</b></span>`).join('')}</div>
+      <div class="sc-tarefa">${t ? `<span class="chip ${t.startsWith('Em missão') ? 'aviso' : 'info'}">${t}</span>` : '<span class="chip bom">Livre</span>'}</div></div></div>`; };
   return `
   <div class="topo"><h1>Academia e Recrutamento</h1></div>${alas}
   <div class="grelha">
     ${foto}
-    <section class="c s3"><h2>Nível do recrutamento</h2><div class="num grande">6<span class="muted" style="font-size:20px">/10</span></div><div class="rot">+60% observações por semana</div></section>
-    <section class="c s9"><h2>Equipa de scouting</h2>${olheiros.map(([c, n, v, a]) => `<div class="linha-kv"><span><b>${n}</b> <span class="muted">· ${c}</span></span><span class="muted">${a} · nível ${v}</span></div>`).join('')}</section>
+    <section class="c s3"><h2>Nível do recrutamento</h2><div class="num grande">${NIVEL_RECRUTAMENTO}<span class="muted" style="font-size:20px">/10</span></div><div class="rot">+${NIVEL_RECRUTAMENTO * 10}% observações por semana · até ${Math.min(5, Math.floor(NIVEL_RECRUTAMENTO / 2))} olheiros</div><div class="rot" style="margin-top:6px">Sobe no ecrã das Infraestruturas (nível 8 → 4 olheiros).</div></section>
+    <section class="c s9"><h2>Equipa de scouting <span class="rot" style="margin-left:8px;text-transform:none;letter-spacing:0">${nOlh}/${maxOlh} olheiros (1 por cada 2 níveis do Recrutamento, máx. 5) · ${jovens.length}/3 olheiros de jovens</span></h2>
+      <div class="sc-grelha">${EQUIPA_SCOUT.map(cartao).join('')}</div>
+      <div class="rot" style="margin-top:8px">Avaliação: intervalos mais estreitos nos relatórios · Quantidade: jogadores observados por semana · Adaptabilidade: menos perda fora da sua região · Determinação: constância. Contratar e despedir no ecrã do Staff.</div></section>
     ${missoesOlheiro()}
     <section class="c s6"><h2>Scouts em andamento</h2>
       <div class="linha-kv"><span>Brasileirão · todos os escalões · avançados</span><span>familiaridade 0,73 · 4 semanas</span></div>
