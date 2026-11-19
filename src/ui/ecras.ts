@@ -4,6 +4,7 @@ import type { Resumo, Zona } from '../jogo/sessao.ts';
 import type { VistaPlantel, VistaJogador, VistaTactica, LinhaJogador } from '../jogo/vistas.ts';
 import type { Instrucoes } from '../config/tacticas.ts';
 import { svg, escudo } from './icones.ts';
+import { acoesJogador } from './ecrasA3.ts';
 
 export const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 export const fE = (v: number) => `€${Math.round(v).toLocaleString('pt-PT')}`;
@@ -118,12 +119,14 @@ export function htmlJogador(v: VistaJogador) {
   const moral = p.moral >= 15 ? 'Muito boa' : p.moral >= 11 ? 'Boa' : p.moral >= 7 ? 'Normal' : 'Má';
   const campo = `<svg viewBox="0 0 100 64" width="160" role="img" aria-label="Posições"><rect width="100" height="64" rx="3" fill="#2f8a4a"/><g stroke="rgba(255,255,255,.7)" fill="none" stroke-width=".8"><rect x="2" y="2" width="96" height="60"/><path d="M50 2V62"/><circle cx="50" cy="32" r="8"/><rect x="2" y="18" width="12" height="28"/><rect x="86" y="18" width="12" height="28"/></g>${[...v.posicoes].reverse().map((x) => { const [cx, cy] = POS_CAMPO[x.pos] ?? [50, 50]; return `<circle cx="${cx}" cy="${cy * 0.64}" r="${x.nivel === 'natural' ? 4 : 3.4}" fill="${x.nivel === 'natural' ? '#57c26a' : x.nivel === 'competente' ? '#f2c230' : '#f08a3c'}" stroke="#fff"><title>${x.nome}</title></circle>`; }).join('')}</svg>`;
   const est = (rot: string, val: string | number) => `<div class="hj-est"><span>${rot}</span><b>${val}</b></div>`;
-  const cel = (a: { nome: string; v: number }) => `<span>${a.nome}</span><span class="v ${a.v >= 16 ? 'v20' : a.v >= 13 ? 'v15' : a.v >= 9 ? 'v10' : 'v5'}">${a.v}</span>`;
-  return `<div class="topo"><h1>Ficha do jogador</h1><div class="direita"><button class="btn" data-voltar="1">‹ Voltar</button></div></div>
+  const cel = (a: { nome: string; v: number; int?: [number, number] }) => `<span>${a.nome}</span><span class="v ${a.int ? '' : a.v >= 16 ? 'v20' : a.v >= 13 ? 'v15' : a.v >= 9 ? 'v10' : 'v5'}">${a.int ? (a.int[0] === a.int[1] ? a.int[0] : `<span class="intervalo">${a.int[0]}–${a.int[1]}</span>`) : a.v}</span>`;
+  const sc = v.scouting;
+  const ovrTxt = sc && sc.ovr[0] !== sc.ovr[1] ? `${sc.ovr[0]}–${sc.ovr[1]}` : `${p.ovr}`;
+  return `<div class="topo"><h1>Ficha do jogador</h1>${sc ? `<span class="sub">Conhecimento do scouting: <span class="chip ${sc.conhecimento >= 80 ? 'bom' : sc.conhecimento >= 50 ? 'aviso' : 'mau'}">${sc.conhecimento}%</span>${sc.vies ? ` · o olheiro ${esc(sc.vies)}` : ''}</span>` : ''}<div class="direita" style="display:flex;gap:8px;flex-wrap:wrap">${acoesJogador(v.mercado, p.id, v.meu)}<button class="btn" data-voltar="1">‹ Voltar</button></div></div>
   <div class="grelha">
     <section class="c s12 hero-jog">
       <div class="hj-cab"><div class="hj-nome"><b>${esc(partes.length > 1 ? `${partes[0][0]}. ${partes[partes.length - 1].toUpperCase()}` : p.nome.toUpperCase())}</b><span>${esc(p.nome)} · ${esc(v.pais)} · ${v.peso} kg · ${v.altura} cm · ${p.idade} anos</span></div><span class="hj-pos">${p.pos}</span>
-        <span class="hj-pe" title="Pé preferido: ${v.pe}">${v.pe[0]}</span><span class="hj-moral" title="Moral ${p.moral}/20">${p.moral}</span><span class="hj-ovr" style="background:${ovrCor}">${p.ovr}</span></div>
+        <span class="hj-pe" title="Pé preferido: ${v.pe}">${v.pe[0]}</span><span class="hj-moral" title="Moral ${p.moral}/20">${p.moral}</span><span class="hj-ovr" style="background:${ovrCor}${sc ? ';font-size:22px' : ''}">${ovrTxt}</span></div>
       <div class="hj-corpo">
         <div class="hj-avatar">${rosto(p.rosto, 220)}</div>
         <div class="hj-lado">
@@ -139,8 +142,8 @@ export function htmlJogador(v: VistaJogador) {
       </div>
     </section>
     ${v.grupos.map((g) => `<section class="c s${v.grupos.length === 4 ? 3 : 4}"><h2>${g.nome}</h2><div class="atrib">${g.atributos.map(cel).join('')}</div></section>`).join('')}
-    <section class="c s6"><h2>Adequação aos papéis (1–20)</h2><div class="papeis">${v.papeis.map((r) => `<div class="papel"><span>${esc(r.nome)}</span><div class="barra"><i style="width:${r.v * 5}%"></i></div><b class="num" style="font-size:17px;text-align:right">${r.v}</b></div>`).join('')}</div>
-      <div class="rot" style="margin-top:10px">Posições: ${v.posicoes.map((x) => `${x.nome} (${x.nivel === 'natural' ? 'natural' : x.nivel === 'competente' ? 'competente' : 'a aprender'})`).join(', ')}</div></section>
+    ${sc ? '' : `<section class="c s6"><h2>Adequação aos papéis (1–20)</h2><div class="papeis">${v.papeis.map((r) => `<div class="papel"><span>${esc(r.nome)}</span><div class="barra"><i style="width:${r.v * 5}%"></i></div><b class="num" style="font-size:17px;text-align:right">${r.v}</b></div>`).join('')}</div>
+      <div class="rot" style="margin-top:10px">Posições: ${v.posicoes.map((x) => `${x.nome} (${x.nivel === 'natural' ? 'natural' : x.nivel === 'competente' ? 'competente' : 'a aprender'})`).join(', ')}</div></section>`}
     <section class="c s3"><h2>Estado</h2>
       <div class="linha-kv"><span class="muted">Moral</span><span>${moral} (${p.moral}/20)</span></div>
       <div class="linha-kv"><span class="muted">Condição</span><span>${p.condicao}%</span></div>
@@ -152,7 +155,7 @@ export function htmlJogador(v: VistaJogador) {
       <div class="linha-kv"><span class="muted">Fim</span><span>${p.fimContrato ? `30 Jun ${p.fimContrato}` : '—'}</span></div>
       <div class="linha-kv"><span class="muted">Escalão</span><span>${{ principal: 'Equipa principal', sub21: 'Sub-21', sub18: 'Sub-18' }[p.escalao]}</span></div>
       <div class="linha-kv"><span class="muted">Melhor papel</span><span>${esc(p.papel)}</span></div>
-      <div class="rot" style="margin-top:8px">Renovar, vender e emprestar chegam no Escritório e no Mercado (A3/A4).</div></section>
+      <div class="rot" style="margin-top:8px">${v.meu ? 'Renovações chegam no Escritório (A4).' : sc ? `Informação do scouting${sc.scout ? ` (${esc(sc.scout)})` : ''}: os intervalos estreitam com as observações.` : ''}</div></section>
   </div>`;
 }
 

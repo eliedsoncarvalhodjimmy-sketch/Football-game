@@ -65,15 +65,14 @@ function janela(w: World, c: number, dia: number) {
 
 export function vistaMercado(w: World, c: number, dia: number): VistaMercado {
   const st = w.jogadores!, m = w.mercado!, e = w.economia!, sc = m.scouting, u = m.util;
-  const conhecido = (j: number) => sc.nivel(c, j, dia) > 0;
   const ordenar = (a: LinhaMercado, b: LinhaMercado) => b.ovr[0] + b.ovr[1] - a.ovr[0] - a.ovr[1];
   const fora = (j: number) => st.clube[j] !== c;
-  const listados = m.todosListados().filter((j) => fora(j) && st.clube[j] >= 0 && conhecido(j)).map((j) => {
+  const listados = m.todosListados().filter((j) => fora(j) && st.clube[j] >= 0).map((j) => {
     const l = linhaMercado(w, c, j, dia);
     l.preco = precoPedido(w, m, j, c, dia, 1).preco;
     return l;
   }).sort(ordenar).slice(0, LIMITE_LISTA);
-  const emprestimos = m.todosEmprestaveis().filter((j) => fora(j) && conhecido(j)).map((j) => {
+  const emprestimos = m.todosEmprestaveis(dia).filter((j) => fora(j)).map((j) => {
     const l = linhaMercado(w, c, j, dia);
     const d = st.clube[j];
     const top = m.plantel(d).sort((a, b) => st.ovrNat(b) - st.ovrNat(a)).slice(0, 11);

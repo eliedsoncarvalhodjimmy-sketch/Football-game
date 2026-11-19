@@ -234,8 +234,17 @@ export class Mercado {
   }
 
   /** Listados para venda e emprestáveis (todos os grupos), para a interface do Mercado. */
-  todosListados(): number[] { return GRUPOS.flatMap((g) => this.listados.get(g) ?? []); }
-  todosEmprestaveis(): number[] { return GRUPOS.flatMap((g) => this.emprestaveis.get(g) ?? []); }
+  /** (Calculados na hora: os índices só se refazem uma vez por mês.) */
+  todosListados(): number[] { const st = this.w.jogadores!; return GRUPOS.flatMap((g) => [...(this.porGrupo.get(g) ?? [])]).filter((j) => st.clube[j] >= 0 && this.contratos.listado[j] > 0); }
+  todosEmprestaveis(dia: number): number[] {
+    const w = this.w, st = w.jogadores!;
+    const out: number[] = [];
+    for (let c = 0; c < w.clubes.length; c++) {
+      if (w.liga[c] < 0 || w.reputacao[c] < EMPRESTIMOS.emprestador_reputacao) continue;
+      this.plantel(c).sort((a, b) => st.ovrNat(b) - st.ovrNat(a)).forEach((j, i) => { if (i >= 18 && st.idade(j, dia) <= EMPRESTIMOS.idade_maxima && !this.contratos.emprestimo.has(j)) out.push(j); });
+    }
+    return out;
+  }
   todosLivres(): number[] { return GRUPOS.flatMap((g) => this.livres.get(g) ?? []); }
 
   /** Amostra de até n jogadores do grupo com OVR em [a, b] (pesquisa binária no índice). */

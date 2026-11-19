@@ -9,6 +9,8 @@ import { svg, escudo } from './icones.ts';
 import type { PaisEscolha, RegistoJogo, Resumo, Comando, PedidoVista, Vista } from '../jogo/sessao.ts';
 import type { Instrucoes } from '../config/tacticas.ts';
 import { htmlInicio, htmlPlantel, htmlJogador, htmlTactica, tabelaLiga, type UiPlantel, type Rascunho } from './ecras.ts';
+import { htmlMercado, htmlNegociacao, htmlAcademia, htmlScouting, rascunhoInicial, type UiMercado, type UiAcademia, type RascNeg } from './ecrasA3.ts';
+import { eventoA3, mudancaA3, entradaA3, SELECTOR, ligarA3 } from './eventosA3.ts';
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const fE = (v: number) => `€${Math.round(v).toLocaleString('pt-PT')}`;
@@ -235,15 +237,23 @@ const ECRAS: [string, string, string][] = [
 const INFERIOR = ['inicio', 'plantel', 'mercado', 'classificacao'];
 
 // Estado dos ecrãs da A2.
-const UI: { plantel: UiPlantel; jogador: string | null; voltar: string; vista: Vista | null; rascunho: Rascunho | null; formacaoVer: string | null } = {
+const UI: { plantel: UiPlantel; jogador: string | null; voltar: string; vista: Vista | null; rascunho: Rascunho | null; formacaoVer: string | null;
+  mercado: UiMercado; academia: UiAcademia; neg: number | null; rascNeg: RascNeg | null; rascNegId: number | null; extra: Vista | null } = {
   plantel: { tab: 'principal', filtro: 'Todos', pesquisa: '' }, jogador: null, voltar: 'plantel', vista: null, rascunho: null, formacaoVer: null,
+  mercado: { tab: 'geral', pesquisa: '', pos: '', idade: '', liga: '', conh: '' },
+  academia: { ala: 'academia', tab: 'Percurso', escJ: 0, tabJ: 'Classificação', pais: 'BRA', posicao: 'Avançados', semanas: 4, missao: null, zoom: 'Mundo', excedente: null, ligasScout: null },
+  neg: null, rascNeg: null, rascNegId: null, extra: null,
 };
+ligarA3({
+  UI, ecra: () => E.ecra, definirEcra: (e) => { E.ecra = e; }, comando: (c) => comando(c), carregarVista: () => carregarVista(),
+  desenharVista: (a) => desenharVista(a), irPara: (e) => irPara(e), ecraJogo: () => ecraJogo(),
+});
 
 function ecraJogo() {
   const r = E.resumo!;
   document.documentElement.style.setProperty('--acento', r.clube.cores[0]);
   document.documentElement.style.setProperty('--acento-2', r.clube.cores[1]);
-  const activo = E.ecra === 'jogador' ? 'plantel' : E.ecra;
+  const activo = E.ecra === 'jogador' ? (UI.voltar === 'jogador' ? 'plantel' : UI.voltar) : E.ecra === 'negociacao' ? 'mercado' : E.ecra;
   const nav = (k: string, t: string) => `<a class="nav ${k === activo ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${t}</a>`;
   raiz().innerHTML = `<div class="app">
     <nav class="lateral" aria-label="Navegação principal"><div class="marca">${escudo(r.clube.cores)}<div><b>FutCEO</b><small>${esc(r.clube.nome)}</small></div></div>
@@ -289,40 +299,57 @@ async function avancar() {
 function conteudoSincrono(r: Resumo): string | null {
   if (E.ecra === 'inicio') return htmlInicio(r);
   if (E.ecra === 'classificacao') return `<div class="topo"><h1>Competições</h1><span class="sub">${esc(r.clube.ligaNome)} · época ${r.epoca}</span></div><section class="c">${tabelaLiga(r, true)}</section><section class="c em-breve" style="margin-top:12px"><h2>Mais em breve</h2><div>Calendário, taças, competições continentais, estatísticas e histórico chegam na parte A4.</div></section>`;
-  if (E.ecra === 'plantel' || E.ecra === 'jogador') return null;
+  if (['plantel', 'jogador', 'mercado', 'negociacao', 'academia'].includes(E.ecra)) return null;
   const [, t, parte] = ECRAS.find((x) => x[0] === E.ecra)!;
   return `<div class="topo"><h1>${t}</h1></div><section class="c em-breve"><h2>Em construção</h2><div>Este ecrã chega na parte ${parte} do Bloco A. O desenho é o do protótipo.</div></section>`;
 }
 
 async function carregarVista() {
   const ecra = E.ecra;
-  const pedido: PedidoVista = ecra === 'jogador' ? { ecra: 'jogador', jogador: UI.jogador! } : UI.plantel.tab === 'tactica' ? { ecra: 'tactica', ...(UI.formacaoVer ? { formacao: UI.formacaoVer } : {}) } : { ecra: 'plantel' };
+  const pedido: PedidoVista = ecra === 'jogador' ? { ecra: 'jogador', jogador: UI.jogador! } : ecra === 'mercado' ? { ecra: 'mercado' } : ecra === 'negociacao' ? { ecra: 'negociacao', id: UI.neg! }
+    : ecra === 'academia' ? (UI.academia.ala === 'scouting' ? { ecra: 'scouting' } : { ecra: 'academia' })
+    : UI.plantel.tab === 'tactica' ? { ecra: 'tactica', ...(UI.formacaoVer ? { formacao: UI.formacaoVer } : {}) } : { ecra: 'plantel' };
+  const extra: PedidoVista | null = pedido.ecra === 'tactica' ? { ecra: 'plantel' } : pedido.ecra === 'scouting' ? { ecra: 'mercado' } : null;
   try {
-    const [v, n] = await Promise.all([pedir<'vista'>({ tipo: 'vista', pedido }), pedido.ecra === 'tactica' ? pedir<'vista'>({ tipo: 'vista', pedido: { ecra: 'plantel' } }) : Promise.resolve(null)]);
+    const [v, n] = await Promise.all([pedir<'vista'>({ tipo: 'vista', pedido }), extra ? pedir<'vista'>({ tipo: 'vista', pedido: extra }) : Promise.resolve(null)]);
     if (E.ecra !== ecra) return;
     UI.vista = v.vista;
+    UI.extra = n?.vista ?? null;
     const alvo = document.getElementById('conteudo');
-    if (!alvo) return;
-    if (v.vista.ecra === 'plantel') alvo.innerHTML = htmlPlantel(v.vista.dados, UI.plantel);
-    else if (v.vista.ecra === 'jogador') alvo.innerHTML = htmlJogador(v.vista.dados);
-    else if (v.vista.ecra === 'tactica') {
-      const t = v.vista.dados;
-      if (!UI.rascunho) UI.rascunho = { estilo: null, formacao: t.formacao, instrucoes: { ...t.instrucoes }, onze: null, trocas: {} };
-      const pl = n?.vista.ecra === 'plantel' ? n.vista.dados : null;
-      alvo.innerHTML = htmlTactica(t, UI.rascunho, { principal: pl?.principal.length ?? 0, sub21: pl?.sub21.length ?? 0, sub18: pl?.sub18.length ?? 0 });
-    }
+    if (alvo) desenharVista(alvo);
   } catch (e) {
     const alvo = document.getElementById('conteudo');
     if (alvo) alvo.innerHTML = `<section class="c"><div class="en-erro">Não foi possível abrir: ${esc((e as Error).message)}</div></section>`;
   }
 }
 
+/** Desenha a vista em memória (sem pedir de novo ao worker: filtros, separadores, rascunhos). */
+function desenharVista(alvo: HTMLElement) {
+  const v = UI.vista, x = UI.extra;
+  if (!v) return;
+  if (v.ecra === 'mercado') alvo.innerHTML = htmlMercado(v.dados, UI.mercado);
+  else if (v.ecra === 'negociacao') {
+    if (!UI.rascNeg || UI.rascNegId !== v.dados.neg.id) { UI.rascNeg = rascunhoInicial(v.dados); UI.rascNegId = v.dados.neg.id; }
+    alvo.innerHTML = htmlNegociacao(v.dados, UI.rascNeg);
+  } else if (v.ecra === 'academia') alvo.innerHTML = htmlAcademia(v.dados, UI.academia);
+  else if (v.ecra === 'scouting') alvo.innerHTML = htmlScouting(v.dados, UI.academia, x?.ecra === 'mercado' ? x.dados.shortlist : []);
+  else if (v.ecra === 'plantel') alvo.innerHTML = htmlPlantel(v.dados, UI.plantel);
+  else if (v.ecra === 'jogador') alvo.innerHTML = htmlJogador(v.dados);
+  else if (v.ecra === 'tactica') {
+    const t = v.dados;
+    if (!UI.rascunho) UI.rascunho = { estilo: null, formacao: t.formacao, instrucoes: { ...t.instrucoes }, onze: null, trocas: {} };
+    const pl = x?.ecra === 'plantel' ? x.dados : null;
+    alvo.innerHTML = htmlTactica(t, UI.rascunho, { principal: pl?.principal.length ?? 0, sub21: pl?.sub21.length ?? 0, sub18: pl?.sub18.length ?? 0 });
+  }
+}
+
 /** Eventos do conteúdo (delegação): navegação, filtros do plantel, promoções e a táctica. */
 function ligarConteudo(alvo: HTMLElement) {
   alvo.addEventListener('click', async (ev) => {
-    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-jogador],[data-ir],[data-tabp],[data-filtro],[data-promover],[data-voltar],[data-estilo],[data-form],[data-instr],[data-titular],[data-repor],[data-cancelar],[data-enviar]');
+    const el = (ev.target as HTMLElement).closest<HTMLElement>(SELECTOR);
     if (!el) return;
     const d = el.dataset;
+    if (await eventoA3(el, alvo)) return;
     if (d.promover) { ev.stopPropagation(); return promover(d.promover, d.nome ?? '', d.para ?? ''); }
     if (d.titular) {
       const [k, id] = d.titular.split(':');
@@ -357,8 +384,10 @@ function ligarConteudo(alvo: HTMLElement) {
       if (await comando(cmd)) { UI.rascunho = null; UI.formacaoVer = null; void carregarVista(); }
     }
   });
+  alvo.addEventListener('change', (ev) => mudancaA3(ev.target as HTMLElement, alvo));
   alvo.addEventListener('input', (ev) => {
     const t = ev.target as HTMLInputElement;
+    if (entradaA3(t, alvo)) return;
     if (t.id !== 'f-pesq') return;
     UI.plantel.pesquisa = t.value;
     if (UI.vista?.ecra === 'plantel') {

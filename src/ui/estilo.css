@@ -645,3 +645,13 @@ body { margin: 0; }
 .tab-liga td.nome-tab { width: 100%; }
 .tab-liga td.nome-tab b { display: block; max-width: min(46vw, 320px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .linha-kv.clic { cursor: pointer; } .linha-kv.clic:hover { background: rgba(255,255,255,.03); }
+/* A3: shortlist, ofertas recebidas, campos em euros */
+.btn-ic { border: 0; background: transparent; color: var(--suave); font-size: 18px; cursor: pointer; padding: 2px 6px; min-height: 30px; }
+.btn-ic.on { color: #e2a33a; } .btn-ic:hover { color: var(--texto); }
+.oferta { display: grid; gap: 6px; padding: 8px 0; border-bottom: 1px solid var(--linha); }
+.oferta-acoes { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.inp-eur { min-height: 38px; border-radius: 10px; border: 1px solid var(--linha); background: var(--cartao-2); color: var(--texto); padding: 0 10px; font-family: var(--f-num); font-size: 16px; width: 150px; }
+.np-campo select { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; color: #fff; padding: 6px; min-height: 38px; }
+select[multiple] { min-height: 140px; }
+.filtros select { min-height: 40px; border-radius: 10px; border: 1px solid var(--linha); background: var(--cartao-2); color: var(--texto); padding: 0 10px; }
+.np-orc > span svg { width: 24px; height: 24px; }
