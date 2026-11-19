@@ -20,6 +20,8 @@ export interface PlayerState {
   slot: Position;
   pos: Position;
   vel: Position;
+  /** Para onde o jogador está virado (ângulo em radianos, 0 = para x crescente). Roda com limite pela Agilidade. */
+  facing?: number;
   /** Atributos 1–20 (os 39 do jogo). */
   attrs: Partial<Record<IdAtributo, number>>;
   /** Moral 0–100 e condição física 0–1. */
@@ -89,6 +91,8 @@ export interface Action {
   utility?: number;
   /** Erro humano aplicado (0–0,5). */
   error?: number;
+  /** Tick em que o jogador começou esta opção (compromisso: não muda de ideias a cada decisão). */
+  since?: number;
 }
 
 /** Uma opção avaliada: tipo, utilidade e a acção que resulta se for escolhida. */

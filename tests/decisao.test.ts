@@ -38,7 +38,7 @@ describe('motor de decisão (camada 1)', () => {
       limparMemo(); // sem a memoização: a decisão em si é determinística
       expect(JSON.stringify(decideAction(p, buildContext(s, p)))).toBe(primeira);
     }
-    expect(VERSAO_DECISAO).toBe('v1');
+    expect(VERSAO_DECISAO).toBe('v2');
   });
 
   it('2. Passe 18 passa mais vezes do que Passe 8 nos mesmos contextos', () => {

@@ -1,7 +1,7 @@
 // Nível MESO: a forma da equipa. Cada jogador tem uma posição-alvo calculada a partir do seu lugar na formação, da
 // posição da bola e da táctica (linha defensiva, largura, compactação). "Forças de coesão" mantêm os sectores juntos:
 // a linha defensiva sobe e desce alinhada; os médios compactam à volta da sua média; os laterais sobem em sincronia.
-import { CAMPO, ESTILOS_DECISAO } from '../../config/decisao.ts';
+import { CAMPO, ESTILOS_DECISAO, TRELA } from '../../config/decisao.ts';
 import type { MatchState, Position, PlayerState, Equipa } from './types.ts';
 
 type Sector = 'gr' | 'def' | 'med' | 'ata';
@@ -26,7 +26,11 @@ export function formaEquipa(state: MatchState, team: Equipa): Map<string, Positi
   const t = state.tactics[team];
   const bx = xEquipa(team, state.ball.pos.x), by = state.ball.pos.y;
   const comBola = state.possessionTeam === team;
-  const chave = `${team}|${Math.round(bx)}|${Math.round(by)}|${comBola ? 1 : 0}|${t.style}|${t.mentality}|${t.defensiveLine.toFixed(2)}|${t.width.toFixed(2)}|${state.players.filter((p) => p.team === team && p.onPitch).map((p) => p.id).join(',')}`;
+  // Linha do último defensor adversário (penúltimo, contando o guarda-redes), em x da equipa: com a bola, os avançados
+  // jogam encostados a ela (atacam a profundidade), nunca para lá.
+  const xsAdv = state.players.filter((p) => p.onPitch && p.team !== team).map((p) => xEquipa(team, p.pos.x)).sort((a, b) => b - a);
+  const linhaAdv = Math.max(xsAdv[1] ?? 52.5, bx, CAMPO.comprimento / 2);
+  const chave = `${team}|${Math.round(bx)}|${Math.round(by)}|${comBola ? 1 : 0}|${comBola ? Math.round(linhaAdv) : 0}|${t.style}|${t.mentality}|${t.defensiveLine.toFixed(2)}|${t.width.toFixed(2)}|${state.players.filter((p) => p.team === team && p.onPitch).map((p) => p.id).join(',')}`;
   const c = cache.get(chave);
   if (c) return c;
   const ef = ESTILOS_DECISAO[t.style]?.forma ?? {};
@@ -50,6 +54,8 @@ export function formaEquipa(state: MatchState, team: Equipa): Map<string, Positi
     else x = linhaDef + profundidade * Math.max(0, (p.slot.x - 0.25) / 0.75);
     // Laterais sobem com a posse (sincronizados) e mais nos estilos que o pedem.
     if (lateral(p) && comBola) x += 6 + 4 * (ef.subidaLaterais ?? 0);
+    // Avançados com a posse: na linha do último defensor (a 1,5 m, do lado certo), para dar profundidade.
+    if (s === 'ata' && comBola) x = Math.max(x, Math.min(linhaAdv - 1.5, CAMPO.comprimento - 6) - (p.role === 'PL' ? 0 : 3));
     // Largura em torno do centro, puxada para o lado da bola.
     const centro = CAMPO.largura / 2 + 0.25 * (by - CAMPO.largura / 2);
     let y = centro + (p.slot.y - 0.5) * CAMPO.largura * largura;
@@ -75,4 +81,17 @@ export function formaEquipa(state: MatchState, team: Equipa): Map<string, Positi
   if (cache.size > 4000) cache.clear();
   cache.set(chave, out);
   return out;
+}
+
+/**
+ * Trela à forma: devolve o alvo puxado para dentro da elipse do sector à volta da posição da forma (o jogador sai do
+ * lugar para uma acção, mas não abandona a sua zona). `factor` estica a trela (ex.: marcação perto da baliza).
+ */
+export function trela(p: PlayerState, forma: Position, alvo: Position, factor = 1): Position {
+  const sct = sectorDe(p);
+  const e = sct === 'gr' ? { x: 4, y: 6 } : TRELA[sct];
+  const dx = alvo.x - forma.x, dy = alvo.y - forma.y;
+  const k = Math.hypot(dx / (e.x * factor), dy / (e.y * factor));
+  if (k <= 1) return alvo;
+  return { x: forma.x + dx / k, y: forma.y + dy / k };
 }

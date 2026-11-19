@@ -47,13 +47,37 @@ export function separation(p: PlayerState, vizinhos: PlayerState[], raio = M.sep
   return mul(f, M.separacao_forca);
 }
 
+/** Diferença entre dois ângulos, em (−π, π]. */
+export function difAngulo(a: number, b: number): number {
+  let d = a - b;
+  while (d > Math.PI) d -= 2 * Math.PI;
+  while (d <= -Math.PI) d += 2 * Math.PI;
+  return d;
+}
+
+/** Roda um ângulo para outro, no máximo `max` radianos. */
+export function rodar(de: number, para: number, max: number): number {
+  const d = difAngulo(para, de);
+  return Math.abs(d) <= max ? para : de + Math.sign(d) * max;
+}
+
 /**
  * Um passo de movimento: combina Arrive (para o alvo) e Separation (dos colegas), limita a aceleração e a mudança de
- * direcção, e integra a posição. `urgencia` (0–1) escala a velocidade máxima (andar ↔ sprint).
+ * direcção, e integra a posição. `ritmo` (0–1) é a fracção da velocidade máxima (andar ≈ 0,18, trote ≈ 0,4, correr
+ * ≈ 0,65, sprint = 1). Se o jogador tiver `facing`, andar de costas ou de lado para onde olha é mais lento.
  */
-export function passo(p: PlayerState, alvo: Position, colegas: PlayerState[], dt: number, urgencia = 1): { pos: Position; vel: Position } {
+export function passo(p: PlayerState, alvo: Position, colegas: PlayerState[], dt: number, ritmo = 1): { pos: Position; vel: Position } {
   const L = limites(p);
-  const velMax = L.velMax * (0.45 + 0.55 * Math.max(0, Math.min(1, urgencia)));
+  let velMax = L.velMax * Math.max(M.ritmo_minimo, Math.min(1, ritmo));
+  if (p.facing !== undefined) {
+    const d = sub(alvo, p.pos);
+    if (len(d) > 0.5) {
+      const c = Math.cos(difAngulo(Math.atan2(d.y, d.x), p.facing));
+      // De frente (c ≈ 1) a 100%; de lado (c ≈ 0) a 80%; de costas (c ≈ −1) a 55%.
+      const f = c >= 0 ? M.lado + (1 - M.lado) * c : M.lado + (M.lado - M.costas) * c;
+      velMax = Math.min(velMax, L.velMax * f);
+    }
+  }
   let desejada = add(arrive(p.pos, alvo, velMax), separation(p, colegas));
   desejada = limitar(desejada, velMax);
   // Mudança de direcção limitada pela agilidade (a velocidade roda no máximo viragem × dt por passo).

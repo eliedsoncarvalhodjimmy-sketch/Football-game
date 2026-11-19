@@ -3,8 +3,9 @@
 import type { IdAtributo } from './atributos.ts';
 import type { IdEstilo } from './estilos.ts';
 
-/** Versão do algoritmo de decisão guardada em cada jogo ("decisionVersion"). */
-export const VERSAO_DECISAO = 'v1' as const;
+/** Versão do algoritmo de decisão guardada em cada jogo ("decisionVersion"). A v1 nunca chegou a jogos guardados
+ *  (só ao protótipo) e foi substituída pela v2: compromisso nas decisões, trela à forma e ruído mais lento. */
+export const VERSAO_DECISAO = 'v2' as const;
 
 export const CAMPO = { comprimento: 105, largura: 68, baliza: 7.32, area_comp: 16.5, area_larg: 40.3 };
 
@@ -12,7 +13,24 @@ export const CAMPO = { comprimento: 105, largura: 68, baliza: 7.32, area_comp: 1
 export const FREQUENCIA = { com_bola_ms: 200, sem_bola_ms: 500, treinador_min: 5, tick_ms: 100 };
 
 /** Pesos da fórmula de utilidade. */
-export const PESOS = { atributo: 4, tactica: 1, contexto: 1, moral: 1.5, condicao: 1.5, aleatorio: 0.6 };
+export const PESOS = { atributo: 4, tactica: 1, contexto: 1, moral: 1.5, condicao: 1.5, aleatorio: 0.6, aleatorio_sem_bola: 0.25 };
+
+/** O "capricho" (factor aleatório) de cada jogador muda a cada x segundos, não a cada decisão. */
+export const RUIDO_JANELA_S = 3;
+
+/**
+ * Compromisso: um jogador mantém a opção que está a executar (com o alvo actualizado) enquanto a melhor alternativa
+ * não a ultrapassar por uma margem; nos primeiros segundos de uma opção a margem é maior. Uma mudança de posse
+ * liberta todos do compromisso (é outro momento do jogo).
+ */
+export const COMPROMISSO = { margem_sem_bola: 1.2, margem_com_bola: 0.6, minimo_s: 1.5, margem_inicio: 3.0 };
+
+/**
+ * Trela à forma: sem a bola, o alvo de cada opção fica dentro de uma elipse à volta da posição da forma da equipa
+ * (metros em x, ao longo do campo, e em y, na largura). Ficam de fora quem pressiona o portador, quem vai à bola
+ * solta e quem recebe um passe. A marcação perto da própria baliza estica a trela (segue o atacante).
+ */
+export const TRELA = { def: { x: 7, y: 6 }, med: { x: 11, y: 9 }, ata: { x: 14, y: 10 }, marcar_perto_baliza: 1.6 };
 
 /** Tipos de acção avaliados (para o mapeamento de atributos e para a semente do factor aleatório). */
 export type TipoAvaliado = 'passe_curto' | 'passe_longo' | 'cruzamento' | 'driblar' | 'proteger' | 'rematar' | 'cabecear'
@@ -111,7 +129,36 @@ export const MOVIMENTO = {
   viragem_base: 2.5, viragem_por_ponto: 0.2, // rad/s: Agilidade
   raio_chegada: 3, separacao_raio: 2.2, separacao_forca: 6,
   fadiga_por_s_a_correr: 0.00012, fadiga_por_s_parado: 0.00002,
+  /** Mínimo do ritmo (fracção da velocidade máxima): abaixo disto anda. */
+  ritmo_minimo: 0.12,
+  /** A andar de costas (ou de lado) para o sítio para onde olha: fracção da velocidade máxima. */
+  costas: 0.55, lado: 0.8,
+  /** O corpo roda mais depressa do que a trajectória: viragem do olhar = viragem × factor. */
+  olhar_factor: 1.6,
+  /** A partir desta velocidade (m/s) o jogador olha para onde corre; abaixo, olha para a bola. */
+  olhar_correr_ms: 5.5,
 };
+
+/**
+ * Ritmo (fracção da velocidade máxima) conforme a distância ao alvo e o momento do jogo: andar, trote, correr, sprint.
+ * Um jogador no seu lugar anda; a caminho de um lugar longe trota ou corre; quem pressiona, persegue a bola ou recua
+ * depois da perda corre a fundo.
+ */
+export const RITMO = {
+  andar: 0.18, trote: 0.4, correr: 0.65, sprint: 1.0,
+  /** Distâncias ao alvo (m): até `andar_m` anda, até `trote_m` trota, até `correr_m` corre, acima corre mais. */
+  andar_m: 2.5, trote_m: 7, correr_m: 15,
+  portador_conduz: 0.62, portador_protege: 0.2, portador_espaco: 0.8,
+  pressao: 0.92, bola_solta: 0.95, receptor: 0.8, desmarcacao: 0.8,
+  /** Transição defensiva: atrás da linha da bola depois de perder a posse. */
+  recuo_transicao: 0.9,
+};
+
+/**
+ * Bola parada: o marcador vai até à bola (a trote), os outros reorganizam-se na forma; recomeça quando o marcador
+ * chega à bola e passou o tempo mínimo (segundos de jogo). Os adversários ficam a 9,15 m nos livres e cantos.
+ */
+export const PARAGEM = { lancamento_s: 4, canto_s: 9, baliza_s: 7, livre_s: 6, saida_s: 12, saida_max_s: 30, distancia_m: 9.15 };
 
 /** Treinador IA: gatilhos avaliados a cada 5 minutos. */
 export const TREINADOR_IA = {

@@ -3,6 +3,8 @@
 import { CAMPO, CONTEXTO as K } from '../../../config/decisao.ts';
 import { dist } from '../../physics/Steering.ts';
 import { utilidade, atributoAccao, erroAccao } from '../ActionEvaluator.ts';
+import { trela } from '../TeamShape.ts';
+import { TRELA } from '../../../config/decisao.ts';
 import type { PlayerContext, Opcao, PlayerState } from '../types.ts';
 
 export function avaliarDefesa(ctx: PlayerContext): Opcao[] {
@@ -29,15 +31,18 @@ export function avaliarDefesa(ctx: PlayerContext): Opcao[] {
     if (perigo > melhor) { melhor = perigo; alvo = o; }
   }
   if (alvo) {
-    const goalSide = { x: alvo.pos.x + (minhaBaliza.x - alvo.pos.x) * 0.12, y: alvo.pos.y + (minhaBaliza.y - alvo.pos.y) * 0.12 };
+    // Entre o atacante e a baliza, a 1,5–3 m; perto da própria baliza a trela estica (segue o atacante).
+    const gd = Math.hypot(minhaBaliza.x - alvo.pos.x, minhaBaliza.y - alvo.pos.y) || 1, folga = Math.min(3, 1.5 + gd / 30);
+    const perto = gd < 30 ? TRELA.marcar_perto_baliza : 1;
+    const goalSide = trela(me, ctx.shapeTarget, { x: alvo.pos.x + ((minhaBaliza.x - alvo.pos.x) / gd) * folga, y: alvo.pos.y + ((minhaBaliza.y - alvo.pos.y) / gd) * folga }, perto);
     const bc = dist(alvo.pos, minhaBaliza) < 35 ? K.marcar_atacante_perigoso : 0;
     const u = utilidade(ctx, 'marcar', bc);
     out.push({ tipo: 'marcar', utilidade: u, action: { type: 'mark', target: goalSide, targetPlayerId: alvo.id, option: 'marcar', utility: u } });
     // Interceptar: meio da linha entre o portador e esse adversário.
     if (ctx.carrier) {
-      const meio = { x: (ctx.carrier.pos.x + alvo.pos.x) / 2, y: (ctx.carrier.pos.y + alvo.pos.y) / 2 };
-      const perto = dist(me.pos, meio) < 10;
-      const ui = utilidade(ctx, 'interceptar', perto ? K.interceptar_linha : -1);
+      const meio = trela(me, ctx.shapeTarget, { x: (ctx.carrier.pos.x + alvo.pos.x) / 2, y: (ctx.carrier.pos.y + alvo.pos.y) / 2 });
+      const pertoLinha = dist(me.pos, meio) < 10;
+      const ui = utilidade(ctx, 'interceptar', pertoLinha ? K.interceptar_linha : -1);
       out.push({ tipo: 'interceptar', utilidade: ui, action: { type: 'move', target: meio, targetPlayerId: alvo.id, option: 'interceptar', utility: ui } });
     }
   }

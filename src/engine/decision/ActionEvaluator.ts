@@ -4,11 +4,14 @@
 // e calcula o erro humano de uma acção técnica.
 // Nota de implementação: a moral só pesa nas acções de risco e a condição só nas acções físicas (nas outras o termo é
 // neutro). Somado a todas as opções por igual não mudaria nenhuma escolha.
-import { ATRIBUTOS_ACCAO, ESTILOS_DECISAO, PESOS, MORAL, ERRO, ACCOES_RISCO, REMATE_LONGE_M, type TipoAvaliado } from '../../config/decisao.ts';
+import { ATRIBUTOS_ACCAO, ESTILOS_DECISAO, PESOS, MORAL, ERRO, ACCOES_RISCO, REMATE_LONGE_M, RUIDO_JANELA_S, FREQUENCIA, type TipoAvaliado } from '../../config/decisao.ts';
 import { aleatorioSimetrico } from './rng.ts';
 import type { PlayerState, PlayerContext } from './types.ts';
 
 const ACCOES_FISICAS: TipoAvaliado[] = ['driblar', 'pressionar', 'correr_espaco', 'desarmar', 'interceptar'];
+/** Opções sem bola (o ruído é menor: posicionar-se é menos caprichoso do que decidir com a bola). */
+const SEM_BOLA: TipoAvaliado[] = ['correr_espaco', 'apoiar', 'manter_posicao', 'pressionar', 'recuar', 'marcar', 'interceptar', 'desarmar'];
+const TICKS_RUIDO = (RUIDO_JANELA_S * 1000) / FREQUENCIA.tick_ms;
 
 /** Valor de um atributo (1–20); "flair" = média de Drible e Visão. */
 export function atributo(p: PlayerState, id: string): number {
@@ -65,7 +68,9 @@ export function utilidade(ctx: PlayerContext, tipo: TipoAvaliado, bonusContexto:
   }
   // Condição: nas acções físicas, (factor − 1) penaliza o cansado (0 a −0,5 × peso × 4).
   const cond = ACCOES_FISICAS.includes(tipo) ? PESOS.condicao * (factorCondicao(p.condition) - 1) * 4 : 0;
-  const ruido = PESOS.aleatorio * aleatorioSimetrico(`${p.id}|${ctx.state.tick}|${tipo}`);
+  // O capricho muda por janelas de tempo (não a cada decisão), desfasado por jogador.
+  const janela = Math.floor((ctx.state.tick + p.number * 7) / TICKS_RUIDO);
+  const ruido = (SEM_BOLA.includes(tipo) ? PESOS.aleatorio_sem_bola : PESOS.aleatorio) * aleatorioSimetrico(`${p.id}|${janela}|${tipo}`);
   return PESOS.atributo * attr + PESOS.tactica * bonusTactico(ctx, tipo) + PESOS.contexto * bonusContexto + moral + cond + ruido;
 }
 
