@@ -21,6 +21,9 @@ import type { World } from '../engine/world.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
 import type { MercadoUtilizador, TermosUtilizador } from './mercadoUtilizador.ts';
 import { NEG_CLUBE } from '../config/negociacaoUtilizador.ts';
+import { LIVRES_INICIAIS } from '../config/mundo.ts';
+import { gerarJogador, ovrAlvoClube } from '../players/gerador.ts';
+import type { POSICOES as POSICOES_J } from '../config/papeis.ts';
 
 export type TipoNegocio = 'transferencia' | 'livre' | 'emprestimo' | 'clausula' | 'pre_contrato' | 'formacao';
 export type EstadoNegocio = 'oferta' | 'termos' | 'exames' | 'registo' | 'concluido' | 'falhou';
@@ -113,8 +116,37 @@ export class Mercado {
       }
       for (const j of pl) if (!this.contratos.clausula[j]) this.talvezClausula(j, c, dia, rng);
     }
+    this.gerarLivresIniciais(dia);
     for (const j of w.economia?.livres ?? []) this.tornarLivre(j, dia);
     this.reindexar();
+  }
+
+  /** Jogadores livres no início do mundo (LIVRES_INICIAIS): por liga, perto do nível dos clubes mais fracos dela. */
+  private gerarLivresIniciais(dia: number) {
+    const w = this.w, st = w.jogadores!, e = w.economia;
+    if (!e) return;
+    const L = LIVRES_INICIAIS;
+    const pos = Object.entries(L.posicoes);
+    const tot = pos.reduce((a, [, p]) => a + p, 0);
+    w.ligas.forEach((liga) => {
+      if (!liga.clubes.length) return;
+      const rng = Rng.de(w.semente, 'livres-iniciais', liga.regras.id);
+      const base = Math.min(...liga.clubes.map((c) => ovrAlvoClube(w, c)));
+      const pais = w.clubes[liga.clubes[0]].pais;
+      const n = Math.round(liga.clubes.length * L.por_clube);
+      for (let k = 0; k < n; k++) {
+        let u = rng.next() * tot;
+        const p = (pos.find(([, x]) => (u -= x) < 0) ?? pos[0])[0] as (typeof POSICOES_J)[number];
+        const idade = rng.int(L.idade[0], L.idade[1]) + rng.next();
+        const ovr = Math.max(35, Math.round(base - rng.int(L.desconto[0], L.desconto[1])));
+        const j = gerarJogador(st, rng, { id: `livre_${liga.regras.id}_${k}`, pais, pos: p, idade, dia, ovr, potencial: Math.max(ovr, Math.round(ovr + Math.max(0, 26 - idade) * 1.5)), clube: -3 });
+        const c = liga.clubes[liga.clubes.length - 1];
+        this.contratos.salarioAnterior.set(j, Math.round(this.salarioMercado(j, c, dia) / 1000) * 1000);
+        this.contratos.garantir(st.cap);
+        this.tornarLivre(j, dia);
+        this.contratos.livreDesde[j] = dia - rng.int(L.meses_livre[0], L.meses_livre[1]) * 30;
+      }
+    });
   }
 
   // ---------------------------------------------------------------- utilidades

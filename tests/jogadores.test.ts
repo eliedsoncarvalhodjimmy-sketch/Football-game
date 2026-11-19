@@ -74,7 +74,8 @@ describe('geração de plantéis', async () => {
   it('25 jogadores por clube: 3 GR, 8 defesas, 8 médios, 6 avançados; idades 17–38', () => {
     // Equipa principal: 25 por clube; os juniores da academia (Prompt 4, Bloco C) são registos à parte.
     expect(w.plantel.reduce((a, p) => a + p.length, 0)).toBe(w.clubes.length * 25);
-    expect(st.n).toBe(w.clubes.length * 25 + (w.academia?.contagens().individuais ?? 0));
+    const livres = Array.from({ length: st.n }, (_, i) => i).filter((i) => st.clube[i] === -3).length; // livres iniciais (pedido do utilizador)
+    expect(st.n).toBe(w.clubes.length * 25 + (w.academia?.contagens().individuais ?? 0) + livres);
     for (const pl of w.plantel) {
       expect(pl.length).toBe(25);
       const g: Record<string, number> = {};

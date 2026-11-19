@@ -15,6 +15,7 @@ describe('vistas da A3', () => {
     if (vm.ecra !== 'mercado') throw new Error();
     expect(vm.dados.janela.aberta).toBe(true);
     expect(vm.dados.conhecidos.length).toBeGreaterThan(10);
+    expect(vm.dados.livres.length).toBeGreaterThan(30); // livres desde o início do mundo
     const outro = vm.dados.conhecidos[0];
     expect(outro.ovr[1]).toBeGreaterThanOrEqual(outro.ovr[0]);
     const vj = a.vista({ ecra: 'jogador', jogador: outro.id });
