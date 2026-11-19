@@ -296,3 +296,7 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - 0 colegas a menos de 2 m, 0 excessos de velocidade ou aceleração;
         - ritmos: 83% a andar, 10% a trote, 2% em corrida, 4% em sprint.
     - **Desempenho**: 90 minutos só de movimento demoram 1,5 s em Node (modo de desenvolvimento). O alvo de 1,5 s para um jogo completo (secção 14) é da Fase 5.
+188. **Tempo e apresentação: modelo FM** (decisão do utilizador, que substitui a secção 2.2 de `docs/tactics/MOTOR_2D.md`, as referências nas secções 0 e 13, e a "compressão variável"). O motor simula sempre os 90 minutos em tempo real e o ecrã mostra os lances importantes em tempo real, com avanço rápido (8–16×, com ⏩) entre eles. Há três níveis: Lances-chave (5–8 min), **Alargados por omissão (12–16 min)** e Jogo completo (~90 min). Os lances são simulados por blocos à frente do ecrã. A selecção e o orçamento de duração são da Fase 5. Consequências já aplicadas:
+    - O ecrã de teste da Fase 1 passa a ter 1× = tempo real (a escolha por omissão), mais 0,5×, 2×, 4× e "⏩ 12×" (avanço rápido).
+    - As estatísticas da secção 12 aplicam-se aos totais reais, sem factores de escala.
+    - As decisões 185–186 ("1× = 1 min em 3 s", depois "1× = jogo em 15 min") ficam ultrapassadas para o motor novo. O "Ao vivo" do protótipo antigo mantém-se como está até a Fase 6 o substituir.

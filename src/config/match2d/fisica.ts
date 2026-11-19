@@ -24,6 +24,6 @@ export const FISICA = {
   costas: 0.55, lado: 0.8,
 };
 
-/** Velocidades de apresentação na Fase 1 (compressão constante; a variável da secção 2.2 é da Fase 5).
- *  1× = 6× o tempo real (90 min em 15 min). */
-export const VELOCIDADES_FASE1: [string, number][] = [['Tempo real', 1], ['0,5×', 3], ['1×', 6], ['2×', 12]];
+/** Velocidades de apresentação (secção 2.2, modelo FM): 1× = tempo real dentro dos lances; 2× e 4× aceleram; 0,5× para
+ *  ver em detalhe. O avanço rápido (⏩) é o que se usa entre lances, independente da velocidade escolhida. */
+export const VELOCIDADES_FASE1: [string, number][] = [['0,5×', 0.5], ['1×', 1], ['2×', 2], ['4×', 4], ['⏩ 12×', 12]];

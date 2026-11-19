@@ -10,7 +10,7 @@ Antes de escrever código, confirma quais destas causas existem hoje no motor e 
 
 1. **Cada jogador decide sozinho, sem estrutura colectiva.** No futebol real, 80% do movimento de um jogador é "manter a posição certa dentro do bloco da equipa". Só uma minoria do tempo é decisão individual.
 2. **As decisões são recalculadas a cada frame.** O alvo muda constantemente e as bolinhas tremem e ziguezagueiam. Decisões têm de ter compromisso (secção 7.3).
-3. **Velocidades irreais por causa da compressão de tempo.** 90 min em 15 min = 6x. Se o motor desenhar jogadores a 6x da velocidade real, um sprint de 8 m/s aparece como 48 m/s no ecrã: isso parece caos mesmo com IA perfeita. Ver secção 2.
+3. **Velocidades irreais por causa da compressão de tempo.** Se o motor desenhar jogadores mais depressa do que na realidade (por exemplo, 90 min comprimidos em 15 min = 6x), um sprint de 8 m/s aparece como 48 m/s no ecrã: isso parece caos mesmo com IA perfeita. Decisão: modelo FM (secção 2.2) — o motor simula os 90 minutos em tempo real e o ecrã mostra os lances em tempo real, com avanço rápido entre eles.
 4. **A bola teletransporta-se ou é resolvida sem trajectória.** Um passe tem de viajar no espaço, com velocidade, e poder ser interceptado pelo caminho.
 5. **Não há fases de jogo.** A equipa não sabe se está a construir, a defender em bloco ou em transição, e por isso não muda de forma.
 
@@ -45,13 +45,42 @@ Integração com o que já existe:
 - 105 × 68 m. Coordenadas internas sempre em **metros**, e cada equipa raciocina no seu referencial: `x` de 0 (a própria baliza) a 105 (baliza adversária), `y` de 0 (lado esquerdo) a 68 (lado direito). Converte para o referencial absoluto só na renderização.
 - Nas tabelas abaixo uso coordenadas normalizadas `(x, y)` entre 0 e 1. Multiplica por 105 e 68.
 
-### 2.2 Tempo de jogo vs tempo de apresentação
-- O motor físico corre **sempre em tempo de jogo real**: um tick = 0,1 s de jogo, velocidades em m/s reais.
-- A renderização interpola entre ticks a 60 fps.
-- A compressão para caber em 15 min a 1x **não é constante**. Usa compressão variável, que é o que dá a sensação de jogo "lido" do FM:
+### 2.2 Tempo de jogo e apresentação: modelo FM (simulação completa e lances mostrados)
 
-| Situação | Compressão | Exemplo |
-|----------|-----------|---------|
+**Princípio.** O motor simula sempre os 90 minutos completos, em tempo de jogo real (tick de 0,1 s, velocidades reais em m/s). O ecrã não mostra tudo: mostra os lances importantes **em tempo real**, e o resto do jogo passa depressa entre eles. Nunca se mostram jogadores a correr mais depressa do que na realidade dentro de um lance.
+
+**Simulação por blocos.** O motor simula à frente do que está no ecrã, em blocos (por exemplo, até ao fim do próximo lance a mostrar, ou 5 minutos de jogo), e não o jogo inteiro de uma vez. Assim, substituições automáticas, lesões e futuras alterações tácticas afectam só o que ainda não foi simulado. É determinístico com semente.
+
+**Selecção dos lances.** Cada sequência ofensiva recebe uma pontuação de importância:
+- Sempre mostrados: golo, penálti, cartão vermelho, golo anulado, lesão grave.
+- Prioridade alta: remate com xG ≥ 0,15, bola nos postes, defesa difícil do GR, 1x1 com o GR, contra-ataque que chega à área.
+- Prioridade média: remate enquadrado, canto ou livre perigoso, cruzamento perigoso, cartão amarelo, grande desarme ou corte na área.
+- **Jogo corrido (obrigatório):** pelo menos 1 sequência de construção a cada 6–8 minutos de jogo, mesmo sem perigo, escolhida entre as mais longas e representativas, para se ver a organização e o estilo de cada equipa.
+
+**Cada lance começa antes do momento-chave.** O clip arranca no início da sequência (recuperação da bola ou primeira fase de construção), no máximo 15–25 s antes do momento-chave, e termina 2–4 s depois (para ver o ressalto, a celebração ou a reorganização). Assim vê-se como o lance foi construído, não só o remate.
+
+**Três níveis de visualização (escolhidos antes ou durante o jogo):**
+
+| Nível | Lances mostrados | Duração a 1x (aprox.) |
+|---|---|---|
+| Lances-chave | só os "sempre" e de prioridade alta (~12–20) | 5–8 min |
+| **Alargados (por defeito)** | todos os de prioridade alta e média, mais jogo corrido (~35–50) | **12–16 min** |
+| Jogo completo | todo o jogo em tempo real | ~90 min |
+
+- Um orçamento de duração ajusta o nível "Alargados" a ~15 min: se o jogo tem muitos lances, cortam-se primeiro os de prioridade média menos importantes; se tem poucos, acrescenta-se jogo corrido.
+- Replay opcional dos golos (câmara lenta 0,5x), que conta para o orçamento.
+
+**Entre lances.** O relógio avança; o relato em texto mostra os eventos (posse, faltas, cantos, substituições); as estatísticas actualizam-se. No campo, por defeito, as posições aparecem em avanço rápido (8–16x) com um indicador ⏩ bem visível, para manter a noção de onde está o jogo. Opção para trocar por "só relato".
+
+**Velocidades.** 1x = tempo real dentro dos lances. 2x e 4x aceleram os lances (física incluída). 0,5x para depuração. O avanço rápido entre lances não depende da velocidade escolhida.
+
+**Consequências para o resto do documento:**
+- Como os 90 minutos são simulados por inteiro, as estatísticas da secção 12 aplicam-se tal como estão (totais reais, sem factores de escala).
+- O cansaço, os cartões, as lesões e as substituições seguem o tempo de jogo real.
+- Desempenho: simular 90 minutos em Node tem de demorar < 1,5 s (secção 14), o que permite simular blocos à frente sem pausas.
+- Testes: num lote de 50 jogos, o nível "Alargados" dura 12–16 min a 1x; todos os golos aparecem; o tempo de jogo corrido mostrado é ≥ 20% do total mostrado.
+
+----------|-----------|---------|
 | Circulação na primeira fase, bola parada a ser preparada, guarda-redes com a bola | 10–14x | centrais a trocar a bola |
 | Construção no meio-campo | 6–8x | |
 | Último terço, transição rápida, bola na área | 2–3x | contra-ataque, cruzamento, remate |
@@ -581,8 +610,8 @@ Cada fase acaba com uma PARAGEM: mostras-me o resultado (ecrã de teste e númer
 **Fase 4 — Estilos.** Os 8 estilos como parâmetros (secção 8). Futebol Total com reatribuição de posições.
 *Critério:* reconheço os 8 estilos num jogo; os testes estatísticos por estilo estão dentro das faixas.
 
-**Fase 5 — Remates, bolas paradas, jogadas-padrão, cansaço e compressão de tempo.** Secções 2.2, 10.2, 11. Relatos e estatísticas ao vivo.
-*Critério:* o teste de 200 jogos passa e um jogo dura 15 min (±1) a 1x.
+**Fase 5 — Remates, bolas paradas, jogadas-padrão, cansaço e apresentação por lances (modelo FM).** Secções 2.2, 10.2, 11. Simulação por blocos, selecção e pontuação dos lances, três níveis de visualização, avanço rápido entre lances, replay dos golos. Relatos e estatísticas ao vivo.
+*Critério:* o teste de 200 jogos passa; num lote de 50 jogos o nível "Alargados" dura 12–16 min a 1x, todos os golos aparecem e o jogo corrido mostrado é ≥ 20% do total mostrado.
 
 **Fase 6 — Integração e calibração.** Liga o motor 2D ao modo detalhado do jogo do utilizador. Confirma que os resultados batem com a simulação rápida (médias de golos e distribuição de resultados por diferença de força). Os testes antigos continuam verdes.
 
