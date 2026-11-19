@@ -1,13 +1,17 @@
-// Mensagens entre a interface e o Web Worker da simulação.
-export type Pedido = { tipo: 'gerar'; semente: number };
+// Mensagens entre a interface e o Web Worker (Prompt 5, Bloco A). A interface só lê vistas e envia comandos.
+import type { Etapa, PaisEscolha, RegistoJogo, Resumo } from '../jogo/sessao.ts';
 
-export interface LinhaClube {
-  nome: string; sigla: string; cidade: string; rep: number; atq: number; def: number; estadio: string; capacidade: number; cores: [string, string];
-}
-export interface ResumoLiga {
-  id: string; pais: string; nome: string; nivel: number; equipas: number; jornadas: number; repMax: number; repMin: number;
-  primeira: string; ultima: string; clubes: LinhaClube[];
-}
+export type Pedido =
+  | { id: number; tipo: 'preparar' }
+  | { id: number; tipo: 'novoMundo'; semente: number }
+  | { id: number; tipo: 'comecar'; clube: string; perfil: RegistoJogo['perfil'] }
+  | { id: number; tipo: 'carregar'; registo: RegistoJogo }
+  | { id: number; tipo: 'avancar'; semanas: number }
+  | { id: number; tipo: 'resumo' };
+
 export type Resposta =
-  | { tipo: 'mundo'; semente: number; clubes: number; jogos: number; conflitos: number; ms: number; ligas: ResumoLiga[] }
-  | { tipo: 'erro'; msg: string };
+  | { id: number; tipo: 'progresso'; etapa: Etapa; fraccao: number; texto: string }
+  | { id: number; tipo: 'paises'; paises: PaisEscolha[] }
+  | { id: number; tipo: 'estado'; resumo: Resumo; registo: RegistoJogo }
+  | { id: number; tipo: 'ok' }
+  | { id: number; tipo: 'erro'; msg: string };

@@ -1,38 +1,26 @@
-// Web Worker: o motor corre aqui, fora da thread da interface.
+// Web Worker: o motor corre aqui, fora da thread da interface. Cada pedido tem um id; a resposta final repete-o
+// (as mensagens de progresso também, para a barra do ecrã de carregamento).
 import { GlobSource } from '../data/GlobSource.ts';
-import { carregarDados } from '../data/load.ts';
-import { construirMundo } from '../engine/world.ts';
-import { calendarioLigas } from '../engine/calendar/epoca.ts';
-import { verificarCalendario } from '../engine/calendar/verificar.ts';
-import { isoData } from '../engine/calendar/datas.ts';
-import type { Pedido, Resposta, ResumoLiga } from './protocolo.ts';
+import { Sessao, type Etapa } from '../jogo/sessao.ts';
+import type { Pedido, Resposta } from './protocolo.ts';
 
+const sessao = new Sessao(new GlobSource());
 const responder = (r: Resposta) => (self as unknown as Worker).postMessage(r);
 
 self.onmessage = async (ev: MessageEvent<Pedido>) => {
+  const p = ev.data;
+  const prog = (etapa: Etapa, fraccao: number, texto: string) => responder({ id: p.id, tipo: 'progresso', etapa, fraccao, texto });
+  const estado = () => responder({ id: p.id, tipo: 'estado', resumo: sessao.resumo(), registo: sessao.registo! });
   try {
-    if (ev.data.tipo !== 'gerar') return;
-    const t0 = performance.now();
-    const d = await carregarDados(new GlobSource());
-    const w = construirMundo(d, { semente: ev.data.semente, modo: 'teste' });
-    const cal = calendarioLigas(w);
-    const todos = [...cal.values()].flat();
-    const ligas: ResumoLiga[] = w.ligas.map((l) => {
-      const js = cal.get(l.regras.id)!;
-      const ult = js[js.length - 1];
-      const reps = l.clubes.map((c) => w.reputacao[c]);
-      return {
-        id: l.regras.id, pais: w.pacotes.find((p) => p.manifest.id === l.pacote)!.manifest.nome, nome: l.regras.nome,
-        nivel: l.regras.nivel, equipas: l.clubes.length, jornadas: ult.ronda, repMax: Math.max(...reps), repMin: Math.min(...reps),
-        primeira: isoData(w.epoca, js[0].semana, js[0].dia), ultima: isoData(w.epoca, ult.semana, ult.dia),
-        clubes: [...l.clubes].sort((a, b) => w.reputacao[b] - w.reputacao[a]).map((i) => {
-          const c = w.clubes[i];
-          return { nome: c.nome, sigla: c.nome_curto, cidade: c.cidade, rep: c.reputacao, atq: Math.round(w.ataque[i]), def: Math.round(w.defesa[i]), estadio: c.estadio, capacidade: c.capacidade, cores: c.cores };
-        }),
-      };
-    });
-    responder({ tipo: 'mundo', semente: ev.data.semente, clubes: w.activos(), jogos: todos.length, conflitos: verificarCalendario(todos).length, ms: performance.now() - t0, ligas });
+    switch (p.tipo) {
+      case 'preparar': await sessao.preparar(prog); responder({ id: p.id, tipo: 'ok' }); break;
+      case 'novoMundo': responder({ id: p.id, tipo: 'paises', paises: await sessao.novoMundo(p.semente, prog) }); break;
+      case 'comecar': sessao.comecar(p.clube, p.perfil); estado(); break;
+      case 'carregar': await sessao.carregar(p.registo, prog); estado(); break;
+      case 'avancar': for (let k = 0; k < p.semanas; k++) sessao.avancar(); estado(); break;
+      case 'resumo': estado(); break;
+    }
   } catch (e) {
-    responder({ tipo: 'erro', msg: (e as Error).message });
+    responder({ id: p.id, tipo: 'erro', msg: (e as Error).message });
   }
 };

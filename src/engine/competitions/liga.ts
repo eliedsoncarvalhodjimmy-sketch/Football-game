@@ -46,6 +46,11 @@ export class CompLiga implements Competicao {
     return this.final;
   }
 
+  /** Classificação provisória (a qualquer momento da época), para a interface. */
+  classificacaoActual(): LinhaTabela[] {
+    return this.terminada() ? this.classificacao() : this.tabela.ordenar(this.regras.desempates, this.sal);
+  }
+
   /** Clube na posição p (1 = primeiro). */
   posicao(p: number): number {
     return this.classificacao()[p - 1].clube;
