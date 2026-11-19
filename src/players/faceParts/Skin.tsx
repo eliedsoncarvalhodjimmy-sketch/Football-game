@@ -24,8 +24,9 @@ export function paletaPele(i: number): PaletaPele {
     sombra: tom(base, escura ? -0.2 : -0.13),
     sombraForte: tom(base, escura ? -0.36 : -0.27),
     luz: tom(base, escura ? 0.1 : 0.16),
-    labio: misturar(tom(base, escura ? -0.12 : -0.1), escura ? '#7a3b33' : '#b8615a', escura ? 0.3 : 0.38),
-    labioClaro: misturar(base, escura ? '#8d4c43' : '#c9776d', escura ? 0.25 : 0.3),
+    // Lábios com cor própria (rosado-acastanhado), mais escuros em cima.
+    labio: misturar(tom(base, escura ? -0.22 : -0.16), escura ? '#5a2726' : '#a24d49', escura ? 0.5 : 0.48),
+    labioClaro: misturar(tom(base, escura ? 0 : -0.03), escura ? '#86504a' : '#c06f68', escura ? 0.42 : 0.4),
     linha: tom(base, escura ? -0.48 : -0.42),
   };
 }
@@ -37,7 +38,8 @@ export function desenharPescoco(c: Ctx): string {
   const lados = `M${n(g.cx - w)} ${n(y0)}C${n(g.cx - w - 0.5)} ${n(y0 + 30)} ${n(g.cx - w - 2)} ${n(y1 - 26)} ${n(g.cx - w - 5)} ${n(y1)}L${n(g.cx + w + 5)} ${n(y1)}C${n(g.cx + w + 2)} ${n(y1 - 26)} ${n(g.cx + w + 0.5)} ${n(y0 + 30)} ${n(g.cx + w)} ${n(y0)}Z`;
   let s = caminho(lados, pele.base);
   // Sombra do queixo sobre o pescoço (meia-lua) e lado direito mais escuro.
-  s += caminho(`M${n(g.cx - w - 1)} ${n(y0 + 8)}Q${n(g.cx)} ${n(g.queixoY + 18)} ${n(g.cx + w + 1)} ${n(y0 + 8)}L${n(g.cx + w + 1)} ${n(y0)}L${n(g.cx - w - 1)} ${n(y0)}Z`, pele.sombra);
+  // Sombra forte do queixo e do maxilar (bordo nítido, como nos exemplos).
+  s += caminho(`M${n(g.cx - w - 1)} ${n(g.maxilarY + 6)}C${n(g.cx - w + 6)} ${n(g.queixoY + 4)} ${n(g.cx - 10)} ${n(g.queixoY + 13)} ${n(g.cx)} ${n(g.queixoY + 13)}C${n(g.cx + 10)} ${n(g.queixoY + 13)} ${n(g.cx + w - 6)} ${n(g.queixoY + 4)} ${n(g.cx + w + 1)} ${n(g.maxilarY + 6)}L${n(g.cx + w + 1)} ${n(y0)}L${n(g.cx - w - 1)} ${n(y0)}Z`, pele.sombraForte, 'opacity=".9"');
   s += caminho(`M${n(g.cx + w - 6)} ${n(g.queixoY + 6)}C${n(g.cx + w - 4)} ${n(g.queixoY + 30)} ${n(g.cx + w - 2)} ${n(y1 - 20)} ${n(g.cx + w + 2)} ${n(y1)}L${n(g.cx + w + 5)} ${n(y1)}C${n(g.cx + w + 2)} ${n(y1 - 26)} ${n(g.cx + w)} ${n(y0 + 20)} ${n(g.cx + w)} ${n(y0)}Z`, pele.sombra, 'opacity=".8"');
   // Tendões / maçã de Adão discretos.
   if (t.idade >= 26) s += `<path d="M${n(g.cx - 7)} ${n(g.queixoY + 14)}Q${n(g.cx - 9)} ${n(g.queixoY + 30)} ${n(g.cx - 4)} ${n(g.queixoY + 42)}M${n(g.cx + 8)} ${n(g.queixoY + 14)}Q${n(g.cx + 9)} ${n(g.queixoY + 30)} ${n(g.cx + 5)} ${n(g.queixoY + 42)}" fill="none" ${traco(0.9, pele.sombraForte)} opacity=".55"/>`;

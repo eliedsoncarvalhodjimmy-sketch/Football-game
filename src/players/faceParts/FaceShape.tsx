@@ -5,13 +5,16 @@ import { P, caminho, curvaFechada, n, traco, type Pt } from './shared.ts';
 import { SvgLayer } from './Layer.tsx';
 
 /** Meias-larguras e alturas de cada formato (antes das variações). */
-export const FORMATOS: Record<FaceShapeId, { nome: string; testa: number; macas: number; maxilar: number; queixo: number; queixoY: number; topo: number }> = {
-  oval: { nome: 'Oval', testa: 39.5, macas: 41, maxilar: 35, queixo: 15, queixoY: 152, topo: 31 },
-  redondo: { nome: 'Redondo', testa: 41, macas: 43, maxilar: 39, queixo: 20, queixoY: 149, topo: 32 },
-  quadrado: { nome: 'Quadrado', testa: 40.5, macas: 41.5, maxilar: 40, queixo: 21, queixoY: 151, topo: 31 },
-  comprido: { nome: 'Comprido', testa: 37, macas: 38.5, maxilar: 33, queixo: 14.5, queixoY: 157, topo: 28 },
-  triangular: { nome: 'Triangular', testa: 39.5, macas: 40.5, maxilar: 31.5, queixo: 10, queixoY: 155, topo: 31 },
-  diamante: { nome: 'Diamante', testa: 36, macas: 43, maxilar: 33, queixo: 12.5, queixoY: 153, topo: 32 },
+/** Formatos: meia-largura nas maçãs (a maior) e as outras larguras em fracção dela, medidas nos exemplos do utilizador:
+ *  testa, à altura da boca, no maxilar (12 px acima do queixo) e junto ao queixo (4 px acima). A cara afunila das maçãs
+ *  até ao queixo, sem lados a direito. */
+export const FORMATOS: Record<FaceShapeId, { nome: string; macas: number; testa: number; boca: number; maxilar: number; queixo: number; queixoY: number; topo: number }> = {
+  oval: { nome: 'Oval', macas: 38.5, testa: 0.95, boca: 0.89, maxilar: 0.66, queixo: 0.4, queixoY: 156, topo: 32 },
+  redondo: { nome: 'Redondo', macas: 40, testa: 0.96, boca: 0.9, maxilar: 0.72, queixo: 0.5, queixoY: 153, topo: 33 },
+  quadrado: { nome: 'Quadrado', macas: 39, testa: 0.97, boca: 0.92, maxilar: 0.78, queixo: 0.55, queixoY: 155, topo: 32 },
+  comprido: { nome: 'Comprido', macas: 36.5, testa: 0.96, boca: 0.86, maxilar: 0.62, queixo: 0.4, queixoY: 161, topo: 29 },
+  triangular: { nome: 'Triangular', macas: 38.5, testa: 0.98, boca: 0.8, maxilar: 0.55, queixo: 0.3, queixoY: 158, topo: 32 },
+  diamante: { nome: 'Diamante', macas: 40.5, testa: 0.86, boca: 0.82, maxilar: 0.58, queixo: 0.34, queixoY: 157, topo: 33 },
 };
 export const IDS_FORMATO = Object.keys(FORMATOS) as FaceShapeId[];
 
@@ -22,19 +25,22 @@ export function calcularGeo(t: FaceTraits): Geo {
   const cx = 100;
   const topo = f.topo + a.topo;
   const queixoY = f.queixoY + a.altura - jovem * 3;
-  const testaW = f.testa + a.testa;
   const macasW = f.macas + a.macas + jovem * 0.8;
-  const maxilarW = f.maxilar + a.maxilar + jovem * 2;
-  const queixoW = f.queixo + a.queixo + jovem * 3;
+  const testaW = macasW * f.testa + a.testa;
+  const olhoY0 = 98 + a.altOlhos - jovem;
+  const bocaY0 = olhoY0 + (queixoY - olhoY0) * 0.62;
+  const bocaW = macasW * f.boca + a.maxilar * 0.5 + jovem * 1.2;
+  const maxilarW = macasW * f.maxilar + a.maxilar + jovem * 2;
+  const queixoW = macasW * f.queixo + a.queixo * 0.6 + jovem * 2.5;
   const temporaY = topo + 29;
   const macasY = 101;
-  const maxilarY = queixoY - 23;
+  const maxilarY = queixoY - 9;
   const olhoY = 98 + a.altOlhos - jovem;
-  const narizY = olhoY + (queixoY - olhoY) * 0.4;
-  const bocaY = olhoY + (queixoY - olhoY) * 0.665;
+  const narizY = olhoY + (queixoY - olhoY) * 0.37;
+  const bocaY = olhoY + (queixoY - olhoY) * 0.62;
   const contorno: Pt[] = [
     P(cx, topo), P(cx + testaW * 0.6, topo + 2.2), P(cx + testaW * 0.9, topo + 10), P(cx + testaW, temporaY), P(cx + macasW, macasY - 8),
-    P(cx + macasW - 1.2, macasY + 9), P(cx + maxilarW, maxilarY), P(cx + queixoW, queixoY - 4.5), P(cx, queixoY),
+    P(cx + macasW - 0.6, macasY + 5), P(cx + (macasW + bocaW) / 2 - 0.8, (macasY + 5 + bocaY0) / 2), P(cx + bocaW, bocaY0), P(cx + maxilarW, maxilarY), P(cx + queixoW, queixoY - 4), P(cx + queixoW * 0.5, queixoY - 1), P(cx, queixoY),
   ];
   const w = (y: number) => {
     if (y <= contorno[0].y) return 0;
@@ -46,8 +52,8 @@ export function calcularGeo(t: FaceTraits): Geo {
   };
   return {
     cx, topo, temporaY, macasY, maxilarY, queixoY, testaW, macasW, maxilarW, queixoW,
-    olhoY, olhoDX: 20.5 + a.olhos, sobrancelhaY: olhoY - 12.5, narizY, bocaY,
-    orelhaTopo: olhoY - 8, orelhaBase: narizY + 2.5, pescocoW: 23.5 + a.pescoco, contorno, w,
+    olhoY, olhoDX: 18.5 + a.olhos, sobrancelhaY: olhoY - 9.5, narizY, bocaY,
+    orelhaTopo: olhoY - 9, orelhaBase: narizY + 4, pescocoW: 30 + a.pescoco, contorno, w,
   };
 }
 
@@ -65,7 +71,7 @@ export function desenharOrelhas(c: Ctx): string {
   for (const lado of [-1, 1]) {
     const xa = g.cx + lado * (g.w(g.orelhaTopo + 8) - 2.5), t0 = g.orelhaTopo, t1 = g.orelhaBase;
     const X = (dx: number) => n(xa + lado * dx);
-    const d = `M${X(0)} ${n(t0 + 1)}C${X(9)} ${n(t0 - 5)} ${X(15)} ${n(t0 + 4)} ${X(12.5)} ${n(t0 + 14)}C${X(11.5)} ${n(t1 - 5)} ${X(7)} ${n(t1 + 2.5)} ${X(-1)} ${n(t1)}Z`;
+    const d = `M${X(0)} ${n(t0 + 1)}C${X(7)} ${n(t0 - 5)} ${X(12)} ${n(t0 + 3)} ${X(10.5)} ${n(t0 + 13)}C${X(9.5)} ${n(t1 - 5)} ${X(6)} ${n(t1 + 2.5)} ${X(-1)} ${n(t1)}Z`;
     s += caminho(d, pele.base, traco(2.1));
     // Concha interior: sombra em "C" e hélice.
     s += caminho(`M${X(2)} ${n(t0 + 5)}C${X(7)} ${n(t0 + 1.5)} ${X(10)} ${n(t0 + 7)} ${X(8.5)} ${n(t0 + 13)}C${X(7.5)} ${n(t1 - 6)} ${X(5)} ${n(t1 - 3)} ${X(2)} ${n(t1 - 4)}C${X(5)} ${n(t1 - 8)} ${X(6)} ${n(t0 + 12)} ${X(2)} ${n(t0 + 5)}Z`, pele.sombra);
@@ -83,7 +89,8 @@ export function desenharCabeca(c: Ctx): string {
 export function desenharSombras(c: Ctx): string {
   const { g, pele, id } = c;
   let s = `<clipPath id="${id}cab"><path d="${caminhoCabeca(g)}"/></clipPath><g clip-path="url(#${id}cab)">`;
-  // Lado direito em sombra (meia-lua) e base do maxilar.
+  // Sombra interior ao longo de todo o contorno (dá volume), lado direito em sombra (meia-lua) e base do maxilar.
+  s += `<path d="${caminhoCabeca(g)}" fill="none" stroke="${pele.sombra}" stroke-width="9" opacity=".55"/>`;
   s += `<ellipse cx="${n(g.cx + g.macasW + 17)}" cy="${n(g.macasY + 6)}" rx="${n(24)}" ry="${n(78)}" fill="${pele.sombra}"/>`;
   s += `<ellipse cx="${n(g.cx - g.macasW - 21)}" cy="${n(g.macasY + 6)}" rx="${n(24)}" ry="${n(78)}" fill="${pele.sombra}" opacity=".45"/>`;
   s += `<path d="M${n(g.cx - g.maxilarW - 4)} ${n(g.maxilarY - 2)}Q${n(g.cx)} ${n(g.queixoY + 4)} ${n(g.cx + g.maxilarW + 4)} ${n(g.maxilarY - 2)}L${n(g.cx + g.maxilarW + 4)} ${n(g.queixoY + 10)}L${n(g.cx - g.maxilarW - 4)} ${n(g.queixoY + 10)}Z" fill="${pele.sombra}" opacity=".55"/>`;
@@ -92,8 +99,8 @@ export function desenharSombras(c: Ctx): string {
   s += `<ellipse cx="${n(g.cx)}" cy="${n(g.bocaY + 8.5)}" rx="6.5" ry="2.6" fill="${pele.sombra}" opacity=".7"/>`;
   // Maçãs do rosto (linha de sombra sob a maçã) e luz.
   s += `<path d="M${n(g.cx + g.macasW - 3)} ${n(g.macasY - 2)}Q${n(g.cx + g.macasW - 11)} ${n(g.macasY + 10)} ${n(g.cx + g.maxilarW - 6)} ${n(g.maxilarY + 2)}" fill="none" ${traco(3.5, pele.sombra)} opacity=".7"/>`;
-  s += `<ellipse cx="${n(g.cx - 7)}" cy="${n(g.topo + 26)}" rx="15" ry="7" fill="${pele.luz}" opacity=".7"/>`;
-  s += `<ellipse cx="${n(g.cx - g.olhoDX - 2)}" cy="${n(g.macasY + 6)}" rx="7" ry="4" fill="${pele.luz}" opacity=".55"/>`;
+  s += `<ellipse cx="${n(g.cx - 7)}" cy="${n(g.topo + 26)}" rx="15" ry="7" fill="${pele.luz}" opacity=".35"/>`;
+  s += `<ellipse cx="${n(g.cx - g.olhoDX - 2)}" cy="${n(g.macasY + 6)}" rx="7" ry="4" fill="${pele.luz}" opacity=".25"/>`;
   return s + '</g>';
 }
 

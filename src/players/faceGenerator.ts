@@ -19,6 +19,7 @@ import { desenharCabeloFrente, desenharCabeloOmbros, desenharCabeloTras, ESTILOS
 import { desenharBrincos, desenharCicatriz, desenharOculos, desenharSardas, desenharTatuagem } from './faceParts/Accessories.tsx';
 import { desenharCamisola, desenharGola, GOLAS } from './faceParts/Jersey.tsx';
 import { PRESET_GLOBAL, presetDe } from './nationalityPresets.ts';
+import { generatePlayerFaceSemCache as rostoV1Congelado } from './rostosV1/faceGenerator.ts';
 
 export { hashSeed, mulberry32 };
 export type { ClubKit, FaceTraits };
@@ -41,9 +42,9 @@ export interface Player {
 
 /** Versões do algoritmo. Uma versão publicada nunca muda: um algoritmo novo entra como "v2" e os jogadores antigos
  *  continuam com a versão que têm guardada. */
-export type FaceVersion = 'v1';
-export const FACE_VERSAO_ATUAL: FaceVersion = 'v1';
-export const FACE_VERSOES: readonly FaceVersion[] = ['v1'];
+export type FaceVersion = 'v1' | 'v2';
+export const FACE_VERSAO_ATUAL: FaceVersion = 'v2';
+export const FACE_VERSOES: readonly FaceVersion[] = ['v1', 'v2'];
 
 /** Nacionalidade de criação do rosto (a guardada; senão a actual). */
 export const nacionalidadeRosto = (p: Pick<Player, 'nacionalidade' | 'faceNationality'>) => (p.faceNationality || p.nacionalidade || '').toUpperCase();
@@ -185,15 +186,19 @@ export interface OpcoesRosto {
   largura?: number;
 }
 
-/** Algoritmo v1 (congelado): traços + camadas → SVG. */
-function rostoV1(player: Player, kit: ClubKit, largura?: number): string {
+/** Algoritmo v2 (o actual): traços + camadas → SVG. */
+function rostoV2(player: Player, kit: ClubKit, largura?: number): string {
   const t = gerarTracos(player);
   const c = contextoRosto(t, `f${t.seed.toString(36)}${hashSeed(kit.primaryColor + kit.secondaryColor + kit.pattern + (kit.collar ?? '')).toString(36).slice(0, 4)}`);
   const tam = largura ? ` width="${largura}" height="${Math.round((largura * 240) / 200)}"` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240"${tam} role="img">${desenharCamadas(c, kit)}</svg>`;
 }
 
-const ALGORITMOS: Record<FaceVersion, (p: Player, kit: ClubKit, largura?: number) => string> = { v1: rostoV1 };
+const ALGORITMOS: Record<FaceVersion, (p: Player, kit: ClubKit, largura?: number) => string> = {
+  // v1: cópia congelada em ./rostosV1 (não muda nunca).
+  v1: (p, kit, largura) => rostoV1Congelado({ ...p, faceVersion: 'v1' }, { kit, largura }),
+  v2: rostoV2,
+};
 
 /** Memoização por jogador (id), com o que muda o desenho: versão, nacionalidade de criação, idade e equipamento.
  *  Limitada (LRU simples): os mais antigos saem quando passa do máximo. */

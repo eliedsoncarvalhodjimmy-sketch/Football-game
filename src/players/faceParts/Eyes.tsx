@@ -32,7 +32,8 @@ export function desenharOlhos(c: Ctx): string {
   const { g, t, pele, id } = c;
   const f0 = FORMAS_OLHOS[t.olhos % FORMAS_OLHOS.length];
   // Escala geral dos olhos (proporção dos exemplos).
-  const f = { ...f0, w: f0.w * 1.14, cima: f0.cima * 1.12, baixo: f0.baixo * 1.1, iris: f0.iris * 1.14 };
+  // Olho amendoado dos exemplos: mais largo, aberto o suficiente para se ver a íris, pálpebra superior grossa.
+  const f = { ...f0, w: f0.w * 1.18, cima: f0.cima * 1.18, baixo: f0.baixo * 1.1, iris: f0.iris * 1.18, palpebra: f0.palpebra * 1.15 };
   const cor = CORES_OLHOS[t.corOlhos].cor;
   let s = '';
   for (const lado of [-1, 1]) {
@@ -46,7 +47,7 @@ export function desenharOlhos(c: Ctx): string {
     const cid = `${id}o${lado > 0 ? 'd' : 'e'}`;
     // Esclera e íris recortada.
     s += `<clipPath id="${cid}"><path d="${esclera}"/></clipPath><path d="${esclera}" fill="#fbf8f4"/>`;
-    const ix = ex + lado * 0.3, iy = ey - 0.2 + f.capuz * 0.3;
+    const ix = ex + lado * 0.3, iy = ey - 0.5 + f.capuz * 0.3;
     s += `<g clip-path="url(#${cid})"><circle cx="${n(ix)}" cy="${n(iy)}" r="${n(f.iris)}" fill="${cor}" stroke="${tom(cor, -0.45)}" stroke-width=".9"/>`;
     s += `<circle cx="${n(ix)}" cy="${n(iy)}" r="${n(f.iris * 0.46)}" fill="#120c0a"/>`;
     // Sombra da pálpebra sobre a parte de cima do olho (e capuz).

@@ -21,7 +21,7 @@ export const FORMAS_NARIZ: { nome: string; w: number; dy: number; ponta: number;
 export function desenharNariz(c: Ctx): string {
   const { g, t, pele } = c;
   const f = FORMAS_NARIZ[t.nariz % FORMAS_NARIZ.length];
-  const cx = g.cx, y = g.narizY + f.dy, w = f.w * 1.08, topo = g.olhoY + 2;
+  const cx = g.cx, y = g.narizY + f.dy, w = f.w * 1.3, topo = g.olhoY + 2;
   let s = '';
   // Sombra do lado direito da cana e da asa.
   s += `<path d="M${n(cx + 3)} ${n(topo)}C${n(cx + 4.5)} ${n(topo + 9)} ${n(cx + w * 0.55)} ${n(y - 9)} ${n(cx + w - 0.5)} ${n(y - 3.5)}C${n(cx + w * 0.6)} ${n(y - 5)} ${n(cx + 3)} ${n(y - 6)} ${n(cx + 1.5)} ${n(y - 9)}C${n(cx + 1.2)} ${n(topo + 8)} ${n(cx + 2)} ${n(topo + 4)} ${n(cx + 3)} ${n(topo)}Z" fill="${pele.sombra}"/>`;
@@ -36,7 +36,7 @@ export function desenharNariz(c: Ctx): string {
     `C${n(wr + 1)} ${n(y + 1.5)} ${n(wr + 2.2)} ${n(y - 3)} ${n(wr - 1)} ${n(y - 6)}`;
   s += `<path d="${base}" fill="none" ${traco(1.6)}/>`;
   // Narinas.
-  const ny = y + 0.4 - f.arrebitado * 0.4, nr = 1.3 + f.arrebitado * 0.5;
+  const ny = y + 0.4 - f.arrebitado * 0.4, nr = 1.7 + f.arrebitado * 0.5;
   s += `<ellipse cx="${n(cx - w * 0.42)}" cy="${n(ny)}" rx="${n(nr + 0.6)}" ry="${n(nr * 0.7)}" fill="${pele.sombraForte}" transform="rotate(-18 ${n(cx - w * 0.42)} ${n(ny)})"/>`;
   s += `<ellipse cx="${n(cx + w * 0.42)}" cy="${n(ny)}" rx="${n(nr + 0.6)}" ry="${n(nr * 0.7)}" fill="${pele.sombraForte}" transform="rotate(18 ${n(cx + w * 0.42)} ${n(ny)})"/>`;
   // Brilho na ponta.

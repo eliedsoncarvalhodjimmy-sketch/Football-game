@@ -1,7 +1,7 @@
 // Sobrancelhas: 10 variações (grossas, finas, retas, arqueadas, juntas, angulares, densas, curtas, caídas, franzidas).
 // Desenhadas como forma cheia afilada (grossa junto ao nariz, fina na ponta) com alguns pêlos marcados.
 import type { Ctx } from './contexto.ts';
-import { n, subRand, tom, traco } from './shared.ts';
+import { P, curvaFechada, n, subRand, tom, traco } from './shared.ts';
 import { SvgLayer } from './Layer.tsx';
 
 /** dentro/fora: espessura; arco: altura do arco; pico: posição do arco (0–1); inicio: distância ao centro; comp: comprimento; queda: desce (+) ou sobe (−) a ponta. */
@@ -30,7 +30,7 @@ function corSobrancelha(c: Ctx): string {
 export function desenharSobrancelhas(c: Ctx): string {
   const { g, t } = c;
   const f0 = FORMAS_SOBRANCELHAS[t.sobrancelhas % FORMAS_SOBRANCELHAS.length];
-  const f = { ...f0, comp: f0.comp * 1.12, inicio: f0.inicio * 1.1, dentro: f0.dentro * 1.1, fora: f0.fora * 1.1 };
+  const f = { ...f0, comp: f0.comp * 1.15, inicio: f0.inicio * 0.9, dentro: f0.dentro * 1.12, fora: f0.fora * 1.05 };
   const cor = corSobrancelha(c);
   const r = subRand(t.seed, 'sobrancelhas');
   let s = '';
@@ -45,19 +45,21 @@ export function desenharSobrancelhas(c: Ctx): string {
       const esp = f.dentro + (f.fora - f.dentro) * u;
       pts.push([x0 + lado * f.comp * u, y, esp]);
     }
-    let d = `M${n(pts[0][0])} ${n(pts[0][1] - pts[0][2] / 2)}`;
-    for (const [x, y, e] of pts.slice(1)) d += `L${n(x)} ${n(y - e / 2)}`;
+    // Forma suave: borda de cima, ponta afilada, borda de baixo (a cabeça da sobrancelha, junto ao nariz, é arredondada).
+    const cima = pts.map(([x, y, e]) => P(x, y - e / 2));
+    const baixo = pts.map(([x, y, e]) => P(x, y + e / 2)).reverse();
     const ult = pts[pts.length - 1];
-    d += `Q${n(ult[0] + lado * 1.6)} ${n(ult[1])} ${n(ult[0])} ${n(ult[1] + ult[2] / 2)}`;
-    for (const [x, y, e] of pts.slice(0, -1).reverse()) d += `L${n(x)} ${n(y + e / 2)}`;
-    d += 'Z';
-    s += `<path d="${d}" fill="${cor}" stroke="${tom(cor, -0.3)}" stroke-width=".6" stroke-linejoin="round"/>`;
-    // Pêlos junto ao início (dão textura às grossas e densas).
-    if (f.dentro >= 3) {
-      let h = '';
-      for (let k = 0; k < 4; k++) { const [x, y] = pts[Math.min(5, k + 1)]; h += `M${n(x - lado * 1.5)} ${n(y + 1.2)}l${n(lado * (2 + r()))} ${n(-2 - r())}`; }
-      s += `<path d="${h}" fill="none" ${traco(0.6, tom(cor, 0.25))} opacity=".7"/>`;
+    const d = curvaFechada([...cima, P(ult[0] + lado * 2.2, ult[1] + 0.3), ...baixo, P(pts[0][0] - lado * 0.8, pts[0][1] + 0.3)], 0.8);
+    s += `<path d="${d}" fill="${cor}" stroke="${tom(cor, -0.35)}" stroke-width=".7" stroke-linejoin="round"/>`;
+    // Pêlos ao longo da sobrancelha: traços curtos inclinados para fora (claros na de cima, escuros na borda de baixo).
+    let h = '', hc = '';
+    for (let k = 0; k < 14; k++) {
+      const u = (k + r() * 0.8) / 14, i0 = Math.min(5, Math.floor(u * 6)), [x, y, e] = pts[i0];
+      const yy = y + (r() - 0.3) * e * 0.8;
+      h += `M${n(x)} ${n(yy + e * 0.35)}l${n(lado * (1.6 + r()))} ${n(-1.2 - r() * 0.8)}`;
+      if (k % 2 === 0) hc += `M${n(x + lado * 0.6)} ${n(yy)}l${n(lado * (1.4 + r()))} ${n(-0.9 - r() * 0.6)}`;
     }
+    s += `<path d="${h}" fill="none" ${traco(0.55, tom(cor, -0.35))} opacity=".8"/><path d="${hc}" fill="none" ${traco(0.5, tom(cor, 0.3))} opacity=".55"/>`;
   }
   return s;
 }

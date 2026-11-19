@@ -20,8 +20,10 @@ export const FORMAS_BOCA: { nome: string; w: number; cima: number; baixo: number
 
 export function desenharBoca(c: Ctx): string {
   const { g, t, pele } = c;
-  const f = FORMAS_BOCA[t.boca % FORMAS_BOCA.length];
-  const cx = g.cx, y = g.bocaY, w = f.w * 1.08;
+  let f = FORMAS_BOCA[t.boca % FORMAS_BOCA.length];
+  const cx = g.cx, y = g.bocaY, w = f.w * 1.32;
+  // Lábios mais cheios (proporção dos exemplos).
+  f = { ...f, cima: f.cima * 2.1, baixo: f.baixo * 1.85 };
   // Cantos: sobem com o sorriso; no meio sorriso só o direito sobe.
   const ye = y - f.sorriso * 0.6, yd = y - f.sorriso * 0.6 - f.assim;
   const meio = y + f.sorriso * 0.35;
@@ -47,7 +49,7 @@ export function desenharBoca(c: Ctx): string {
   s += `<path d="${baixo}" fill="${pele.labioClaro}"/>`;
   s += `<path d="${cima}" fill="${pele.labio}"/>`;
   // Brilho no lábio de baixo e contorno inferior suave.
-  s += `<ellipse cx="${n(cx - 1)}" cy="${n(y + f.baixo * 0.85)}" rx="${n(w * 0.32)}" ry="${n(f.baixo * 0.28)}" fill="#ffffff" opacity=".18"/>`;
+  s += `<ellipse cx="${n(cx - 1)}" cy="${n(y + f.baixo * 0.85)}" rx="${n(w * 0.3)}" ry="${n(f.baixo * 0.22)}" fill="#ffffff" opacity=".1"/>`;
   s += `<path d="M${n(cx - w * 0.55)} ${n(y + f.baixo * 1.45)}C${n(cx - w * 0.2)} ${n(y + f.baixo * 1.75)} ${n(cx + w * 0.2)} ${n(y + f.baixo * 1.75)} ${n(cx + w * 0.55)} ${n(y + f.baixo * 1.45)}" fill="none" ${traco(1, pele.linha)} opacity=".8"/>`;
   // Linha da boca e cantos.
   s += `<path d="${linha}" fill="none" ${traco(1.6)}/>`;

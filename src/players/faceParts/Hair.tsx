@@ -83,6 +83,8 @@ interface OpCapa {
   pontas?: number;
   /** Tufos na linha do cabelo (altura, px): quebra a linha lisa de "capacete". */
   tufos?: number;
+  /** Corte com degradê: os lados descem até à patilha e desvanecem para a pele. */
+  fade?: boolean;
 }
 
 /** Pontos do contorno exterior (da base do lado esquerdo, por cima, até à base do lado direito). */
@@ -209,7 +211,9 @@ function caracois(c: Ctx, o: OpCapa, r: Rand, tamanho: number): string {
 /** Padrão de textura crespa (miúda) usado como preenchimento. */
 function padraoCrespo(c: Ctx): string {
   const { id, cabelo } = c;
-  return `<pattern id="${id}cr" width="5" height="4.6" patternUnits="userSpaceOnUse"><path d="M.6 2.4a1.2 1.2 0 1 1 2.3.3M2.9 4.4a1 1 0 1 1 1.9-.2" fill="none" stroke="${cabelo.sombra}" stroke-width=".75" stroke-linecap="round"/><circle cx="3.9" cy="1.2" r=".55" fill="${cabelo.luz}" opacity=".7"/></pattern>`;
+  // Dois padrões sobrepostos (tamanhos e rotações diferentes): caracóis miúdos sem grelha visível.
+  return `<pattern id="${id}cr" width="4.2" height="3.8" patternUnits="userSpaceOnUse"><path d="M.5 2a1 1 0 1 1 1.9.3M2.5 3.7a.9.9 0 1 1 1.6-.2" fill="none" stroke="${cabelo.sombra}" stroke-width=".7" stroke-linecap="round"/><circle cx="3.3" cy="1" r=".42" fill="${cabelo.luz}" opacity=".22"/></pattern>` +
+    `<pattern id="${id}cs" width="3.1" height="2.9" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"><path d="M.4 1.5a.75 .75 0 1 1 1.4.2" fill="none" stroke="${cabelo.sombra}" stroke-width=".6" stroke-linecap="round"/><circle cx="2.3" cy="2.2" r=".3" fill="${cabelo.luz}" opacity=".18"/></pattern>`;
 }
 
 /** Desenha uma calote: forma, contorno, textura recortada. */
@@ -221,8 +225,17 @@ function desenharCapa(c: Ctx, o: OpCapa, textura: 'lisos' | 'tras' | 'ondulados'
   else if (textura === 'tras') s += fiosLisos(c, o, r, true);
   else if (textura === 'ondulados') s += fiosOndulados(c, o, r);
   else if (textura === 'caracois') s += caracois(c, o, r, 3.4);
-  else if (textura === 'crespo') s += padraoCrespo(c) + `<path d="${d}" fill="url(#${id}cr)"/><path d="M${n(c.g.cx - 22)} ${n(c.g.topo - o.vol + 6)}q22 -6 40 2" fill="none" ${traco(3, cabelo.luz)} opacity=".3"/>`;
+  else if (textura === 'crespo') s += padraoCrespo(c) + `<path d="${d}" fill="url(#${id}cr)"/><path d="${d}" fill="url(#${id}cs)"/><path d="M${n(c.g.cx - 22)} ${n(c.g.topo - o.vol + 7)}q22 -6 40 2" fill="none" ${traco(3.5, cabelo.luz)} opacity=".22"/>`;
   s += `</g><path d="${d}" fill="none" ${traco(2.1)}/>`;
+  // Degradê: a calote desce até à patilha e desvanece para a pele (máscara vertical), como num corte com fade.
+  if (o.fade) {
+    const { g } = c, y0 = g.temporaY - 3, y1 = g.orelhaTopo + 9;
+    // Abaixo da têmpora, o degradê fica só sobre o couro cabeludo (sem halo por fora da cabeça).
+    const cab = curvaFechada([...g.contorno, ...g.contorno.slice(1, -1).reverse().map((p) => P(2 * g.cx - p.x, p.y))], 1);
+    s = `<clipPath id="${id}fc${nome}"><path d="${cab}"/><rect x="0" y="0" width="200" height="${n(y0)}"/></clipPath><g clip-path="url(#${id}fc${nome})">${s}</g>`;
+    s = `<linearGradient id="${id}fm${nome}" x1="0" y1="${n(y0)}" x2="0" y2="${n(y1)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient>` +
+      `<mask id="${id}mk${nome}" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="240"><rect x="0" y="0" width="200" height="240" fill="url(#${id}fm${nome})"/></mask><g mask="url(#${id}mk${nome})">${s}</g>`;
+  }
   return s;
 }
 
@@ -323,11 +336,11 @@ export function desenharCabeloFrente(c: Ctx): string {
   const r = subRand(c.t.seed, 'cabelo');
   const ot = g.orelhaTopo;
   switch (c.t.cabelo) {
-    case 'fade_curto': return degrade(c) + desenharCapa(c, { vol: 4.5, lado: 1.5, linha: 19, baixo: g.temporaY + 2, borda: 'pontas', pontas: 2.2, tufos: 2.4 }, 'lisos', r);
+    case 'fade_curto': return desenharCapa(c, { vol: 4.5, lado: 1.5, linha: 19, baixo: ot + 8, borda: 'pontas', pontas: 2.2, tufos: 2.4, fade: true }, 'lisos', r);
     case 'fade_top_crespo': case 'loiro_descolorido':
-      return degrade(c) + desenharCapa(c, { vol: 9, lado: 2.5, linha: 20, baixo: g.temporaY + 1, borda: 'bolhasPeq' }, 'crespo', r);
+      return desenharCapa(c, { vol: 9, lado: 2.5, linha: 20, baixo: ot + 8, borda: 'bolhasPeq', fade: true }, 'crespo', r);
     case 'black_power': return desenharCapa(c, { vol: 21, lado: 13, linha: 20, baixo: ot + 2, borda: 'bolhasPeq' }, 'crespo', r);
-    case 'cacheado_medio': return desenharCapa(c, { vol: 13, lado: 7, linha: 21, baixo: ot + 10, borda: 'bolhas', tufos: 3 }, 'caracois', r);
+    case 'cacheado_medio': return desenharCapa(c, { vol: 7, lado: 1.5, linha: 21, baixo: ot + 3, borda: 'bolhas', tufos: 3 }, 'caracois', r);
     case 'liso_curto': return desenharCapa(c, { vol: 5.5, lado: 2.5, linha: 22, baixo: ot + 4, borda: 'pontas', pontas: 2, tufos: 3 }, 'lisos', r);
     case 'liso_tras': case 'rabo_cavalo': return desenharCapa(c, { vol: 7, lado: 2, linha: 17, entradas: 1, baixo: ot + 3, borda: 'liso', tufos: 1.2 }, 'tras', r);
     case 'ondulado_medio': case 'ruivo': return desenharCapa(c, { vol: 10, lado: 4.5, linha: 20, baixo: ot + 10, borda: 'bolhas', tufos: 3.5 }, 'ondulados', r);
@@ -376,8 +389,8 @@ export function desenharCabeloFrente(c: Ctx): string {
     case 'caracois_compridos': return desenharCapa(c, { vol: 13, lado: 8, linha: 20, baixo: g.narizY + 4, borda: 'bolhas', enquadra: true, tufos: 3 }, 'caracois', r);
     case 'cortina': return desenharCapa(c, { vol: 7, lado: 4, linha: 18, baixo: ot + 12, borda: 'bolhas' }, 'ondulados', r) + `<path d="M${n(g.cx)} ${n(g.topo + 18)}C${n(g.cx - 4)} ${n(g.topo + 26)} ${n(g.cx - 16)} ${n(g.topo + 28)} ${n(g.cx - g.testaW + 6)} ${n(g.temporaY + 6)}M${n(g.cx)} ${n(g.topo + 18)}C${n(g.cx + 4)} ${n(g.topo + 26)} ${n(g.cx + 16)} ${n(g.topo + 28)} ${n(g.cx + g.testaW - 6)} ${n(g.temporaY + 6)}" fill="none" ${traco(1.8)}/>`;
     case 'franja': return desenharCapa(c, { vol: 8, lado: 4, baixo: ot + 7, borda: 'liso', franja: g.sobrancelhaY - 4 }, 'lisos', r);
-    case 'militar': return degrade(c, 0.5) + desenharCapa(c, { vol: 2.2, lado: 0.8, linha: 20, baixo: g.temporaY + 3, borda: 'liso', tufos: 1 }, 'lisos', r);
-    case 'topete': return degrade(c) + desenharCapa(c, { vol: 12, lado: 2, linha: 18, baixo: g.temporaY + 1, borda: 'pontas', pontas: 4.5, tufos: 1.5 }, 'tras', r);
+    case 'militar': return desenharCapa(c, { vol: 2.2, lado: 0.8, linha: 20, baixo: ot + 8, borda: 'liso', tufos: 1, fade: true }, 'lisos', r);
+    case 'topete': return desenharCapa(c, { vol: 12, lado: 2, linha: 18, baixo: ot + 8, borda: 'pontas', pontas: 4.5, tufos: 1.5, fade: true }, 'tras', r);
     case 'crespo_curto': return desenharCapa(c, { vol: 5.5, lado: 2.5, linha: 20, baixo: ot + 3, borda: 'bolhasPeq' }, 'crespo', r);
     case 'twists': {
       let s = degrade(c) + desenharCapa(c, { vol: 9, lado: 2.5, linha: 20, baixo: g.temporaY + 1, borda: 'bolhas' }, 'nada', r);
@@ -396,7 +409,7 @@ export function desenharCabeloFrente(c: Ctx): string {
       return `<path d="${d}" fill="${cabelo.base}" opacity=".35"/>` + degrade(c, 0.95) + `<ellipse cx="${n(g.cx - 6)}" cy="${n(g.topo + 12)}" rx="11" ry="4" fill="#ffffff" opacity=".18"/>`;
     }
     case 'desgrenhado': return desenharCapa(c, { vol: 11, lado: 6, baixo: ot + 6, borda: 'pontas', pontas: 7, franja: g.sobrancelhaY - 6 }, 'lisos', r);
-    case 'texturizado': return degrade(c) + desenharCapa(c, { vol: 6, lado: 2, baixo: g.temporaY + 1, borda: 'pontas', pontas: 3, franja: g.topo + 17 }, 'lisos', r);
+    case 'texturizado': return desenharCapa(c, { vol: 6, lado: 2, baixo: ot + 8, borda: 'pontas', pontas: 3, franja: g.topo + 17, fade: true }, 'lisos', r);
     case 'ondas_360': {
       const d = capa(c, { vol: 2.2, lado: 1, linha: 19, baixo: ot + 3, borda: 'liso' }, r);
       let ondas = '';

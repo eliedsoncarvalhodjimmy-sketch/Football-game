@@ -14,7 +14,7 @@ export const TIPOS_BARBA = [
 /** Região da barba cheia (patilhas, bochechas, queixo e bigode). comp = quanto desce abaixo do queixo; bochecha = quanto sobe nas bochechas (0–1). */
 function regiaoCheia(c: Ctx, comp: number, bochecha = 1): Pt[] {
   const { g } = c;
-  const mw = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].w * 1.08;
+  const mw = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].w * 1.32;
   const cx = g.cx, sy = g.orelhaTopo + 9;
   const r = subRand(c.t.seed, 'barba-borda');
   const dir: Pt[] = [];
@@ -37,7 +37,7 @@ function regiaoCheia(c: Ctx, comp: number, bochecha = 1): Pt[] {
 
 function regiaoCavanhaque(c: Ctx, comp: number, largo = false): Pt[] {
   const { g } = c;
-  const mw = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].w * 1.08;
+  const mw = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].w * 1.32;
   const cx = g.cx;
   const dir: Pt[] = [
     P(cx + 3, g.narizY + 5.2), P(cx + 10, g.narizY + 6.2), P(cx + mw + 3, g.bocaY - 0.5), P(cx + mw + 2.5 + (largo ? 3 : 0), g.bocaY + 6),
@@ -48,7 +48,7 @@ function regiaoCavanhaque(c: Ctx, comp: number, largo = false): Pt[] {
 
 function regiaoBigode(c: Ctx): Pt[] {
   const { g } = c;
-  const mw = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].w * 1.08, cima = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].cima;
+  const mw = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].w * 1.32, cima = FORMAS_BOCA[c.t.boca % FORMAS_BOCA.length].cima;
   const cx = g.cx;
   const dir: Pt[] = [P(cx + 2.5, g.narizY + 5), P(cx + 9, g.narizY + 5.8), P(cx + mw + 2.5, g.bocaY + 0.6), P(cx + mw - 0.5, g.bocaY - 0.6), P(cx + 6, g.bocaY - cima - 1.2)];
   return [...dir, P(cx, g.bocaY - cima - 0.6), ...dir.slice().reverse().map((p) => P(2 * cx - p.x, p.y))];
@@ -100,15 +100,17 @@ function pontos(c: Ctx, pts: Pt[], nome: string, densidade: number): string {
   const d = curvaFechada(pts, 0.9);
   const cor = t.barbaGrisalha ? '#8d8a86' : barba.base;
   const jovem = t.idade < 18 ? 0.55 : 1;
-  return `<pattern id="${id}p${nome}" width="2.4" height="2.4" patternUnits="userSpaceOnUse"><circle cx=".6" cy=".7" r=".42" fill="${cor}"/><circle cx="1.8" cy="1.9" r=".38" fill="${cor}"/></pattern>` +
-    `<path d="${d}" fill="${cor}" opacity="${n(0.16 * densidade * jovem)}"/><path d="${d}" fill="url(#${id}p${nome})" opacity="${n(0.75 * densidade * jovem)}"/>`;
+  // Dois padrões de pontos finos, rodados um em relação ao outro: a barba por fazer não fica em grelha regular.
+  return `<pattern id="${id}p${nome}" width="1.9" height="1.7" patternUnits="userSpaceOnUse"><circle cx=".5" cy=".5" r=".27" fill="${cor}"/><circle cx="1.45" cy="1.2" r=".24" fill="${cor}"/></pattern>` +
+    `<pattern id="${id}q${nome}" width="2.6" height="2.3" patternUnits="userSpaceOnUse" patternTransform="rotate(27)"><circle cx=".9" cy=".6" r=".3" fill="${cor}"/><circle cx="2" cy="1.8" r=".22" fill="${cor}"/></pattern>` +
+    `<path d="${d}" fill="${cor}" opacity="${n(0.07 * densidade * jovem)}"/><path d="${d}" fill="url(#${id}p${nome})" opacity="${n(0.32 * densidade * jovem)}"/><path d="${d}" fill="url(#${id}q${nome})" opacity="${n(0.42 * densidade * jovem)}"/>`;
 }
 
 export function desenharBarba(c: Ctx): string {
   const b = c.t.barba;
   switch (b) {
     case 0: return '';
-    case 1: return pontos(c, regiaoCheia(c, 1, 0.9), 'tres', 1);
+    case 1: return pontos(c, regiaoCheia(c, 1, 0.45), 'tres', 1);
     case 2: return solida(c, regiaoPera(c, true), 'pera');
     case 3: return solida(c, regiaoCavanhaque(c, 3), 'cav');
     case 4: return solida(c, regiaoCheia(c, 6, 1), 'cheia');

@@ -70,14 +70,20 @@ describe('nacionalidade de criação (faceNationality) e nacionalidade actual', 
 describe('versão do algoritmo (faceVersion)', () => {
   it('a criação guarda a versão actual; a versão guardada é a que desenha; versão desconhecida dá erro claro', () => {
     expect(camposRosto(jog('v')).faceVersion).toBe(FACE_VERSAO_ATUAL);
-    const p = jog('v-1', { faceVersion: 'v1' });
+    const p = jog('v-1', { faceVersion: FACE_VERSAO_ATUAL });
     expect(generatePlayerFaceSemCache(p)).toBe(generatePlayerFaceSemCache({ ...p, faceVersion: undefined }));
     expect(() => generatePlayerFace({ ...p, faceVersion: 'v99' as never })).toThrow(/v99/);
   });
 
   it('impressão digital da v1: um rosto de referência não muda (se este teste falhar, o algoritmo v1 foi alterado — crie uma v2)', () => {
-    const svg = generatePlayerFaceSemCache(jog('referencia-v1', { nacionalidade: 'BR', idade: 27, clubeId: 'c-ref' }));
+    const svg = generatePlayerFaceSemCache(jog('referencia-v1', { nacionalidade: 'BR', idade: 27, clubeId: 'c-ref', faceVersion: 'v1' }));
     expect(hashSeed(svg).toString(16)).toMatchSnapshot();
+  });
+
+  it('a v1 congelada continua igual depois de a v2 passar a ser a actual; v1 e v2 desenham caras diferentes', () => {
+    const p = jog('dupla', { nacionalidade: 'NG', idade: 24 });
+    expect(generatePlayerFaceSemCache({ ...p, faceVersion: 'v1' })).not.toBe(generatePlayerFaceSemCache({ ...p, faceVersion: 'v2' }));
+    expect(FACE_VERSAO_ATUAL).toBe('v2');
   });
 });
 
