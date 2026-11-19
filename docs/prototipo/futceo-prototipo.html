@@ -616,6 +616,32 @@ td .ci { width: 17px; height: 17px; border-radius: 4px; display: inline-grid; pl
   .papel { grid-template-columns: 1fr 80px 28px; }
   .bf { grid-template-columns: 100px 1fr 70px; }
 }
+
+/* Dia de jogo (Bloco B, protótipo) */
+.modal-jogo { width: min(980px, 100%); }
+.jg-placar { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 6px 0 2px; flex-wrap: wrap; }
+.jg-eq { font-family: var(--f-num); font-size: 22px; } .jg-res { font-size: 44px; min-width: 120px; text-align: center; }
+.jg-sub { text-align: center; margin-bottom: 12px; } .jg-min { color: var(--aviso); font-family: var(--f-num); font-size: 16px; }
+.jg-grelha { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } .jg-grelha h4 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--suave); }
+.jg-j { display: flex; align-items: center; gap: 8px; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--linha); font-size: 14px; }
+.jg-j > span:first-child { display: flex; gap: 8px; align-items: center; }
+.jg-n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; color: #fff; font-weight: 700; flex: none; }
+.jg-nt { min-width: 38px; text-align: center; border-radius: 6px; color: #111; font-family: var(--f-num); font-weight: 700; }
+.jg-mvp { margin-top: 10px; padding: 8px 10px; background: var(--cartao-2); border-radius: 10px; }
+.jg-nota { margin-top: 14px; font-size: 14px; } .jg-acoes, .jg-ctrl { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+.jg-ctrl { justify-content: center; margin: 0 0 12px; }
+.jg-vivo { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; }
+.jg-campo { width: 100%; border-radius: 10px; display: block; } .jg-bola { transition: cx .3s, cy .3s; }
+.jg-est { display: grid; gap: 8px; margin-top: 12px; }
+.jg-e { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; font-size: 13px; } .jg-e span { text-align: center; color: var(--suave); } .jg-e b:last-of-type { text-align: right; }
+.jg-eb { grid-column: 1 / -1; display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--cartao-2); }
+.jg-relato { max-height: 460px; overflow-y: auto; display: grid; gap: 4px; align-content: start; }
+.jg-r { display: grid; grid-template-columns: 34px 20px 1fr; gap: 6px; font-size: 13px; padding: 5px 6px; border-radius: 8px; }
+.jg-r.golo { background: rgba(255, 210, 58, .15); font-weight: 700; } .jg-r.intervalo, .jg-r.fim { background: var(--cartao-2); }
+.jg-rm { color: var(--suave); font-family: var(--f-num); }
+.jg-int { background: var(--cartao-2); border-radius: 12px; padding: 12px; margin-bottom: 12px; } .jg-int h4 { margin: 0 0 6px; }
+.jg-opc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; } .jg-fala { display: grid; gap: 4px; }
+@media (max-width: 760px) { .jg-grelha, .jg-vivo { grid-template-columns: 1fr; } .jg-res { font-size: 34px; min-width: 90px; } .jg-eq { font-size: 17px; } }
 </style>
 
 <div class="app">
@@ -1065,7 +1091,7 @@ function inicio() {
   return `
   <div class="topo"><h1>Início</h1><span class="sub">${fmtData(hoje)}</span><div class="direita"><span class="chip info"><span class="pt"></span>Janela fechada · abre a 1 de Janeiro</span></div></div>
   <div class="grelha">
-    <section class="c s8"><h2>Próximo jogo<span class="acao" id="ver-cal">Ver calendário</span></h2>
+    <section class="c s8"><h2>Próximo jogo<span class="acao" id="ver-cal">Ver calendário</span><span class="acao" id="ver-jogo" style="margin-left:14px">Dia de jogo ›</span></h2>
       <div class="proximo">
         <div class="equipa">${escudo(CLUBE.cores, 52)}<b>${CLUBE.curto}</b><span class="forma">${['V', 'V', 'E', 'D', 'V'].map((x) => `<i class="${x}">${x}</i>`).join('')}</span></div>
         <div class="vs"><div class="rot">${pj.j.comp}</div><div class="num grande">20:30</div><div class="rot">${fmtData(pj.d)} · ${pj.j.casa ? 'em casa' : 'fora'}</div><div class="chip aviso" style="margin-top:8px">${Math.round((pj.d - hoje) / 864e5)} dias</div></div>
@@ -2350,6 +2376,127 @@ function desenhar() {
   ligar(m);
   desenharModal();
 }
+
+// ---------- Dia de jogo (Bloco B, protótipo) ----------
+// O Presidente vê o jogo do clube: antes (onzes do treinador e a sugestão que enviou), ao vivo (relato, campo 2D com a bola,
+// estatísticas, notas, velocidade) com pausa ao intervalo para falar com o treinador, e no fim (notas, homem do jogo,
+// outros resultados). No protótipo os eventos são gerados aqui; na app vêm do motor detalhado (src/match/detalhado.ts).
+let JG = null, jgTimer = null;
+const JG_VEL = [['1×', 900], ['2×', 450], ['4×', 200], ['8×', 90]];
+function gerarJogo() {
+  const pj = proximoJogo(), adv = pj.j.adv, casa = pj.j.casa;
+  const r = avRng(avHash('jogo' + adv + chave(pj.d)));
+  const nosso = plantel.filter((p) => !p.lesao && !p.susp).sort((a, b) => b.ovr - a.ovr);
+  const onze = ['GR', 'DD', 'DC', 'DC', 'DE', 'MDC', 'MC', 'MC', 'ED', 'PL', 'EE'].map((pos) => { const i = nosso.findIndex((p) => p.pos === pos); return i >= 0 ? nosso.splice(i, 1)[0] : nosso.shift(); });
+  const banco = nosso.slice(0, 7);
+  const nomesAdv = Array.from({ length: 11 }, (_, k) => `${PRIMEIROS[Math.floor(r() * PRIMEIROS.length)]} ${APELIDOS[Math.floor(r() * APELIDOS.length)]}`);
+  const ev = [];
+  const golos = [0, 0], est = [0, 1].map(() => ({ rem: 0, alvo: 0, xg: 0, cantos: 0, faltas: 0, am: 0, vm: 0, posse: 0 }));
+  const nomeEq = (e, k) => (e === 0 ? onze[k].nome : nomesAdv[k]);
+  for (let min = 1; min <= 90; min++) {
+    const e = r() < 0.53 ? 0 : 1;
+    est[e].posse++;
+    const x = r();
+    if (x < 0.12) {
+      const k = 6 + Math.floor(r() * 5), xg = Math.round((0.04 + r() * r() * 0.5) * 100) / 100;
+      est[e].rem++; est[e].xg += xg;
+      const golo = r() < xg * 1.15, alvo = golo || r() < 0.4;
+      if (alvo) est[e].alvo++;
+      const ass = 3 + Math.floor(r() * 7);
+      if (golo) { golos[e]++; ev.push({ min, tipo: 'golo', e, txt: `GOLO! ${nomeEq(e, k)} remata ${['de primeira', 'colocado ao canto', 'de cabeça', 'em arco'][Math.floor(r() * 4)]}${ass !== k ? ` · assistência de ${nomeEq(e, ass)}` : ''}`, x: e === 0 ? 88 : 12, y: 30 + r() * 40, xg }); }
+      else ev.push({ min, tipo: 'remate', e, txt: `${nomeEq(e, k)} remata${alvo ? ' à baliza: defende o guarda-redes' : ' para fora'} (xG ${String(xg).replace('.', ',')})`, x: e === 0 ? 75 + r() * 15 : 10 + r() * 15, y: 20 + r() * 60, xg });
+    } else if (x < 0.17) { est[e].cantos++; ev.push({ min, tipo: 'canto', e, txt: `Canto para ${e === 0 ? CLUBE.curto : adv}`, x: e === 0 ? 99 : 1, y: r() < 0.5 ? 2 : 98 }); }
+    else if (x < 0.25) {
+      est[e].faltas++; const k = 1 + Math.floor(r() * 9);
+      if (r() < 0.22) { est[e].am++; ev.push({ min, tipo: 'cartao', e, txt: `Amarelo para ${nomeEq(e, k)}`, x: 30 + r() * 40, y: 10 + r() * 80 }); }
+      else ev.push({ min, tipo: 'falta', e, txt: `Falta de ${nomeEq(e, k)}`, x: 30 + r() * 40, y: 10 + r() * 80 });
+    } else if (x < 0.31) ev.push({ min, tipo: 'duelo', e, txt: `${nomeEq(e, 4 + Math.floor(r() * 6))} ganha o duelo e progride`, x: 35 + r() * 30, y: 10 + r() * 80 });
+    if (min === 45) ev.push({ min, tipo: 'intervalo', e: 0, txt: 'Intervalo', x: 50, y: 50 });
+    if (min === 62) ev.push({ min, tipo: 'sub', e: 0, txt: `Substituição: entra ${banco[0].nome}, sai ${onze[9].nome}`, x: 50, y: 98 });
+    if (min === 70) ev.push({ min, tipo: 'sub', e: 1, txt: `Substituição no ${adv}`, x: 50, y: 2 });
+  }
+  ev.push({ min: 90, tipo: 'fim', e: 0, txt: 'Fim do jogo', x: 50, y: 50 });
+  const notas = onze.map((p, k) => { const g = ev.filter((x) => x.tipo === 'golo' && x.e === 0 && x.txt.includes(p.nome.split(' ')[0])).length; return { p, nota: Math.min(10, Math.round((6 + (p.ovr - 65) / 12 + (r() - 0.5) * 1.6 + g * 1.1 + (golos[0] > golos[1] ? 0.4 : golos[0] < golos[1] ? -0.4 : 0)) * 10) / 10) }; });
+  const outros = Array.from({ length: 8 }, (_, k) => [LIGA[(k * 2 + 4) % LIGA.length], LIGA[(k * 2 + 9) % LIGA.length], Math.floor(r() * 4), Math.floor(r() * 3)]).filter(([a, b]) => a !== CLUBE.nome && b !== CLUBE.nome && a !== adv && b !== adv);
+  return { pj, adv, casa, onze, banco, nomesAdv, ev, golos, est, notas, outros, fase: 'antes', i: 0, vel: 1, pausa: false, intervalo: false, conversa: null };
+}
+const jgPlacar = () => { const g = [0, 0]; for (const x of JG.ev.slice(0, JG.i)) if (x.tipo === 'golo') g[x.e]++; return g; };
+const jgMin = () => (JG.i ? JG.ev[JG.i - 1].min : 0);
+function jgEstat() {
+  const vis = JG.ev.slice(0, JG.i), s = [0, 1].map((e) => ({ rem: vis.filter((x) => x.e === e && (x.tipo === 'remate' || x.tipo === 'golo')).length, golos: vis.filter((x) => x.e === e && x.tipo === 'golo').length, xg: vis.filter((x) => x.e === e && x.xg).reduce((a, x) => a + x.xg, 0), cantos: vis.filter((x) => x.e === e && x.tipo === 'canto').length, faltas: vis.filter((x) => x.e === e && (x.tipo === 'falta' || x.tipo === 'cartao')).length, am: vis.filter((x) => x.e === e && x.tipo === 'cartao').length }));
+  const p0 = Math.round((JG.est[0].posse / (JG.est[0].posse + JG.est[1].posse)) * 100);
+  return { s, posse: [p0, 100 - p0] };
+}
+function jgCampo() {
+  const vis = JG.ev.slice(0, JG.i), ult = vis[vis.length - 1];
+  const rem = vis.filter((x) => x.tipo === 'remate' || x.tipo === 'golo');
+  return `<svg class="jg-campo" viewBox="0 0 100 64" role="img" aria-label="Campo"><rect width="100" height="64" rx="2" fill="#2f8a4a"/>${Array.from({ length: 10 }, (_, k) => `<rect x="${k * 10}" width="5" height="64" fill="rgba(255,255,255,.04)"/>`).join('')}
+    <g stroke="rgba(255,255,255,.75)" fill="none" stroke-width=".5"><rect x="1" y="1" width="98" height="62"/><path d="M50 1V63"/><circle cx="50" cy="32" r="8"/><rect x="1" y="16" width="14" height="32"/><rect x="85" y="16" width="14" height="32"/><rect x="1" y="25" width="5" height="14"/><rect x="94" y="25" width="5" height="14"/></g>
+    ${rem.map((x) => `<circle cx="${x.x}" cy="${x.y * 0.64}" r="${x.tipo === 'golo' ? 1.8 : 1.1}" fill="${x.tipo === 'golo' ? '#ffd23a' : x.e === 0 ? 'rgba(255,255,255,.75)' : 'rgba(10,10,10,.55)'}" stroke="${x.e === 0 ? CLUBE.cores[0] : '#111'}" stroke-width=".4"/>`).join('')}
+    ${ult ? `<circle class="jg-bola" cx="${ult.x}" cy="${ult.y * 0.64}" r="1.6" fill="#fff" stroke="#111" stroke-width=".4"/>` : ''}</svg>`;
+}
+function modalJogo() {
+  if (!JG) JG = gerarJogo();
+  const { pj, adv, casa } = JG, coresAdv = CORES[LIGA.indexOf(adv)] ?? CORES[2];
+  const [eqA, eqB] = casa ? [[CLUBE.curto, CLUBE.cores], [adv, coresAdv]] : [[adv, coresAdv], [CLUBE.curto, CLUBE.cores]];
+  const g = jgPlacar(), [gA, gB] = casa ? g : [g[1], g[0]];
+  const cab = `<div class="jg-placar">${escudo(eqA[1], 40)}<b class="jg-eq">${eqA[0]}</b><span class="jg-res num">${JG.fase === 'antes' ? 'vs' : `${gA} – ${gB}`}</span><b class="jg-eq">${eqB[0]}</b>${escudo(eqB[1], 40)}</div>
+    <div class="jg-sub rot">${pj.j.comp} · ${fmtData(pj.d)} · ${casa ? 'em casa' : 'fora'}${JG.fase === 'vivo' ? ` · <b class="jg-min">${jgMin()}'</b>` : JG.fase === 'fim' ? ' · <b>Final</b>' : ''}</div>`;
+  if (JG.fase === 'antes') {
+    const lista = (l, cor) => l.map((p, k) => `<div class="jg-j"><span><span class="jg-n" style="background:${cor}">${k + 1}</span><span>${typeof p === 'string' ? p : `${p.nome} <span class="muted">${p.pos} · ${p.ovr}</span>`}</span></span></div>`).join('');
+    return `<div class="modal modal-jogo" role="dialog" aria-label="Dia de jogo"><div class="modal-cab"><h3>Dia de jogo</h3><button class="btn" id="fechar">Fechar</button></div>${cab}
+      <div class="jg-grelha"><section><h4>Onze do treinador · 4-3-3</h4>${lista(JG.onze, CLUBE.cores[0])}<div class="rot" style="margin-top:6px">Banco: ${JG.banco.map((p) => p.nome).join(', ')}</div></section>
+        <section><h4>${adv} · onze provável</h4>${lista(JG.nomesAdv, coresAdv[0])}<div class="rot" style="margin-top:6px">Os nomes do adversário vêm do que os teus olheiros sabem.</div></section></div>
+      <div class="jg-nota"><span class="chip info"><span class="pt"></span>Táctica</span> A tua sugestão desta semana: pressão alta. O treinador aceitou (1 de 1 alterações).</div>
+      <div class="jg-acoes"><button class="btn" data-jg="simular">Só o resultado</button><button class="btn prim" data-jg="ver">Ver o jogo</button></div></div>`;
+  }
+  const { s, posse } = jgEstat();
+  const linhaE = (rot, a, b, fmt = (v) => v) => { const t = a + b || 1; return `<div class="jg-e"><b>${fmt(a)}</b><span>${rot}</span><b>${fmt(b)}</b><div class="jg-eb"><i style="width:${(a / t) * 100}%;background:${CLUBE.cores[0]}"></i><i style="width:${(b / t) * 100}%;background:${coresAdv[0]}"></i></div></div>`; };
+  const est = `<div class="jg-est">${linhaE('Posse', posse[0], posse[1], (v) => `${v}%`)}${linhaE('Remates', s[0].rem, s[1].rem)}${linhaE('Golos esperados (xG)', s[0].xg, s[1].xg, (v) => v.toFixed(2).replace('.', ','))}${linhaE('Cantos', s[0].cantos, s[1].cantos)}${linhaE('Faltas', s[0].faltas, s[1].faltas)}${linhaE('Amarelos', s[0].am, s[1].am)}</div>`;
+  const icone = { golo: '⚽', remate: '◎', canto: '⚑', cartao: '▮', falta: '·', duelo: '›', intervalo: '⏸', fim: '⏹', sub: '⇄' };
+  const relato = JG.ev.slice(0, JG.i).filter((x) => x.tipo !== 'duelo' || JG.vel <= 1).slice(-40).reverse().map((x) => `<div class="jg-r ${x.tipo}"><span class="jg-rm">${x.min}'</span><span class="jg-ri" style="${x.tipo === 'cartao' ? 'color:#f2c230' : ''}">${icone[x.tipo] ?? '·'}</span><span>${x.e === 0 || x.tipo === 'intervalo' || x.tipo === 'fim' ? '' : `<span class="muted">${adv}:</span> `}${x.txt}</span></div>`).join('');
+  if (JG.fase === 'fim') {
+    const mvp = [...JG.notas].sort((a, b) => b.nota - a.nota)[0];
+    return `<div class="modal modal-jogo" role="dialog" aria-label="Fim do jogo"><div class="modal-cab"><h3>Fim do jogo</h3><button class="btn" id="fechar">Continuar</button></div>${cab}
+      <div class="jg-grelha"><section><h4>Notas</h4>${JG.notas.map(({ p, nota }) => `<div class="jg-j"><span>${p.nome} <span class="muted">${p.pos}</span></span><span class="jg-nt" style="background:${nota >= 7 ? '#57c26a' : nota >= 6.3 ? '#f2c230' : '#f08a3c'}">${nota.toFixed(1).replace('.', ',')}</span></div>`).join('')}
+        <div class="jg-mvp">Homem do jogo: <b>${mvp.p.nome}</b> (${mvp.nota.toFixed(1).replace('.', ',')})</div></section>
+        <section><h4>Estatísticas</h4>${est}<h4 style="margin-top:12px">Outros resultados da jornada</h4>${JG.outros.map(([a, b, x, y]) => `<div class="linha-kv"><span>${a}</span><b class="num">${x} – ${y}</b><span style="text-align:right">${b}</span></div>`).join('')}</section></div></div>`;
+  }
+  const conversa = JG.intervalo ? `<div class="jg-int"><h4>Intervalo · falar com o treinador</h4>${JG.conversa ? `<div class="jg-fala"><b>${JG.conversa[0]}</b><span>Treinador: "${JG.conversa[1]}"</span></div>` : `<div class="rot">Como Presidente podes dar uma indicação; o treinador decide se a segue (conforme a autoridade dele e a vossa relação).</div>
+      <div class="jg-opc"><button class="btn" data-jgc="0">Arriscar mais: mentalidade ofensiva</button><button class="btn" data-jgc="1">Segurar o resultado: mentalidade defensiva</button><button class="btn" data-jgc="2">Sugerir a entrada de ${JG.banco[1].nome}</button><button class="btn" data-jgc="3">Não dizer nada</button></div>`}
+      <button class="btn prim" data-jg="retomar" style="margin-top:10px">Começar a 2.ª parte</button></div>` : '';
+  return `<div class="modal modal-jogo modal-jogo-vivo" role="dialog" aria-label="Jogo ao vivo"><div class="modal-cab"><h3>Ao vivo</h3><button class="btn" id="fechar">Sair</button></div>${cab}
+    <div class="jg-ctrl"><div class="seg" role="group" aria-label="Velocidade">${JG_VEL.map(([t], k) => `<button data-jgv="${k}" class="${k === JG.vel ? 'on' : ''}">${t}</button>`).join('')}</div><button class="btn" data-jg="pausa">${JG.pausa ? 'Retomar' : 'Pausa'}</button><button class="btn" data-jg="fim">Saltar para o fim</button></div>
+    ${conversa}
+    <div class="jg-vivo"><div>${jgCampo()}${est}</div><div class="jg-relato" aria-live="polite">${relato || '<div class="rot">O árbitro apita para o início.</div>'}</div></div></div>`;
+}
+function jgPasso() {
+  if (!JG || JG.fase !== 'vivo' || JG.pausa || JG.intervalo) return;
+  JG.i++;
+  const x = JG.ev[JG.i - 1];
+  if (x?.tipo === 'intervalo') JG.intervalo = true;
+  if (JG.i >= JG.ev.length) { JG.fase = 'fim'; clearInterval(jgTimer); jgTimer = null; }
+  const el = document.getElementById('modal');
+  if (JG.fase !== 'vivo' || JG.intervalo || !el) { desenharModal(); return; }
+  // Só o placar, o campo, as estatísticas e o relato mudam (os botões ficam quietos e clicáveis).
+  const t = document.createElement('div'); t.innerHTML = modalJogo();
+  for (const sel of ['.jg-placar', '.jg-sub', '.jg-vivo']) { const a = el.querySelector(sel), b = t.querySelector(sel); if (a && b) a.replaceWith(b); }
+}
+function jgRelogio() { clearInterval(jgTimer); jgTimer = setInterval(jgPasso, JG_VEL[JG.vel][1] / 3); }
+const JG_RESP = [['Mentalidade ofensiva', 'Concordo, vamos subir as linhas.'], ['Mentalidade defensiva', 'Prefiro manter o plano; estamos bem assim.'], ['Entrada de um suplente', 'Já estava a pensar nisso: entra aos 60 minutos.'], ['Sem indicação', 'Obrigado pela confiança, presidente.']];
+function ligarJogo(el) {
+  el.querySelectorAll('[data-jg]').forEach((b) => b.addEventListener('click', () => {
+    const a = b.dataset.jg;
+    if (a === 'ver') { JG.fase = 'vivo'; jgRelogio(); }
+    else if (a === 'simular' || a === 'fim') { JG.fase = 'fim'; JG.i = JG.ev.length; JG.intervalo = false; clearInterval(jgTimer); jgTimer = null; }
+    else if (a === 'pausa') JG.pausa = !JG.pausa;
+    else if (a === 'retomar') JG.intervalo = false;
+    desenharModal();
+  }));
+  el.querySelectorAll('[data-jgv]').forEach((b) => b.addEventListener('click', () => { JG.vel = +b.dataset.jgv; jgRelogio(); desenharModal(); }));
+  el.querySelectorAll('[data-jgc]').forEach((b) => b.addEventListener('click', () => { JG.conversa = JG_RESP[+b.dataset.jgc]; desenharModal(); }));
+}
+
 function desenharModal() {
   let el = document.getElementById('modal'); if (el) el.remove();
   if (!modal) return;
@@ -2384,6 +2531,7 @@ function desenharModal() {
     if (modal === 'finalistas') el.innerHTML = modalFinalistas();
     else if (modal === 'cerimonia') el.innerHTML = modalCerimonia();
     else if (modal === 'imprensa') el.innerHTML = `<div class="modal modal-imp" role="dialog" aria-label="Imprensa">${imprensaEcra()}</div>`;
+    else if (modal === 'jogo') el.innerHTML = modalJogo();
     else if (modal === 'semana') el.innerHTML = modalSemana();
     else if (modal === 'reacao') el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="A tua reacção">${capaRelatorio('A tua reacção é notícia', reacao.t.origem, reacao.o.img)}<div class="modal-corpo"><div class="rot">Amanhã nos jornais</div><h3 style="margin:4px 0 8px;font-family:var(--f-num);font-size:22px">${reacao.o.titulo}</h3><div class="rot" style="margin-bottom:10px">Em resposta a: ${reacao.t.tema}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${efeitosTxt(reacao.o.efeitos)}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn prim" id="fechar">Fechar</button></div></div></div>`;
     else if (modal === 'entrev') el.innerHTML = modalEntrevista();
@@ -2397,6 +2545,7 @@ function desenharModal() {
       el.innerHTML = `<div class="modal modal-rel" role="dialog" aria-label="Mensagens">${capaRelatorio('Mensagens', `${MENSAGENS.filter((x) => !x.lida).length} por ler`)}<div class="modal-corpo"><div class="mg-grupo">A decidir · ${a.length}</div>${a.map(lin).join('')}<div class="mg-grupo">Para ler · ${b.length}</div>${b.map(lin).join('')}<div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn" id="fechar">Fechar</button></div></div></div>`; }
   }
   document.body.appendChild(el);
+  if (modal === 'jogo') ligarJogo(el);
   el.addEventListener('click', (e) => { if (e.target === el) { modal = null; msgAberta = null; desenhar(); } });
   el.querySelector('#fechar').addEventListener('click', () => { if (cer) { clearTimeout(cer.timer); cer = null; } if (daImprensa && (modal === 'entrev' || modal === 'semana' || modal === 'reacao')) { daImprensa = false; modal = 'imprensa'; desenhar(); desenharModal(); return; } daImprensa = false; modal = null; mesCal = null; msgAberta = null; desenhar(); });
   el.querySelectorAll('[data-ref]').forEach((b) => b.addEventListener('click', () => { modal = null; msgAberta = null; if (b.dataset.ref === 'mercado') { tabMercado = 'Transferências'; location.hash = 'mercado'; } desenhar(); }));
@@ -2440,6 +2589,7 @@ function desenharModal() {
 function ligar(m) {
   m.querySelector('#b-cal').addEventListener('click', () => { modal = 'cal'; mesCal = null; desenharModal(); });
   m.querySelector('#b-msg').addEventListener('click', () => { modal = 'msg'; desenharModal(); });
+  m.querySelector('#ver-jogo')?.addEventListener('click', () => { modal = 'jogo'; JG = null; desenharModal(); });
   m.querySelector('#b-cont').addEventListener('click', () => { const ontem = hoje; hoje = new Date(hoje.getTime() + 864e5); guardarProgresso(false); if (JOGOS.get(chave(ontem)) || hoje.getUTCDay() === 1) { FEED.push(gerarBloco(hoje)); FEED = FEED.slice(-12); feedLidos = Math.min(feedLidos, FEED.length - 1); } if (hoje.getUTCDay() === 1) { semanaImprensa++; modal = 'semana'; } desenhar(); if (modal === 'semana') desenharModal(); });
   m.querySelectorAll('[data-pos]').forEach((b) => b.addEventListener('click', () => { filtroPos = b.dataset.pos; desenhar(); }));
   const f = m.querySelector('#f-pesq'); if (f) f.addEventListener('input', () => { pesquisa = f.value; const pos = f.selectionStart; desenhar(); const g = document.getElementById('f-pesq'); g.focus(); g.setSelectionRange(pos, pos); });
