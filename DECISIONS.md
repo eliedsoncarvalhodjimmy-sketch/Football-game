@@ -256,3 +256,43 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - **Calibração** (6 jogos por par): Tiki-Taka × Contra-ataque 1,3 golos e 19 remates; Jogo Directo × Catenaccio 0,7 e 8,5; Pelas Alas × Bloco Médio-Baixo 2,5 e 21,5; Futebol Total × Gegenpressen 2,8 e 22. Passes ~1150–1400 por jogo (antes ~1900), 73–76% certos.
     - **Velocidade**: **1× = 1 minuto de jogo em 3 segundos** (200 ticks de 100 ms por segundo real; verificado: 2,00 minutos em 6 s); 2× = 400, 4× = 800, 8× = 1600; a omissão continua 2×. Cada bolinha tem uma **pequena seta** branca a indicar para onde o jogador está virado. A bola parada em curso aparece escrita no relvado.
 186. **Velocidade do "Ao vivo"** (pedido do utilizador: "continua muito rápido"): **a 1×, o jogo inteiro dura 15 minutos reais**, ou seja, 1 minuto de jogo em 10 segundos (60 ticks de 100 ms por segundo real; medido no protótipo: 1,00 minuto em 10 s). 2× = 7,5 min, 4× = 3,75 min, 8× ≈ 1,9 min; a omissão continua 2×. Substitui o "1 minuto em 3 segundos" da decisão 185.
+187. **Motor 2D táctico, Fase 1: formações e bloco** (especificação do utilizador em `docs/tactics/MOTOR_2D.md`, que manda em caso de dúvida). O código novo está em `src/engine/match2d/`. Os números estão em `src/config/match2d/` (`formacoes.ts`, `estilos.ts`, `bloco.ts`, `fisica.ts`). O motor de decisão antigo (`src/engine/decision`) continua a servir o "Ao vivo" do protótipo até a Fase 6 o substituir. O ecrã de teste é `docs/prototipo/motor2d.html` (`scripts/empacotar-motor2d.sh`). Interpretações:
+    - **Referenciais**: as camadas de equipa (fase, bloco, âncoras) raciocinam no referencial da equipa, como pede o documento. O estado físico (posições, colisões, bola) fica num único referencial absoluto, que é o da equipa 0; a equipa 1 está rodada 180°. Assim, a esquerda de quem ataca é sempre y = 0.
+    - **Formações**: os lugares seguem a ordem da formação da app (`src/config/tacticas.ts`), para cada jogador ficar no seu lugar.
+        - O documento não traz o **4-4-2 losango** nem o **4-3-3 falso 9**. O losango foi definido aqui; com bola, os laterais dão a largura. O falso 9 usa as formas do 4-3-3 com o ajuste do papel.
+        - O **3-4-3 losango** foi definido aqui com um finalizador na frente; o falso 9 sobrepunha-se ao 10. Ainda não foi acrescentado à app, porque mexe na calibração dos ratings; fica para a Fase 6.
+    - **Papéis**: as formas do documento são a referência neutra. Os ajustes só se aplicam com bola:
+        - lateral ofensivo +0,06 e lateral defensivo −0,06 (a diferença de 0,12 do documento);
+        - extremo invertido 0,10 por dentro;
+        - falso 9 −0,10.
+    - **Âncora**: a largura normaliza-se pela largura da forma, para o bloco ter de facto a largura do estilo; a fórmula literal (forma.y − 0,5) × largura dava blocos 10–25% mais estreitos. O comprimento com bola é o natural da forma (× 105), limitado a 40–55 m.
+    - **Linha defensiva**:
+        - Acompanha a bola: 0,35 m por metro de bola sem bola, 0,30 com bola.
+        - Nunca fica a menos de 6 m da própria baliza, nem a mais de 14 m acima do valor do estilo.
+        - Sem bola, fica pelo menos 4 m atrás da bola, e a **linha de médios fica pelo menos 2 m atrás da bola**: a defesa e os médios defendem entre a bola e a baliza e só os avançados podem estar à frente. Medido: 8 a 10 dos 10 jogadores de campo do lado da baliza, em todos os estilos.
+        - Com bola, fica no máximo 10 m à frente da bola (os centrais abrem-se na saída do guarda-redes).
+        - A regra "bola descoberta → a linha recua 5–10 m" precisa de saber se o portador está pressionado. Fica para a Fase 3.
+    - **Fora de jogo na forma**: com bola, se a frente do bloco passar a linha do fora de jogo (o penúltimo adversário ou a bola), o bloco encurta em proporção, até 1 m antes da linha e com um mínimo de 22 m. Os avançados jogam encostados ao último defensor sem se amontoarem.
+    - **Guarda-redes**: fica a 4 + 0,2 × (linha − 16) m da linha de golo, entre 4 e 15 m (o líbero sai mais 4 m). Coloca-se na linha entre o centro da baliza e a bola.
+    - **Fases**:
+        - Com posse: construção até ao meio-campo, criação daí em diante, finalização no último terço central (x ≥ 70 m e a menos de 20 m do eixo) ou dentro da área.
+        - A "posse estabilizada" precisa de passes; fica para a Fase 2.
+        - A transição dura o tempo do estilo (ataque→defesa 4–7 s, defesa→ataque 3–6 s). A transição ataque→defesa acaba mais cedo se, depois de 1,5 s, todos já estiverem a menos de 6 m da âncora.
+        - A forma passa de "sem bola" a "com bola" em 2 s, de forma gradual.
+    - **Acções da Fase 1**: só MANTER_POSICAO e RECUPERAR. Recupera em sprint quem está a mais de 10 m da âncora na transição ataque→defesa, até ficar a menos de 4 m. Cada acção dura pelo menos 0,8 s.
+    - **Física** (secção 10.1):
+        - Sprint = 6 + 0,15 × Velocidade; aceleração = 2,5 + 0,18 × Aceleração; travagem = 1,5 × aceleração.
+        - Viragem = (3 + 0,12 × Agilidade + 0,06 × Equilíbrio) ÷ (1 + v ÷ 2,5) rad/s: parado roda quase no sítio; em sprint, virar 90° demora mais de 0,4 s. A virar, abranda.
+        - De lado para onde o corpo olha anda a 80% da velocidade; de costas, a 55%.
+        - Seguir a âncora: velocidade desejada = velocidade da âncora + erro ÷ 1,1 s, com zona morta de 0,3 m. Isto evita oscilar à volta do ponto e chegar sempre atrasado.
+        - Separação suave de 3 m entre colegas.
+        - Velocidade por intensidade: andar 1,8 m/s, trote 3,8, corrida 5,5, sprint = máximo.
+    - **Tempo**: o motor corre sempre em tempo de jogo real (tick de 0,1 s) e a renderização interpola a 60 fps. Na Fase 1 a compressão é constante: tempo real, 0,5× (3×), 1× (6×, ou seja 90 min em 15 min) e 2× (12×). A compressão variável e o gráfico ficam para a Fase 5.
+    - **Medidas** (10 min de jogo com a bola a circular e a posse trocada a cada 20 s):
+        - 88% do tempo a menos de 5 m da âncora (pedido: 80%);
+        - linha defensiva com desvio de 0,6 m;
+        - erro do bloco de 0,5 m no comprimento e na largura;
+        - 2,2 ziguezagues e 0,09 inversões bruscas por jogador-minuto;
+        - 0 colegas a menos de 2 m, 0 excessos de velocidade ou aceleração;
+        - ritmos: 83% a andar, 10% a trote, 2% em corrida, 4% em sprint.
+    - **Desempenho**: 90 minutos só de movimento demoram 1,5 s em Node (modo de desenvolvimento). O alvo de 1,5 s para um jogo completo (secção 14) é da Fase 5.
