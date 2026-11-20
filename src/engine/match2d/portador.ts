@@ -306,7 +306,7 @@ export function executarRemate(s: Estado2D, j: Jogador2D, semente: string, cabec
   const encostados = adv.filter((q) => dist(q.p, j.p) < 2).length;
   const naLinha = adv.filter((q) => dist(q.p, j.p) < d && distSeg(q.p, j.p, alvo) < 1.2).length;
   const pressao = Math.min(REMATE.pressao_max, REMATE.pressao * encostados + REMATE.pressao_linha * naLinha);
-  const sigma = (REMATE.erro_base + REMATE.erro_ponto * Math.max(0, 20 - attr)) * (1 + d / 30) * (1 + pressao);
+  const sigma = (REMATE.erro_base + REMATE.erro_ponto * Math.max(0, 20 - attr)) * (1 + d / REMATE.erro_dist_m) * (1 + pressao);
   const chave = `${semente}|${j.id}|${s.tick}|rem`;
   const ang = Math.atan2(alvo.y - s.bola.p.y, alvo.x - s.bola.p.x) + sigma * normal(chave + '|ang');
   const v = cabeca ? 13 : Math.min(REMATE.v_max, REMATE.v_base + REMATE.v_ponto * (longe ? at(j, 'rld') : at(j, 'fin')));

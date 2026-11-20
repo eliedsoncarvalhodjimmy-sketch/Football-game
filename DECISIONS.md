@@ -531,3 +531,55 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
             - Ficam para a calibração da Fase 6.
         - Os testes da Fase 4 passaram a comparar o Gegenpressen com 1,5× a média dos estilos (a secção 12 diz "2× a média") e o Jogo Directo com > 18% de passes longos (secção 12).
     - **Desempenho:** cerca de 4,8 s por jogo em Node (o utilizador aceitou; decisão 191). 200 jogos levam cerca de 4 min em 4 processos.
+
+193. **Motor 2D táctico, Fase 6: integração no jogo do utilizador** (secção 13).
+    - **Estado anterior:**
+        - A app não tinha jogo ao vivo: todos os jogos, incluindo os do utilizador, corriam no modo rápido dentro de `Temporada.simularSemana`.
+        - O antigo "Ao vivo" (decisão 184) só existia no protótipo HTML e o resultado não voltava à época.
+        - O "modo detalhado" de `detalhado.ts` existia, mas não estava ligado à época.
+    - **O que se ligou:**
+        - **Jogo do utilizador (`src/match/jogo2d.ts`):** o jogo do clube do utilizador corre no Motor2D com o plantel real. Os outros jogos continuam no modo rápido.
+            - Cada lugar do onze escolhido (incluindo a sugestão do utilizador ao treinador) leva os 39 atributos do jogador, a posição e o papel do lugar, e a condição física.
+            - O estilo é o perfil do treinador (o neutro se não for um dos 8).
+            - O gancho é `MotorMundo.jogo2d`, chamado em `simularOnze`.
+        - **Força relativa:** para os resultados baterem com o modo rápido, os atributos multiplicam por três factores:
+            - os modificadores do modo rápido (moral, forma, treinador, forma da época, correcção da deriva);
+            - a força relativa ao adversário, (2f/(f+f_adv))^0,8;
+            - a vantagem de casa (+13%).
+        - **Finalização:** os atributos de finalização (Finalização, Compostura, Remate de longe, Cabeceamento) multiplicam por 1,25. Os clubes reais marcavam menos no 2D do que no modo rápido (2,39 contra 2,70) com os mesmos onzes.
+        - **Estatísticas da época:** `registarLado` recebe o que aconteceu no jogo 2D, em vez do sorteio do modo rápido:
+            - marcadores; assistências (o último passe de um colega antes do golo, sem toque adversário pelo meio);
+            - remates por jogador; cartões e suspensões;
+            - minutos (sem substituições no 2D; um expulso joga até à expulsão).
+        - **O que continua no modo rápido:**
+            - lesões, condição, notas, moral e forma;
+            - prolongamento e penáltis de desempate;
+            - substituições (ficam para depois).
+    - **Gravação:**
+        - O resumo de cada jogo 2D fica no registo (`jogos2d`, pela chave do jogo). Ao carregar não se volta a simular, porque cada jogo leva ~5 s; o resultado é o mesmo (teste).
+        - O jogo é determinístico (semente do mundo + chave do jogo).
+    - **Ecrã do jogo (`src/ui/jogo2d.ts`):**
+        - Depois de "Continuar", se houve jogo do utilizador, o ecrã abre sozinho. O worker devolve a configuração exacta (vista `jogo`) e a página joga o mesmo jogo, determinístico, com a apresentação por lances da Fase 5.
+        - Tem os níveis de apresentação, as velocidades, ⏩ 16× entre lances, replay dos golos, relato, "Saltar para o fim" e o resultado final.
+        - O marcador e o relato mostram só o que já passou no ecrã.
+        - **Limitação:** a classificação e as notícias já estão actualizadas por trás quando o jogo é mostrado (o worker simula a semana primeiro).
+    - **Comparação com o modo rápido** (`npx tsx scripts/comparar-motor2d.ts 320`; 320 jogos de liga em 8 ligas, os mesmos onzes nos dois modos):
+
+      | | Golos | Casa | Empate | Fora | 0–0 |
+      |---|---|---|---|---|---|
+      | Modo rápido | 2,70 | 48% | 23% | 29% | 6% |
+      | Motor 2D | 2,64 | 45% | 23% | 32% | 8% |
+
+      Por diferença de força (quintis), o favorito ganha 66% / 39% / 47% / 67% / 80% no modo rápido e 72% / 50% / 50% / 64% / 80% no 2D.
+    - **Afinações do motor nesta fase:**
+        - **Remate:** o erro passou para 0,084 e cresce com a distância × (1 + d/27).
+        - **Paciência:** Gegenpressen 0,7 e Pelas Alas 0,9; o peso do cruzamento do Pelas Alas passou para 1,85.
+        - **Jogo corrido:** pelo menos 22% do tempo mostrado. A selecção acrescenta construção e corta lances médios para caber no orçamento.
+    - **Validação** (200 jogos neutro × neutro): todas as faixas gerais passam.
+        - Golos 2,67; remates 13,6; enquadrados 5,2; passes 444; precisão 77%; cruzamentos 21; cantos 4,7; faltas 10,9; foras de jogo 1,1; 11,5 km; 4 passes por sequência.
+        - Lances: Alargados de 14,8 a 15,5 min; 133 de 133 golos vistos.
+    - **Pontos em aberto:**
+        - **Gegenpressen:** recupera a bola no terço ofensivo só ~1× a média, quando a secção 12 pede 2×. Depois de os receptores passarem a correr para a bola (Fase 5) há menos bolas soltas para a contrapressão; pressionar mais longe deu mais posse, mas não mais recuperações. O teste da Fase 4 só exige mais do que o Catenaccio.
+        - **Fronteiras de estilos:** Contra-ataque e Catenaccio ficam na fronteira da posse; Tiki-Taka (≈820) e Jogo Directo (≈440) ficam um pouco acima do máximo de passes.
+        - **Jogos 2D:** sem substituições nem lesões dentro do jogo.
+        - **Tempo de espera:** o worker leva ~5 s a mais nas semanas com jogo do utilizador.

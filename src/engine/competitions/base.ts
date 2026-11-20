@@ -18,6 +18,8 @@ export interface JogoR extends Jogo {
   r?: Resultado;
   /** Golos esperados e remates de cada equipa (modo com jogadores). */
   est?: { xg: [number, number]; remates: [number, number] };
+  /** Jogado no modo detalhado (motor 2D: o jogo do utilizador). */
+  detalhado?: boolean;
   /** Dia absoluto (dias desde 1970-01-01), preenchido quando o jogo é simulado. */
   diaAbs?: number;
 }

@@ -181,10 +181,18 @@ export interface ResumoLado {
 }
 
 /** Distribui os acontecimentos de uma equipa e actualiza estatísticas e estado. */
-export function registarLado(w: World, lado: Lado, golos: number, sofridos: number, xg: number, duracao: number, dia: number, rng: Rng, rival: boolean): ResumoLado {
+/** O que aconteceu de facto num jogo jogado no motor 2D (Fase 6): substitui o sorteio de marcadores, assistências,
+ *  remates, cartões e minutos. Os jogadores vão pelo índice no PlayerStore. */
+export interface DetalheLado {
+  marcadores: number[]; assistencias: number[]; rematesPor: [number, number][]; amarelos: number[]; vermelhos: number[];
+  /** Minutos dos titulares (no motor 2D não há substituições; um expulso joga até à expulsão). */
+  minutos: [number, number][];
+}
+
+export function registarLado(w: World, lado: Lado, golos: number, sofridos: number, xg: number, duracao: number, dia: number, rng: Rng, rival: boolean, d?: DetalheLado): ResumoLado {
   const st = w.jogadores!;
   const t = w.motor!.treinadores[lado.clube];
-  const parts = participacoes(st, lado, duracao, dia, rng);
+  const parts = d ? detalheParticipacoes(lado, d, duracao) : participacoes(st, lado, duracao, dia, rng);
   const r: ResumoLado = { golos, remates: 0, marcadores: [], assistencias: [], amarelos: [], vermelhos: [], lesoes: [] };
   // Pesos de cada participante, calculados uma vez por jogo.
   const pRemate = new Map<number, number>(), pGolo = new Map<number, number>(), pAssist = new Map<number, number>(), pCartao = new Map<number, number>();
@@ -195,14 +203,15 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
     pAssist.set(x.j, fm * PESO_ASSIST[x.papel] * (0.4 + pontuacao(st, x.j, 'criacao') / 20));
     pCartao.set(x.j, fm * (PESO_CARTAO_POS[x.pos] ?? 1) * (0.5 + st.atr[x.j * 39 + IDX.agr] / 20));
   }
+  if (d) registarDetalhe(st, r, d);
   // Remates: golos + falhados (conversão-alvo ≈ 11%).
-  const falhados = rng.poisson(Math.max(0.3, xg * (1 / RAPIDO.conversao - 1)));
-  r.remates = golos + falhados;
-  for (let k = 0; k < r.remates; k++) {
+  const falhados = d ? 0 : rng.poisson(Math.max(0.3, xg * (1 / RAPIDO.conversao - 1)));
+  if (!d) r.remates = golos + falhados;
+  for (let k = 0; !d && k < r.remates; k++) {
     const p = escolherPonderado(rng, parts, (x) => pRemate.get(x.j)!);
     if (p) st.eRemates[p.j]++;
   }
-  for (let g = 0; g < golos; g++) {
+  for (let g = 0; !d && g < golos; g++) {
     if (rng.chance(RAPIDO.autogolos)) continue; // autogolo do adversário
     const m = escolherPonderado(rng, parts, (x) => pGolo.get(x.j)!);
     if (!m) continue;
@@ -215,7 +224,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
   }
   // Cartões (mais com rivalidade e com treinador pouco disciplinador).
   const fCart = (rival ? M.rivalidade.cartoes : 1) * (1 + (10 - t.atributos.disciplina) * ET.cartoes_por_disciplina);
-  const nAm = rng.poisson(RAPIDO.amarelos_por_equipa * fCart);
+  const nAm = d ? 0 : rng.poisson(RAPIDO.amarelos_por_equipa * fCart);
   for (let k = 0; k < nAm; k++) {
     const p = escolherPonderado(rng, parts, (x) => pCartao.get(x.j)!);
     if (!p) continue;
@@ -224,7 +233,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
     st.amarelos[p.j]++;
     if (st.amarelos[p.j] % E.amarelos_suspensao === 0) st.suspensao[p.j]++;
   }
-  if (rng.chance(RAPIDO.vermelhos_por_equipa * fCart)) {
+  if (!d && rng.chance(RAPIDO.vermelhos_por_equipa * fCart)) {
     const p = escolherPonderado(rng, parts, (x) => pCartao.get(x.j)!);
     if (p) { st.eVermelhos[p.j]++; r.vermelhos.push(p.j); st.suspensao[p.j] += E.jogos_vermelho; }
   }
@@ -274,6 +283,24 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
     if (p.pos === 'GR') st.eSofridos[j] += sofridos;
   }
   return r;
+}
+
+/** Participações a partir do motor 2D: os titulares, com os minutos jogados (prolongamento: todos até ao fim). */
+function detalheParticipacoes(lado: Lado, d: DetalheLado, duracao: number): Participacao[] {
+  const e = lado.escolha, min = new Map(d.minutos);
+  return e.onze.jogadores.map((j, s) => ({ j, papel: e.onze.papeis[s], pos: e.onze.formacao.lugares[s].pos, minutos: Math.min(duracao, (min.get(j) ?? 90) + (min.get(j) === 90 ? duracao - 90 : 0)), titular: true }));
+}
+
+/** Estatísticas reais do jogo 2D: remates por jogador, marcadores, assistências, cartões e suspensões. */
+function registarDetalhe(st: PlayerStore, r: ResumoLado, d: DetalheLado) {
+  for (const [j, n] of d.rematesPor) { st.eRemates[j] += n; r.remates += n; }
+  for (const j of d.marcadores) { st.eGolos[j]++; r.marcadores.push(j); }
+  for (const j of d.assistencias) { st.eAssist[j]++; r.assistencias.push(j); }
+  for (const j of d.amarelos) {
+    st.eAmarelos[j]++; r.amarelos.push(j); st.amarelos[j]++;
+    if (st.amarelos[j] % E.amarelos_suspensao === 0) st.suspensao[j]++;
+  }
+  for (const j of d.vermelhos) { st.eVermelhos[j]++; r.vermelhos.push(j); st.suspensao[j] += E.jogos_vermelho; }
 }
 
 /** Penáltis (desempate) com os 5 melhores marcadores contra o guarda-redes. */

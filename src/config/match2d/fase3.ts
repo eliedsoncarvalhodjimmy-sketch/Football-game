@@ -81,7 +81,9 @@ export const REMATE = {
   /** Velocidade: 18 + 0,7 × Finalização (ou Remate de longe a mais de 20 m), até 32 m/s; subida 0,5–4 m/s. */
   v_base: 18, v_ponto: 0.7, v_max: 32, vz: [0.5, 4] as [number, number],
   /** Erro do ângulo (rad): (base + por ponto abaixo de 20) × (1 + d ÷ 30) × (1 + pressão). */
-  erro_base: 0.08, erro_ponto: 0.009, pressao: 0.7,
+  erro_base: 0.084, erro_ponto: 0.009, pressao: 0.7,
+  /** O erro do remate cresce com a distância: × (1 + d / erro_dist_m). */
+  erro_dist_m: 27,
   /** Subida (m/s) a mais nos remates de longe, para a bola poder sair por cima da barra. */
   vz_longe_extra: 3,
   /** Aponta a x m para dentro do poste do lado oposto ao guarda-redes. */

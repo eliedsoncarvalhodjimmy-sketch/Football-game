@@ -110,6 +110,8 @@ export const LANCES = {
   /** Jogo corrido: pelo menos 1 sequência de construção a cada `corrido_janela_s` (entre as com mais passes, ≥ `corrido_passes`),
    *  mostrada até `corrido_max_s`. */
   corrido_janela_s: 360, corrido_passes: 5, corrido_max_s: 20,
+  /** Fracção mínima do tempo mostrado em jogo corrido (com margem sobre os 20% da secção 2.2). */
+  corrido_min: 0.22,
   /** Pontuação de importância. */
   pontos: { golo: 100, penalti: 90, vermelho: 85, remate_perigoso: 60, defesa_dificil: 55, contra_ataque: 50, livre_directo: 45, remate_enquadrado: 35, canto: 30, cruzamento_perigoso: 30, amarelo: 25, corte_area: 20 },
   /** Remate perigoso (prioridade alta): xG ≥ isto; defesa difícil: remate com xG ≥ isto defendido. */

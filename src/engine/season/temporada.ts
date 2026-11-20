@@ -231,7 +231,11 @@ export class Temporada {
     const dia = this.base + j.semana * 7 + j.dia;
     const rng = Rng.de(w.semente, 'jogo', this.ano, j.comp, j.ronda, j.casa, j.fora, j.ida ? 2 : 1);
     const [casa, fora] = prepararLados(w, j.casa, j.fora, dia, rng);
-    const { gc, gf, xg } = golosRapido(w, casa, fora, !!j.neutro, rng);
+    // Fase 6 do motor 2D: o jogo do clube do utilizador corre no motor 2D (modo detalhado); os outros no modo rápido.
+    const u = w.motor!.clubeUtilizador;
+    const d2 = w.motor!.jogo2d && (j.casa === u || j.fora === u)
+      ? w.motor!.jogo2d(casa, fora, !!j.neutro, dia, `${this.ano}|${j.comp}|${j.ronda}|${j.casa}|${j.fora}|${j.ida ? 2 : 1}`) : null;
+    const { gc, gf, xg } = d2 ? { gc: d2.golos[0], gf: d2.golos[1], xg: d2.xg } : golosRapido(w, casa, fora, !!j.neutro, rng);
     j.r = { gc, gf };
     let duracao = 90;
     const xgTot: [number, number] = [xg[0], xg[1]];
@@ -247,9 +251,11 @@ export class Temporada {
       }
     }
     const rival = saoRivais(w, j.casa, j.fora);
-    const rc = registarLado(w, casa, j.r.gc, j.r.gf, xgTot[0], duracao, dia, rng, rival);
-    const rf = registarLado(w, fora, j.r.gf, j.r.gc, xgTot[1], duracao, dia, rng, rival);
+    const det = (k: 0 | 1) => d2 ? { marcadores: d2.marcadores[k], assistencias: d2.assistencias[k], rematesPor: d2.rematesPor[k], amarelos: d2.amarelos[k], vermelhos: d2.vermelhos[k], minutos: d2.minutos[k] } : undefined;
+    const rc = registarLado(w, casa, j.r.gc, j.r.gf, xgTot[0], duracao, dia, rng, rival, det(0));
+    const rf = registarLado(w, fora, j.r.gf, j.r.gc, xgTot[1], duracao, dia, rng, rival, det(1));
     j.est = { xg: [Math.round(xgTot[0] * 100) / 100, Math.round(xgTot[1] * 100) / 100], remates: [rc.remates, rf.remates] };
+    if (d2) j.detalhado = true;
   }
 
   /** Simula a semana actual de todas as competições. Devolve os jogos jogados. */

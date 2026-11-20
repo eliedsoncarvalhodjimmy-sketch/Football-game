@@ -3,6 +3,8 @@ import type { Treinador } from '../coaches/store.ts';
 import { CacheRatings } from './ratings.ts';
 import type { PlayerStore } from '../players/store.ts';
 import type { Rng } from '../core/rng.ts';
+import type { Lado } from './rapido.ts';
+import type { Resumo2D } from './jogo2d.ts';
 import { novaRelacao, recuperarSemana, sugerir, type RelacaoTreinador, type Sugestao, type ResultadoSugestao } from '../coaches/interferencia.ts';
 
 export class MotorMundo {
@@ -15,6 +17,9 @@ export class MotorMundo {
   /** Sugestão do utilizador para o próximo jogo do seu clube (consumida pelo jogo). */
   sugestao: Sugestao | null = null;
   ultimaDecisao: ResultadoSugestao | null = null;
+  /** Fase 6 do motor 2D: joga no modo detalhado os jogos do clube do utilizador (definido pela sessão; null = todos no
+   *  modo rápido). Recebe os lados preparados e a chave do jogo; devolve o resumo do jogo 2D. */
+  jogo2d: ((casa: Lado, fora: Lado, neutro: boolean, dia: number, chave: string) => Resumo2D) | null = null;
   constructor(public treinadores: Treinador[]) {
     this.correcao = new Float32Array(treinadores.length);
   }

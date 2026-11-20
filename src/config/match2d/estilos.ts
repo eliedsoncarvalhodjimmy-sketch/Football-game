@@ -38,7 +38,7 @@ export const ESTILOS_8: Record<IdEstilo, ParametrosEstilo> = {
   contra_ataque: E(28, 38, 26, 34, 54, 0.55, 8, 0, [1, 1], 1.4, 1.15, 1.1, 0.8, 1.1, 0.9, 1.2, [3, 4], 5, 'zona', 0.2, 'alas', 1.0, 4, 6),
   catenaccio: E(16, 28, 22, 30, 48, 0.45, 6, 0, [1, 1], 2.0, 0.6, 1.8, 0.9, 0.6, 0.8, 1.6, [2, 3], 7, 'individual', 0.1, 'indiferente', 0.5, 4, 3),
   jogo_direto: E(34, 40, 34, 40, 52, 0.5, 12, 2, [1, 1], 1.75, 0.85, 1.8, 1.3, 0.7, 1.1, 1.4, [4, 4], 4, 'zona', 0.2, 'centro_ar', 0.8, 5, 5),
-  pelas_alas: E(36, 48, 32, 40, 66, 0.55, 12, 3, [1, 1], 1.0, 1.4, 0.7, 2.0, 1.4, 0.8, 1.0, [6, 6], 3, 'zona', 0.3, 'alas', 0.6, 5, 4),
+  pelas_alas: E(36, 48, 32, 40, 66, 0.55, 12, 3, [1, 1], 1.0, 1.4, 0.7, 1.85, 1.4, 0.8, 1.0, [6, 6], 3, 'zona', 0.3, 'alas', 0.6, 5, 4),
   futebol_total: E(44, 56, 30, 40, 62, 0.6, 16, 5, [2, 2], 1.2, 1.4, 0.6, 0.7, 1.2, 0.8, 0.6, [7, 7], 2, 'zona', 0.9, 'indiferente', 0.6, 6, 4),
   bloco_medio_baixo: E(26, 36, 24, 32, 54, 0.6, 9, 0, [1, 1], 1.8, 0.85, 1.35, 1.0, 0.8, 1.0, 1.3, [3, 4], 5, 'zona', 0.15, 'alas', 0.8, 4, 5),
 };
@@ -60,7 +60,7 @@ function media(): ParametrosEstilo {
 /** Paciência por estilo (Fase 4, decisão 191): multiplica o valor de manter a posse; desce com os passes seguidos sem
  *  progredir (o estilo directo cansa-se depressa de circular). */
 export const PACIENCIA: Record<IdEstilo, number> = {
-  tiki_taka: 1.8, gegenpressen: 0.5, contra_ataque: 0.8, catenaccio: 0.2, jogo_direto: 0.8, pelas_alas: 0.5, futebol_total: 1.4, bloco_medio_baixo: 0.65,
+  tiki_taka: 1.8, gegenpressen: 0.7, contra_ataque: 0.8, catenaccio: 0.2, jogo_direto: 0.8, pelas_alas: 0.9, futebol_total: 1.4, bloco_medio_baixo: 0.65,
 };
 for (const [k, v] of Object.entries(PACIENCIA)) ESTILOS_8[k as IdEstilo].paciencia = v;
 

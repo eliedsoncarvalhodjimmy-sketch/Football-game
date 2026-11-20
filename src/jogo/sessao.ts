@@ -1,6 +1,9 @@
 // Sessão de jogo (corre no Web Worker): o mundo, o simulador e o clube do utilizador. A interface só lê vistas e envia
 // comandos. A sessão guarda um registo (semente, clube, perfil, semanas avançadas e comandos) que chega para a reconstruir:
 // o motor é determinístico, por isso carregar uma gravação = gerar o mesmo mundo e repetir as mesmas semanas.
+import { configJogo2D, jogarResumir, type Resumo2D } from '../match/jogo2d.ts';
+import { JOGO_2D } from '../config/match2d/fase6.ts';
+import type { Config2D } from '../engine/match2d/Motor2D.ts';
 import { carregarDados, type Dados } from '../data/load.ts';
 import type { DataSource } from '../data/DataSource.ts';
 import { construirMundo, type World } from '../engine/world.ts';
@@ -65,10 +68,10 @@ export interface Carreira {
 /** Comando guardado no registo: aplica-se antes de simular a semana `semana` (0 = antes da primeira). */
 export interface ComandoRegistado { semana: number; tipo: Comando['tipo']; dados: Comando }
 export type PedidoVista = { ecra: 'plantel' } | { ecra: 'jogador'; jogador: string } | { ecra: 'tactica'; formacao?: string } | { ecra: 'mercado' } | { ecra: 'negociacao'; id: number } | { ecra: 'scouting' } | { ecra: 'academia' }
-  | { ecra: 'staff' } | { ecra: 'financas' } | { ecra: 'infra' } | { ecra: 'competicoes'; comp?: string } | { ecra: 'escritorio' };
+  | { ecra: 'staff' } | { ecra: 'financas' } | { ecra: 'infra' } | { ecra: 'competicoes'; comp?: string } | { ecra: 'escritorio' } | { ecra: 'jogo' };
 export type Vista = { ecra: 'plantel'; dados: VistaPlantel } | { ecra: 'jogador'; dados: VistaJogador } | { ecra: 'tactica'; dados: VistaTactica }
   | { ecra: 'mercado'; dados: VistaMercado } | { ecra: 'negociacao'; dados: VistaNegociacao } | { ecra: 'scouting'; dados: VistaScouting } | { ecra: 'academia'; dados: VistaAcademia }
-  | { ecra: 'staff'; dados: VistaStaff } | { ecra: 'financas'; dados: VistaFinancas } | { ecra: 'infra'; dados: VistaInfra } | { ecra: 'competicoes'; dados: VistaCompeticoes } | { ecra: 'escritorio'; dados: VistaEscritorio };
+  | { ecra: 'staff'; dados: VistaStaff } | { ecra: 'financas'; dados: VistaFinancas } | { ecra: 'infra'; dados: VistaInfra } | { ecra: 'competicoes'; dados: VistaCompeticoes } | { ecra: 'escritorio'; dados: VistaEscritorio } | { ecra: 'jogo'; dados: VistaJogo2D | null };
 
 /** Tudo o que é preciso para reconstruir um jogo. */
 export interface RegistoJogo {
@@ -78,6 +81,8 @@ export interface RegistoJogo {
   perfil: { nome: string; perfilDono: string };
   semanas: number;
   comandos: ComandoRegistado[];
+  /** Jogos do utilizador jogados no motor 2D (Fase 6), pela chave do jogo: ao carregar não se voltam a simular. */
+  jogos2d?: Record<string, Resumo2D>;
 }
 
 export interface ClubeEscolha { idx: number; id: string; nome: string; cidade: string; cores: [string, string]; reputacao: number; estadio: string; capacidade: number; caixa: number | null }
@@ -102,7 +107,12 @@ export interface Resumo {
   tarefas: { tipo: 'contrato' | 'lesao' | 'treinador' | 'sugestao'; texto: string; detalhe: string; jogador?: string }[];
   ultimos: JogoResumo[];
   semanas: number;
+  /** Último jogo do utilizador jogado no motor 2D (para abrir o ecrã do jogo). */
+  jogo2d: { chave: string; texto: string } | null;
 }
+
+/** O jogo do utilizador para o ecrã do jogo (Fase 6): a configuração exacta do motor 2D (determinística) e o resultado. */
+export interface VistaJogo2D { chave: string; config: Config2D; nomes: [string, string]; cores: [[string, string], [string, string]]; resultado: [number, number]; data: string }
 
 const DIA_MS = 864e5;
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -164,8 +174,21 @@ export class Sessao {
     w.motor?.definirClubeUtilizador(c);
     if (w.economia) w.economia.controladores[c] = new ControladorUtilizador();
     if (w.mercado) w.mercado.util = new MercadoUtilizador(w, w.mercado, c);
-    this.registo = { ...this.registo!, clube: clubeId, perfil };
+    this.registo = { ...this.registo!, clube: clubeId, perfil, jogos2d: {} };
+    // Fase 6 do motor 2D: os jogos do clube do utilizador jogam-se no modo detalhado. O resumo fica na gravação (carregar
+    // não volta a simular) e a configuração do último jogo fica para o ecrã do jogo o mostrar por lances.
+    if (w.motor && JOGO_2D.activo) w.motor.jogo2d = (casa, fora, neutro, dia, chave) => {
+      const config = configJogo2D(w, casa, fora, neutro, dia, `${w.semente}|${chave}`);
+      const guardados = (this.registo!.jogos2d ??= {});
+      const resumo = guardados[chave] ?? jogarResumir(config);
+      guardados[chave] = resumo;
+      this.ultimoJogo2D = { chave, config, resumo, casa: casa.clube, fora: fora.clube, dia };
+      return resumo;
+    };
   }
+
+  /** O último jogo do utilizador jogado no motor 2D (para o ecrã do jogo). */
+  ultimoJogo2D: { chave: string; config: Config2D; resumo: Resumo2D; casa: number; fora: number; dia: number } | null = null;
 
   /** Aplica um comando do utilizador e guarda-o no registo. Lança erro se não for válido (nada muda). */
   comando(cmd: Comando) {
@@ -326,6 +349,7 @@ export class Sessao {
     if (p.ecra === 'financas') { const t = this.temporada(); return { ecra: 'financas', dados: vistaFinancas(w, this.clube, dia, t ? rotuloEpoca({ grupo: t.grupo, epoca: t.ano }) : '') }; }
     if (p.ecra === 'infra') return { ecra: 'infra', dados: vistaInfra(w, this.clube, dia) };
     if (p.ecra === 'competicoes') return { ecra: 'competicoes', dados: vistaCompeticoes(w, this.clube, this.temporada(), this.sim!.historico, p.comp) };
+    if (p.ecra === 'jogo') return { ecra: 'jogo', dados: this.vistaJogo2D() };
     if (p.ecra === 'escritorio') return { ecra: 'escritorio', dados: vistaEscritorio(w, this.clube, dia, this.registo?.perfil.nome ?? '', this.carreira, this.sim!.historico) };
     if (p.ecra === 'mercado') return { ecra: 'mercado', dados: vistaMercado(w, this.clube, dia) };
     if (p.ecra === 'negociacao') return { ecra: 'negociacao', dados: vistaNegociacao(w, this.clube, p.id, dia) };
@@ -373,6 +397,7 @@ export class Sessao {
   async carregar(r: RegistoJogo, prog: Progresso = () => {}) {
     await this.novoMundo(r.semente, (e, f, t) => prog(e, f * 0.3, t));
     this.comecar(r.clube, r.perfil);
+    this.registo!.jogos2d = { ...(r.jogos2d ?? {}) };
     const n = r.semanas;
     const cmds = r.comandos ?? [];
     let q = 0;
@@ -383,7 +408,7 @@ export class Sessao {
       if (k % 4 === 0 || k === n - 1) prog('reconstrucao', 0.3 + (0.7 * (k + 1)) / n, `A reconstruir a carreira: semana ${k + 1} de ${n}`);
     }
     aplicarAte(n);
-    this.registo = { ...r, semanas: n, comandos: [...cmds] };
+    this.registo = { ...r, semanas: n, comandos: [...cmds], jogos2d: this.registo!.jogos2d };
     prog('pronto', 1, 'Pronto');
   }
 
@@ -456,6 +481,15 @@ export class Sessao {
       tarefas,
       ultimos: t ? meus.filter((j) => j.r).slice(-5).reverse().map((j) => this.jogoResumo(t, j)) : [],
       semanas: this.registo?.semanas ?? 0,
+      jogo2d: this.ultimoJogo2D ? { chave: this.ultimoJogo2D.chave, texto: `${w.clubes[this.ultimoJogo2D.casa].nome} ${this.ultimoJogo2D.resumo.golos[0]}–${this.ultimoJogo2D.resumo.golos[1]} ${w.clubes[this.ultimoJogo2D.fora].nome}` } : null,
     };
+  }
+
+  /** O último jogo do utilizador no motor 2D (ou null). */
+  vistaJogo2D(): VistaJogo2D | null {
+    const u = this.ultimoJogo2D, w = this.w;
+    if (!u || !w) return null;
+    const cor = (c: number) => w.clubes[c].cores as [string, string];
+    return { chave: u.chave, config: u.config, nomes: [w.clubes[u.casa].nome, w.clubes[u.fora].nome], cores: [cor(u.casa), cor(u.fora)], resultado: u.resumo.golos, data: dataPt(u.dia) };
   }
 }

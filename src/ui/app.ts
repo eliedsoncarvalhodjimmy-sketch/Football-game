@@ -6,6 +6,7 @@ import { guardar, listar, apagar, ranhuraLivre, type Gravacao } from '../storage
 import { PERFIS_DONO, IDADE_MINIMA_PERFIL, FOTO_PERFIL } from '../config/perfis.ts';
 import { INTERFACE, DICAS, VERSAO_MOTOR } from '../config/interface.ts';
 import { svg, escudo } from './icones.ts';
+import { abrirJogo2D } from './jogo2d.ts';
 import type { PaisEscolha, RegistoJogo, Resumo, Comando, PedidoVista, Vista } from '../jogo/sessao.ts';
 import type { Instrucoes } from '../config/tacticas.ts';
 import { htmlInicio, htmlPlantel, htmlJogador, htmlTactica, tabelaLiga, type UiPlantel, type Rascunho } from './ecras.ts';
@@ -37,6 +38,8 @@ interface Estado {
 }
 const E: Estado = { conta: null, rascunho: {}, paises: [], pais: '', liga: '', resumo: null, registo: null, ranhura: null, ecra: 'inicio', aGravar: false, aAvancar: false };
 const raiz = () => document.getElementById('app')!;
+/** Último jogo do utilizador já mostrado no ecrã do jogo (chave). */
+let jogoVisto = '';
 
 // ---------------------------------------------------------------- carregamento
 
@@ -294,6 +297,13 @@ async function avancar() {
   try {
     const r = await pedir<'estado'>({ tipo: 'avancar', semanas: 1 });
     E.resumo = r.resumo; E.registo = r.registo;
+    // Fase 6 do motor 2D: houve um jogo do utilizador esta semana → abre o ecrã do jogo (por lances).
+    const j2d = r.resumo.jogo2d;
+    if (j2d && j2d.chave !== jogoVisto) {
+      jogoVisto = j2d.chave;
+      const v = await pedir<'vista'>({ tipo: 'vista', pedido: { ecra: 'jogo' } });
+      if (v.vista.ecra === 'jogo' && v.vista.dados) { E.aAvancar = false; abrirJogo2D(v.vista.dados, () => ecraJogo()); }
+    }
     UI.rascunho = null; UI.formacaoVer = null;
     if (E.registo.semanas % INTERFACE.gravacao_automatica_semanas === 0) await gravar(true);
   } catch (e) { alert(`Erro na simulação: ${(e as Error).message}`); }

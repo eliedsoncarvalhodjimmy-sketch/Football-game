@@ -154,6 +154,20 @@ export function seleccionar(cands: Lance[], nivel: NivelLances, t0 = 0, t1 = T(9
     base = base.filter((l) => l !== fora);
     lances = juntar([...base, ...escolhidos]);
   }
+  // Jogo corrido mínimo (secção 2.2: ≥ 20% do mostrado): acrescenta construção e, para caber no orçamento, corta os
+  // lances de prioridade média menos importantes.
+  const quota = () => { const d = duracao(lances, t0, t1); return d.mostrado_s > 0 ? d.corrido_s / d.mostrado_s : 1; };
+  for (const c of corridos) {
+    if (quota() >= L.corrido_min) break;
+    if (escolhidos.has(c)) continue;
+    escolhidos.add(c);
+    lances = juntar([...base, ...escolhidos]);
+    while (duracao(lances, t0, t1).duracao_s > alvo + tol && medias.length) {
+      const fora = medias.shift()!;
+      base = base.filter((l) => l !== fora);
+      lances = juntar([...base, ...escolhidos]);
+    }
+  }
   // Abaixo: acrescenta jogo corrido (os de mais passes).
   for (const c of corridos) {
     if (duracao(lances, t0, t1).duracao_s >= alvo - tol) break;

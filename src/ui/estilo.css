@@ -655,3 +655,21 @@ body { margin: 0; }
 select[multiple] { min-height: 140px; }
 .filtros select { min-height: 40px; border-radius: 10px; border: 1px solid var(--linha); background: var(--cartao-2); color: var(--texto); padding: 0 10px; }
 .np-orc > span svg { width: 24px; height: 24px; }
+
+/* Ecrã do jogo (motor 2D, modelo FM). */
+.jogo2d { position: fixed; inset: 0; z-index: 50; background: var(--fundo); display: flex; flex-direction: column; gap: 10px; padding: 14px; overflow: auto; }
+.jg-cab { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.jg-eq { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; min-width: 0; }
+.jg-eq.dir { justify-content: flex-end; text-align: right; }
+.jg-eq .pt, .jg-relato .pt { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; box-shadow: 0 0 0 1.5px var(--suave); }
+.jg-relato .pt { margin-right: 6px; }
+.jg-placar { text-align: center; }
+.jg-placar b { display: block; font-family: var(--f-num); font-size: 30px; line-height: 1; }
+.jg-placar small { color: var(--suave); font-family: var(--f-num); }
+.jg-ctrl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jg-corpo { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; align-items: start; }
+.jg-corpo canvas { width: 100%; height: auto; border-radius: 12px; display: block; }
+.jg-relato { background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 12px; font-size: 13px; display: grid; gap: 6px; max-height: 70vh; overflow: auto; }
+.jg-final { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 12px 16px; }
+@media (max-width: 760px) { .jg-corpo { grid-template-columns: 1fr; } .jg-relato { max-height: 30vh; } .jogo2d { padding: 10px; } }
+.jg-final[hidden] { display: none; }
