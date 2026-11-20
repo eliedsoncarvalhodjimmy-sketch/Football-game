@@ -623,3 +623,39 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - As épocas do relatório são anos civis.
     - **Benchmark** (semana mundial, 3 épocas, nesta máquina): média de 302 ms antes e 272 ms depois; máximo de 665 ms antes e 582 ms depois.
     - **Removido:** `Recompra`, `VendaFutura`, `sobreLucro`, as tabelas `recompra`, `vendaFutura` e `custo`, e as probabilidades sorteadas às cegas (`prob_recompra`, `prob_venda_futura`, `venda_futura_sobre_lucro`, `recompra_multiplo`, `recompra_anos`, `venda_futura`).
+
+195. **Prompt 6, Bloco B: plano de plantel e IA por necessidade.**
+    - **Plano de plantel (`src/mercado/planoPlantel.ts`):** calculado uma vez por mês por clube, no ciclo mensal do mercado, a partir da formação preferida e do estilo do treinador.
+        - **Posições:** cada lugar da formação pede titulares e profundidade (GR: 2; outros: titulares × 1,67, arredondado para cima).
+        - **Distribuição:** gulosa, pelo "nível no sistema" (OVR na posição × familiaridade, misturado a 25% com os atributos que o estilo valoriza nessa zona do campo, em config).
+        - **Necessidades:** uma por posição, a mais urgente:
+            - **qualidade:** titular 3 ou mais pontos abaixo do alvo;
+            - **profundidade:** utilizáveis abaixo do pedido, contando com as lesões longas; titular em falta pesa o dobro;
+            - **sucessão:** titular com 32 anos ou mais, a querer sair, ou com contrato a acabar.
+        - **Nível alvo:** 70% o nível do clube, 30% a média da liga, mais a ambição.
+        - **Nível mínimo de um reforço:** o alvo, mas nunca mais do que o titular actual + 4 (um reforço realista).
+        - **Necessidades aceites por janela:** 2, mais os pedidos do treinador (reforços × autonomia, com a pressão do dono), mais 1 se o clube estiver abaixo do nível da sua liga; no máximo 4.
+        - **Excedentes:** a mais na posição, sem lugar na formação, ou que não encaixa no estilo (nível no sistema 6 ou mais pontos abaixo do OVR). Nunca deixam o plantel abaixo de 22.
+        - **A emprestar:** jovens de clubes grandes sem lugar no plano.
+        - **Insubstituíveis:** titulares sem alternativa a menos de 5 pontos.
+    - **Mercado:**
+        - **Compras:** só por necessidade ainda não coberta na janela, procurando nos índices por grupo filtrados pela posição natural. Um competente só serve quando falta um titular; sem esta regra os plantéis acumulavam centrais e médios comprados para lateral ou trinco.
+        - **Removido:** as tentativas de "reforço" ao acaso, os mínimos por grupo, `melhoria_minima`, `excedente` e `renovar_melhores`.
+        - **Listagens:** saem dos excedentes do plano.
+        - **Renovações:** de quem tem lugar no plano (mais os jovens de potencial).
+        - **Emprestáveis:** os jovens sem lugar no plano dos clubes grandes.
+        - **Insubstituível:** o vendedor pede pelo menos 1,6 × o valor (ou a cláusula).
+        - **Recompra (IA):** exerce quando o jogador cobre uma necessidade do plano.
+    - **Pedidos do treinador:** no fim da janela (fecho mensal de Setembro e de Fevereiro), cada pedido por cumprir baixa 6 pontos à moral do treinador. A moral já existia; é o campo que também usa a regra do choque de filosofia. Nos clubes da IA não se criou um índice novo.
+    - **Rescisão de excedentes** (o único acrescento): no fecho da janela, um clube com mais de 30 jogadores, ou com 6 ou mais na mesma posição natural, rescinde os piores excedentes. Nunca desce abaixo de 22. Paga 30% do salário que falta, na rubrica `indemnizacoes`. Os titulares que só não encaixam no estilo não se rescindem.
+        - **Porquê:** a academia promove cerca de 1500 juniores por época, e os excedentes listados só se vendem a quem precise da posição. Sem esta regra, os plantéis inchavam no código antigo (até 35 jogadores; 282 clubes com 6 ou mais na mesma posição).
+        - **Permanência:** um clube abaixo do nível da liga só rescinde por tamanho, não por posição repetida, para guardar a profundidade. Sem esta excepção, a banda antiga dos últimos classificados caía abaixo de 90%.
+    - **Resultados** (2 épocas, `scripts/comparar-mercado.ts`; relatório em `docs/relatorios/prompt6_blocoB_plano.md`):
+        - **Plantéis:**
+            - clubes com 6 ou mais na mesma posição: 82 → 31 e 282 → 117;
+            - plantel máximo de 35 → 31;
+            - nenhuma posição da formação vazia;
+            - idade média estável (cerca de 27,3).
+        - **Contratações:** o máximo por clube numa janela baixou de 9–12 para 6.
+        - **Bandas antigas** (10 épocas): 0–0 8,34%; campeões 93,3% dentro; últimos 91,3% dentro. Passam todas.
+        - **Benchmark:** semana média de 282 → 303 ms, máximo de 674 → 660 ms. Os planos de todos os clubes custam 65–90 ms por mês.
