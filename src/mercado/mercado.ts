@@ -61,6 +61,8 @@ export interface Negocio {
   recompraAte?: number;
   /** Negócio criado pelo exercício de uma recompra. */
   deRecompra?: boolean;
+  /** Onde retoma se o titular não exercer a recompra (termos pessoais, ou concluir já: opção de compra de empréstimo). */
+  depoisRecompra?: 'termos' | 'concluir';
 }
 
 export interface Parcela { pagador: number; recebedor: number; valor: number; dia: number }
@@ -388,7 +390,7 @@ export class Mercado {
     const nome = st.nomes[j], cn = this.w.clubes[comprador].nome;
     const tx = tipo === 'livre' ? `${cn} aborda ${nome} (livre)` : tipo === 'pre_contrato' ? `${cn} propõe um pré-contrato a ${nome}` : tipo === 'clausula' ? `${cn} paga a cláusula de rescisão de ${nome} (${M(oferta)})` : tipo === 'emprestimo' ? `${cn} pede ${nome} emprestado ao ${this.w.clubes[vend].nome}` : `${cn} oferece ${M(oferta)} ao ${this.w.clubes[vend].nome} por ${nome}`;
     n.rondas.push({ dia, texto: tx });
-    if (tipo === 'clausula') n.estado = 'termos';
+    if (tipo === 'clausula') { n.estado = 'termos'; this.notificarRecompra(n, 'termos'); }
     this.negocios.push(n);
     void rng;
     return n;
@@ -455,13 +457,7 @@ export class Mercado {
         ganha.rondas.push({ dia: n.dia, texto: `${w.clubes[n.vendedor].nome} aceita ${M(ganha.oferta)} do ${w.clubes[ganha.comprador].nome}` });
         ganha.estado = 'termos';
         // Recompra: o titular é notificado e tem alguns dias para a exercer ao preço fixo.
-        const rc = this.direitos.recompra(n.jogador, n.dia);
-        if (rc && rc.clube !== ganha.comprador && rc.clube !== n.vendedor) {
-          const [p0, p1] = DIREITOS.recompra.prazo_dias;
-          ganha.estado = 'recompra';
-          ganha.recompraAte = n.dia + p0 + (ganha.id % (p1 - p0 + 1));
-          ganha.rondas.push({ dia: n.dia, texto: `o ${w.clubes[rc.clube].nome} tem a recompra (${M(rc.preco)}) e é notificado: decide até ${data(ganha.recompraAte)}` });
-        }
+        this.notificarRecompra(ganha, 'termos');
         for (const x of [n, ...outros]) if (x !== ganha) this.falhar(x, `perdeu o leilão para o ${w.clubes[ganha.comprador].nome}`);
         return;
       }
@@ -473,7 +469,7 @@ export class Mercado {
       n.rondas.push({ dia: n.dia, texto: `${w.clubes[n.vendedor].nome} faz contra-proposta: ${M(resp.contra)}` });
       return this.subir(n, resp.contra);
     }
-    if (n.estado === 'recompra') return this.decidirRecompra(n);
+    if (n.estado === 'recompra') return this.decidirRecompra(n, rng);
     if (n.estado === 'termos') {
       // Termos pessoais: o jogador decide (salário pedido no clube comprador, minutos pelo estatuto previsto).
       const ordem = this.plantel(n.comprador).filter((x) => st.ovrNat(x) > st.ovrNat(n.jogador)).length;
@@ -521,10 +517,25 @@ export class Mercado {
   /** O titular da recompra decide: exerce (o negócio com o outro clube cai e ele compra ao preço fixo) ou deixa seguir
    *  (o direito extingue-se). IA: exerce se o jogador melhora o seu plantel, o preço é inferior ao valor de mercado e há
    *  caixa e vaga. Utilizador: um evento com uma decisão (sem resposta até ao prazo = recusa). */
-  private decidirRecompra(n: Negocio) {
+  /** Se um clube (que não o comprador nem o vendedor) tem a recompra do jogador, notifica-o: o negócio espera a decisão
+   *  dele (3 a 5 dias) e, se não a exercer, retoma em `depois`. Vale para todas as saídas com preço: oferta aceite,
+   *  cláusula de rescisão paga e opção/obrigação de compra de empréstimo. */
+  private notificarRecompra(n: Negocio, depois: 'termos' | 'concluir'): boolean {
+    const rc = this.direitos.recompra(n.jogador, n.dia);
+    if (!rc || rc.clube === n.comprador || rc.clube === n.vendedor) return false;
+    const [p0, p1] = DIREITOS.recompra.prazo_dias;
+    n.estado = 'recompra';
+    n.depoisRecompra = depois;
+    n.recompraAte = n.dia + p0 + (n.id % (p1 - p0 + 1));
+    n.rondas.push({ dia: n.dia, texto: `o ${this.w.clubes[rc.clube].nome} tem a recompra (${M(rc.preco)}) e é notificado: decide até ${data(n.recompraAte)}` });
+    return true;
+  }
+
+  private decidirRecompra(n: Negocio, rng: Rng) {
     const w = this.w, st = w.jogadores!, e = w.economia!, j = n.jogador;
     const rc = this.direitos.recompra(j, n.dia);
-    if (!rc) { n.estado = 'termos'; return; }
+    const retomar = () => { if (n.depoisRecompra === 'concluir') this.concluir(n, rng); else n.estado = 'termos'; };
+    if (!rc) return retomar();
     const h = rc.clube;
     let exerce: boolean;
     if (this.util && h === this.util.clube) {
@@ -541,8 +552,7 @@ export class Mercado {
     this.direitos.recompraDecidida(j, rc, exerce, n.dia);
     if (!exerce) {
       n.rondas.push({ dia: n.dia, texto: `o ${w.clubes[h].nome} não exerce a recompra: o negócio segue` });
-      n.estado = 'termos';
-      return;
+      return retomar();
     }
     this.falhar(n, `o ${w.clubes[h].nome} exerceu a recompra`);
     const ordem = this.plantel(h).filter((x) => st.ovrNat(x) > st.ovrNat(j)).length;
@@ -913,7 +923,8 @@ export class Mercado {
             const n: Negocio = { id: ++this.seq, tipo: 'transferencia', jogador: j, vendedor: em.dono, comprador: c, estado: 'registo', oferta: em.opcao, pedido: em.opcao, maximo: em.opcao, salario: st.salario[j], estatuto: 'rotacao', dia, inicio: dia, rondas: [{ dia, texto: `${w.clubes[c].nome} ${em.obrigacao ? 'cumpre a obrigação' : 'exerce a opção'} de compra (${M(em.opcao)})` }] };
             k.emprestimo.delete(j);
             st.clube[j] = em.dono; w.plantel[c] = w.plantel[c].filter((x) => x !== j); w.plantel[em.dono].push(j);
-            this.concluir(n, rng);
+            // Com recompra de outro clube, o titular é notificado (o negócio espera na fila); senão conclui já.
+            if (this.notificarRecompra(n, 'concluir')) this.negocios.push(n); else this.concluir(n, rng);
           } else {
             k.emprestimo.delete(j);
             this.mover(j, c, em.dono, dia);

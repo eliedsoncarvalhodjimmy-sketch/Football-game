@@ -615,7 +615,7 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Utilizador:** a decisão pendente (`recomprasPendentes`, comando `recompra`) sem resposta dentro do prazo vale como recusa.
         - **Se exerce:** o outro negócio cai e ele compra ao preço fixo; o jogador não pode recusar e o salário é o de mercado.
         - **Se recusa:** o direito extingue-se, porque a cláusula era com o clube vendedor (decisão confirmada pelo utilizador).
-        - **Saídas sem aceitação:** pagar uma cláusula de rescisão ou exercer uma opção de compra de empréstimo não passa pela aceitação do vendedor. Nesses casos não há notificação e a recompra extingue-se na liquidação.
+        - **Notificação em todas as saídas com preço** (decisão do utilizador na PARAGEM A): oferta aceite, cláusula de rescisão paga (antes dos termos pessoais) e opção ou obrigação de compra de empréstimo (o negócio espera na fila; se o titular recusar, conclui-se como estava).
     - **Garantia:** o titular recebe sempre pelo registo financeiro (com ou sem liga, em administração). Nenhum clube desaparece do mundo, por isso a regra do herdeiro não tem casos.
     - **Auditoria** (`npx tsx scripts/auditar-direitos.ts`, relatório em `docs/relatorios/prompt6_blocoA_direitos.md`), 3 épocas, 1031 clubes, invariantes ligadas em cada negócio: **0 erros**.
         - Cerca de 170 direitos criados por época (~8% das transferências); 10 vendas pagaram venda futura em 3 épocas (a revenda leva anos).

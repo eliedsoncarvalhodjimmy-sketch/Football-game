@@ -142,6 +142,35 @@ describe('direitos futuros (Prompt 6, Bloco A)', () => {
     expect(tot.r).toBeGreaterThanOrEqual(1);
   });
 
+  it('recompra também com notificação na cláusula de rescisão paga e na opção/obrigação de compra de empréstimo', () => {
+    const st = w.jogadores!;
+    let dia = dia0 + 500; while (!m.janelaAberta(clube('ENG1', 0), dia) && dia < dia0 + 900) dia++;
+    // Cláusula de rescisão: o titular (que recusa: preço fixo muito alto) é notificado antes dos termos pessoais.
+    const titular = clube('ENG1', 17), vend = clube('ENG1', 5), comp = clube('ESP1', 3);
+    const j = [...m.plantel(vend)].filter((x) => st.posNat[x] !== 0).sort((a, b) => st.ovrNat(b) - st.ovrNat(a))[1];
+    m.direitos.criar(j, 'recompra', titular, 5e8, dia, 5e8, 2);
+    const n = m.abrir('clausula', j, comp, dia, 8e7, 8e7, Rng.de(4, 'cl'))!;
+    expect(n.estado).toBe('recompra');
+    expect(n.rondas.some((r) => r.texto.includes('é notificado'))).toBe(true);
+    m.ronda(n, Rng.de(4, 'cl2'));
+    expect(n.estado).toBe('termos');
+    expect(m.direitos.recompra(j, dia)).toBeNull();
+    // Opção/obrigação de compra de um empréstimo: o negócio espera a decisão; recusada, conclui-se na mesma.
+    const dono = clube('ITA1', 2), emp = clube('ITA1', 11), tit2 = clube('ITA1', 16);
+    const k = [...m.plantel(dono)].filter((x) => st.posNat[x] !== 0 && st.idade(x, dia) <= 23).sort((a, b) => st.ovrNat(b) - st.ovrNat(a))[0];
+    (m as unknown as { mover: (j: number, de: number, para: number, d: number) => void }).mover(k, dono, emp, dia);
+    m.contratos.emprestimo.set(k, { dono, ate: dia, salarioReceptor: 1, opcao: 3e6, obrigacao: true, minutos: 0 });
+    w.economia!.clubes.caixa[emp] = Math.max(w.economia!.clubes.caixa[emp], 1e8);
+    m.direitos.criar(k, 'recompra', tit2, 4e8, dia - 100, 4e8, 2);
+    m.fimDeContratos({ pacotes: [{ ligas: [w.liga[emp]] }] } as never, dia);
+    const op = m.negocios.find((x) => x.jogador === k && x.estado === 'recompra')!;
+    expect(op).toBeDefined();
+    expect(op.comprador).toBe(emp);
+    m.ronda(op, Rng.de(5, 'op'));
+    expect(op.estado).toBe('concluido');
+    expect(st.clube[k]).toBe(emp);
+  });
+
   it('a IA pede direitos quando faz sentido (grande que vende jovem com potencial a um clube menor) e nunca a um veterano sem potencial', async () => {
     const { planearDireitos } = await import('../src/mercado/direitos.ts');
     const st = w.jogadores!;
