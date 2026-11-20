@@ -43,6 +43,7 @@ export type Comando =
   | { tipo: 'propostaJogador'; id: number; proposta: PropostaJogador }
   | { tipo: 'desistir'; id: number }
   | { tipo: 'responderOferta'; negocio: number; resposta: 'aceitar' | 'recusar' | { contra: number } }
+  | { tipo: 'recompra'; negocio: number; exercer: boolean }
   | { tipo: 'listar'; jogador: string; listado: boolean }
   | { tipo: 'shortlist'; jogador: string; marcar: boolean }
   // A3: scouting e academia
@@ -224,6 +225,7 @@ export class Sessao {
       case 'propostaJogador': this.util().propostaJogador(cmd.id, cmd.proposta, dia); break;
       case 'desistir': this.util().desistir(cmd.id, dia); break;
       case 'responderOferta': this.util().responder(cmd.negocio, cmd.resposta); break;
+      case 'recompra': this.util().decidirRecompra(cmd.negocio, cmd.exercer); break;
       case 'listar': this.util().listar(idx(cmd.jogador), cmd.listado); break;
       case 'shortlist': {
         const j = st.idx(cmd.jogador);

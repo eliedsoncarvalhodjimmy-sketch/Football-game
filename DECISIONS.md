@@ -583,3 +583,43 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Fronteiras de estilos:** Contra-ataque e Catenaccio ficam na fronteira da posse; Tiki-Taka (≈820) e Jogo Directo (≈440) ficam um pouco acima do máximo de passes.
         - **Jogos 2D:** sem substituições nem lesões dentro do jogo.
         - **Tempo de espera:** o worker leva ~5 s a mais nas semanas com jogo do utilizador.
+
+194. **Prompt 6, Bloco A: direitos futuros (venda futura, recompra), liquidação única e auditoria.**
+    - **Diagnóstico confirmado:**
+        - A recompra era gravada e nunca exercida.
+        - Só havia uma venda futura por jogador: era sobrescrita por uma nova, apagava-se no primeiro pagamento, era paga de uma vez mesmo com parcelas e era debitada ao vendedor.
+        - Não havia auditoria.
+        - `k.custo` servia para o preço pago e para o salário do pré-contrato.
+    - **Uma estrutura e uma liquidação (`src/mercado/direitos.ts`):**
+        - `Mercado.direitos` guarda, por jogador, uma lista de direitos (tipo, titular, % ou preço fixo, validade). Substitui `recompra`, `vendaFutura` e `custo`; o salário do pré-contrato passou para `salarioPreContrato`.
+        - `liquidar()` é chamada por todas as saídas com preço. Todas passam por `Mercado.concluir`, à excepção da compensação de formação dos juniores, que também liquida:
+            - transferência e cláusula de rescisão;
+            - opção ou obrigação de compra de empréstimo;
+            - venda forçada;
+            - negócios e troca do utilizador.
+        - **Pagamento:** o comprador paga a cada titular a sua fracção do preço, à vista e em cada parcela na mesma proporção e nas mesmas datas; o vendedor recebe o líquido.
+    - **Venda futura:**
+        - É uma % sobre o preço da venda seguinte (`sobreLucro` removido) e paga uma só vez: na venda seguinte com preço, todas as cláusulas pagam e extinguem-se.
+        - Quem recebeu por um jogador nunca volta a receber por ele, nem pode ter uma cláusula nova sobre ele.
+        - A soma das % activas por jogador não passa de 50% (a cláusula nova é cortada ao que sobra, ou não nasce). Caduca ao fim de 5 anos.
+        - Empréstimo, jogador livre e pré-contrato não a activam.
+        - Se o titular é o próprio comprador ou vendedor, o direito extingue-se sem pagamento.
+    - **Quando nasce (IA):** uma pontuação → logística, com pesos em config (`DIREITOS`):
+        - **factores:** diferença de reputação, idade (≤ 21), sem lugar no plantel (listado, suplente ou promessa), potencial acima do OVR, arquétipo formador ou vendedor, preço baixo face ao valor esperado no potencial;
+        - **venda futura:** só até aos 25 anos (um veterano não a tem); a % fica entre 10 e 25%, conforme o potencial e a diferença de reputação;
+        - **contrapartida:** o vendedor aceita 0,4% a menos por ponto percentual (a regra do mercado do utilizador);
+        - **recompra:** só para jovens (≤ 22, potencial ≥ OVR + 6) vendidos por formadores, vendedores ou clubes grandes (rep. ≥ 80); preço fixo de 1,3 a 2,0 × o preço pago; validade de 1 ou 2 anos.
+    - **Recompra por notificação:**
+        - Quando o vendedor aceita uma oferta de outro clube, o titular é notificado e tem 3 a 5 dias.
+        - **IA:** exerce se o jogador entra no seu top 3 do grupo de posições (regra provisória até ao plano de plantel do Bloco B), se o preço fixo for inferior a 95% do valor de mercado, e se houver caixa, vaga de inscrição e janela aberta.
+        - **Utilizador:** a decisão pendente (`recomprasPendentes`, comando `recompra`) sem resposta dentro do prazo vale como recusa.
+        - **Se exerce:** o outro negócio cai e ele compra ao preço fixo; o jogador não pode recusar e o salário é o de mercado.
+        - **Se recusa:** o direito extingue-se, porque a cláusula era com o clube vendedor (decisão confirmada pelo utilizador).
+        - **Saídas sem aceitação:** pagar uma cláusula de rescisão ou exercer uma opção de compra de empréstimo não passa pela aceitação do vendedor. Nesses casos não há notificação e a recompra extingue-se na liquidação.
+    - **Garantia:** o titular recebe sempre pelo registo financeiro (com ou sem liga, em administração). Nenhum clube desaparece do mundo, por isso a regra do herdeiro não tem casos.
+    - **Auditoria** (`npx tsx scripts/auditar-direitos.ts`, relatório em `docs/relatorios/prompt6_blocoA_direitos.md`), 3 épocas, 1031 clubes, invariantes ligadas em cada negócio: **0 erros**.
+        - Cerca de 170 direitos criados por época (~8% das transferências); 10 vendas pagaram venda futura em 3 épocas (a revenda leva anos).
+        - Recompras: 1 recusada e nenhuma exercida pela IA nestas 3 épocas.
+        - As épocas do relatório são anos civis.
+    - **Benchmark** (semana mundial, 3 épocas, nesta máquina): média de 302 ms antes e 272 ms depois; máximo de 665 ms antes e 582 ms depois.
+    - **Removido:** `Recompra`, `VendaFutura`, `sobreLucro`, as tabelas `recompra`, `vendaFutura` e `custo`, e as probabilidades sorteadas às cegas (`prob_recompra`, `prob_venda_futura`, `venda_futura_sobre_lucro`, `recompra_multiplo`, `recompra_anos`, `venda_futura`).

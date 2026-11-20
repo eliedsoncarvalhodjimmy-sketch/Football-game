@@ -614,7 +614,13 @@ export class Academia {
     const w = this.w, st = w.jogadores!, e = w.economia;
     const de = st.clube[j];
     const valor = this.compensacao(j, para, dia);
-    if (e) { e.clubes.lancar(para, 'aquisicoes', valor); e.clubes.lancar(de, 'transferencias', valor); }
+    if (e) {
+      // Saída com preço: os direitos futuros sobre o jogador liquidam-se aqui também (Prompt 6).
+      const parts = w.mercado ? w.mercado.direitos.liquidar(j, de, para, valor, dia) : [];
+      e.clubes.lancar(para, 'aquisicoes', valor);
+      e.clubes.lancar(de, 'transferencias', valor * (1 - parts.reduce((a, p) => a + p.fraccao, 0)));
+      for (const p of parts) e.clubes.lancar(p.clube, 'transferencias', valor * p.fraccao);
+    }
     const esc = st.idade(j, dia) >= 19 ? ESC.sub21 : ESC.sub18;
     const lista = esc === ESC.sub21 ? this.sub21 : this.sub18;
     this.moverPara(j, esc, para);

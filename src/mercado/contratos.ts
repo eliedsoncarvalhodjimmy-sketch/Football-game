@@ -3,8 +3,6 @@
 import type { Estatuto } from '../config/contratosJogador.ts';
 import { ESTATUTOS } from '../config/contratosJogador.ts';
 
-export interface Recompra { clube: number; valor: number; ate: number }
-export interface VendaFutura { clube: number; pct: number; sobreLucro: boolean; custo: number }
 export interface Emprestimo { dono: number; ate: number; salarioReceptor: number; opcao: number; obrigacao: boolean; minutos: number }
 
 export class Contratos {
@@ -30,11 +28,10 @@ export class Contratos {
   preContrato = new Int32Array(0);
   /** Listado para venda pelo clube (1) ou pediu para sair (2); venda forçada (3). */
   listado = new Uint8Array(0);
-  recompra = new Map<number, Recompra>();
-  vendaFutura = new Map<number, VendaFutura>();
   emprestimo = new Map<number, Emprestimo>();
-  /** Preço pago na última transferência (para a % de venda futura sobre o lucro). */
-  custo = new Map<number, number>();
+  /** Salário acordado num pré-contrato (o que o jogador recebe quando chega). Os direitos futuros (venda futura,
+   *  recompra) estão em Mercado.direitos. */
+  salarioPreContrato = new Map<number, number>();
   /** Último salário de quem está livre (referência do que aceita; desce com os meses sem clube). */
   salarioAnterior = new Map<number, number>();
 
@@ -60,6 +57,6 @@ export class Contratos {
   bytes(): number {
     let s = 0;
     for (const v of Object.values(this)) if (ArrayBuffer.isView(v)) s += (v as Uint8Array).byteLength;
-    return s + (this.recompra.size + this.vendaFutura.size + this.emprestimo.size + this.custo.size + this.salarioAnterior.size) * 48;
+    return s + (this.emprestimo.size + this.salarioPreContrato.size + this.salarioAnterior.size) * 48;
   }
 }

@@ -21,12 +21,14 @@ import type { World } from '../engine/world.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
 import type { MercadoUtilizador, TermosUtilizador } from './mercadoUtilizador.ts';
 import { NEG_CLUBE } from '../config/negociacaoUtilizador.ts';
+import { Direitos, planearDireitos } from './direitos.ts';
+import { DIREITOS } from '../config/contratosJogador.ts';
 import { LIVRES_INICIAIS } from '../config/mundo.ts';
 import { gerarJogador, ovrAlvoClube } from '../players/gerador.ts';
 import type { POSICOES as POSICOES_J } from '../config/papeis.ts';
 
 export type TipoNegocio = 'transferencia' | 'livre' | 'emprestimo' | 'clausula' | 'pre_contrato' | 'formacao';
-export type EstadoNegocio = 'oferta' | 'termos' | 'exames' | 'registo' | 'concluido' | 'falhou';
+export type EstadoNegocio = 'oferta' | 'recompra' | 'termos' | 'exames' | 'registo' | 'concluido' | 'falhou';
 
 export interface Negocio {
   id: number;
@@ -53,6 +55,12 @@ export interface Negocio {
   util?: TermosUtilizador;
   /** Oferta por um jogador do utilizador à espera da resposta dele. */
   aguardaUtilizador?: boolean;
+  /** Direitos que o vendedor (IA) pede nesta venda (Prompt 6): % de venda futura e múltiplo de recompra (0 = nenhum). */
+  direitosPlano?: { vendaFutura: number; recompra: number; anosRecompra: number };
+  /** O vendedor aceitou, mas um clube tem a recompra: espera a decisão dele até este dia. */
+  recompraAte?: number;
+  /** Negócio criado pelo exercício de uma recompra. */
+  deRecompra?: boolean;
 }
 
 export interface Parcela { pagador: number; recebedor: number; valor: number; dia: number }
@@ -66,6 +74,8 @@ const M = (x: number) => (x >= 1e6 ? `${(x / 1e6).toFixed(1)} M€` : `${Math.ro
 
 export class Mercado {
   contratos = new Contratos();
+  /** Direitos futuros (venda futura, recompra): uma estrutura e uma liquidação (Prompt 6, Bloco A). */
+  direitos: Direitos;
   negocios: Negocio[] = [];
   concluidos: Negocio[] = [];
   parcelas: Parcela[] = [];
@@ -96,6 +106,7 @@ export class Mercado {
   constructor(public w: World, clausulasCsv: Record<string, string>[] = []) {
     const st = w.jogadores!;
     this.scouting = new Scouting(w);
+    this.direitos = new Direitos(w);
     this.contratos.garantir(st.cap);
     for (const g of GRUPOS) this.livres.set(g, []);
     const dia = Math.floor(Date.UTC(w.epoca, 6, 1) / 864e5);
@@ -408,6 +419,13 @@ export class Mercado {
       { const g = this.grupo(n.jogador); if (this.contratos.listado[n.jogador] !== 3 && this.plantel(n.vendedor).filter((x) => this.grupo(x) === g).length <= PROMOCAO.minimos_posicao[g]) return this.falhar(n, `${w.clubes[n.vendedor].nome} não vende: fica sem ${g}`); }
       const pp = precoPedido(w, this, n.jogador, n.comprador, n.dia, rival.length);
       n.pedido = pp.preco;
+      // Direitos futuros (Prompt 6): o vendedor (IA) pode pedir % de venda futura e/ou recompra; em troca aceita um
+      // preço um pouco mais baixo (a mesma regra do mercado do utilizador: x por ponto percentual).
+      const vendeUtil = !!this.util && n.vendedor === this.util.clube;
+      if (!vendeUtil && n.tipo === 'transferencia') {
+        n.direitosPlano ??= planearDireitos(w, this.contratos, this.direitos, n.jogador, n.vendedor, n.comprador, n.pedido, n.dia, `${w.semente}|dir|${n.id}`);
+        if (n.direitosPlano.vendaFutura > 0) n.pedido = Math.round((n.pedido * (1 - 100 * n.direitosPlano.vendaFutura * NEG_CLUBE.venda_futura_por_ponto)) / 10000) * 10000;
+      }
       // Contra-proposta do vendedor igualada: aceita.
       let resp: 'aceitar' | 'recusar' | { contra: number };
       if (n.contra && n.oferta >= n.contra) resp = 'aceitar';
@@ -436,6 +454,14 @@ export class Mercado {
         }
         ganha.rondas.push({ dia: n.dia, texto: `${w.clubes[n.vendedor].nome} aceita ${M(ganha.oferta)} do ${w.clubes[ganha.comprador].nome}` });
         ganha.estado = 'termos';
+        // Recompra: o titular é notificado e tem alguns dias para a exercer ao preço fixo.
+        const rc = this.direitos.recompra(n.jogador, n.dia);
+        if (rc && rc.clube !== ganha.comprador && rc.clube !== n.vendedor) {
+          const [p0, p1] = DIREITOS.recompra.prazo_dias;
+          ganha.estado = 'recompra';
+          ganha.recompraAte = n.dia + p0 + (ganha.id % (p1 - p0 + 1));
+          ganha.rondas.push({ dia: n.dia, texto: `o ${w.clubes[rc.clube].nome} tem a recompra (${M(rc.preco)}) e é notificado: decide até ${data(ganha.recompraAte)}` });
+        }
         for (const x of [n, ...outros]) if (x !== ganha) this.falhar(x, `perdeu o leilão para o ${w.clubes[ganha.comprador].nome}`);
         return;
       }
@@ -447,6 +473,7 @@ export class Mercado {
       n.rondas.push({ dia: n.dia, texto: `${w.clubes[n.vendedor].nome} faz contra-proposta: ${M(resp.contra)}` });
       return this.subir(n, resp.contra);
     }
+    if (n.estado === 'recompra') return this.decidirRecompra(n);
     if (n.estado === 'termos') {
       // Termos pessoais: o jogador decide (salário pedido no clube comprador, minutos pelo estatuto previsto).
       const ordem = this.plantel(n.comprador).filter((x) => st.ovrNat(x) > st.ovrNat(n.jogador)).length;
@@ -481,7 +508,7 @@ export class Mercado {
       return;
     }
     if (n.estado === 'registo') {
-      if (n.tipo === 'pre_contrato') { this.contratos.preContrato[n.jogador] = n.comprador; this.contratos.custo.set(n.jogador, n.salario); n.estado = 'concluido'; this.estat.preContratos++; n.rondas.push({ dia: n.dia, texto: `pré-contrato assinado: muda-se no fim do contrato (${data(st.fimContrato[n.jogador])})` }); this.concluidos.push(n); return; }
+      if (n.tipo === 'pre_contrato') { this.contratos.preContrato[n.jogador] = n.comprador; this.contratos.salarioPreContrato.set(n.jogador, n.salario); n.estado = 'concluido'; this.estat.preContratos++; n.rondas.push({ dia: n.dia, texto: `pré-contrato assinado: muda-se no fim do contrato (${data(st.fimContrato[n.jogador])})` }); this.concluidos.push(n); return; }
       if (n.tipo !== 'livre' && !this.janelaAberta(n.comprador, n.dia)) return this.falhar(n, 'a janela fechou');
       if (n.vendedor >= 0 && n.tipo !== 'emprestimo' && this.contratos.listado[n.jogador] !== 3 && this.plantel(n.vendedor).length <= K_MIN) return this.falhar(n, `${w.clubes[n.vendedor].nome} ficaria abaixo do plantel mínimo`);
       const insc = this.podeInscrever(n.jogador, n.comprador);
@@ -489,6 +516,40 @@ export class Mercado {
       if (n.tipo !== 'emprestimo' && n.tipo !== 'livre' && e.clubes.caixa[n.comprador] < n.oferta * CONTRATO.parcelas_vista[0]) return this.falhar(n, 'o comprador ficou sem orçamento');
       this.concluir(n, rng);
     }
+  }
+
+  /** O titular da recompra decide: exerce (o negócio com o outro clube cai e ele compra ao preço fixo) ou deixa seguir
+   *  (o direito extingue-se). IA: exerce se o jogador melhora o seu plantel, o preço é inferior ao valor de mercado e há
+   *  caixa e vaga. Utilizador: um evento com uma decisão (sem resposta até ao prazo = recusa). */
+  private decidirRecompra(n: Negocio) {
+    const w = this.w, st = w.jogadores!, e = w.economia!, j = n.jogador;
+    const rc = this.direitos.recompra(j, n.dia);
+    if (!rc) { n.estado = 'termos'; return; }
+    const h = rc.clube;
+    let exerce: boolean;
+    if (this.util && h === this.util.clube) {
+      const r = this.util.respostaRecompra(n, rc, n.dia);
+      if (r === 'aguarda' && n.dia < (n.recompraAte ?? n.dia)) return;
+      exerce = r === 'exercer';
+    } else {
+      const plantel = this.plantel(h), g = this.grupo(j);
+      const doGrupo = plantel.filter((x) => this.grupo(x) === g).map((x) => st.ovrNat(x)).sort((a, b) => b - a);
+      const melhora = st.ovrNat(j) > (doGrupo[Math.min(doGrupo.length - 1, 2)] ?? 0);
+      const barato = rc.preco < DIREITOS.recompra.abaixo_do_valor * valorMercado(w, j, n.dia, e.inflacao);
+      exerce = melhora && barato && e.clubes.caixa[h] > rc.preco && !this.podeInscrever(j, h) && this.janelaAberta(h, n.dia);
+    }
+    this.direitos.recompraDecidida(j, rc, exerce, n.dia);
+    if (!exerce) {
+      n.rondas.push({ dia: n.dia, texto: `o ${w.clubes[h].nome} não exerce a recompra: o negócio segue` });
+      n.estado = 'termos';
+      return;
+    }
+    this.falhar(n, `o ${w.clubes[h].nome} exerceu a recompra`);
+    const ordem = this.plantel(h).filter((x) => st.ovrNat(x) > st.ovrNat(j)).length;
+    const r: Negocio = { id: ++this.seq, tipo: 'transferencia', jogador: j, vendedor: n.vendedor, comprador: h, estado: 'registo', oferta: rc.preco, pedido: rc.preco, maximo: rc.preco,
+      salario: Math.round(this.salarioMercado(j, h, n.dia) / 1000) * 1000, estatuto: ordem < 11 ? 'titular' : ordem < 18 ? 'rotacao' : 'promessa', dia: n.dia, inicio: n.dia, deRecompra: true,
+      rondas: [{ dia: n.dia, texto: `${w.clubes[h].nome} exerce a recompra de ${st.nomes[j]} por ${M(rc.preco)} (cláusula do contrato: o jogador não pode recusar)` }] };
+    this.negocios.push(r);
   }
 
   private subir(n: Negocio, nova: number) {
@@ -529,55 +590,57 @@ export class Mercado {
     } else {
       const fee = n.tipo === 'livre' ? 0 : n.oferta;
       if (fee > 0) {
+        // Direitos futuros (Prompt 6): liquidação única. Os titulares de % de venda futura recebem a sua parte do preço
+        // (o vendedor recebe o líquido), à vista e nas parcelas na mesma proporção; todas as cláusulas se extinguem.
+        const partilhas = this.direitos.liquidar(j, de, para, fee, n.dia);
+        const recebedores: [number, number][] = [[de, 1 - partilhas.reduce((a, p) => a + p.fraccao, 0)], ...partilhas.map((p) => [p.clube, p.fraccao] as [number, number])];
+        const receber = (valor: number) => { for (const [c, f] of recebedores) s.lancar(c, 'transferencias', valor * f); };
+        const parcelar = (resto: number, nP: number, dias: number) => {
+          s.dividaParcelas[para] += resto;
+          for (let a = 1; a <= nP; a++) for (const [c, f] of recebedores) this.parcelas.push({ pagador: para, recebedor: c, valor: (resto / nP) * f, dia: n.dia + a * dias });
+        };
         // Pagamento: sempre um valor à vista; só alguns vendedores aceitam o resto em parcelas.
         const U = n.util, parcU = U ? NEG_CLUBE.parcelas.find((x) => x.id === U.parcelas) ?? NEG_CLUBE.parcelas[0] : null;
         const aceitaParcelas = parcU ? parcU.n > 0 : fee > CONTRATO.parcelas_acima && rng.chance(CONTRATO.parcelas_aceita[Math.min(2, s.saude[de])]);
         const vista = parcU ? Math.round(fee * parcU.vista) : aceitaParcelas ? Math.round((fee * (CONTRATO.parcelas_vista[0] + rng.next() * (CONTRATO.parcelas_vista[1] - CONTRATO.parcelas_vista[0]))) / 100000) * 100000 : fee;
         s.lancar(para, 'aquisicoes', vista);
-        s.lancar(de, 'transferencias', vista);
+        receber(vista);
         if (vista < fee && parcU) {
-          const resto = fee - vista;
-          s.dividaParcelas[para] += resto;
-          for (let a = 1; a <= parcU.n; a++) this.parcelas.push({ pagador: para, recebedor: de, valor: resto / parcU.n, dia: n.dia + a * parcU.dias });
-          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${parcU.n} parcelas de ${M(resto / parcU.n)}` });
+          parcelar(fee - vista, parcU.n, parcU.dias);
+          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${parcU.n} parcelas de ${M((fee - vista) / parcU.n)}` });
         } else if (vista < fee) {
           let u = rng.next() * CONTRATO.esquemas.reduce((a, x) => a + x.peso, 0);
           const esq = CONTRATO.esquemas.find((x) => (u -= x.peso) < 0) ?? CONTRATO.esquemas[0];
           const nP = rng.int(esq.max === 1 ? 1 : 2, esq.max);
-          const resto = fee - vista;
-          s.dividaParcelas[para] += resto;
-          for (let a = 1; a <= nP; a++) this.parcelas.push({ pagador: para, recebedor: de, valor: resto / nP, dia: n.dia + a * esq.dias });
-          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${nP} parcela(s) ${esq.nome}(is) de ${M(resto / nP)}` });
+          parcelar(fee - vista, nP, esq.dias);
+          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${nP} parcela(s) ${esq.nome}(is) de ${M((fee - vista) / nP)}` });
         } else n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(fee)} à vista` });
-        s.lancar(para, 'agentes', n.util ? n.util.agente : CONTRATO.agentes * fee);
-        // % de venda futura a favor de um clube anterior.
-        const vf = k.vendaFutura.get(j);
-        if (vf && vf.clube !== para) {
-          const base = vf.sobreLucro ? Math.max(0, fee - vf.custo) : fee;
-          const v = vf.pct * base;
-          s.lancar(de, 'aquisicoes', v); s.lancar(vf.clube, 'transferencias', v);
-          n.rondas.push({ dia: n.dia, texto: `${M(v)} (${Math.round(100 * vf.pct)}% ${vf.sobreLucro ? 'do lucro' : 'da venda'}) para o ${w.clubes[vf.clube].nome}` });
-          k.vendaFutura.delete(j);
+        for (const p of partilhas) n.rondas.push({ dia: n.dia, texto: `${M(p.fraccao * fee)} (${Math.round(100 * p.fraccao)}% de venda futura) para o ${w.clubes[p.clube].nome}, que perde o direito` });
+        if (this.direitos.verificar) {
+          const soma = recebedores.reduce((a, [, f]) => a + f, 0);
+          if (Math.abs(soma - 1) > 1e-9 || recebedores[0][1] < 0.5 - 1e-9) this.direitos.erros.push(`negócio ${n.id}: preço ≠ vendedor + beneficiários (${soma})`);
         }
-        // Cláusulas novas: recompra (vendedor formador/vendedor, jovem) e % de venda futura.
-        const arq = e.ia?.arquetipo[de];
+        s.lancar(para, 'agentes', n.util ? n.util.agente : CONTRATO.agentes * fee);
+        // Direitos novos: os do utilizador (a % que acordou) ou os que o vendedor (IA) pediu na negociação.
         if (n.util) {
-          // Termos do utilizador: a % de venda futura acordada (e nada sorteado); o jogador da troca passa para o vendedor.
-          if (n.util.vendaFutura > 0) k.vendaFutura.set(j, { clube: de, pct: n.util.vendaFutura / 100, sobreLucro: false, custo: fee });
+          if (n.util.vendaFutura > 0) this.direitos.criar(j, 'venda_futura', de, n.util.vendaFutura / 100, n.dia, fee, DIREITOS.venda_futura.validade_anos);
           const t = n.util.troca;
           if (t !== null && st.clube[t] === para) {
             this.mover(t, para, de, n.dia);
             k.listado[t] = 0;
             n.rondas.push({ dia: n.dia, texto: `${st.nomes[t]} segue para o ${w.clubes[de].nome} na troca` });
           }
-        } else if ((arq === 'formador' || arq === 'vendedor') && st.idade(j, n.dia) <= 22 && rng.chance(CONTRATO.prob_recompra)) {
-          k.recompra.set(j, { clube: de, valor: Math.round(fee * CONTRATO.recompra_multiplo), ate: n.dia + CONTRATO.recompra_anos * 365 });
-          n.rondas.push({ dia: n.dia, texto: `cláusula de recompra: o ${w.clubes[de].nome} pode recomprar por ${M(fee * CONTRATO.recompra_multiplo)} durante ${CONTRATO.recompra_anos} anos` });
-        } else if (rng.chance(CONTRATO.prob_venda_futura)) {
-          const pct = CONTRATO.venda_futura[0] + rng.next() * (CONTRATO.venda_futura[1] - CONTRATO.venda_futura[0]);
-          k.vendaFutura.set(j, { clube: de, pct, sobreLucro: rng.chance(CONTRATO.venda_futura_sobre_lucro), custo: fee });
+        } else if (n.direitosPlano && !n.deRecompra) {
+          const pl = n.direitosPlano;
+          if (pl.vendaFutura > 0) {
+            const d = this.direitos.criar(j, 'venda_futura', de, pl.vendaFutura, n.dia, fee, DIREITOS.venda_futura.validade_anos);
+            if (d) n.rondas.push({ dia: n.dia, texto: `cláusula de venda futura: ${Math.round(100 * d.pct)}% da próxima venda para o ${w.clubes[de].nome} (até ${data(d.ate)})` });
+          }
+          if (pl.recompra > 0) {
+            const d = this.direitos.criar(j, 'recompra', de, fee * pl.recompra, n.dia, fee, pl.anosRecompra);
+            if (d) n.rondas.push({ dia: n.dia, texto: `cláusula de recompra: o ${w.clubes[de].nome} pode recomprar por ${M(d.preco)} até ${data(d.ate)}` });
+          }
         }
-        k.custo.set(j, fee);
         e.clubes.orcTransferencias[para] = Math.max(0, e.clubes.orcTransferencias[para] - fee);
         this.gastoJanela.set(para, (this.gastoJanela.get(para) ?? 0) + fee);
         this.vendasJanela.set(de, (this.vendasJanela.get(de) ?? 0) + fee);
@@ -592,7 +655,7 @@ export class Mercado {
       st.fimContrato[j] = fimDeEpoca(w, para, n.dia + 60, n.util ? n.util.anos : rng.int(a0, a1));
       if (n.util?.premio) s.lancar(para, 'aquisicoes', n.util.premio);
       k.estatuto[j] = ESTATUTOS.indexOf(n.estatuto);
-      k.clausula[j] = 0; k.listado[j] = 0; k.descontentamento[j] = 0; k.livreDesde[j] = 0; k.preContrato[j] = -1; k.salarioAnterior.delete(j);
+      k.clausula[j] = 0; k.listado[j] = 0; k.descontentamento[j] = 0; k.livreDesde[j] = 0; k.preContrato[j] = -1; k.salarioAnterior.delete(j); k.salarioPreContrato.delete(j);
       k.emprestimo.delete(j);
       this.bonus(j);
       if (n.util) {
@@ -639,6 +702,7 @@ export class Mercado {
     const w = this.w;
     const rng = Rng.de(w.semente, 'mercado', segunda);
     this.scouting.semana(segunda, jogos);
+    this.direitos.caducar(segunda);
     // Parcelas que vencem.
     const s = w.economia!.clubes;
     this.parcelas = this.parcelas.filter((p) => {
@@ -863,7 +927,7 @@ export class Mercado {
         if (st.fimContrato[j] > limite || st.fimContrato[j] === 0) continue;
         const pre = k.preContrato[j];
         if (pre >= 0 && pre !== c) {
-          const n: Negocio = { id: ++this.seq, tipo: 'livre', jogador: j, vendedor: -1, comprador: pre, estado: 'registo', oferta: 0, pedido: 0, maximo: 0, salario: k.custo.get(j) ?? st.salario[j], estatuto: 'rotacao', dia, inicio: dia, rondas: [{ dia, texto: `${st.nomes[j]} chega ao ${w.clubes[pre].nome} com o pré-contrato` }] };
+          const n: Negocio = { id: ++this.seq, tipo: 'livre', jogador: j, vendedor: -1, comprador: pre, estado: 'registo', oferta: 0, pedido: 0, maximo: 0, salario: k.salarioPreContrato.get(j) ?? st.salario[j], estatuto: 'rotacao', dia, inicio: dia, rondas: [{ dia, texto: `${st.nomes[j]} chega ao ${w.clubes[pre].nome} com o pré-contrato` }] };
           w.plantel[c] = w.plantel[c].filter((x) => x !== j);
           st.clube[j] = -3;
           this.concluir(n, Rng.de(w.semente, 'pre', st.ids[j]));
@@ -884,6 +948,6 @@ export class Mercado {
   }
 
   bytes(): number {
-    return this.contratos.bytes() + this.parcelas.length * 40 + [...this.livres.values()].reduce((a, b) => a + b.length * 8, 0);
+    return this.contratos.bytes() + this.direitos.bytes() + this.parcelas.length * 40 + [...this.livres.values()].reduce((a, b) => a + b.length * 8, 0);
   }
 }

@@ -2,6 +2,7 @@
 // como no protótipo aprovado; pedidos de empréstimo; ofertas recebidas à espera de resposta; listagens e shortlist.
 // Tudo determinístico (sem sorteios): as respostas dependem só do estado do mundo e das propostas, por isso os comandos
 // gravados reproduzem as mesmas negociações ao carregar.
+import type { Direito } from './direitos.ts';
 import { RENOVACAO } from '../config/negociacaoUtilizador.ts';
 import { fimDeEpoca } from '../economia/contratos.ts';
 import { NEG_CLUBE as NC, NEG_EMPRESTIMO as NE, NEG_JOGADOR as NJ, OFERTAS_RECEBIDAS as OR, SHORTLIST as SL } from '../config/negociacaoUtilizador.ts';
@@ -323,6 +324,30 @@ export class MercadoUtilizador {
   }
 
   /** Resposta a uma oferta recebida (a IA espera; sem resposta em N dias desiste). */
+  /** Recompras do utilizador: decisões tomadas (id do negócio do outro clube → exercer ou não). */
+  recompras = new Map<number, 'exercer' | 'recusar'>();
+
+  /** Notificação de recompra (Prompt 6): um clube vai comprar um jogador sobre o qual o utilizador tem a recompra. */
+  respostaRecompra(n: Negocio, d: Direito, dia: number): 'aguarda' | 'exercer' | 'recusar' {
+    void d; void dia;
+    const r = this.recompras.get(n.id);
+    if (r) { this.recompras.delete(n.id); return r; }
+    return 'aguarda';
+  }
+
+  /** Recompras à espera de decisão do utilizador (dados para a interface: uma frase e uma decisão). */
+  recomprasPendentes(): { negocio: number; jogador: number; comprador: number; oferta: number; preco: number; ate: number }[] {
+    return this.m.negocios.filter((n) => n.estado === 'recompra').flatMap((n) => {
+      const d = this.m.direitos.recompra(n.jogador, n.dia);
+      return d && d.clube === this.clube ? [{ negocio: n.id, jogador: n.jogador, comprador: n.comprador, oferta: n.oferta, preco: d.preco, ate: n.recompraAte ?? n.dia }] : [];
+    });
+  }
+
+  decidirRecompra(id: number, exercer: boolean) {
+    if (!this.recomprasPendentes().some((p) => p.negocio === id)) throw new Error('Não há recompra pendente nesse negócio.');
+    this.recompras.set(id, exercer ? 'exercer' : 'recusar');
+  }
+
   respostaOferta(n: Negocio): 'aceitar' | 'recusar' | { contra: number } | 'aguarda' | 'expirou' {
     const r = this.respostas.get(n.id);
     if (r) { this.respostas.delete(n.id); return r; }

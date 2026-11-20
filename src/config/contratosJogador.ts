@@ -38,13 +38,45 @@ export const CONTRATO = {
   /** Fracção à vista quando há parcelas. */
   parcelas_vista: [0.3, 0.6] as [number, number],
   esquemas: [{ nome: 'trimestral', dias: 90, max: 4, peso: 0.5 }, { nome: 'semestral', dias: 180, max: 2, peso: 0.3 }, { nome: 'anual', dias: 365, max: 2, peso: 0.2 }],
-  /** Cláusulas raras (probabilidade por transferência): recompra (vendedor formador/vendedor, jovem), % de venda futura. */
-  prob_recompra: 0.15,
-  recompra_multiplo: 2.0,
-  recompra_anos: 3,
-  prob_venda_futura: 0.25,
-  venda_futura: [0.1, 0.2] as [number, number],
-  venda_futura_sobre_lucro: 0.5,
+};
+
+/**
+ * Direitos futuros (Prompt 6, Bloco A): % de venda futura e recompra. Nascem numa transferência com preço, quando o
+ * vendedor tem razões para os pedir; pagam-se (venda futura) ou exercem-se (recompra) uma só vez.
+ *
+ * Probabilidade de um direito = logística(soma dos factores − base). Factores (cada um entre 0 e 1, × o peso):
+ *   reputação: (rep. vendedor − rep. comprador) / 20, limitada a [0, 1];
+ *   idade: 1 até 21 anos, 0,4 aos 22–23, 0 depois;
+ *   sem lugar: jogador listado, excedente ou com poucos minutos na época (< 30% dos jogos possíveis);
+ *   potencial: (potencial − OVR) / 15, limitada a [0, 1];
+ *   arquétipo: vendedor formador ou "vendedor";
+ *   preço baixo: preço < valor de mercado futuro esperado (OVR = potencial): 1 − preço / valor futuro.
+ */
+export const DIREITOS = {
+  venda_futura: {
+    pesos: { reputacao: 1.4, idade: 1.6, sem_lugar: 0.8, potencial: 1.2, arquetipo: 1.0, preco_baixo: 0.8 },
+    base: 3.2,
+    /** Só para jogadores até esta idade (um veterano não tem venda futura). */
+    idade_max: 25,
+    /** Percentagem: entre min e max, mais alta com mais potencial e maior diferença de reputação (arredondada a 5%). */
+    pct: [0.1, 0.25] as [number, number],
+    /** Soma das percentagens activas sobre o mesmo jogador (decisão do utilizador). */
+    limite: 0.5,
+    validade_anos: 5,
+  },
+  recompra: {
+    pesos: { reputacao: 1.2, idade: 1.8, sem_lugar: 0.6, potencial: 1.6, arquetipo: 1.2, preco_baixo: 0.6 },
+    base: 4.6,
+    /** Só para jovens (≤ idade) com margem de potencial (≥ pontos) vendidos por clubes formadores, vendedores ou grandes. */
+    idade_max: 22, potencial_min: 6, reputacao_grande: 80,
+    /** Preço fixo = múltiplo do preço pago (mais alto com mais potencial); validade de 1 ou 2 anos. */
+    multiplo: [1.3, 2.0] as [number, number],
+    validade_anos: [1, 2] as [number, number],
+    /** Dias que o titular tem para decidir quando o vendedor aceita uma oferta de outro clube. */
+    prazo_dias: [3, 5] as [number, number],
+    /** IA: exerce se o preço fixo for inferior a x × o valor de mercado actual e o jogador melhorar o plantel. */
+    abaixo_do_valor: 0.95,
+  },
 };
 
 /** Empréstimos: minutos garantidos opcionais, limites por clube, opção e obrigação de compra. */

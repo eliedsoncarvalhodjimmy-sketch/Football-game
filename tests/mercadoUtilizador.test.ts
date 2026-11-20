@@ -47,7 +47,7 @@ describe('mercado do utilizador', () => {
     expect(n.fase).toBe('concluida');
     expect(st.clube[alvo]).toBe(c);
     expect(st.salario[alvo]).toBe(boa.salario);
-    expect(m.contratos.vendaFutura.get(alvo)?.pct).toBeCloseTo(0.1);
+    expect(m.direitos.de(alvo).find((d) => d.tipo === 'venda_futura')?.pct).toBeCloseTo(0.1);
     expect(NEG_JOGADOR.estatuto[boa.papel]).toBeTruthy();
     // A IA não compra nem lista pelo utilizador; uma oferta recebida espera pela resposta.
     a.comando({ tipo: 'listar', jogador: st.ids[m.plantel(c)[20]], listado: true });
