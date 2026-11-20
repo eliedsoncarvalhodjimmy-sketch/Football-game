@@ -8,16 +8,27 @@ import type { Intensidade, Jogador2D, V2 } from './tipos.ts';
 // Cópia local (lida a cada passo de cada jogador: evita o custo da ligação de importação em desenvolvimento).
 const F = { ...FISICA }, COMP = CAMPO_2D.comprimento, LARG = CAMPO_2D.largura;
 
+const K_INTENCAO = 1 - Math.exp(-0.1 / F.intencao_s);
+
 const at = (j: Jogador2D, k: string) => (j.attrs as Record<string, number | undefined>)[k] ?? 10;
 
-export function limitesFisicos(j: Jogador2D) {
-  const acel = F.acel_base + F.acel_por_ponto * at(j, 'ace');
-  return { velMax: F.vel_base + F.vel_por_ponto * at(j, 'vel'), acel, desacel: acel * F.desacel_factor };
+interface Limites { velMax: number; acel: number; desacel: number; viragem0: number }
+/** Os atributos não mudam durante o jogo: os limites calculam-se uma vez por jogador (o cansaço, na Fase 5, aplica um
+ *  factor por cima). */
+const CACHE = new WeakMap<object, Limites>();
+export function limitesFisicos(j: Jogador2D): Limites {
+  let L = CACHE.get(j.attrs);
+  if (!L) {
+    const acel = F.acel_base + F.acel_por_ponto * at(j, 'ace');
+    L = { velMax: F.vel_base + F.vel_por_ponto * at(j, 'vel'), acel, desacel: acel * F.desacel_factor, viragem0: F.viragem_base + F.viragem_agi * at(j, 'agi') + F.viragem_equ * at(j, 'equ') };
+    CACHE.set(j.attrs, L);
+  }
+  return L;
 }
 
 /** Velocidade angular máxima (rad/s) à velocidade v: parado roda quase no sítio; em sprint, devagar. */
 export function viragemMax(j: Jogador2D, v: number) {
-  return (F.viragem_base + F.viragem_agi * at(j, 'agi') + F.viragem_equ * at(j, 'equ')) / (1 + v / F.viragem_v_ref);
+  return limitesFisicos(j).viragem0 / (1 + v / F.viragem_v_ref);
 }
 
 export function velocidadeIntensidade(j: Jogador2D, i: Intensidade) {
@@ -51,7 +62,7 @@ export function moverJogador(j: Jogador2D, alvo: V2, vAlvo: V2, intensidade: Int
   let sd = hyp(dx, dy);
   if (sd > cap) { dx *= cap / sd; dy *= cap / sd; sd = cap; }
   // Intenção suavizada: o jogador não corrige a trajectória dez vezes por segundo (filtro de τ = intencao_s).
-  if (j.intencao) { const k = 1 - Math.exp(-dt / F.intencao_s); dx = j.intencao.x + (dx - j.intencao.x) * k; dy = j.intencao.y + (dy - j.intencao.y) * k; sd = hyp(dx, dy); }
+  if (j.intencao) { const k = dt === 0.1 ? K_INTENCAO : 1 - Math.exp(-dt / F.intencao_s); dx = j.intencao.x + (dx - j.intencao.x) * k; dy = j.intencao.y + (dy - j.intencao.y) * k; sd = hyp(dx, dy); }
   j.intencao = { x: dx, y: dy };
   // Física: direcção com viragem limitada pela velocidade; velocidade com aceleração e travagem limitadas.
   const s = hyp(j.v.x, j.v.y);

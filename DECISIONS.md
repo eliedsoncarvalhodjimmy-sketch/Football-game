@@ -300,3 +300,57 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - O ecrã de teste da Fase 1 passa a ter 1× = tempo real (a escolha por omissão), mais 0,5×, 2×, 4× e "⏩ 12×" (avanço rápido).
     - As estatísticas da secção 12 aplicam-se aos totais reais, sem factores de escala.
     - As decisões 185–186 ("1× = 1 min em 3 s", depois "1× = jogo em 15 min") ficam ultrapassadas para o motor novo. O "Ao vivo" do protótipo antigo mantém-se como está até a Fase 6 o substituir.
+189. **Motor 2D táctico, Fase 2: bola e passes curtos** (secção 13). Números em `src/config/match2d/bola.ts`; código em `src/engine/match2d/bola.ts`, `passe.ts`, `apoio.ts` e `Motor2D.ts`. Interpretações:
+    - **Bola** (secção 10.3):
+        - É rasteira nesta fase. Perde cerca de 10% da velocidade por segundo (dv/dt = −0,105·v), mais um rolamento de 0,4 m/s², para acabar por parar.
+        - A velocidade inicial do passe (10–25 m/s) é escolhida para percorrer d metros em 0,4 + 0,045 × d segundos: um passe de 20 m demora cerca de 1,3 s.
+    - **Contacto**: a bola só muda de dono se um jogador estiver a menos de 1 m do percurso dela nesse tick, com a bola abaixo de 1 m de altura. Quem lhe acabou de tocar não lhe volta a tocar durante 0,3 s.
+    - **Intercepção pela trajectória** (secção 7.4): o sucesso não se sorteia.
+        - A cada 0,2 s (ou logo que a bola mude de trajectória) prevê-se o percurso da bola.
+        - Para cada equipa, vai à bola quem chega primeiro a um ponto do percurso antes dela. O tempo de chegada é a reacção (0,35 − 0,01 × Antecipação s) mais a distância a 85% da velocidade máxima.
+        - Da equipa do passe vai o receptor; da outra, quem consegue interceptar. Os restantes defensores mantêm a posição: a pressão é da Fase 3.
+    - **Primeiro toque** (secção 7.3):
+        - A qualidade é (0,6 × Primeiro toque + 0,4 × Técnica) ÷ 20 − (velocidade da bola − 10) ÷ 40.
+        - Num sorteio com semente acima da qualidade + 0,45, a bola sai do pé a 3–6 m/s, desviada, e fica solta.
+    - **Decisão do portador**:
+        - Só passes curtos: até 20 m, ou até 28 m se não houver ninguém mais perto.
+        - Decide ao fim do tempo da secção 7.3: tempo base do estilo × (1,3 − 0,02 × Decisões), × 0,6 com um adversário a menos de 3 m.
+        - Avalia os 6 colegas mais promissores. O sucesso previsto vem da folga entre o defensor mais rápido e a bola ao longo do percurso: logística(folga ÷ 0,25 s), com um erro de leitura que depende da Visão.
+        - Pontuação = peso do estilo × (sucesso × (1 + 2,5 × ganho de ameaça V) − (1 − sucesso) × ameaça do ponto de perda para o adversário × 10 × aversão ao risco), mais o conforto da distância (8–18 m) e um ruído que depende das Decisões.
+        - O mapa V é a fórmula da secção 7.2.
+        - Nesta fase o portador ainda não conduz nem dribla: segura a bola e vira-se para a frente.
+    - **Erro de execução**: o desvio do ângulo é (0,015 + 0,0045 × (20 − média de Passe e Técnica)) × (1 + d ÷ 40) × (1,8 sob pressão); a velocidade erra cerca de 6%. O pé fraco fica para a Fase 3.
+    - **OFERECER_APOIO**:
+        - Oferecem-se até 3 colegas (sem o GR), os de âncora mais perto do portador, a menos de 30 m.
+        - Cada um escolhe um ponto em anéis de 10, 14 e 18 m à volta do portador (16 direcções). Pesa:
+            - a linha de passe livre (nenhum adversário a menos de 2,5 m dela);
+            - o espaço para receber;
+            - a distância à sua âncora, com o limite do papel da secção 6.3: central 12 m, lateral e médio 15, avançado 18, extremo 20, mais até 50% com a liberdade do estilo;
+            - não ficar a menos de 10 m de outro apoiante nem na mesma linha que ele (o que faz os triângulos);
+            - um ligeiro bónus para apoiar à frente.
+        - Um ponto a menos de 4 m de um colega não serve.
+        - Com o passe em curso, os colegas oferecem-se em relação ao receptor no ponto onde vai receber: lêem o passe e não esperam que a bola chegue.
+    - **Compromisso** (secção 6.3):
+        - Cada jogador decide a cada 0,33–0,66 s, desfasado dos outros, e mantém cada acção pelo menos 1 s.
+        - Dentro da mesma acção, o alvo só muda se o novo ponto valer pelo menos 1,25 vezes mais e estiver a mais de 2 m.
+    - **Defensores sem sobreposição**: se o alvo de um defensor calhar a menos de 1,5 m de um adversário, fica a 1,5 m dele. Escolhe entre o lado da baliza e os dois lados do adversário o ponto mais longe dos colegas, com preferência pelo lado da baliza. É um ponto e não um empurrão, por isso não oscila.
+    - **Correcções à física da Fase 1**:
+        - Abaixo de 1,5 m/s a velocidade muda como um vector, limitada pela aceleração e pela travagem: para inverter o sentido, o jogador pára primeiro. Antes, passava de 0,6 m/s num sentido para 1 m/s no oposto num décimo de segundo.
+        - A intenção de movimento é suavizada (0,25 s).
+        - A separação entre colegas ficou mais forte.
+        - O GR fica pelo menos 3 m atrás da linha defensiva, e a linha nunca desce abaixo de 7 m.
+    - **Fases**: a transição defesa→ataque acaba com a posse estabilizada (2 passes seguidos) ou no tempo do estilo.
+    - **Bola fora**: reposição simplificada (lançamento, pontapé de baliza, canto). Quem repõe vai até à bola, que rola até ao sítio; o jogo recomeça ao fim de 2 s. As bolas paradas completas são da Fase 5.
+    - **Medidas** (10 min de jogo, três confrontos):
+        - 253 a 268 passes por confronto, com 90–98% de acerto;
+        - distância mediana dos passes de 11–12 m (p10 ≈ 8, p90 ≈ 15–16);
+        - 4 a 18 intercepções;
+        - 0 inversões bruscas, 0,5–1,6 ziguezagues por jogador-minuto, 84–91% do tempo a menos de 5 m da âncora;
+        - 0 excessos de velocidade ou aceleração.
+        - Sem pressão, as posses são longas (mediana de 6 a 54 passes seguidos): é esperado nesta fase e muda com a pressão da Fase 3.
+    - **Desempenho**: 90 minutos com a bola real passaram de 4,4 s para 1,9 s (pacote final em Node), com resultados iguais. O que mudou:
+        - `Math.hypot` trocado por raiz quadrada;
+        - limites físicos calculados uma vez por jogador e exponenciais constantes;
+        - listas do apoio preparadas uma vez por decisão;
+        - previsão da trajectória a cada 0,2 s.
+      O alvo de 1,5 s (secção 14) fica para a Fase 5: vetores tipados e uma grelha espacial.

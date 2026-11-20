@@ -7,12 +7,13 @@ import { limitesFisicos } from './fisica.ts';
 import type { Jogador2D, V2 } from './tipos.ts';
 
 const B = { ...BOLA }, R = { ...RECEPCAO };
+const DECAI_01 = Math.exp(-B.atrito_k * 0.1);
 
 /** Avança a bola rasteira dt segundos: dv/dt = −k·v − c (no sentido do movimento). */
 export function avancarBola(p: V2, v: V2, dt: number): { p: V2; v: V2 } {
   const s = hyp(v.x, v.y);
   if (s < 1e-3) return { p, v: { x: 0, y: 0 } };
-  const ns = Math.max(0, s * Math.exp(-B.atrito_k * dt) - B.rolamento_c * dt);
+  const ns = Math.max(0, s * (dt === 0.1 ? DECAI_01 : Math.exp(-B.atrito_k * dt)) - B.rolamento_c * dt);
   const media = (s + ns) / 2;
   return { p: { x: p.x + (v.x / s) * media * dt, y: p.y + (v.y / s) * media * dt }, v: { x: (v.x / s) * ns, y: (v.y / s) * ns } };
 }

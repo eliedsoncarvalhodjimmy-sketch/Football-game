@@ -62,6 +62,8 @@ export const APOIO = {
   colega_m: 10,
   /** Um ponto a menos de x m de um colega já está ocupado. */
   ocupado_m: 4,
+  /** Em ângulo: dois apoiantes na mesma linha que o portador (diferença de ângulo abaixo de x rad) penalizam. */
+  mesma_linha_rad: 0.4, mesma_linha_pen: 1.2,
   /** Desvio máximo à âncora por papel (secção 6.3); liberdade posicional alta acrescenta até +50%. */
   desvio: { central: 12, lateral: 15, medio: 15, extremo: 20, avancado: 18 } as Record<string, number>,
   /** Linha de passe "livre": nenhum adversário a menos de x m do segmento. */

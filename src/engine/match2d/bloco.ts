@@ -72,8 +72,9 @@ export function linhaForaDeJogo(s: Estado2D, e: Equipa): number {
 }
 
 /** Filtro suave do bloco: aproxima o bloco actual do alvo com a constante de tempo do config. */
+const K_FILTRO = 1 - Math.exp(-0.1 / BLOCO.filtro_s);
 export function filtrarBloco(b: Bloco, alvo: Bloco, dt: number): Bloco {
-  const k = 1 - Math.exp(-dt / BLOCO.filtro_s);
+  const k = dt === 0.1 ? K_FILTRO : 1 - Math.exp(-dt / BLOCO.filtro_s);
   return { linhaDefX: b.linhaDefX + (alvo.linhaDefX - b.linhaDefX) * k, comprimento: b.comprimento + (alvo.comprimento - b.comprimento) * k,
     largura: b.largura + (alvo.largura - b.largura) * k, centroY: b.centroY + (alvo.centroY - b.centroY) * k };
 }

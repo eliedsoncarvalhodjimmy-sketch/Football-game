@@ -34,6 +34,9 @@ export class Motor2D {
   private papeis: [string[], string[]];
   /** Tick em que o portador recebeu a bola (decide ao fim do tempo de decisão). */
   private recebeu = 0;
+  /** Muda sempre que a bola muda de trajectória sem ser pela física (passe, toque, reposição). */
+  private versaoBola = 0;
+  private versaoCalc = -1;
 
   constructor(cfg: Config2D) {
     const posse = cfg.posse ?? 0;
@@ -71,9 +74,9 @@ export class Motor2D {
 
   private papeisDe(e: Equipa) { return this.estado.jogadores.filter((j) => j.equipa === e).sort((a, b) => a.lugar - b.lugar).map((j) => j.papel); }
   private jog(id: string | null) { return id ? this.estado.jogadores.find((j) => j.id === id) ?? null : null; }
-  private ev(tipo: Evento2D['tipo'], equipa: Equipa, j?: Jogador2D | null, outro?: Jogador2D | null) {
+  private ev(tipo: Evento2D['tipo'], equipa: Equipa, j?: Jogador2D | null, outro?: Jogador2D | null, alvo?: V2) {
     const s = this.estado;
-    s.eventos.push({ tick: s.tick, tipo, equipa, jogador: j?.id, outro: outro?.id, x: s.bola.p.x, y: s.bola.p.y });
+    s.eventos.push({ tick: s.tick, tipo, equipa, jogador: j?.id, outro: outro?.id, x: s.bola.p.x, y: s.bola.p.y, ...(alvo ? { alvo: { ...alvo } } : {}) });
     if (s.eventos.length > 400) s.eventos.splice(0, s.eventos.length - 400);
   }
 
@@ -122,6 +125,7 @@ export class Motor2D {
   private darBola(j: Jogador2D, dePasse: boolean) {
     const s = this.estado, b = s.bola;
     const equipaAntes = s.posse;
+    this.versaoBola++;
     b.dono = j.id; b.v = { x: 0, y: 0 }; b.z = 0; b.vz = 0; b.ultimo = j.id; b.equipaUltima = j.equipa; b.tickUltimo = s.tick;
     if (b.passe && dePasse && j.equipa === equipaAntes) s.passesSeguidos++;
     b.passe = null;
@@ -198,14 +202,19 @@ export class Motor2D {
     b.v = executarPasse(s, j, o);
     b.dono = null; b.ultimo = j.id; b.equipaUltima = j.equipa; b.tickUltimo = s.tick;
     b.passe = { de: j.id, para: o.receptor.id, destino: o.destino, tick: s.tick };
+    this.versaoBola++;
     s.estat.passes[j.equipa]++;
     j.corpo = Math.atan2(b.v.y, b.v.x);
-    this.ev('passe', j.equipa, j, o.receptor);
+    this.ev('passe', j.equipa, j, o.receptor, o.destino);
   }
 
   /** Camada 7: para cada equipa, quem chega primeiro à bola vai lá; os outros seguem a sua acção. */
   private tarefasBola() {
     const s = this.estado, b = s.bola;
+    // Com a bola a rolar sem novidades, a previsão recalcula-se a cada 0,2 s (a reacção já é de 0,25 s); um toque, um
+    // passe ou uma reposição obrigam a recalcular logo.
+    if (!b.dono && !s.reposicao && s.tick % 2 === 1 && this.versaoCalc === this.versaoBola) return;
+    this.versaoCalc = this.versaoBola;
     for (const j of s.jogadores) if (j.tarefaBola !== 'repor') { j.tarefaBola = null; j.alvoBola = null; }
     if (s.reposicao) { const m = this.jog(s.reposicao.marcador); if (m) { m.tarefaBola = 'repor'; m.alvoBola = s.reposicao.local; } return; }
     if (b.dono) return;
@@ -364,6 +373,7 @@ export class Motor2D {
       const v = RECEPCAO.mau_toque_v[0] + (RECEPCAO.mau_toque_v[1] - RECEPCAO.mau_toque_v[0]) * aleatorio(`${this.semente}|${s.tick}|${j.id}|forca`);
       b.v = { x: Math.cos(ang) * v, y: Math.sin(ang) * v };
       b.ultimo = j.id; b.equipaUltima = j.equipa; b.tickUltimo = s.tick; b.passe = null;
+      this.versaoBola++;
       s.estat.mausToques[j.equipa]++;
       this.ev('mau_toque', j.equipa, j);
       return;
@@ -388,6 +398,7 @@ export class Motor2D {
     const m = cand.sort((x, y) => dist(x.p, local) - dist(y.p, local))[0];
     b.v = { x: 0, y: 0 }; b.passe = null; b.p = { x: Math.max(-1, Math.min(C.comprimento + 1, b.p.x)), y: Math.max(-1, Math.min(C.largura + 1, b.p.y)) };
     s.reposicao = { tipo, equipa: repoe, local, marcador: m.id, desde: s.tick };
+    this.versaoBola++;
     this.ev('fora', repoe, m);
     if (s.posse !== repoe) { s.estat.sequencias.push(s.passesSeguidos); s.posse = repoe; s.passesSeguidos = 0; s.posseDesde = s.tick; }
   }

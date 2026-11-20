@@ -56,7 +56,7 @@ export interface Bola2D {
   passe: { de: string; para: string; destino: V2; tick: number } | null;
 }
 
-export interface Evento2D { tick: number; tipo: 'passe' | 'recepcao' | 'intercepcao' | 'mau_toque' | 'bola_solta' | 'fora' | 'reposicao'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number }
+export interface Evento2D { tick: number; tipo: 'passe' | 'recepcao' | 'intercepcao' | 'mau_toque' | 'bola_solta' | 'fora' | 'reposicao'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2 }
 
 export interface Estatisticas2D {
   passes: [number, number]; certos: [number, number]; intercepcoes: [number, number]; mausToques: [number, number];
