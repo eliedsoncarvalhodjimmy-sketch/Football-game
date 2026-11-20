@@ -7,7 +7,7 @@ import { gerarEquipa2D } from '../src/engine/match2d/equipas.ts';
 import { alvoBloco } from '../src/engine/match2d/bloco.ts';
 import { avaliarPortador, escolher, xgEstimado } from '../src/engine/match2d/portador.ts';
 import { ESTILOS_2D } from '../src/config/match2d/estilos.ts';
-import { DUELO, SEM_BOLA } from '../src/config/match2d/fase3.ts';
+import { DUELO, SEM_BOLA, TRANSICAO, ESTADO_JOGO } from '../src/config/match2d/fase3.ts';
 import { dist } from '../src/engine/match2d/referencial.ts';
 import type { IdEstilo } from '../src/config/estilos.ts';
 
@@ -34,7 +34,9 @@ function observar(m: Motor2D, ticks: number) {
     for (const e of [0, 1] as const) {
       const P = ESTILOS_2D[s.equipas[e].estilo], meus = s.jogadores.filter((j) => j.equipa === e);
       if (meus.filter((j) => j.accao === 'PRESSIONAR').length > P.pressionantes[1] + 1) pressoesAcima++;
-      if (meus.filter((j) => j.accao === 'ATACAR_PROFUNDIDADE').length > SEM_BOLA.profundidade_max + 1) profundidadeAcima++;
+      // Fase 4: em transição (atacar já) e a perder o limite sobe (secção 8: contra-ataque).
+      const q = s.equipas[e], maxProf = (q.fase === 'TRANS_DEF_ATQ' ? Math.min(TRANSICAO.profundidade_max, P.jogadoresAtaque[0]) : SEM_BOLA.profundidade_max) + (q.mentalidade > 0.5 ? ESTADO_JOGO.profundidade_extra : 0);
+      if (meus.filter((j) => j.accao === 'ATACAR_PROFUNDIDADE').length > Math.max(maxProf, SEM_BOLA.profundidade_max) + 1) profundidadeAcima++;
       // Equilíbrio defensivo: a atacar no meio-campo adversário, quantos ficam bem atrás da bola.
       const bx = e === 0 ? s.bola.p.x : 105 - s.bola.p.x;
       if (s.posse === e && s.equipas[e].fase.startsWith('ATQ') && bx > 70) {
@@ -70,7 +72,7 @@ describe('motor 2D — Fase 3: decisão completa, acções sem bola e defesa', (
   it('coordenação: pressionantes e profundidade dentro dos limites; equilíbrio defensivo atrás da bola', () => {
     for (const o of obs) {
       expect(o.pressoesAcima).toBeLessThan(60); // momentos (ticks) com um pressionante a mais do que o estilo permite (perigo na área: +1)
-      expect(o.profundidadeAcima).toBe(0);
+      expect(o.profundidadeAcima).toBeLessThan(60); // o compromisso (≥ 1 s) segura a desmarcação uns ticks depois de a transição acabar
       expect(o.equilibrio).toBeGreaterThan(0.7);
     }
   });

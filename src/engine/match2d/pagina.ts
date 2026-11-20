@@ -12,5 +12,5 @@ import { ESTILOS } from '../../config/estilos.ts';
 
 (globalThis as unknown as Record<string, unknown>).FutCEOMotor2D = {
   Motor2D, gerarEquipa2D, lugaresApp, Medidor, posicaoCaminho, CAMINHO_BOLA, lugarForma, FORMAS_2D, ESTILOS_2D, VELOCIDADES_FASE1, TICK_S, CAMPO_2D,
-  NOMES_ESTILOS: Object.fromEntries(ESTILOS.map((e) => [e.id, e.nome])),
+  NOMES_ESTILOS: { ...Object.fromEntries(ESTILOS.map((e) => [e.id, e.nome])), neutro: 'Neutro (média dos 8)' },
 };

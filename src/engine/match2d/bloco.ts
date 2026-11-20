@@ -4,7 +4,7 @@ import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { BLOCO } from '../../config/match2d/bloco.ts';
 import { CAMPO_2D } from '../../config/match2d/fisica.ts';
 import { clamp, paraEquipa, hyp } from './referencial.ts';
-import { LINHA } from '../../config/match2d/fase3.ts';
+import { LINHA, ESTADO_JOGO, MARCAS } from '../../config/match2d/fase3.ts';
 import type { Bloco, Equipa, Estado2D, Jogador2D, V2 } from './tipos.ts';
 
 export function forma(id: string) {
@@ -46,6 +46,8 @@ export function alvoBloco(s: Estado2D, e: Equipa, papeis: string[]): Bloco {
   const comBola = eq.mistura >= 0.5;
   const base = comBola ? P.linhaComBola : P.linhaSemBola;
   let linha = base + (comBola ? BLOCO.seguir_bola_com : BLOCO.seguir_bola_sem) * (b.x - CAMPO_2D.comprimento / 2);
+  // Estado do jogo: a ganhar a linha baixa, a perder sobe.
+  linha += eq.mentalidade * ESTADO_JOGO.linha_m;
   if (!comBola) {
     // Secção 9.1: bola descoberta (portador sem ninguém perto, de frente para a nossa baliza) → a linha recua;
     // o adversário passou para trás → a linha sobe em bloco durante uns segundos.
@@ -59,7 +61,7 @@ export function alvoBloco(s: Estado2D, e: Equipa, papeis: string[]): Bloco {
   }
   linha = Math.min(linha, base + BLOCO.linha_folga_max, comBola ? b.x + 10 : b.x - BLOCO.atras_bola_sem);
   const m = medidasForma(eq.formacao, papeis, comBola ? 1 : 0);
-  let comprimento = comBola ? clamp((m.xMax - m.xDef) * CAMPO_2D.comprimento, BLOCO.comprimento_com[0], BLOCO.comprimento_com[1]) : P.comprimentoSemBola;
+  let comprimento = comBola ? clamp((m.xMax - m.xDef) * CAMPO_2D.comprimento, BLOCO.comprimento_com[0], BLOCO.comprimento_com[1]) : P.comprimentoSemBola - Math.max(0, -eq.mentalidade) * ESTADO_JOGO.comprimento_m;
   // Sem bola: a linha de médios fica entre a bola e a baliza (só os avançados podem estar à frente da bola).
   if (!comBola) linha = Math.min(linha, b.x - BLOCO.medios_atras_bola_m - ((m.xMed - m.xDef) / Math.max(0.05, m.xMax - m.xDef)) * comprimento);
   linha = Math.max(BLOCO.linha_min, linha);
@@ -116,7 +118,15 @@ export function ancora(s: Estado2D, j: Jogador2D, papeis: string[], medidas?: Re
     const frente = b.linhaDefX + comp, alvo = Math.max(BLOCO.comprimento_min, limite - b.linhaDefX);
     if (frente > limite) comp = comp + (alvo - comp) * eq.mistura;
   }
-  const x = b.linhaDefX + ((q.x - m.xDef) * comp) / Math.max(0.05, m.xMax - m.xDef);
-  const y = b.centroY + ((q.y - (m.yMin + m.yMax) / 2) * b.largura) / Math.max(0.05, m.yMax - m.yMin);
+  let x = b.linhaDefX + ((q.x - m.xDef) * comp) / Math.max(0.05, m.xMax - m.xDef);
+  let y = b.centroY + ((q.y - (m.yMin + m.yMax) / 2) * b.largura) / Math.max(0.05, m.yMax - m.yMin);
+  // Marcas dos estilos (secção 8.2): saída a 3 do Tiki-Taka (o trinco baixa entre os centrais, que abrem) e o líbero do
+  // Catenaccio um pouco atrás da linha.
+  const bolaT = paraEquipa(j.equipa, s.bola.p);
+  if (eq.estilo === 'tiki_taka' && eq.fase === 'ATQ_CONSTRUCAO' && bolaT.x < MARCAS.saida3_bola_x) {
+    if (/^MDC/.test(j.chave) && !s.jogadores.some((o) => o !== j && o.equipa === j.equipa && /^MDC/.test(o.chave) && o.lugar < j.lugar)) { x = b.linhaDefX - 1; y = b.centroY; }
+    else if (/^DC/.test(j.chave)) y = b.centroY + (y - b.centroY) * MARCAS.saida3_abre;
+  }
+  if (eq.estilo === 'catenaccio' && j.chave === 'DC') x -= MARCAS.libero_atras_m;
   return { x: clamp(x, 1.5, CAMPO_2D.comprimento - 1.5), y: clamp(y, 1.5, CAMPO_2D.largura - 1.5) };
 }

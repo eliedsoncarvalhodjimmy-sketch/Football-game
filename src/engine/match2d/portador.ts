@@ -4,7 +4,7 @@
 // com valor = V(destino) − V(origem) (mapa de ameaça; num remate, o xG), sucesso = previsão do portador (que erra a
 // leitura pela Visão) e custo = ameaça do sítio da perda para o adversário. Escolhe por softmax de temperatura baixa
 // entre as 3 melhores. A execução aplica o erro (técnica, distância, pressão) e a bola segue a física.
-import { PORTADOR, DUELO, REMATE, FORA_DE_JOGO, pesoOpcaoEstilo, type OpcaoPortador } from '../../config/match2d/fase3.ts';
+import { PORTADOR, DUELO, REMATE, FORA_DE_JOGO, ESTADO_JOGO, pesoOpcaoEstilo, type OpcaoPortador } from '../../config/match2d/fase3.ts';
 import { PASSE, DECISAO_PORTADOR, BOLA } from '../../config/match2d/bola.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { CAMPO_2D } from '../../config/match2d/fisica.ts';
@@ -62,6 +62,26 @@ function folgaAerea(s: Estado2D, de: V2, destino: V2, h: number, equipa: Equipa)
   return folga;
 }
 
+/** Desvio do ângulo do passe (rad), pela técnica, distância e pressão (secção 7.4). */
+export function sigmaPasse(s: Estado2D, j: Jogador2D, d: number, tipo: OpcaoPortador | string, aereo: boolean): number {
+  const attr = tipo === 'CRUZAMENTO' ? at(j, 'cru') : aereo || d > 30 ? (at(j, 'plo') + at(j, 'tec')) / 2 : (at(j, 'pas') + at(j, 'tec')) / 2;
+  const pressao = pressionado(s, j, PASSE.pressao_m) ? PASSE.pressao_factor : 0;
+  return (PASSE.erro_ang_base + PASSE.erro_ang_ponto * Math.max(0, 20 - attr)) * (1 + d / 40) * (1 + pressao);
+}
+
+/** Função de erro (Abramowitz–Stegun 7.1.26). */
+function erf(x: number): number {
+  const t = 1 / (1 + 0.3275911 * Math.abs(x));
+  const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return x >= 0 ? y : -y;
+}
+
+/** Probabilidade de o passe cair ao alcance do receptor (desvio lateral = σ × d; tolerância maior pelo ar). */
+function pAcertar(s: Estado2D, j: Jogador2D, d: number, tipo: OpcaoPortador, aereo: boolean): number {
+  const lateral = Math.max(0.05, sigmaPasse(s, j, d, tipo, aereo) * d), tol = aereo ? PORTADOR.tolerancia_ar_m : PORTADOR.tolerancia_m;
+  return erf(tol / (lateral * Math.SQRT2));
+}
+
 /** Tempo de viagem da bola até ao destino (rasteira ou pelo ar). */
 function tempoBola(de: V2, destino: V2, aereo: boolean, h: number): number {
   const d = dist(de, destino);
@@ -87,7 +107,19 @@ export const forcaDrible = (a: Jogador2D) => 0.5 * at(a, 'dri') + 0.25 * at(a, '
 export function avaliarPortador(s: Estado2D, j: Jogador2D, semente: string): Escolha[] {
   const e = j.equipa, P = ESTILOS_2D[s.equipas[e].estilo], K = PORTADOR.escala;
   const origem = paraEquipa(e, j.p), vOrig = ameaca(origem);
-  const aversao = origem.x < 35 ? P.aversaoRiscoProprioTerco : origem.x < 70 ? (P.aversaoRiscoProprioTerco + 0.5) / 2 : 0.5;
+  const eqE = s.equipas[e], m = eqE.mentalidade, EJ = ESTADO_JOGO;
+  // Mentalidade: a ganhar mais aversão ao risco e mais paciência; a perder o contrário.
+  const aversao = (origem.x < 35 ? P.aversaoRiscoProprioTerco : origem.x < 70 ? (P.aversaoRiscoProprioTerco + 0.5) / 2 : 0.5) * (1 - m * EJ.aversao);
+  // Paciência (decisão 191): o valor de manter a posse depende do estilo e cansa-se com os passes seguidos sem progredir;
+  // na transição defesa→ataque com "atacar já" alto, não há paciência nenhuma.
+  // A ganhar, só os estilos pacientes guardam a bola; um estilo directo ou defensivo fecha-se e joga longo.
+  const pac = (P.paciencia ?? 1) * (1 - m * EJ.paciencia * Math.min(1, (P.paciencia ?? 1) ** 2));
+  const transicao = eqE.fase === 'TRANS_DEF_ATQ';
+  // A transição pesa pela parte do "atacar já" acima de 0,5 (forte no Contra-ataque, nula no Tiki-Taka).
+  const atq = transicao ? Math.max(0, P.atacarJa - 0.5) * 2 : 0;
+  const posse = transicao ? PORTADOR.valor_posse * (1 - atq) : PORTADOR.valor_posse * pac * Math.max(0.25 * Math.min(1, pac) ** 2, 1 - s.passesSeguidos / (PORTADOR.paciencia_passes * Math.max(0.2, pac)));
+  // Quanto custa perder a posse também depende da paciência: um estilo directo não vê drama em perder a bola lá à frente.
+  const perdaPosse = Math.min(1, pac);
   const chave = `${semente}|${j.id}|${s.tick}`;
   const ruido = (k: string) => DECISAO_PORTADOR.ruido_base * ((21 - at(j, 'dec')) / 20) * normal(`${chave}|${k}`);
   const leitura = (k: string) => PASSE.leitura_ruido_s * ((21 - at(j, 'vis')) / 20) * normal(`${chave}|${k}|ler`);
@@ -98,13 +130,19 @@ export function avaliarPortador(s: Estado2D, j: Jogador2D, semente: string): Esc
   // O peso do estilo torna a opção mais (ou menos) atractiva: multiplica uma pontuação positiva e divide uma negativa
   // (multiplicar uma negativa por um peso pequeno tornava-a melhor — decisão 190).
   const comPeso = (v: number, w: number) => (v >= 0 ? v * w : v / w);
+  // Na transição, as opções que ganham terreno valem (1 + atacarJá) vezes mais (contra-ataque).
+  const pesoT = (tipo: OpcaoPortador, valor: number) => pesoOpcaoEstilo(P, tipo) * (transicao && valor > 0 && tipo !== 'PASSE_CURTO' && tipo !== 'PROTEGER' ? 1 + atq : 1);
+  // Inclinação do estilo (decisão 191): além de multiplicar, o peso do estilo empurra as opções que ganham terreno — o
+  // treinador do Jogo Directo manda bater longo mesmo quando a ameaça em jogo é pequena.
+  const inclinacao = (tipo: OpcaoPortador, valor: number) => (valor > 0 ? K * PORTADOR.inclinacao_estilo * (pesoOpcaoEstilo(P, tipo) - 1) : 0);
   const pontuar = (tipo: OpcaoPortador, sucesso: number, valor: number, custo: number, k: string, longe = false) =>
-    K * comPeso(sucesso * (valor + PORTADOR.valor_posse) - (1 - sucesso) * (custo * aversao + (tipo === 'REMATAR' ? 0 : vOrig + PORTADOR.valor_posse)), pesoOpcaoEstilo(P, tipo, longe)) + ruido(k);
+    inclinacao(tipo, valor) + K * comPeso(sucesso * (valor + posse) - (1 - sucesso) * (custo * aversao + (tipo === 'REMATAR' ? 0 : (vOrig + posse) * perdaPosse)), tipo === 'REMATAR' ? pesoOpcaoEstilo(P, tipo, longe) : pesoT(tipo, valor)) + ruido(k);
   const out: Escolha[] = [];
   const fj = linhaForaDeJogo(s, e);
 
   // Passes (todos os tipos): colegas e, para quem ataca a profundidade, o espaço à frente dele.
   const zonaCruz = origem.x >= PORTADOR.cruzamento_x && Math.abs(origem.y - C.largura / 2) >= PORTADOR.cruzamento_corredor;
+  // Da zona de cruzamento também se cruza para as zonas de finalização para onde os colegas vão (OCUPAR_AREA).
   const alvos: { r: Jogador2D; p: V2 }[] = [];
   for (const r of s.jogadores) {
     if (r.equipa !== e || r === j) continue;
@@ -112,6 +150,7 @@ export function avaliarPortador(s: Estado2D, j: Jogador2D, semente: string): Esc
     if (d < PASSE.min || d > PORTADOR.max_passe) continue;
     alvos.push({ r, p: r.p });
     if (r.accao === 'ATACAR_PROFUNDIDADE' && r.alvoAccao) alvos.push({ r, p: dentro(r.alvoAccao, 3) });
+    if (zonaCruz && (r.accao === 'OCUPAR_AREA' || r.accao === 'ATACAR_PROFUNDIDADE') && r.alvoAccao) alvos.push({ r, p: { ...r.alvoAccao } });
   }
   // Os mais promissores (secção 14): espaço e ganho de ameaça.
   const espaco = (p: V2) => Math.min(...advCampo.map((o) => dist(o.p, p)));
@@ -120,7 +159,8 @@ export function avaliarPortador(s: Estado2D, j: Jogador2D, semente: string): Esc
     const rT = paraEquipa(e, r.p), dT = paraEquipa(e, p);
     // Fora de jogo (o portador lê-o com o erro da Visão): o receptor para lá da linha e à frente da bola.
     const fora = rT.x > fj + FORA_DE_JOGO.margem && rT.x > origem.x && rT.x > C.comprimento / 2;
-    if (fora && rT.x - fj > 1.5 * Math.abs(leitura(r.id + 'fj')) + 0.2) continue;
+    // O portador lê a linha com erro (Visão): às vezes passa a quem está ligeiramente em fora de jogo.
+    if (fora && rT.x - fj > PORTADOR.erro_fora_m * Math.abs(normal(`${chave}|${r.id}|fj`)) * ((21 - at(j, 'vis')) / 20)) continue;
     const d = dist(j.p, p), dy = Math.abs(dT.y - origem.y), ganho = dT.x - origem.x;
     const naArea = dT.x > C.comprimento - 16.5 && Math.abs(dT.y - C.largura / 2) < 20.15;
     let tipo: OpcaoPortador, aereo = false, altura = 0;
@@ -141,7 +181,19 @@ export function avaliarPortador(s: Estado2D, j: Jogador2D, semente: string): Esc
     const tBola = tempoBola(j.p, p, aereo, altura);
     folga = Math.min(folga, tBola + 0.3 - tempoChegada(r, p, false));
     let sucesso = logistica((folga + leitura(r.id)) / PASSE.folga_escala_s);
-    if (aereo) sucesso *= PORTADOR.recepcao_ar;
+    // Erro de execução (o mesmo que se aplica ao chutar): a bola tem de cair ao alcance do receptor.
+    sucesso *= pAcertar(s, j, d, tipo, aereo);
+    if (aereo) {
+      sucesso *= PORTADOR.recepcao_ar;
+      // Bola pelo ar para um colega marcado é uma disputa aérea, não uma perda certa: se ele chega à queda, o sucesso é
+      // pelo menos a probabilidade de ganhar o duelo (Cabeceamento, Impulsão, Força) ao defensor mais perto da queda.
+      if (tempoChegada(r, p, false) <= tBola + 0.5) {
+        const def = advCampo.reduce((a, o) => (dist(o.p, p) < dist(a.p, p) ? o : a));
+        const ar = (x: Jogador2D) => 0.5 * at(x, 'cab') + 0.3 * at(x, 'imp') + 0.2 * at(x, 'for');
+        const duelo = Math.max(0.15, Math.min(0.85, 0.5 + 0.04 * (ar(r) - ar(def)))) * PORTADOR.duelo_aereo_controlo;
+        sucesso = Math.max(sucesso, duelo);
+      }
+    }
     const valor = ameaca(dT) - vOrig;
     const perda = aereo ? dT : { x: (origem.x + dT.x) / 2, y: (origem.y + dT.y) / 2 };
     const custo = ameaca({ x: C.comprimento - perda.x, y: C.largura - perda.y });
@@ -186,7 +238,7 @@ export function avaliarPortador(s: Estado2D, j: Jogador2D, semente: string): Esc
     const xg = xgEstimado(s, j);
     // Valor do remate (lógica do mapa de ameaça): xG − κ × V(origem); falhar custa a posse, como num passe (decisão 190).
     const valor = xg - PORTADOR.remate_desconto_v * vOrig;
-    const pt = K * comPeso(valor - (1 - xg) * PORTADOR.valor_posse, pesoOpcaoEstilo(P, 'REMATAR', dGolo > 20)) + ruido('rem');
+    const pt = K * comPeso(valor - (1 - xg) * posse, pesoOpcaoEstilo(P, 'REMATAR', dGolo > 20) * (dGolo > 20 ? 1 + m * EJ.remate_longe : 1)) + ruido('rem');
     out.push({ tipo: 'REMATAR', pontuacao: pt, sucesso: xg, valor, xg });
   }
 
@@ -245,7 +297,11 @@ export function executarRemate(s: Estado2D, j: Jogador2D, semente: string, cabec
   const alvo = paraAbsoluto(e, { x: C.comprimento, y: alvoY });
   const d = dist(j.p, alvo), longe = d > 20;
   const attr = cabeca ? at(j, 'cab') : longe ? (at(j, 'rld') + at(j, 'tec')) / 2 : (at(j, 'fin') + at(j, 'cmp')) / 2;
-  const pressao = pressionado(s, j, 2) ? REMATE.pressao : 0;
+  // Pressão: cada defensor encostado (< 2 m) e cada corpo na linha de remate obriga a rematar pior (área povoada).
+  const adv = s.jogadores.filter((q) => q.equipa !== e && q.chave !== 'GR');
+  const encostados = adv.filter((q) => dist(q.p, j.p) < 2).length;
+  const naLinha = adv.filter((q) => dist(q.p, j.p) < d && distSeg(q.p, j.p, alvo) < 1.2).length;
+  const pressao = Math.min(REMATE.pressao_max, REMATE.pressao * encostados + REMATE.pressao_linha * naLinha);
   const sigma = (REMATE.erro_base + REMATE.erro_ponto * Math.max(0, 20 - attr)) * (1 + d / 30) * (1 + pressao);
   const chave = `${semente}|${j.id}|${s.tick}|rem`;
   const ang = Math.atan2(alvo.y - s.bola.p.y, alvo.x - s.bola.p.x) + sigma * normal(chave + '|ang');

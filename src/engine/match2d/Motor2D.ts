@@ -10,7 +10,8 @@ import { BLOCO, FASES } from '../../config/match2d/bloco.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { TRANSICAO_FORMA_S } from '../../config/match2d/formacoes.ts';
 import { BOLA, RECEPCAO, COMPROMISSO_2D, REPOSICAO } from '../../config/match2d/bola.ts';
-import { PORTADOR, DUELO, AEREO, GR, REMATE, LINHA } from '../../config/match2d/fase3.ts';
+import { PORTADOR, DUELO, AEREO, GR, REMATE, LINHA, ESTADO_JOGO, MARCAS, TRANSICAO as TRANSICAO_JOGO } from '../../config/match2d/fase3.ts';
+import { lugaresApp } from './equipas.ts';
 import { alvoBloco, ancora, filtrarBloco, forma, medidasForma, linhaForaDeJogo } from './bloco.ts';
 import { moverJogador, intensidadePara, limitesFisicos } from './fisica.ts';
 import { avancarBola3D, preverTrajectoria, pontoIntercepcao, tempoChegada, TICKS_SEM_RETOQUE } from './bola.ts';
@@ -19,10 +20,10 @@ import { avaliarPortador, escolher, executarBola, executarRemate, xgEstimado, pD
 import { contextoEquipa, candidatas, alvoPressao, alvoCobertura, alvoMarcacao, type ContextoEquipa } from './semBola.ts';
 import { aleatorio } from '../decision/rng.ts';
 import { paraAbsoluto, paraEquipa, dist, anguloAbsoluto, hyp } from './referencial.ts';
-import type { IdEstilo } from '../../config/estilos.ts';
+import type { Estilo2D } from '../../config/match2d/estilos.ts';
 import type { Equipa, Estado2D, EstadoEquipa, Fase, Jogador2D, JogadorBase2D, V2, Evento2D, Intensidade, Reposicao2D } from './tipos.ts';
 
-export interface ConfigEquipa2D { nome: string; formacao: string; estilo: IdEstilo; jogadores: JogadorBase2D[] }
+export interface ConfigEquipa2D { nome: string; formacao: string; estilo: Estilo2D; jogadores: JogadorBase2D[] }
 export interface Config2D { equipas: [ConfigEquipa2D, ConfigEquipa2D]; posse?: Equipa; bola?: V2; semente?: string }
 
 const C = CAMPO_2D;
@@ -36,7 +37,9 @@ const at = (j: Jogador2D, k: string) => (j.attrs as Record<string, number | unde
 /** Dentro da própria grande área (absoluto)? */
 const naPropriaArea = (j: Jogador2D, p = j.p) => { const q = paraEquipa(j.equipa, p); return q.x < 16.5 && Math.abs(q.y - C.largura / 2) < 20.15; };
 const naAreaAdversaria = (j: Jogador2D, p = j.p) => { const q = paraEquipa(j.equipa, p); return q.x > C.comprimento - 16.5 && Math.abs(q.y - C.largura / 2) < 20.15; };
-const ESPERA_REPOSICAO: Record<Reposicao2D['tipo'], number> = { lancamento: 2, baliza: 3, canto: 4, livre: 2.5, saida: 5 };
+/** Tempo (s de jogo) até recomeçar cada bola parada: os tempos reais (a bola está fora de jogo ~35 dos 95 minutos);
+ *  no ecrã passam em avanço rápido (modelo FM). */
+const ESPERA_REPOSICAO: Record<Reposicao2D['tipo'], number> = { lancamento: 10, baliza: 20, canto: 25, livre: 20, saida: 40 };
 
 export class Motor2D {
   estado: Estado2D;
@@ -56,7 +59,7 @@ export class Motor2D {
     this.semente = cfg.semente ?? 'motor2d';
     const eq = (e: Equipa): EstadoEquipa => {
       const c = cfg.equipas[e], b = { linhaDefX: 30, comprimento: 30, largura: 40, centroY: 34 };
-      return { nome: c.nome, estilo: c.estilo, formacao: c.formacao, fase: posse === e ? 'ATQ_CONSTRUCAO' : 'DEF_ORGANIZADA', faseDesde: 0, bloco: b, alvo: b, mistura: posse === e ? 1 : 0, subirAte: 0 };
+      return { nome: c.nome, estilo: c.estilo, formacao: c.formacao, fase: posse === e ? 'ATQ_CONSTRUCAO' : 'DEF_ORGANIZADA', faseDesde: 0, bloco: b, alvo: b, mistura: posse === e ? 1 : 0, subirAte: 0, mentalidade: 0, xRecuperacao: 0 };
     };
     const centro = { x: C.comprimento / 2, y: C.largura / 2 };
     const par = (): [number, number] => [0, 0];
@@ -65,7 +68,8 @@ export class Motor2D {
       bola: { p: { ...(cfg.bola ?? centro) }, z: 0, v: { x: 0, y: 0 }, vz: 0, dono: null, ultimo: null, equipaUltima: posse, tickUltimo: -99, passe: null, remate: null },
       bolaExterna: false, reposicao: null, eventos: [],
       estat: { passes: par(), certos: par(), intercepcoes: par(), mausToques: par(), posse: par(), sequencias: [], golos: par(), remates: par(), aBaliza: par(), xg: par(),
-        desarmes: par(), faltas: par(), forasDeJogo: par(), cruzamentos: par(), passesLongos: par(), dribles: par(), recuperacoesAltas: par() },
+        desarmes: par(), faltas: par(), forasDeJogo: par(), cruzamentos: par(), passesLongos: par(), dribles: par(), recuperacoesAltas: par(),
+        cantos: par(), distancia: par(), sprints: par() },
       passesSeguidos: 0, posseDesde: 0,
     };
     for (const e of [0, 1] as Equipa[]) {
@@ -133,6 +137,7 @@ export class Motor2D {
     if (s.posse === e) return;
     s.estat.sequencias.push(s.passesSeguidos);
     s.posse = e; s.passesSeguidos = 0; s.posseDesde = s.tick;
+    s.equipas[e].xRecuperacao = paraEquipa(e, s.bola.p).x;
     this.mudarFase(e, 'TRANS_DEF_ATQ');
     this.mudarFase(outra(e), 'TRANS_ATQ_DEF');
     this.atribuirMarcacoes(outra(e));
@@ -144,8 +149,10 @@ export class Motor2D {
     const s = this.estado;
     for (const j of s.jogadores) if (j.equipa === e) j.marcado = null;
     if (ESTILOS_2D[s.equipas[e].estilo].marcacao !== 'individual') return;
-    const livres = s.jogadores.filter((o) => o.equipa !== e && o.chave !== 'GR');
-    const meus = s.jogadores.filter((o) => o.equipa === e && o.chave !== 'GR').sort((a, b) => paraEquipa(e, a.ancora).x - paraEquipa(e, b.ancora).x);
+    // Só a linha defensiva marca ao homem, e só os atacantes mais adiantados; o meio-campo defende à zona (sem buracos
+    // no bloco quando um marcador é arrastado para fora).
+    const livres = s.jogadores.filter((o) => o.equipa !== e && o.chave !== 'GR' && paraEquipa(e, o.p).x < MARCAS.individual_x);
+    const meus = s.jogadores.filter((o) => o.equipa === e && o.chave !== 'GR').sort((a, b) => paraEquipa(e, a.ancora).x - paraEquipa(e, b.ancora).x).slice(0, MARCAS.individual_n);
     const libero = meus.find((o) => o.chave === 'DC') ?? meus.find((o) => o.chave.startsWith('DC'));
     for (const j of meus) {
       if (j === libero || !livres.length) continue;
@@ -174,7 +181,7 @@ export class Motor2D {
     this.estado.jogadores.filter((j) => j.equipa === e).forEach((j) => { j.chave = f.lugares[j.lugar].chave; if (papeis?.[j.lugar]) j.papel = papeis[j.lugar]; });
     this.papeis[e] = this.papeisDe(e);
   }
-  mudarEstilo(e: Equipa, estilo: IdEstilo) { this.estado.equipas[e].estilo = estilo; }
+  mudarEstilo(e: Equipa, estilo: Estilo2D) { this.estado.equipas[e].estilo = estilo; }
 
   private mudarFase(e: Equipa, f: Fase) { const eq = this.estado.equipas[e]; if (eq.fase !== f) { eq.fase = f; eq.faseDesde = this.estado.tick; } }
 
@@ -186,7 +193,9 @@ export class Motor2D {
     const b = paraEquipa(e, s.bola.p);
     if (s.posse === e) {
       // Transição defesa→ataque até ao tempo do estilo ou até a posse estabilizar (2 passes seguidos).
-      if (eq.fase === 'TRANS_DEF_ATQ' && t < P.transDefAtqS && s.passesSeguidos < 2) return;
+      // Se o ataque rápido não avançou 10 m em 2 s, segura e reorganiza (secção 8.2, Contra-ataque).
+      const parado = t >= TRANSICAO_JOGO.sem_avanco_s && b.x - eq.xRecuperacao < TRANSICAO_JOGO.avanco_m;
+      if (eq.fase === 'TRANS_DEF_ATQ' && t < P.transDefAtqS && s.passesSeguidos < 2 && !parado) return;
       const naArea = b.x > C.comprimento - 16.5 && Math.abs(b.y - C.largura / 2) < 20.15;
       const cruz = !!s.bola.passe && s.bola.passe.tipo === 'CRUZAMENTO';
       const fin = naArea || cruz || (b.x >= FASES.finalizacao_desde && Math.abs(b.y - C.largura / 2) < FASES.finalizacao_corredor);
@@ -202,6 +211,8 @@ export class Motor2D {
   passo() {
     const s = this.estado, dt = TICK_S;
     s.tick++;
+    // Estado do jogo: a mentalidade de cada equipa pelo resultado e pelo tempo (a cada minuto).
+    if (s.tick % Math.round(ESTADO_JOGO.periodo_s / TICK_S) === 0) this.actualizarMentalidade();
     // Camadas 1 e 2: fase, forma (mistura gradual) e bloco.
     for (const e of [0, 1] as Equipa[]) {
       const eq = s.equipas[e];
@@ -211,6 +222,8 @@ export class Motor2D {
       if ((s.tick + e) % TICKS_BLOCO === 0) eq.alvo = alvoBloco(s, e, this.papeis[e]);
       eq.bloco = filtrarBloco(eq.bloco, eq.alvo, dt);
     }
+    // Futebol Total: reatribuição das posições (as âncoras são lugares a ocupar, não de cada jogador).
+    for (const e of [0, 1] as Equipa[]) if (!s.reposicao) this.reatribuir(e);
     // Camada 3: âncoras.
     const med = [0, 1].map((e) => medidasForma(s.equipas[e].formacao, this.papeis[e], s.equipas[e].mistura));
     const fj = [linhaForaDeJogo(s, 0), linhaForaDeJogo(s, 1)];
@@ -233,6 +246,49 @@ export class Motor2D {
     this.mover();
     // Camada 7: bola e resolução.
     if (!s.bolaExterna) this.moverBola();
+  }
+
+  /**
+   * Futebol Total (secção 8.2): a equipa reatribui os jogadores às posições (afectação: menor distância total, com
+   * penalização para quem sai do seu sector). Quanto maior a liberdade posicional, mais se troca; com Decisões e
+   * Posicionamento baixos, a reatribuição atrasa (e ficam buracos). Trocas por pares, a melhor primeiro.
+   */
+  private proxTroca: [number, number] = [0, 0];
+  private reatribuir(e: Equipa) {
+    const s = this.estado, eq = s.equipas[e], P = ESTILOS_2D[eq.estilo];
+    if (P.liberdade < 0.5 || s.tick < this.proxTroca[e]) return;
+    const meus = s.jogadores.filter((j) => j.equipa === e && j.chave !== 'GR');
+    const media = meus.reduce((a, j) => a + (at(j, 'dec') + at(j, 'pos')) / 2, 0) / meus.length;
+    this.proxTroca[e] = s.tick + Math.round((MARCAS.troca_base_s + (20 - media) / 10) / TICK_S);
+    const sector = (pos: string) => (pos === 'GR' ? 0 : /^(DC|DD|DE|ALD|ALE)$/.test(pos) ? 1 : /^(MDC|MC|MO)$/.test(pos) ? 2 : 3);
+    const lugarPos = (j: Jogador2D) => lugaresApp(eq.formacao)[j.lugar]?.pos ?? j.pos;
+    const pen = (j: Jogador2D, lugarDe: Jogador2D) => Math.abs(sector(j.pos) - sector(lugarPos(lugarDe))) * MARCAS.troca_sector_m * (1 - P.liberdade);
+    let melhor: { a: Jogador2D; b: Jogador2D; ganho: number } | null = null;
+    for (let i = 0; i < meus.length; i++) for (let k = i + 1; k < meus.length; k++) {
+      const a = meus[i], b = meus[k];
+      const agora = dist(a.p, a.ancora) + dist(b.p, b.ancora) + pen(a, a) + pen(b, b);
+      const trocado = dist(a.p, b.ancora) + dist(b.p, a.ancora) + pen(a, b) + pen(b, a);
+      const ganho = agora - trocado;
+      if (ganho > MARCAS.troca_ganho_m * (1.2 - P.liberdade) && (!melhor || ganho > melhor.ganho)) melhor = { a, b, ganho };
+    }
+    if (!melhor) return;
+    const { a, b } = melhor;
+    [a.lugar, b.lugar] = [b.lugar, a.lugar]; [a.chave, b.chave] = [b.chave, a.chave]; [a.papel, b.papel] = [b.papel, a.papel];
+    [a.ancora, b.ancora] = [b.ancora, a.ancora]; [a.ancoraAntes, b.ancoraAntes] = [b.ancoraAntes, a.ancoraAntes];
+    this.papeis[e] = this.papeisDe(e);
+    this.ev('troca', e, a, b);
+  }
+
+  /** Mentalidade (−1 fechar … +1 arriscar) pela diferença no marcador e pelo minuto. */
+  private actualizarMentalidade() {
+    const s = this.estado, t = Math.min(1, (s.tick * TICK_S) / 5400), E = ESTADO_JOGO;
+    for (const e of [0, 1] as Equipa[]) {
+      const dif = s.estat.golos[e] - s.estat.golos[outra(e)];
+      const m = dif > 0 ? -Math.min(1, dif * (E.ganhar_base + E.ganhar_tempo * t)) : dif < 0 ? Math.min(1, -dif * (E.perder_base + E.perder_tempo * t)) : 0;
+      const eq = s.equipas[e];
+      if (Math.abs(m - eq.mentalidade) >= 0.25 || (m === 0 && eq.mentalidade !== 0)) this.ev('mentalidade', e, null, null, undefined, m < -0.5 ? 'FECHAR' : m < 0 ? 'SEGURAR' : m > 0.5 ? 'TUDO' : m > 0 ? 'ARRISCAR' : 'EQUILIBRIO');
+      eq.mentalidade = m;
+    }
   }
 
   /** Camada 5: avalia as opções, escolhe (softmax entre as 3 melhores) e executa. */
@@ -292,14 +348,20 @@ export class Motor2D {
       // O guarda-redes só sai aos pés do portador dentro da sua área.
       const grSai = d.chave === 'GR' && naPropriaArea(d) && naPropriaArea(d, c.p);
       if (d.equipa === c.equipa || (d.chave === 'GR' && !grSai) || s.tick < d.ultrapassadoAte || s.tick < d.proxDesarme || dist(d.p, c.p) > DUELO.desarme_m) continue;
-      d.proxDesarme = s.tick + Math.round(DUELO.intervalo_s / TICK_S);
-      const tentar = DUELO.tentar_base + DUELO.tentar_agr * (at(d, 'agr') - 10) + (d.accao === 'PRESSIONAR' ? DUELO.tentar_pressao : 0);
+      // Na própria área entra-se já (o perigo não espera): tenta mais e mais vezes.
+      const naArea = naPropriaArea(d, c.p);
+      d.proxDesarme = s.tick + Math.round((naArea ? DUELO.intervalo_area_s : DUELO.intervalo_s) / TICK_S);
+      const tentar = DUELO.tentar_base + DUELO.tentar_agr * (at(d, 'agr') - 10) + (d.accao === 'PRESSIONAR' ? DUELO.tentar_pressao : 0) + (naArea ? DUELO.tentar_area : 0);
       if (this.r(`tentar|${d.id}`) > tentar) continue;
       // O portador defende-se com Drible, Técnica e Força; a proteger e de costas, melhor.
       const deCostas = Math.cos(c.corpo - Math.atan2(d.p.y - c.p.y, d.p.x - c.p.x)) < -0.3;
       const ata = 0.5 * at(c, 'dri') + 0.3 * at(c, 'tec') + 0.2 * at(c, 'for') + (s.conducao?.tipo === 'PROTEGER' ? DUELO.proteger_bonus : 0) + (deCostas ? DUELO.costas_bonus : 0);
       const forcaDef = grSai ? 0.6 * at(d, 'uco') + 0.4 * at(d, 'ref') : forcaDefesa(d, c);
-      if (this.r(`desarme|${d.id}`) < pDefensorGanha(forcaDef, ata)) { this.desarmeCerto(d, c); return; }
+      if (this.r(`desarme|${d.id}`) < pDefensorGanha(forcaDef, ata)) {
+        // Mesmo um desarme certo pode ser falta (sobretudo de trás ou de lado, e com Agressividade alta).
+        if (this.r(`faltaok|${d.id}`) < DUELO.falta_desarme_certo * (deCostas ? 2 : 1) * (1 + (at(d, 'agr') - 10) / 20)) { this.falta(d, c); return; }
+        this.desarmeCerto(d, c); return;
+      }
       // Falhou: fica ultrapassado; pode ter feito falta.
       const [u0, u1] = DUELO.ultrapassado_s;
       d.ultrapassadoAte = s.tick + Math.round((u0 + (u1 - u0) * this.r(`ultra|${d.id}`)) / TICK_S);
@@ -453,7 +515,7 @@ export class Motor2D {
       } else if (j.tarefaBola && j.alvoBola) {
         alvo = j.alvoBola; vA = { x: 0, y: 0 };
         const d = d0();
-        int = j.tarefaBola === 'repor' ? (d > 15 ? 'corrida' : 'trote') : j.tarefaBola === 'receber' ? (d < 2 ? 'andar' : d < 6 ? 'trote' : d < 14 ? 'corrida' : 'sprint') : 'sprint';
+        int = j.tarefaBola === 'repor' ? (d > 15 ? 'corrida' : 'trote') : j.tarefaBola === 'receber' ? (d < 2 ? 'andar' : d < 6 ? 'trote' : d < 14 ? 'corrida' : 'sprint') : d > 20 ? 'corrida' : 'sprint';
       } else {
         const a = j.accao;
         // Alvos que seguem a jogada a cada tick: pressão, cobertura, marcação.
@@ -469,10 +531,11 @@ export class Motor2D {
           vA = { x: portador.v.x, y: portador.v.y };
         }
         else if (a === 'COBRIR') { const pr = s.jogadores.find((o) => o.equipa === j.equipa && o.accao === 'PRESSIONAR'); alvo = pr ? alvoCobertura(j, pr.p) : j.alvoAccao ?? j.ancora; vA = { x: 0, y: 0 }; }
-        else if (a === 'MARCAR' && j.marcado) { const o = this.jog(j.marcado); alvo = o ? alvoMarcacao(j, o) : j.ancora; vA = o ? { x: o.v.x, y: o.v.y } : vA; }
+        else if (a === 'MARCAR' && j.marcado) { const o = this.jog(j.marcado); alvo = o ? alvoMarcacao(j, o, b.p) : j.ancora; vA = o ? { x: o.v.x, y: o.v.y } : vA; }
         else if (a !== 'MANTER_POSICAO' && a !== 'RECUPERAR' && j.alvoAccao) { alvo = j.alvoAccao; vA = { x: 0, y: 0 }; }
         const d = d0();
-        const sprint = a === 'RECUPERAR' || a === 'SOBREPOSICAO' || (a === 'PRESSIONAR' && d > 2) || (a === 'ATACAR_PROFUNDIDADE' && paraEquipa(j.equipa, alvo).x > linhaForaDeJogo(s, j.equipa));
+        const primeiroPress = a === 'PRESSIONAR' && portador ? s.jogadores.filter((o) => o.equipa === j.equipa && o.accao === 'PRESSIONAR').every((o) => dist(o.p, portador.p) >= dist(j.p, portador.p)) : false;
+        const sprint = (a === 'RECUPERAR' && d > 15) || a === 'SOBREPOSICAO' || (primeiroPress && d > 5) || (a === 'ATACAR_PROFUNDIDADE' && !!b.passe && b.passe.para === j.id);
         int = sprint ? 'sprint' : a === 'MANTER_POSICAO' || a === 'EQUILIBRIO_DEFENSIVO' || a === 'DAR_LARGURA' ? intensidadePara(d, false)
           : d < 2.5 ? 'andar' : d < 9 ? 'trote' : 'corrida';
         // Quem defende em zona não fica em cima de um adversário (Fase 2).
@@ -491,8 +554,14 @@ export class Motor2D {
           }
         }
       }
+      // Sprint conta quando dura pelo menos 1 s (não cada oscilação entre correr e sprintar).
+
       j.intensidade = int;
+      const antesP = j.p;
       moverJogador(j, alvo, vA, int, colegas[j.equipa], olhar, dt, fraccao);
+      s.estat.distancia[j.equipa] += hyp(j.p.x - antesP.x, j.p.y - antesP.y);
+      // Sprint (definição habitual): acima de 7 m/s durante pelo menos 1 s.
+      if (hyp(j.v.x, j.v.y) > 7) { j.sprintTicks = (j.sprintTicks ?? 0) + 1; if (j.sprintTicks === 10) s.estat.sprints[j.equipa]++; } else j.sprintTicks = 0;
     }
   }
 
@@ -533,9 +602,26 @@ export class Motor2D {
       if ((j.id === b.ultimo && s.tick - b.tickUltimo < TICKS_SEM_RETOQUE) || s.tick < j.ultrapassadoAte) continue;
       if (b.remate && j.equipa === b.equipaUltima && vel > 8) continue;
       const d = distSeg(j.p, antes, b.p);
-      if (j.chave === 'GR' && naPropriaArea(j)) { if (d <= GR.alcance_base + GR.alcance_agi * at(j, 'agi') && z <= GR.z_max) cands.push({ j, d, tipo: 'maos' }); continue; }
+      if (j.chave === 'GR' && naPropriaArea(j)) {
+        // O mergulho só se estende depois de reagir (Reflexos) e leva ~0,3 s a chegar ao alcance máximo; antes, só o corpo.
+        const t = (s.tick - b.tickUltimo) * TICK_S, reac = GR.reaccao_base - GR.reaccao_ref * at(j, 'ref');
+        const max = GR.alcance_base + GR.alcance_agi * at(j, 'agi');
+        const alcance = b.remate ? GR.corpo_m + (max - GR.corpo_m) * Math.max(0, Math.min(1, (t - reac) / GR.mergulho_s)) : max;
+        if (d <= alcance && z <= GR.z_max) {
+          // Num remate, defender é mais difícil longe do corpo e com a bola rápida (cerca de 70% dos remates enquadrados).
+          if (b.remate) {
+            const p = (GR.defesa_base - (0.75 * d) / max - (vel - 20) / 35 + (at(j, 'ref') - 10) / 40);
+            if (this.r(`gr|${j.id}`) > Math.max(0.05, Math.min(0.97, p))) continue;
+          }
+          cands.push({ j, d, tipo: 'maos' });
+        }
+        continue;
+      }
       // Um adversário de quem passou/rematou: na linha (corpo) corta sempre; com a perna, só depois de reagir e com uma
       // probabilidade que desce com a distância à linha e com a velocidade da bola (decisão 190).
+      // Quem está colado ao rematador (a menos de 2,5 m) lê o remate: bloqueia com a perna sem precisar de reagir.
+      const leRemate = b.remate && j.equipa !== b.equipaUltima && this.jog(b.remate.de) && dist(j.p, this.jog(b.remate.de)!.p) < DUELO.bloqueio_perto_m;
+      if (leRemate && z <= BOLA.z_pe && d <= BOLA.alcance) { cands.push({ j, d, tipo: 'pe' }); continue; }
       if (z <= BOLA.z_pe && d <= BOLA.alcance && (b.passe || b.remate) && j.equipa !== b.equipaUltima && d > RECEPCAO.corpo_m) {
         const reac = RECEPCAO.reaccao_base - RECEPCAO.reaccao_ant * at(j, 'ant');
         if ((s.tick - b.tickUltimo) * TICK_S < reac) continue;
@@ -579,8 +665,9 @@ export class Motor2D {
       this.ev('defesa', g.equipa, g, this.jog(remate.de));
     }
     if (this.r(`agarra|${g.id}`) < q + GR.agarrar_folga) { this.darBola(g, false); return; }
-    // Desvia: para o lado, para longe da baliza, a 40% da velocidade.
-    const fora = Math.atan2(b.v.y, b.v.x) + (this.r(`desvio|${g.id}`) < 0.5 ? 1 : -1) * (1.1 + 0.6 * this.r(`desv2|${g.id}`));
+    // Desvia: muitas vezes para trás da linha de fundo (canto); senão para o lado, para longe da baliza.
+    const linhaFundo = this.r(`canto|${g.id}`) < GR.desvio_canto;
+    const fora = linhaFundo ? Math.atan2(b.p.y < C.largura / 2 ? -1 : 1, g.equipa === 0 ? -1.6 : 1.6) : Math.atan2(b.v.y, b.v.x) + (this.r(`desvio|${g.id}`) < 0.5 ? 1 : -1) * (1.1 + 0.6 * this.r(`desv2|${g.id}`));
     const v = Math.max(4, vel * 0.4);
     b.v = { x: Math.cos(fora) * v, y: Math.sin(fora) * v }; b.vz = 1.5; b.z = Math.max(b.z, 0.3);
     b.ultimo = g.id; b.equipaUltima = g.equipa; b.tickUltimo = s.tick; b.passe = null; b.remate = null;
@@ -590,6 +677,8 @@ export class Motor2D {
   /** Cabeceamento: na área adversária, remate; um defensor afasta; noutro sítio, amortece para um colega. */
   private cabeceamento(j: Jogador2D) {
     const s = this.estado, b = s.bola, e = j.equipa;
+    // Um passe pelo ar que um colega ganha de cabeça chegou ao destino (passe certo).
+    if (b.passe && e === b.equipaUltima) s.estat.certos[e]++;
     this.ev('cabeceamento', e, j);
     b.ultimo = j.id; b.equipaUltima = e; b.tickUltimo = s.tick; b.passe = null; b.remate = null;
     this.versaoBola++;
@@ -641,7 +730,11 @@ export class Motor2D {
     const a = j.attrs as Record<string, number | undefined>;
     let q = (0.6 * (a.ptq ?? 10) + 0.4 * (a.tec ?? 10)) / 20 - (vel - 10) / 40;
     if (passe?.aereo || b.z > 0.3) q -= AEREO.ar_penalidade * Math.max(0, vel - 10) + 0.08;
+    // Receber com um adversário encostado (a menos de 1,5 m) é mais difícil.
+    q -= RECEPCAO.encostado * s.jogadores.filter((o) => o.equipa !== j.equipa && o.chave !== 'GR' && dist(o.p, j.p) < 1.5).length;
     if (passe && adversario) { s.estat.intercepcoes[j.equipa]++; this.ev('intercepcao', j.equipa, j, this.jog(passe.de)); }
+    // Passe certo = chegou a um colega (como nas estatísticas reais), mesmo que o primeiro toque saia mal.
+    if (passe && !adversario) s.estat.certos[j.equipa]++;
     if (aleatorio(`${this.semente}|${s.tick}|${j.id}|toque`) > q + RECEPCAO.toque_folga) {
       const dir = vel > 0.1 ? Math.atan2(b.v.y, b.v.x) : j.corpo;
       const ang = dir + 0.8 * normal(`${this.semente}|${s.tick}|${j.id}|desvio`);
@@ -654,7 +747,7 @@ export class Motor2D {
       this.ev('mau_toque', j.equipa, j);
       return;
     }
-    if (passe && !adversario) { s.estat.certos[j.equipa]++; this.ev('recepcao', j.equipa, j, this.jog(passe.de)); }
+    if (passe && !adversario) this.ev('recepcao', j.equipa, j, this.jog(passe.de));
     this.darBola(j, !!passe && !adversario);
   }
 
@@ -687,6 +780,7 @@ export class Motor2D {
     const m = cand.sort((x, y) => dist(x.p, local) - dist(y.p, local))[0];
     b.p = { x: Math.max(-1, Math.min(C.comprimento + 1, b.p.x)), y: Math.max(-1, Math.min(C.largura + 1, b.p.y)) };
     this.ev('fora', repoe, m);
+    if (tipo === 'canto') s.estat.cantos[repoe]++;
     this.iniciarReposicao(tipo, repoe, local, m);
   }
 

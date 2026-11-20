@@ -411,3 +411,49 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - passes e posses por jogo acima do real, e acerto de passe abaixo.
     - É o critério da Fase 4 (faixas por estilo) e da Fase 5 (teste de 200 jogos). Os testes desta fase verificam os comportamentos, não estes números.
     - **Desempenho:** 3,4 s por jogo de 90 minutos (pacote final em Node); o alvo de 1,5 s é da Fase 5.
+
+191. **Motor 2D táctico, Fase 4: estilos de jogo, transições e estado do jogo** (secção 13).
+    - **Ficheiros**: números em `src/config/match2d/estilos.ts` (8 estilos, paciência, neutro) e `src/config/match2d/fase3.ts` (`ESTADO_JOGO`, `TRANSICAO`, `MARCAS`, guarda-redes, remate); código em `portador.ts`, `semBola.ts`, `bloco.ts` e `Motor2D.ts`.
+    - **Estilo neutro**: para medir cada estilo "contra um adversário neutro de igual força", o neutro é a média numérica dos 8 (marcação à zona, sem corredor preferido). Não aparece no jogo, só no ecrã de teste e nas medições.
+    - **Interpretações da secção 8:**
+        - **Paciência** (parâmetro novo, um por estilo): o valor de manter a posse. Cansa-se com os passes seguidos sem progredir, e o custo de perder a bola também depende dela (um estilo directo não vê drama em perdê-la lá à frente).
+        - **Inclinação de estilo**: os pesos do estilo (passe longo, cruzamento, drible, remate de longe) multiplicam as pontuações positivas e dividem as negativas; há também uma pequena inclinação somada, para o estilo se ver mesmo quando todas as opções são más.
+        - **Transições ("atacar já")**: na transição defesa→ataque pesa só a parte do "atacar já" acima de 0,5 (forte no Contra-ataque, nula no Tiki-Taka). Sobem até 4 jogadores em profundidade. A transição acaba cedo se a equipa não avançar 10 m em 2 s.
+        - **Estado do jogo (ideia do utilizador: "estacionar o autocarro")**: a cada minuto, o resultado e o tempo dão a mentalidade de cada equipa, de −1 a +1.
+            - **Quem ganha:** baixa a linha até 9 m, encurta o bloco, deixa mais gente atrás da bola e tem mais aversão ao risco. Só os estilos pacientes guardam a bola; os outros fecham-se e jogam longo para o contra-ataque.
+            - **Quem perde:** sobe, ataca com mais gente, remata mais de longe e pressiona mais longe (até 16 m), com mais um pressionante.
+            - O relato diz "fecha-se atrás e vive do contra-ataque", "arrisca mais", etc.
+        - **Marcas visíveis (8.2):**
+            - **Futebol Total:** trocas de posição entre colegas próximos quando a troca encurta o caminho de ambos (evento "troca").
+            - **Catenaccio:** marcação individual só pela linha defensiva sobre os atacantes adiantados, com líbero.
+            - **Tiki-Taka:** saída a 3.
+            - **Jogo Directo:** segunda bola.
+            - **Gegenpressen:** contrapressão até mais 8 m; cansa-se depois do minuto 65 (pressão mais curta, menos um pressionante).
+        - **Reposições com tempos reais:** lançamento 1 s, pontapé de baliza 2 s, canto 2,5 s, livre 2 s, saída 4 s (antes, a bola voltava logo e a posse ficava inflacionada).
+    - **Afinações para as faixas da secção 12:**
+        - **Guarda-redes:** alcance 1,7 m + Agilidade; reacção 0,25 s; o mergulho chega ao máximo em 0,22 s.
+        - **Remate:** cada defensor encostado e cada corpo na linha de remate pioram a pontaria (área povoada).
+        - **Valor da área (xT):** 0,06.
+        - **Desarme:** mais forte dentro da área.
+        - **Passes certos:** contam no contacto com o colega.
+        - **Passes longos:** contam com o erro de execução.
+    - **Medição (6 jogos de 90 min por estilo contra o neutro, força 70):**
+
+      | Estilo | Posse (faixa) | Passes (faixa) | Notas |
+      |---|---|---|---|
+      | Tiki-Taka | 64% (60–70) ✓ | 992 (600–800) ✗ | 85% de acerto, 4% longos ✓ |
+      | Gegenpressen | 48% (52–58) ✗ | 440 (450–600) ≈ | recuperações altas 24 contra 11 (2×) ✓; 25 remates (domina demais) |
+      | Contra-ataque | 33% (35–42) ≈ | 282 (280–400) ✓ | 48% longos |
+      | Catenaccio | 35% (30–38) ✓ | 373 (250–350) ≈ | sofre 18 remates e 1,8 golos |
+      | Jogo Directo | 39% (40–48) ≈ | 425 (300–420) ≈ | 55% longos ✓ |
+      | Pelas Alas | 50% (50–56) ✓ | 357 (450–550) ✗ | 18 cruzamentos (25+ ✗) |
+      | Futebol Total | 61% (58–66) ✓ | 697 (550–700) ✓ | trocas de posição ✓ |
+      | Bloco Médio-Baixo | 46% (38–45) ≈ | 442 (300–420) ≈ | sofre 12 remates |
+      | Neutro × neutro | 51% | 516 | 72% de acerto; cerca de 3 golos e 12–15 remates por equipa |
+
+    - **O que fica para a Fase 5** (remates, bolas paradas, cansaço, teste de 200 jogos):
+        - Os blocos baixos ainda sofrem demasiados remates de perto (cerca de 10 m): os atacantes recebem dentro da área entre os defensores. É a parte de remates e defesa da área.
+        - Faltam cantos (1–2 por equipa; real 4–6).
+        - Os sprints e os km por jogador ainda estão acima do real.
+        - Com 6 jogos por estilo, a variância é de cerca de ±5 pontos de posse.
+    - **Velocidade:** cerca de 3,4–4 s por jogo. O utilizador aceitou ("15 min para mostrar os highlights de 90 min"); o alvo de 1,5 s deixa de ser obrigatório.

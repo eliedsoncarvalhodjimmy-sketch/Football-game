@@ -1,6 +1,6 @@
 // Motor 2D táctico (docs/tactics/MOTOR_2D.md): tipos. Lógica pura, sem DOM.
 import type { IdAtributo } from '../../config/atributos.ts';
-import type { IdEstilo } from '../../config/estilos.ts';
+import type { Estilo2D } from '../../config/match2d/estilos.ts';
 
 export type Equipa = 0 | 1;
 export interface V2 { x: number; y: number }
@@ -29,6 +29,8 @@ export interface Jogador2D extends JogadorBase2D {
   accao: AccaoSemBola;
   accaoDesde: number;
   intensidade: Intensidade;
+  /** Ticks seguidos em sprint (para contar os sprints). */
+  sprintTicks?: number;
   /** Velocidade pretendida suavizada (intenção de movimento). */
   intencao?: V2;
   /** Âncora actual (absoluta) e a do tick anterior (para a velocidade da âncora). */
@@ -66,7 +68,7 @@ export interface Bola2D {
 }
 
 export interface Evento2D { tick: number; tipo: 'passe' | 'recepcao' | 'intercepcao' | 'mau_toque' | 'bola_solta' | 'fora' | 'reposicao'
-  | 'remate' | 'golo' | 'defesa' | 'desarme' | 'falta' | 'fora_de_jogo' | 'cabeceamento' | 'cruzamento' | 'drible' | 'alivio' | 'bloqueio'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2; /** Tipo do passe (PASSE_CURTO, CRUZAMENTO, ...). */ subtipo?: string; /** Sucesso previsto pelo portador. */ previsto?: number }
+  | 'remate' | 'golo' | 'defesa' | 'desarme' | 'falta' | 'fora_de_jogo' | 'cabeceamento' | 'cruzamento' | 'drible' | 'alivio' | 'bloqueio' | 'mentalidade' | 'troca'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2; /** Tipo do passe (PASSE_CURTO, CRUZAMENTO, ...). */ subtipo?: string; /** Sucesso previsto pelo portador. */ previsto?: number }
 
 export interface Estatisticas2D {
   passes: [number, number]; certos: [number, number]; intercepcoes: [number, number]; mausToques: [number, number];
@@ -77,6 +79,9 @@ export interface Estatisticas2D {
   passesLongos: [number, number]; dribles: [number, number];
   /** Recuperações da bola no terço ofensivo (secção 12: Gegenpressen 2× a média). */
   recuperacoesAltas: [number, number];
+  cantos: [number, number];
+  /** Distância percorrida (m, soma dos jogadores) e arranques em sprint, por equipa. */
+  distancia: [number, number]; sprints: [number, number];
 }
 
 /** Reposição simplificada (Fase 2): quem repõe vai à bola (sem teletransporte) e recomeça ao chegar. */
@@ -90,7 +95,7 @@ export interface Bloco { linhaDefX: number; comprimento: number; largura: number
 
 export interface EstadoEquipa {
   nome: string;
-  estilo: IdEstilo;
+  estilo: Estilo2D;
   formacao: string;
   fase: Fase;
   faseDesde: number;
@@ -101,6 +106,10 @@ export interface EstadoEquipa {
   mistura: number;
   /** A linha sobe até este tick (o adversário passou para trás: secção 9.1). */
   subirAte: number;
+  /** Mentalidade pelo estado do jogo (−1 fechar … +1 arriscar). */
+  mentalidade: number;
+  /** x (no referencial da equipa) onde recuperou a bola (a transição acaba se não avançar). */
+  xRecuperacao: number;
 }
 
 export interface Estado2D {

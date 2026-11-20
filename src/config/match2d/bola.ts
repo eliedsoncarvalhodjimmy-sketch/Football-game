@@ -31,6 +31,8 @@ export const RECEPCAO = {
    * Se um sorteio com semente passar a qualidade + folga, o toque é mau: a bola afasta-se 1–3 m e fica solta.
    */
   toque_folga: 0.45, mau_toque_v: [3, 6] as [number, number],
+  /** Cada adversário a menos de 1,5 m ao receber tira x à qualidade do primeiro toque. */
+  encostado: 0.12,
 };
 
 export const PASSE = {
@@ -55,7 +57,7 @@ export const DECISAO_PORTADOR = { pressao_m: 3, pressao_factor: 0.6, ruido_base:
  * Mapa de ameaça V(x, y) (secção 7.2), no referencial da equipa:
  *   V = 0,005 + 0,30 × (x/105)³ × (1 − 0,8 × |y − 34| / 34), +0,15 na área, +0,25 na pequena área.
  */
-export const AMEACA = { base: 0.005, escala: 0.3, expoente: 3, largura: 0.8, area: 0.15, pequena_area: 0.25, fundo_m: 6, fundo_queda: 0.6 };
+export const AMEACA = { base: 0.005, escala: 0.3, expoente: 3, largura: 0.8, area: 0.06, pequena_area: 0.1, fundo_m: 6, fundo_queda: 0.6 };
 
 /** OFERECER_APOIO (secção 6.1 e 6.3). */
 export const APOIO = {

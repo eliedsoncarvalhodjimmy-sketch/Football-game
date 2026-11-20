@@ -3,7 +3,7 @@
 // e escolhe a melhor com compromisso (decide a cada 0,33–0,66 s, mantém ≥ 1 s, só troca se ≥ 1,25×). A coordenação
 // faz-se por ordem: só os mais próximos pressionam (até ao limite do estilo), o seguinte cobre, no máximo 2 atacam a
 // profundidade e um mínimo fica em equilíbrio defensivo.
-import { SEM_BOLA as SB, PESO_PAPEL, PESO_ESTILO, PESO_FASE, ATRIBUTOS_SEM_BOLA } from '../../config/match2d/fase3.ts';
+import { SEM_BOLA as SB, PESO_PAPEL, PESO_ESTILO, PESO_FASE, ATRIBUTOS_SEM_BOLA, ESTADO_JOGO, TRANSICAO, MARCAS } from '../../config/match2d/fase3.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { CAMPO_2D } from '../../config/match2d/fisica.ts';
 import { melhorApoio, desvioMaximo } from './apoio.ts';
@@ -55,7 +55,8 @@ export function contextoEquipa(s: Estado2D, e: Equipa, gatilhosExtra: { passeAtr
   const advT = s.jogadores.filter((o) => o.equipa !== e && o.chave !== 'GR').map((o) => paraEquipa(e, o.p).x).sort((a, c) => c - a);
   const linhaDefAdv = advT.slice(0, 4).reduce((a, x) => a + x, 0) / Math.max(1, Math.min(4, advT.length));
   const linhaMedAdv = advT.slice(4, 8).reduce((a, x) => a + x, 0) / Math.max(1, Math.min(4, advT.length - 4));
-  const nEq = P.equilibrioMinimo;
+  // Estado do jogo: a ganhar ficam mais atrás da bola; a perder, menos.
+  const nEq = Math.max(1, Math.min(8, P.equilibrioMinimo + Math.round(-eq.mentalidade * ESTADO_JOGO.equilibrio)));
   const maisRecuados = [...campo].sort((a, c) => paraEquipa(e, a.ancora).x - paraEquipa(e, c.ancora).x).slice(0, nEq).map((o) => o.id);
   const bolaT = paraEquipa(e, bolaP);
   let portadorPronto = false;
@@ -72,8 +73,12 @@ export function contextoEquipa(s: Estado2D, e: Equipa, gatilhosExtra: { passeAtr
   const contra = eq.fase === 'TRANS_ATQ_DEF' && tFase < P.contrapressaoS;
   // Perto da própria baliza qualquer estilo sai ao portador (secção 9.3: defender a área).
   const perigoBaliza = bolaT.x < SB.perigo_x ? SB.perigo_extra * (1 - bolaT.x / SB.perigo_x) : 0;
-  const dAct = (contra ? P.pressaoDistancia * SB.contrapressao_factor + SB.contrapressao_extra : P.pressaoDistancia) + perigoBaliza;
-  const maxPress = contra ? P.pressionantes[1] : P.pressionantes[0];
+  // Gegenpressen: o desgaste cobra-se depois do minuto 65 (pressão mais curta e menos coordenada).
+  const fadiga = eq.estilo === 'gegenpressen' && s.tick * 0.1 > MARCAS.fadiga_min * 60;
+  // Estado do jogo: a perder pressiona-se mais longe e com mais gente (não se deixa o adversário guardar a bola atrás).
+  const arriscar = Math.max(0, eq.mentalidade);
+  const dAct = ((contra ? P.pressaoDistancia + SB.contrapressao_extra : P.pressaoDistancia) + perigoBaliza + arriscar * ESTADO_JOGO.pressao_m) * (fadiga ? MARCAS.fadiga_alcance : 1);
+  const maxPress = Math.max(1, (contra ? P.pressionantes[1] : P.pressionantes[0]) - (fadiga ? 1 : 0) + (eq.mentalidade > 0.5 ? ESTADO_JOGO.pressionantes_extra : 0));
   // Gatilhos (secção 9.2): passe para trás, de costas para a baliza dele, mau toque, junto à linha, fraco tecnicamente.
   let gatilhos = 0;
   if (!comPosse && ref && b.dono === ref.id) {
@@ -111,11 +116,14 @@ export function alvoCobertura(j: Jogador2D, pressor: V2): V2 {
   return dentro({ x: pressor.x + ((baliza.x - pressor.x) / l) * SB.cobrir_m, y: pressor.y + ((baliza.y - pressor.y) / l) * SB.cobrir_m + (pressor.y < C.largura / 2 ? 2 : -2) });
 }
 
-/** Alvo de marcação: a 1,5 m do adversário, entre ele e a baliza. */
-export function alvoMarcacao(j: Jogador2D, o: Jogador2D): V2 {
+/** Alvo de marcação: a 1,5 m do adversário, entre ele e a baliza mas puxado para o lado da bola (vê a bola e o homem,
+ *  corta o passe para ele). */
+export function alvoMarcacao(j: Jogador2D, o: Jogador2D, bola?: V2): V2 {
   const baliza = { x: j.equipa === 0 ? 0 : C.comprimento, y: C.largura / 2 };
   const l = dist(baliza, o.p) || 1;
-  return { x: o.p.x + ((baliza.x - o.p.x) / l) * SB.marcar_m, y: o.p.y + ((baliza.y - o.p.y) / l) * SB.marcar_m };
+  let ux = (baliza.x - o.p.x) / l, uy = (baliza.y - o.p.y) / l;
+  if (bola) { const lb = dist(bola, o.p) || 1; ux = ux * (1 - SB.marcar_lado_bola) + ((bola.x - o.p.x) / lb) * SB.marcar_lado_bola; uy = uy * (1 - SB.marcar_lado_bola) + ((bola.y - o.p.y) / lb) * SB.marcar_lado_bola; const n = hyp(ux, uy) || 1; ux /= n; uy /= n; }
+  return { x: o.p.x + ux * SB.marcar_m, y: o.p.y + uy * SB.marcar_m };
 }
 
 export interface Candidata { a: AccaoSemBola; u: number; alvo: V2 | null; marcado?: string | null }
@@ -152,13 +160,17 @@ export function candidatas(s: Estado2D, j: Jogador2D, cx: ContextoEquipa, outros
     if (largo(j)) add('DAR_LARGURA', 0.9 + (Math.abs(cx.bola.y - anc.y) > 25 ? 0.3 : 0), paraAbsoluto(e, { x: anc.x, y: anc.y < C.largura / 2 ? SB.largura_m : C.largura - SB.largura_m }));
     // Profundidade: nas costas da linha (com o portador pronto); senão, em linha com o último defensor.
     const espacoAtras = C.comprimento - 6 - cx.foraDeJogo;
-    // No máximo 2 a atacar a profundidade ao mesmo tempo (secção 6.2).
+    // No máximo 2 a atacar a profundidade ao mesmo tempo (secção 6.2); na transição com "atacar já" sobem 3–4 em sprint;
+    // a perder, mais um.
+    const transicao = eq.fase === 'TRANS_DEF_ATQ' && P.atacarJa >= 0.6;
+    const maxProf = (transicao ? Math.min(TRANSICAO.profundidade_max, P.jogadoresAtaque[0]) : SB.profundidade_max) + (eq.mentalidade > 0.5 ? ESTADO_JOGO.profundidade_extra : 0);
     const nProf = (cx.contagem.ATACAR_PROFUNDIDADE ?? 0) - (j.accao === 'ATACAR_PROFUNDIDADE' ? 1 : 0);
-    if (anc.x > cx.bola.x - 5 && espacoAtras > 6 && nProf < SB.profundidade_max) {
+    if (anc.x > cx.bola.x - 5 - (transicao ? 15 : 0) && espacoAtras > 6 && nProf < maxProf) {
       const lane = Math.max(8, Math.min(C.largura - 8, pos.y));
       const [a0, a1] = SB.profundidade_alem_m, alem = a0 + (a1 - a0) * Math.min(1, espacoAtras / 40);
-      const alvoT = cx.portadorPronto ? { x: Math.min(C.comprimento - 6, cx.foraDeJogo + alem), y: lane } : { x: cx.foraDeJogo - 0.8, y: lane };
-      add('ATACAR_PROFUNDIDADE', (cx.portadorPronto ? 1.1 : 0.55) * (0.7 + at(j, 'vel') / 40) * Math.min(1.3, 0.6 + espacoAtras / 40), paraAbsoluto(e, alvoT));
+      const pronto = cx.portadorPronto || transicao;
+      const alvoT = pronto ? { x: Math.min(C.comprimento - 6, cx.foraDeJogo + alem), y: lane } : { x: cx.foraDeJogo - 0.8, y: lane };
+      add('ATACAR_PROFUNDIDADE', (pronto ? 1.1 : 0.55) * (0.7 + at(j, 'vel') / 40) * Math.min(1.3, 0.6 + espacoAtras / 40) * (transicao ? 1 + P.atacarJa * TRANSICAO.profundidade_util : 1), paraAbsoluto(e, alvoT));
     }
     // Apoio frontal: entre as linhas de médios e defesas adversárias.
     const nFrontal = (cx.contagem.APOIO_FRONTAL ?? 0) - (j.accao === 'APOIO_FRONTAL' ? 1 : 0);
@@ -167,6 +179,13 @@ export function candidatas(s: Estado2D, j: Jogador2D, cx: ContextoEquipa, outros
       const alvo = paraAbsoluto(e, alvoT);
       const ocupado = s.jogadores.some((o) => o !== j && o.equipa === e && o.alvoAccao && o.accao !== 'MANTER_POSICAO' && dist(o.alvoAccao, alvo) < SB.frontal_colega_m);
       if (!ocupado && dist(alvo, j.ancora) < lim * 1.2) add('APOIO_FRONTAL', 0.9 + (cx.linhaDefAdv - cx.linhaMedAdv) / 30, alvo);
+    }
+    // Jogo Directo — segunda bola: com a bola longa no ar, os médios cercam a zona de queda (8–12 m dela).
+    const pb = s.bola.passe;
+    if (eq.estilo === 'jogo_direto' && pb?.aereo && /^M/.test(j.chave)) {
+      const k = s.jogadores.filter((o) => o.equipa === e && /^M/.test(o.chave)).indexOf(j);
+      const queda = paraEquipa(e, pb.destino), ang = Math.PI + (k - 1) * 0.7;
+      add('OCUPAR_AREA', 1.5, dentro(paraAbsoluto(e, { x: queda.x + Math.cos(ang) * MARCAS.segunda_bola_m, y: queda.y + Math.sin(ang) * MARCAS.segunda_bola_m })));
     }
     // Ocupar a área: bola larga no último terço — as 5 zonas, pela ordem dos melhores no ar.
     if (cx.bolaCruzamento && anc.x > 55) {
@@ -182,7 +201,7 @@ export function candidatas(s: Estado2D, j: Jogador2D, cx: ContextoEquipa, outros
     // Equilíbrio defensivo: os mais recuados ficam atrás da bola.
     if (cx.maisRecuados.includes(j.id) && cx.bola.x > SB.equilibrio_bola_x) {
       const alvoT = { x: Math.max(anc.x - SB.equilibrio_recuo_max, Math.min(anc.x, cx.bola.x - SB.equilibrio_atras_m)), y: C.largura / 2 + (anc.y - C.largura / 2) * 0.7 };
-      add('EQUILIBRIO_DEFENSIVO', (cx.contagem.EQUILIBRIO_DEFENSIVO ?? 0) < P.equilibrioMinimo ? 2.2 : 1.1, dentro(paraAbsoluto(e, { x: Math.max(8, alvoT.x), y: alvoT.y })));
+      add('EQUILIBRIO_DEFENSIVO', (cx.contagem.EQUILIBRIO_DEFENSIVO ?? 0) < cx.maisRecuados.length ? 2.2 : 1.1, dentro(paraAbsoluto(e, { x: Math.max(8, alvoT.x), y: alvoT.y })));
     }
   } else {
     const c = cx.ref, cP = cx.refP;
@@ -190,7 +209,7 @@ export function candidatas(s: Estado2D, j: Jogador2D, cx: ContextoEquipa, outros
       const d = dist(j.p, cP), rank = cx.ordemBola.indexOf(j.id);
       // Pressionar: os mais próximos (até ao limite do estilo), dentro da distância de activação, com os gatilhos.
       const perigo = cx.bola.x < SB.perigo_x ? 1 + (SB.perigo_pressao - 1) * (1 - cx.bola.x / SB.perigo_x) * (rank === 0 ? 1 : 0.5) : 1;
-      if (rank >= 0 && rank < cx.maxPress + (perigo > 1.5 ? 1 : 0) && d < cx.dAct) add('PRESSIONAR', ((1 - d / cx.dAct) * 1.6 + 0.4 + cx.gatilhos) * perigo, alvoPressao(s, j, c, cP, cx.perigosos[0] ?? null));
+      if (rank >= 0 && rank < cx.maxPress + (perigo > 1.5 ? 1 : 0) && d < cx.dAct) add('PRESSIONAR', ((1 - d / cx.dAct) * 1.6 + 0.4 + cx.gatilhos + Math.max(0, eq.mentalidade) * ESTADO_JOGO.pressao_util) * perigo, alvoPressao(s, j, c, cP, cx.perigosos[0] ?? null));
       // Cobrir: o seguinte.
       if (rank === cx.maxPress && d < cx.dAct + 12) {
         const pressor = s.jogadores.find((o) => o.id === cx.ordemBola[0]);
@@ -215,10 +234,10 @@ export function candidatas(s: Estado2D, j: Jogador2D, cx: ContextoEquipa, outros
       const individual = P.marcacao === 'individual';
       const alvoM = individual && j.marcado && !s.jogadores.some((o) => o.equipa === e && o !== j && o.marcado === j.marcado && o.accao === 'MARCAR') ? s.jogadores.find((o) => o.id === j.marcado) : null;
       if (alvoM && dist(alvoM.p, j.ancora) < lim * SB.marcar_trela) add('MARCAR', 1.3, alvoMarcacao(j, alvoM), alvoM.id);
-      else if (cx.bola.x < 35) {
+      else if (cx.bola.x < SB.marcar_area_bola_x) {
         // Um marcador por atacante: não escolhe quem um colega já marca.
         const jaMarcados = new Set(s.jogadores.filter((o) => o.equipa === e && o !== j && o.accao === 'MARCAR' && o.marcado).map((o) => o.marcado));
-        const naArea = s.jogadores.filter((o) => o.equipa !== e && o.chave !== 'GR' && !jaMarcados.has(o.id) && paraEquipa(e, o.p).x < 18 && Math.abs(paraEquipa(e, o.p).y - C.largura / 2) < 21 && dist(o.p, j.p) < 7);
+        const naArea = s.jogadores.filter((o) => o.equipa !== e && o.chave !== 'GR' && !jaMarcados.has(o.id) && paraEquipa(e, o.p).x < 18 && Math.abs(paraEquipa(e, o.p).y - C.largura / 2) < 21 && dist(o.p, j.p) < SB.marcar_area_raio_m);
         const o = naArea.sort((a, b) => dist(a.p, j.p) - dist(b.p, j.p))[0];
         if (o) add('MARCAR', 1.4, alvoMarcacao(j, o), o.id);
       }

@@ -9,9 +9,9 @@ export const FISICA = {
   /** Sprint: 6,0 + 0,15 × Velocidade (m/s); aceleração 2,5 + 0,18 × Aceleração (m/s²); desaceleração 1,5 × aceleração. */
   vel_base: 6.0, vel_por_ponto: 0.15, acel_base: 2.5, acel_por_ponto: 0.18, desacel_factor: 1.5,
   /** Velocidades por intensidade (m/s; o sprint é o máximo do jogador). */
-  andar: 1.8, trote: 3.8, corrida: 5.5,
+  andar: 1.3, trote: 3.2, corrida: 5.0,
   /** Distância à âncora (m) a partir da qual se trota e se corre; em RECUPERAR corre-se a fundo. */
-  dist_trote: 3, dist_corrida: 9,
+  dist_trote: 6, dist_corrida: 15,
   /** Seguimento da âncora: velocidade desejada = velocidade da âncora + erro ÷ tau (s); zona morta (m). */
   seguir_tau_s: 1.1, zona_morta_m: 0.3,
   /** Viragem (rad/s): (base + Agilidade e Equilíbrio) ÷ (1 + velocidade ÷ v_ref). Parado roda quase no sítio. */

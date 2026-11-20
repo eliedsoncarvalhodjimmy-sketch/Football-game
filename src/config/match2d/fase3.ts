@@ -1,7 +1,7 @@
 // Motor 2D táctico, Fase 3 (docs/tactics/MOTOR_2D.md, secções 6, 7, 9 e 10.3): decisão completa do portador, acções sem
 // bola com pesos de papel × estilo × fase, defesa (pressão, desarmes, faltas, linha, fora de jogo), bola no ar, remates e
 // guarda-redes. Valores de partida, para afinar.
-import type { IdEstilo } from '../estilos.ts';
+import type { Estilo2D } from './estilos.ts';
 import type { AccaoSemBola, Fase } from '../../engine/match2d/tipos.ts';
 
 /** Opções do portador (secção 7.1). */
@@ -12,15 +12,23 @@ export const PORTADOR = {
    *  (σ = 0,25 × (21 − Decisões) ÷ 20) ter uma escala comparável. */
   escala: 25,
   /** Valor de manter a posse (por unidade de sucesso, na escala de V): um passe seguro para o lado vale um pouco. */
-  valor_posse: 0.03,
+  valor_posse: 0.05,
   /** Escolha: softmax com temperatura baixa só entre as 3 melhores. */
   softmax_top: 3, temperatura: 0.12,
   /** Tipos de passe pela geometria (m, no referencial da equipa). */
   curto_max: 20, longo_min: 30, progressivo_ganho: 9, flanco_dy: 28, max_passe: 60,
   /** Passes pelo ar: altura máxima (m) e o factor de recepção (mais difícil de controlar). */
   altura_longo: 6, altura_flanco: 7, altura_cruzamento: 3.6, altura_alivio: 13, recepcao_ar: 0.72,
+  /** Ganhar o duelo aéreo não é ficar com a bola: x da vitória no ar acaba em posse (segunda bola). */
+  duelo_aereo_controlo: 0.5,
+  /** Erro de execução na previsão: a bola tem de cair a menos de x m do receptor (pelo chão / pelo ar). */
+  tolerancia_m: 2.0, tolerancia_ar_m: 3.0,
+  /** Inclinação aditiva do estilo por unidade de peso acima/abaixo de 1 (em unidades de V). */
+  inclinacao_estilo: 0.005,
+  /** Paciência: o valor de circular cai até um quarto ao fim de x × paciência passes seguidos. */
+  paciencia_passes: 25,
   /** Zona de cruzamento: último terço e corredor lateral (|y − 34| acima de x m). */
-  cruzamento_x: 72, cruzamento_corredor: 17,
+  cruzamento_x: 68, cruzamento_corredor: 14,
   /** Conduzir: distância do alvo (m), velocidade (fracção da máxima, 70–85%), toques (a bola afasta-se 0,6–1,8 m, a cada x s). */
   conduzir_m: 7, conduzir_min_m: 3, conduzir_vel: 0.78, toque_min: 0.6, toque_max: 1.8, toque_periodo_s: 0.6,
   /** Revisão da decisão durante a condução ou o drible (s). */
@@ -29,10 +37,12 @@ export const PORTADOR = {
   driblar_m: 4.5, driblar_alem_m: 5,
   /** Rematar: só a menos de x m da baliza. */
   remate_max_m: 35,
+  /** Leitura do fora de jogo: o portador erra a linha em ~x m × (21 − Visão)/20. */
+  erro_fora_m: 2,
   /** Proteger: no máximo x s seguidos (ganha tempo para o apoio chegar, não é uma solução). */
   proteger_max_s: 2,
   /** Remate: valor = xG − x × V(origem) (decisão 190). */
-  remate_desconto_v: 0.8,
+  remate_desconto_v: 0.75,
   /** Aliviar: só no próprio terço e pressionado. */
   aliviar_x: 30, aliviar_pressao_m: 2.5, aliviar_perigo: 0.3,
 };
@@ -41,13 +51,17 @@ export const PORTADOR = {
 export const DUELO = {
   K: 0.6, min: 0.1, max: 0.9,
   /** Desarme só a menos de 1,5 m (secção 9.2); uma tentativa a cada x s; vontade de tentar pela Agressividade. */
-  desarme_m: 1.5, intervalo_s: 0.8, tentar_base: 0.12, tentar_agr: 0.01, tentar_pressao: 0.1,
+  desarme_m: 1.5, intervalo_s: 0.8, tentar_base: 0.08, tentar_agr: 0.01, tentar_pressao: 0.08,
   /** Desarme certo: o defensor fica com a bola (x) ou ela fica solta (resto). */
   fica_com_bola: 0.55,
+  /** Na própria área: tentativa a cada x s e vontade extra; colado ao rematador (a menos de x m) bloqueia sem reagir. */
+  intervalo_area_s: 0.4, tentar_area: 0.3, bloqueio_perto_m: 2.5,
   /** Falhar deixa o defensor ultrapassado durante 0,5–1 s. */
   ultrapassado_s: [0.5, 1.0] as [number, number],
   /** Falta: base + por ponto de Agressividade acima de 10, mais se falhou o desarme. */
-  falta_base: 0.035, falta_agr: 0.006, falta_falhou: 0.05,
+  falta_base: 0.08, falta_agr: 0.008, falta_falhou: 0.06,
+  /** Um desarme certo também pode ser falta (entrada por trás, de lado). */
+  falta_desarme_certo: 0.05,
   /** Proteger a bola (de costas, com força e equilíbrio) dá ao portador este bónus no duelo. */
   proteger_bonus: 2.5, costas_bonus: 1.5,
   /** O defensor entre o atacante e a baliza tem vantagem no duelo de drible e de desarme. */
@@ -67,7 +81,7 @@ export const REMATE = {
   /** Velocidade: 18 + 0,7 × Finalização (ou Remate de longe a mais de 20 m), até 32 m/s; subida 0,5–4 m/s. */
   v_base: 18, v_ponto: 0.7, v_max: 32, vz: [0.5, 4] as [number, number],
   /** Erro do ângulo (rad): (base + por ponto abaixo de 20) × (1 + d ÷ 30) × (1 + pressão). */
-  erro_base: 0.06, erro_ponto: 0.008, pressao: 0.7,
+  erro_base: 0.08, erro_ponto: 0.009, pressao: 0.7,
   /** Subida (m/s) a mais nos remates de longe, para a bola poder sair por cima da barra. */
   vz_longe_extra: 3,
   /** Aponta a x m para dentro do poste do lado oposto ao guarda-redes. */
@@ -75,14 +89,22 @@ export const REMATE = {
   /** Baliza (m): meia largura e altura da barra. */
   meia_baliza: 3.66, barra: 2.44,
   /** xG estimado (para a decisão): e^(−d/k) × ângulo, com pressão e bloqueios. */
-  xg_k: 9, xg_escala: 0.9, xg_pressao: 0.35, xg_bloqueio: 0.4,
+  /** Pressão no remate: por defensor encostado (< 2 m), por corpo na linha de remate, e máximo. */
+  pressao_linha: 0.4, pressao_max: 1.6,
+  xg_k: 9, xg_escala: 0.6, xg_pressao: 0.35, xg_bloqueio: 0.4,
 };
 
 export const GR = {
   /** Alcance a mergulhar (m) = base + por ponto de Agilidade; reacção (s) = base − por ponto de Reflexos. */
-  alcance_base: 1.5, alcance_agi: 0.05, reaccao_base: 0.3, reaccao_ref: 0.01, z_max: 2.9,
+  alcance_base: 1.7, alcance_agi: 0.05, reaccao_base: 0.25, reaccao_ref: 0.01, z_max: 2.9,
+  /** Antes de reagir, só o corpo chega à bola (m); o mergulho leva x s a chegar ao alcance máximo. */
+  corpo_m: 0.6, mergulho_s: 0.22,
+  /** P(defender um remate que passa ao alcance) = base − 0,75 × d/alcance − (v − 20)/35 + (Reflexos − 10)/40. */
+  defesa_base: 1.3,
   /** Defesa: qualidade = (Reflexos + Pega) ÷ 40 − (velocidade − 20) ÷ 40; agarra se passar o sorteio, senão desvia. */
   agarrar_folga: 0.25,
+  /** Ao desviar, a bola vai para trás da linha de fundo (canto) nesta fracção das vezes. */
+  desvio_canto: 0.5,
   /** Sai aos cruzamentos dentro da pequena área (+ x m) se lá chegar. */
   sai_cruzamento_m: 3,
 };
@@ -102,7 +124,8 @@ export const SEM_BOLA = {
   /** Profundidade: no máximo 2 ao mesmo tempo; o portador tem de ter tempo, estar de frente e ter Visão ≥ x. */
   profundidade_max: 2, profundidade_visao: 11, profundidade_tempo_m: 5, profundidade_alem_m: [8, 14] as [number, number],
   /** Pressionar: activação pela distância do estilo; na contrapressão, × factor + extra. */
-  contrapressao_factor: 1.6, contrapressao_extra: 5, pressao_aproximacao_m: 1.2,
+  /** Contrapressão (decisão 191): a distância de activação do estilo + x m (antes × 1,6 + 5 m: 40 m na Gegenpressen). */
+  contrapressao_factor: 1, contrapressao_extra: 8, pressao_aproximacao_m: 1.2,
   /** Perto da própria baliza (bola a menos de x m) a distância de activação cresce até +y m. */
   perigo_x: 35, perigo_extra: 14,
   /** Perto da própria baliza a vontade de pressionar cresce até × x (o mais próximo sai sempre ao portador). */
@@ -114,7 +137,10 @@ export const SEM_BOLA = {
   /** Fechar linha de passe: 2–3 perto da bola; o ponto fica a x da linha (fracção a partir do receptor). */
   fechar_max: 3, fechar_fraccao: 0.4, fechar_raio_m: 22,
   /** Marcar: a 1,5 m, entre o adversário e a baliza; na marcação individual, a trela à zona estica 1,5×. */
-  marcar_m: 1.5, marcar_trela: 1.5,
+  marcar_m: 1.0, marcar_trela: 1.5,
+  /** Marcação na área: com a bola nos últimos x m, cada atacante na área a menos de y m tem um marcador; o marcador puxa
+   *  uma fracção z para o lado da bola. */
+  marcar_area_bola_x: 45, marcar_area_raio_m: 10, marcar_lado_bola: 0.6,
   /** Ocupar a área: as 5 zonas (no referencial da equipa) e o máximo de jogadores. */
   zonas_area: [[99, 30.5], [98, 39], [94, 34], [86, 34], [90, 26]] as [number, number][], area_max: 4,
   /** Largura: a x m da linha lateral. */
@@ -154,7 +180,8 @@ export const PESO_PAPEL: Record<string, Pesos> = {
 };
 
 /** Peso do estilo por acção (secção 8.2: o que tem de se ver no ecrã). */
-export const PESO_ESTILO: Record<IdEstilo, Pesos> = {
+export const PESO_ESTILO: Record<Estilo2D, Pesos> = {
+  neutro: {},
   tiki_taka: { OFERECER_APOIO: 1.5, APOIO_FRONTAL: 1.2, ATACAR_PROFUNDIDADE: 0.7, DAR_LARGURA: 1.1, PRESSIONAR: 1.2 },
   gegenpressen: { PRESSIONAR: 1.5, FECHAR_LINHA_PASSE: 1.3, COBRIR: 1.2, ATACAR_PROFUNDIDADE: 1.2 },
   contra_ataque: { ATACAR_PROFUNDIDADE: 1.5, OFERECER_APOIO: 0.8, EQUILIBRIO_DEFENSIVO: 1.3, PRESSIONAR: 0.7 },
@@ -194,3 +221,39 @@ export function pesoOpcaoEstilo(P: { pesoPasseCurto: number; pesoPasseLongo: num
     default: return 1;
   }
 }
+
+/**
+ * Estado do jogo (Fase 4, decisão 191): a mentalidade (−1 a +1) muda com o resultado e o tempo, a cada minuto.
+ * A ganhar (negativa): fecha-se — linha e bloco mais baixos, mais jogadores atrás da bola, mais aversão ao risco e
+ * mais paciência; vive dos contra-ataques ("estacionar o autocarro"). A perder (positiva): sobe, arrisca, mais gente no
+ * ataque, mais remates de longe.
+ */
+export const ESTADO_JOGO = {
+  /** A perder: a pressão activa-se até x m mais longe (× mentalidade) e, acima de 0,5, com mais um pressionante. */
+  pressao_m: 16, pressionantes_extra: 1, pressao_util: 1.2,
+  periodo_s: 60,
+  /** A ganhar: −(diferença) × (base + tempo × minuto/90), até −1; a perder: +(diferença) × (base + tempo × minuto/90). */
+  ganhar_base: 0.25, ganhar_tempo: 0.75, perder_base: 0.15, perder_tempo: 0.85,
+  /** Efeitos por unidade de mentalidade. */
+  linha_m: 9, comprimento_m: 4, equilibrio: 3, aversao: 0.5, paciencia: 0.6, profundidade_extra: 1, remate_longe: 0.5,
+};
+
+/** Transição defesa→ataque (Fase 4): as opções para a frente valem (1 + atacarJá) vezes mais; até x atacam a profundidade. */
+export const TRANSICAO = { profundidade_max: 4, profundidade_util: 1, sem_avanco_s: 2, avanco_m: 10 };
+
+/** Marcas dos estilos (secção 8.2, Fase 4). */
+export const MARCAS = {
+  /** Marcação individual: os x defensores mais recuados marcam os atacantes que estejam a menos de y m da nossa baliza. */
+  individual_n: 5, individual_x: 45,
+  /** Futebol Total: reatribuição das posições a cada (base + (20 − média de Decisões e Posicionamento) ÷ 10) s; troca se
+   *  ganhar mais de x m × (1,2 − liberdade); penalização por sector diferente (m por sector × (1 − liberdade)). */
+  troca_base_s: 2, troca_ganho_m: 6, troca_sector_m: 10,
+  /** Tiki-Taka: saída a 3 (o trinco baixa entre os centrais, que abrem 1,5×) com a bola até x m. */
+  saida3_bola_x: 40, saida3_abre: 1.5,
+  /** Catenaccio: o líbero fica x m atrás da linha. */
+  libero_atras_m: 3,
+  /** Jogo Directo: segunda bola — os médios a 8–12 m da queda da bola longa. */
+  segunda_bola_m: 9,
+  /** Gegenpressen: depois do minuto x a pressão perde alcance (× y) e um pressionante. */
+  fadiga_min: 65, fadiga_alcance: 0.75,
+};
