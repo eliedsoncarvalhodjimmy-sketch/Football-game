@@ -14,6 +14,14 @@ export const VALOR = {
   posicao: { GR: 0.65, DEF: 0.85, MED: 1.0, AVA: 1.15 } as Record<string, number>,
   /** Contrato restante (anos): < 0,5 → 0,35; < 1 → 0,55; < 2 → 0,85; senão 1. */
   contrato: (anos: number) => (anos < 0.5 ? 0.35 : anos < 1 ? 0.55 : anos < 2 ? 0.85 : 1),
+  /** Valores realistas (como no Transfermarkt): acima de x €, o valor cresce como (v / x)^expoente; ninguém passa o
+   *  tecto, excepto os 3 jogadores mais valiosos do mundo, que vão até ao tecto_top3. Com 0,72: os 3 maiores perto de
+   *  160–200 M€, cerca de 50 jogadores com 100 M€ ou mais e 200 com 50 M€ ou mais (abaixo de 20 M€ nada muda). */
+  compressao: { acima: 20_000_000, expoente: 0.72 },
+  tecto: 200_000_000,
+  tecto_top3: 300_000_000,
+  /** Recalcula-se o limiar do top 3 (uma vez por mês) entre os jogadores com OVR ≥ x. */
+  top3_ovr_minimo: 88,
 };
 
 /** Preço pedido = valor × factores (cada um limitado). */
@@ -43,6 +51,8 @@ export const PRECO = {
   idolo_anos: 5,
   /** Faixa realista da razão preço/valor (os extremos ficam raros): o preço final é limitado a isto. */
   razao: [0.6, 2.5] as [number, number],
+  /** Preço pedido máximo (€), qualquer que seja o factor (talento, insubstituível, leilão); a cláusula de rescisão é à parte. */
+  preco_maximo: 300_000_000,
   /** Pechincha (Bloco C): contrato a acabar (< x anos) que o vendedor não vai renovar (à venda ou sem lugar no plano). */
   fim_contrato: { anos: 1, factor: 0.8 },
   /** Excepção (decisão do utilizador): jovem (≤ idade) de potencial absurdo (≥ pot) num clube de menor expressão

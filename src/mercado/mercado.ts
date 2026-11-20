@@ -10,13 +10,13 @@ import { NEGOCIACAO as N, JANELAS_ANO_CIVIL, INSCRICAO, IA_MERCADO as IA, PLANO_
 import { PlanosPlantel, type Necessidade } from './planoPlantel.ts';
 import { IDX_POS, FAMILIARIDADE, POSICOES as POS_NOMES } from '../config/papeis.ts';
 import { CONFEDERACAO_PAIS } from '../config/paises.ts';
-import { VALOR } from '../config/valor.ts';
+import { VALOR, PRECO } from '../config/valor.ts';
 import { Contratos } from './contratos.ts';
 import { Scouting } from '../scouting/conhecimento.ts';
 import { PROMOCAO } from '../config/academia.ts';
 import { CONHECIMENTO, PREMIO_SALARIAL_DONO } from '../config/scouting.ts';
 import type { JogoR } from '../engine/competitions/base.ts';
-import { valorMercado, precoPedido, grupoPos } from './valor.ts';
+import { valorMercado, valorBruto, precoPedido, grupoPos } from './valor.ts';
 import { aceita, salarioPedido, actualizarDescontentamento, pontuarProposta } from './decisaoJogador.ts';
 import { salarioMercado, indiceRiqueza, fimDeEpoca } from '../economia/contratos.ts';
 import type { World } from '../engine/world.ts';
@@ -277,9 +277,18 @@ export class Mercado {
   }
 
   /** Reconstrói os índices por grupo (contratados em clubes em jogo, ordenados por OVR). */
+  /** Valor (sem tecto) do 3.º jogador mais valioso do mundo: quem está acima pode passar dos 200 M€ (até 300 M€). */
+  limiarTop3 = Infinity;
+
   reindexar(dia = this.hoje) {
     const w = this.w, st = w.jogadores!;
     this.hoje = dia;
+    {
+      const vs: number[] = [];
+      for (let j = 0; j < st.clube.length; j++) if (st.clube[j] >= 0 && st.ovrNat(j) >= VALOR.top3_ovr_minimo) vs.push(valorBruto(w, j, dia, w.economia?.inflacao ?? 1));
+      vs.sort((a, b) => b - a);
+      this.limiarTop3 = vs.length >= 3 ? vs[2] : Infinity;
+    }
     const por = new Map<string, number[]>(GRUPOS.map((g) => [g, []]));
     this.ordem.clear();
     for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0) this.plantel(c).sort((a, b) => st.ovrNat(b) - st.ovrNat(a)).forEach((j, i) => { por.get(this.grupo(j))!.push(j); this.ordem.set(j, i); });
@@ -446,7 +455,7 @@ export class Mercado {
         if (n.direitosPlano.vendaFutura > 0) n.pedido = Math.round((n.pedido * (1 - 100 * n.direitosPlano.vendaFutura * NEG_CLUBE.venda_futura_por_ponto)) / 10000) * 10000;
         // Insubstituível no plano do vendedor (titular sem alternativa): só sai muito acima do valor (Bloco B).
         if (this.contratos.listado[n.jogador] !== 3 && this.planos.porClube.get(n.vendedor)?.insubstituiveis.has(n.jogador))
-          n.pedido = Math.max(n.pedido, Math.round(valorMercado(w, n.jogador, n.dia, e.inflacao) * PLANO_PLANTEL.insubstituivel_multiplo / 10000) * 10000);
+          n.pedido = Math.min(PRECO.preco_maximo, Math.max(n.pedido, Math.round(valorMercado(w, n.jogador, n.dia, e.inflacao) * PLANO_PLANTEL.insubstituivel_multiplo / 10000) * 10000));
       }
       // Contra-proposta do vendedor igualada: aceita.
       let resp: 'aceitar' | 'recusar' | { contra: number };
@@ -928,7 +937,8 @@ export class Mercado {
         const g = grupoPos(IDX_POS[n.pos]);
         const E = PLANO_PLANTEL.estrela;
         // Estrela: o orçamento da janela vai até ao tecto (concentra-se num negócio grande).
-        const orcN = n.estrela ? Math.max(orc, IA.orcamento_tecto * s.receitaPrevista[c] - (this.gastoJanela.get(c) ?? 0)) : orc;
+        // Num só negócio, nenhum clube paga mais do que x da receita (poucos podem pagar 200 M€).
+        const orcN = Math.min(IA.negocio_maximo_receita * s.receitaPrevista[c], n.estrela ? Math.max(orc, IA.orcamento_tecto * s.receitaPrevista[c] - (this.gastoJanela.get(c) ?? 0)) : orc);
         const alvoMin = n.nivelMin, alvoMax = n.nivelMin + (n.estrela ? E.faixa : 10);
         const [i0, i1] = n.idade;
         // Empréstimo (pouco orçamento, profundidade, clube pequeno): jovens de clubes grandes sem lugar no plano deles.

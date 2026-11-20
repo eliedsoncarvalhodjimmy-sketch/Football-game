@@ -9,8 +9,16 @@ const GRUPO: Record<string, string> = { GR: 'GR', DC: 'DEF', DD: 'DEF', DE: 'DEF
 export const grupoPos = (pos: number) => GRUPO[POSICOES[pos]];
 const clamp = (x: number, a: number, b: number) => (x < a ? a : x > b ? b : x);
 
-/** Valor de mercado (€): OVR, potencial, idade, posição, contrato restante, inflação. */
+/** Valor de mercado (€): OVR, potencial, idade, posição, contrato restante, inflação; comprimido acima de 20 M€ e com
+ *  tecto (200 M€; 300 M€ para os 3 mais valiosos do mundo). */
 export function valorMercado(w: World, j: number, dia: number, inflacao = 1): number {
+  const v = valorBruto(w, j, dia, inflacao);
+  const top3 = w.mercado ? v >= w.mercado.limiarTop3 : false;
+  return Math.min(v, top3 ? V.tecto_top3 : V.tecto);
+}
+
+/** Valor sem tecto (já comprimido): para escolher o top 3 do mundo. */
+export function valorBruto(w: World, j: number, dia: number, inflacao = 1): number {
   const st = w.jogadores!;
   const ovr = st.ovrNat(j);
   const idade = st.idade(j, dia);
@@ -18,7 +26,10 @@ export function valorMercado(w: World, j: number, dia: number, inflacao = 1): nu
   if (idade <= 24) v *= 1 + Math.min(V.potencial_maximo, Math.max(0, st.pot[j] - ovr) * V.potencial_por_ponto);
   const anos = st.clube[j] >= 0 ? Math.max(0, (st.fimContrato[j] - dia) / 365) : 0;
   v *= st.clube[j] >= 0 ? V.contrato(anos) : 0.3;
-  return Math.max(V.minimo, Math.round((v * inflacao) / 1000) * 1000);
+  v *= inflacao;
+  const K = V.compressao.acima;
+  if (v > K) v = K * Math.pow(v / K, V.compressao.expoente);
+  return Math.max(V.minimo, Math.round(v / 1000) * 1000);
 }
 
 export interface PrecoPedido {
@@ -68,6 +79,6 @@ export function precoPedido(w: World, m: Mercado, j: number, comprador: number, 
   if (absurdo) f.talento = Math.min(T.factor_maximo, 1 + T.por_ponto * (st.pot[j] - T.base));
   let preco = valor;
   for (const x of Object.values(f)) preco *= x;
-  preco = clamp(preco, P.razao[0] * valor, (absurdo ? T.razao_maxima : P.razao[1]) * valor);
+  preco = Math.min(P.preco_maximo, clamp(preco, P.razao[0] * valor, (absurdo ? T.razao_maxima : P.razao[1]) * valor));
   return { valor, preco: Math.round(preco / 10000) * 10000, factores: f };
 }

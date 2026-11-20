@@ -58,6 +58,8 @@ export const IA_MERCADO = {
   /** Clubes com reputação < 60: probabilidade de pedir um empréstimo em cada tentativa. */
   prob_emprestimo: 0.45,
   orcamento_tecto: 0.35,
+  /** Tecto de um só negócio: x × a receita prevista do comprador (com a receita do maior clube, ~550 M€, dá ~200 M€). */
+  negocio_maximo_receita: 0.4,
   /** Oferta inicial = fracção do preço pedido. */
   oferta_inicial: [0.65, 0.85] as [number, number],
 };
