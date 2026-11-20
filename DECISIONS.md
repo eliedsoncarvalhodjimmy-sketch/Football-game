@@ -692,3 +692,37 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Plantéis:** máximo 33, médio 28,2.
         - **Bandas antigas** (10 épocas): 0–0 8,47%; campeões 91,9% dentro; últimos 90,8% dentro.
         - **Benchmark:** semana média de 283 ms, máximo de 659 ms.
+
+197. **Prompt 6, Bloco C: estrelas, veteranos e preços.**
+    - **Veteranos:** a idade-alvo dos reforços passa para a configuração (`PLANO_PLANTEL.idade_alvo`, por arquétipo; a sucessão continua 18–26).
+        - **Ligas que compram veteranos** alargam a idade máxima: Arábia, Emirados e MLS até 34–35; Turquia, México e Japão até 33.
+        - **Candidatos ao título:** um clube com o nível dos titulares 4 ou mais pontos acima da média da liga aceita reforços até 33.
+        - **Preço e salário:** o preço baixo vem da curva de valor por idade, que já existia; o salário segue o mercado do clube comprador (uma liga rica paga mais).
+    - **Estrelas:** num clube rico, a necessidade de qualidade mais urgente passa a ser a "estrela" da janela (uma por janela).
+        - **Quem é rico:** numa liga com riqueza 20 ou mais, um comprador de estrelas ou magnata com reputação 75 ou mais, ou um clube de reputação 85 ou mais numa liga com riqueza 40 ou mais.
+        - **Como compra:** o nível mínimo é o menor entre o alvo + 6 e o titular + 8; os candidatos vão até 12 pontos acima; escolhe-se pelo nível (o custo só desempata); o orçamento da janela vai até ao tecto; o lance máximo é 1,3 × o pedido.
+        - **Leilão:** o que já existia (lances de +5% entre interessados) decide quando há vários.
+        - **Porquê a restrição às ligas ricas:** sem ela, os compradores de estrelas e magnatas de ligas pequenas gastavam até ao tecto, e as bandas antigas caíam (últimos 89,4%).
+    - **Dispersão de preços:**
+        - **Pechincha:** um contrato com menos de um ano que o vendedor não renova (à venda ou sem lugar no plano) é pedido a × 0,8.
+        - **Desespero:** com um titular em falta nas últimas 2 semanas da janela, o lance máximo vai até 1,35 × o pedido.
+        - **Vendas em crise:** o factor que já existia, pela saúde financeira.
+        - **Faixa 0,6–2,5:** mantém-se (`PRECO.razao`).
+    - **Inverno:** com a janela aberta, o plano recalcula-se a cada 14 dias (fora dela, a cada mês), para que lesões longas, lacunas e descontentes contem logo.
+    - **Resultados** (2 épocas; relatório em `docs/relatorios/prompt6_blocoC_mercado.md`):
+        - **Veteranos:** transferências pagas de jogadores com 31+ anos, de 0 para 172.
+        - **Mega-transferências:** 60 M€ ou mais, de 2 para 9; 100 M€ ou mais, de 0 para 2.
+        - **Razão preço/valor:** p5–p95 de 0,82–1,69 para 0,74–1,63.
+        - **Arábia e MLS:** Arábia 28–33 e MLS 30+ passam a ✅.
+        - **Negócios no Inverno:** de 518/787 para 539/871.
+        - **Bandas antigas** (10 épocas): 0–0 8,36%; campeões 91,7%; últimos 90,2%.
+
+198. **Prompt 6, Bloco D: experiência do utilizador.**
+    - **Pagamento:** só "à vista" e "parcelado" (metade à vista e 2 parcelas semestrais; o vendedor exige +3%). São os mesmos dois modos para o utilizador e para a IA.
+        - **Removido:** os esquemas sorteados (trimestral, semestral, anual, com número de parcelas e fracção à vista ao acaso): `CONTRATO.esquemas` e `parcelas_vista`, e as opções "trimestrais", "semestrais" e "anuais".
+    - **Venda futura nas ofertas:** opções de 0, 10, 15, 20 e 25%. A soma por jogador nunca passa os 50%: os direitos anteriores liquidam-se na venda, e `Direitos.criar` corta acima do limite.
+    - **Eventos do mercado** (`MercadoUtilizador.eventos`, na vista do Mercado): uma frase e as decisões possíveis.
+        - **Com decisão:** ofertas recebidas à espera (aceitar, recusar, contra-proposta; num empréstimo, aceitar ou recusar) e recompras do utilizador à espera (exercer ou recusar, com o preço fixo e o prazo).
+        - **Avisos, sem decisão:** venda futura recebida; recompra exercida por outro clube sobre uma venda do utilizador; cláusula de rescisão paga; opção ou obrigação de compra de um empréstimo; direitos (recompra, venda futura) que vêm com um reforço.
+        - **Gravação:** os avisos reconstroem-se no replay dos comandos e não aumentam a gravação.
+    - **O mesmo motor:** o utilizador negoceia com as mesmas regras e direitos da IA. A interface nova é do utilizador, mais tarde; os ecrãs existentes de negociação já lêem as opções da configuração.

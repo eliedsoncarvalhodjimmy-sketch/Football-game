@@ -30,14 +30,10 @@ export const CONTRATO = {
   jovem_fraccao: 0.4,
   jovem_aumento_jogos: 25,
   jovem_aumento: 0.6,
-  /** Pagamento (decisão do utilizador): há sempre um valor à vista; poucos vendedores aceitam parcelas.
-   *  Esquemas: trimestral (até 4 parcelas, 90 dias), semestral (até 2, 180 dias), anual (até 2, 365 dias). */
+  /** Pagamento entre clubes da IA: à vista, ou "parcelado" (o mesmo modo do utilizador, em NEG_CLUBE.parcelas) acima de
+   *  x € e se o vendedor aceitar (saudável / apertado / crise ou administração: quer dinheiro já). */
   parcelas_acima: 5_000_000,
-  /** Probabilidade de o vendedor aceitar parcelas (saudável / apertado / crise ou administração: quer dinheiro já). */
   parcelas_aceita: [0.25, 0.15, 0.05],
-  /** Fracção à vista quando há parcelas. */
-  parcelas_vista: [0.3, 0.6] as [number, number],
-  esquemas: [{ nome: 'trimestral', dias: 90, max: 4, peso: 0.5 }, { nome: 'semestral', dias: 180, max: 2, peso: 0.3 }, { nome: 'anual', dias: 365, max: 2, peso: 0.2 }],
 };
 
 /**

@@ -64,11 +64,11 @@ describe('direitos futuros (Prompt 6, Bloco A)', () => {
     const vend = clube('NED1', 3), comp = clube('ESP1', 2), titular = clube('NED1', 0);
     const j = jovem(vend);
     m.direitos.criar(j, 'venda_futura', titular, 0.2, dia0, 1e6, 5);
-    const n = vender(j, vend, comp, 30e6, dia0 + 200, { util: { ...VISTA, parcelas: 'trimestrais' } });
+    const n = vender(j, vend, comp, 30e6, dia0 + 200, { util: { ...VISTA, parcelas: 'parcelado' } });
     const pT = m.parcelas.filter((p) => p.recebedor === titular && p.pagador === comp && p.dia > n.dia), pV = m.parcelas.filter((p) => p.recebedor === vend && p.pagador === comp && p.dia > n.dia);
-    expect(pT.length).toBe(4);
+    expect(pT.length).toBe(2);
     expect(pT.map((p) => p.dia)).toEqual(pV.map((p) => p.dia));
-    for (let k = 0; k < 4; k++) expect(pT[k].valor / pV[k].valor).toBeCloseTo(0.2 / 0.8, 6);
+    for (let k = 0; k < 2; k++) expect(pT[k].valor / pV[k].valor).toBeCloseTo(0.2 / 0.8, 6);
   });
 
   it('venda forçada, opção de compra de empréstimo e clube sem liga: todas pagam pela mesma liquidação', () => {

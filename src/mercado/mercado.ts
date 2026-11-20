@@ -529,7 +529,7 @@ export class Mercado {
       if (n.vendedor >= 0 && n.tipo !== 'emprestimo' && this.contratos.listado[n.jogador] !== 3 && this.plantel(n.vendedor).length <= K_MIN) return this.falhar(n, `${w.clubes[n.vendedor].nome} ficaria abaixo do plantel mínimo`);
       const insc = this.podeInscrever(n.jogador, n.comprador);
       if (insc) return this.falhar(n, `não pode inscrever: ${insc}`);
-      if (n.tipo !== 'emprestimo' && n.tipo !== 'livre' && e.clubes.caixa[n.comprador] < n.oferta * CONTRATO.parcelas_vista[0]) return this.falhar(n, 'o comprador ficou sem orçamento');
+      if (n.tipo !== 'emprestimo' && n.tipo !== 'livre' && e.clubes.caixa[n.comprador] < n.oferta * NEG_CLUBE.parcelas[1].vista) return this.falhar(n, 'o comprador ficou sem orçamento');
       this.concluir(n, rng);
     }
   }
@@ -574,6 +574,7 @@ export class Mercado {
       return retomar();
     }
     this.falhar(n, `o ${w.clubes[h].nome} exerceu a recompra`);
+    if (this.util && n.vendedor === this.util.clube) this.util.avisar(n.dia, `O ${w.clubes[h].nome} exerceu a recompra de ${st.nomes[j]}: sai por ${M(rc.preco)} (o preço fixo do contrato), em vez da venda ao ${w.clubes[n.comprador].nome}.`);
     const ordem = this.plantel(h).filter((x) => st.ovrNat(x) > st.ovrNat(j)).length;
     const r: Negocio = { id: ++this.seq, tipo: 'transferencia', jogador: j, vendedor: n.vendedor, comprador: h, estado: 'registo', oferta: rc.preco, pedido: rc.preco, maximo: rc.preco,
       salario: Math.round(this.salarioMercado(j, h, n.dia) / 1000) * 1000, estatuto: ordem < 11 ? 'titular' : ordem < 18 ? 'rotacao' : 'promessa', dia: n.dia, inicio: n.dia, deRecompra: true,
@@ -628,22 +629,18 @@ export class Mercado {
           s.dividaParcelas[para] += resto;
           for (let a = 1; a <= nP; a++) for (const [c, f] of recebedores) this.parcelas.push({ pagador: para, recebedor: c, valor: (resto / nP) * f, dia: n.dia + a * dias });
         };
-        // Pagamento: sempre um valor à vista; só alguns vendedores aceitam o resto em parcelas.
-        const U = n.util, parcU = U ? NEG_CLUBE.parcelas.find((x) => x.id === U.parcelas) ?? NEG_CLUBE.parcelas[0] : null;
-        const aceitaParcelas = parcU ? parcU.n > 0 : fee > CONTRATO.parcelas_acima && rng.chance(CONTRATO.parcelas_aceita[Math.min(2, s.saude[de])]);
-        const vista = parcU ? Math.round(fee * parcU.vista) : aceitaParcelas ? Math.round((fee * (CONTRATO.parcelas_vista[0] + rng.next() * (CONTRATO.parcelas_vista[1] - CONTRATO.parcelas_vista[0]))) / 100000) * 100000 : fee;
+        // Pagamento (Bloco D): à vista ou parcelado, os mesmos dois modos para o utilizador e para a IA (sem esquemas sorteados).
+        const U = n.util, [VISTA, PARCELADO] = NEG_CLUBE.parcelas;
+        const modo = U ? NEG_CLUBE.parcelas.find((x) => x.id === U.parcelas) ?? VISTA : fee > CONTRATO.parcelas_acima && rng.chance(CONTRATO.parcelas_aceita[Math.min(2, s.saude[de])]) ? PARCELADO : VISTA;
+        const vista = modo.n > 0 ? Math.round(fee * modo.vista / 10000) * 10000 : fee;
         s.lancar(para, 'aquisicoes', vista);
         receber(vista);
-        if (vista < fee && parcU) {
-          parcelar(fee - vista, parcU.n, parcU.dias);
-          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${parcU.n} parcelas de ${M((fee - vista) / parcU.n)}` });
-        } else if (vista < fee) {
-          let u = rng.next() * CONTRATO.esquemas.reduce((a, x) => a + x.peso, 0);
-          const esq = CONTRATO.esquemas.find((x) => (u -= x.peso) < 0) ?? CONTRATO.esquemas[0];
-          const nP = rng.int(esq.max === 1 ? 1 : 2, esq.max);
-          parcelar(fee - vista, nP, esq.dias);
-          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${nP} parcela(s) ${esq.nome}(is) de ${M((fee - vista) / nP)}` });
+        if (vista < fee) {
+          parcelar(fee - vista, modo.n, modo.dias);
+          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${modo.n} parcelas semestrais de ${M((fee - vista) / modo.n)}` });
         } else n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(fee)} à vista` });
+        // Avisos ao utilizador: a % de venda futura que recebe.
+        for (const p of partilhas) if (this.util && p.clube === this.util.clube) this.util.avisar(n.dia, `Recebes ${M(p.fraccao * fee)} (${Math.round(100 * p.fraccao)}% de venda futura) pela transferência de ${st.nomes[j]} do ${w.clubes[de].nome} para o ${w.clubes[para].nome}.`);
         for (const p of partilhas) n.rondas.push({ dia: n.dia, texto: `${M(p.fraccao * fee)} (${Math.round(100 * p.fraccao)}% de venda futura) para o ${w.clubes[p.clube].nome}, que perde o direito` });
         if (this.direitos.verificar) {
           const soma = recebedores.reduce((a, [, f]) => a + f, 0);
@@ -712,6 +709,15 @@ export class Mercado {
     n.estado = 'concluido';
     this.concluidos.push(n);
     this.registo.push({ dia: n.dia, tipo: n.tipo, jogador: j, de, para, fee: n.tipo === 'livre' || n.tipo === 'emprestimo' ? 0 : n.oferta, valor: valorAntes, idade: Math.floor(st.idade(j, n.dia)), ovr: st.ovrNat(j) });
+    // Avisos ao utilizador (Bloco D): saídas que não decidiu e os direitos que vêm com um jogador comprado.
+    const u = this.util;
+    if (u && de === u.clube && n.tipo === 'clausula') u.avisar(n.dia, `${st.nomes[j]} sai para o ${w.clubes[para].nome}: pagaram a cláusula de rescisão (${M(n.oferta)}).`);
+    if (u && de === u.clube && n.rondas[0]?.texto.includes('de compra (')) u.avisar(n.dia, `${st.nomes[j]} fica no ${w.clubes[para].nome}, que ${n.rondas[0].texto.includes('obrigação') ? 'cumpriu a obrigação' : 'exerceu a opção'} de compra do empréstimo (${M(n.oferta)}).`);
+    if (u && para === u.clube && n.tipo !== 'emprestimo') {
+      const rc = this.direitos.recompra(j, n.dia), vf = this.direitos.de(j).filter((d) => d.tipo === 'venda_futura' && d.clube !== u.clube);
+      if (rc) u.avisar(n.dia, `${st.nomes[j]} chega com recompra para o ${w.clubes[rc.clube].nome}: pode levá-lo de volta por ${M(rc.preco)} até ${data(rc.ate)}.`);
+      for (const d of vf) u.avisar(n.dia, `${st.nomes[j]} chega com ${Math.round(100 * d.pct)}% de venda futura para o ${w.clubes[d.clube].nome} (recebe essa parte quando o venderes).`);
+    }
     if (this.registo.length > 60000) this.registo = this.registo.slice(-30000);
     for (const x of this.interessados(j)) if (x !== n) this.falhar(x, `${st.nomes[j]} assinou por outro clube`);
   }

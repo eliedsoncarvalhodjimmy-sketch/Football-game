@@ -8,7 +8,7 @@ import { SCOUTS } from '../config/scouting.ts';
 import { ESCALOES } from '../config/academia.ts';
 import { valorMercado, precoPedido } from '../mercado/valor.ts';
 import { salarioPedido } from '../mercado/decisaoJogador.ts';
-import type { NegUtilizador } from '../mercado/mercadoUtilizador.ts';
+import type { NegUtilizador, EventoMercado } from '../mercado/mercadoUtilizador.ts';
 import { linhaJogador, type LinhaJogador } from './vistas.ts';
 import { generatePlayerFace } from '../players/faceGenerator.ts';
 
@@ -48,6 +48,8 @@ export interface VistaMercado {
   listados: LinhaMercado[]; emprestimos: LinhaMercado[]; livres: LinhaMercado[]; shortlist: LinhaMercado[];
   conhecidos: LinhaMercado[];
   recebidas: OfertaRecebida[]; feitas: ResumoNeg[];
+  /** Eventos do mercado (Prompt 6, Bloco D): ofertas e recompras à espera de decisão, e avisos (uma frase cada). */
+  eventos: EventoMercado[];
   meus: { id: string; nome: string; pos: string; ovr: number; valor: number; listado: boolean }[];
   ligas: string[];
 }
@@ -108,7 +110,7 @@ export function vistaMercado(w: World, c: number, dia: number): VistaMercado {
   return {
     janela: janela(w, c, dia),
     orcamento: { transferencias: Math.round(e.clubes.orcTransferencias[c]), salarialLivre: Math.round(e.clubes.orcSalarios[c] - e.clubes.folha[c]), caixa: Math.round(e.clubes.caixa[c]) },
-    listados, emprestimos, livres, shortlist, conhecidos, recebidas, feitas, meus, ligas,
+    listados, emprestimos, livres, shortlist, conhecidos, recebidas, feitas, meus, ligas, eventos: u?.eventos(dia) ?? [],
   };
 }
 

@@ -6,6 +6,7 @@ import { Simulador } from '../src/engine/simulador.ts';
 import { valorMercado, precoPedido } from '../src/mercado/valor.ts';
 import { PRECO, INFLACAO } from '../src/config/valor.ts';
 import { CONTRATO } from '../src/config/contratosJogador.ts';
+import { NEG_CLUBE } from '../src/config/negociacaoUtilizador.ts';
 import { CLAUSULAS } from '../src/config/clausulas.ts';
 import { garantirContratos, salarioMercado, indiceRiqueza } from '../src/economia/contratos.ts';
 import { Rng } from '../src/core/rng.ts';
@@ -168,9 +169,10 @@ describe('ajustes da Paragem A', () => {
     expect(pp.preco / pp.valor).toBeGreaterThan(5);
   }, 60000);
 
-  it('pagamento: sempre à vista; parcelas só trimestrais (≤ 4), semestrais (≤ 2) ou anuais (≤ 2)', () => {
-    for (const e of CONTRATO.esquemas) expect(e.max).toBeLessThanOrEqual(e.nome === 'trimestral' ? 4 : 2);
-    expect(CONTRATO.parcelas_vista[0]).toBeGreaterThan(0);
+  it('pagamento: só dois modos, à vista ou parcelado (metade à vista, 2 parcelas semestrais), para o utilizador e a IA', () => {
+    expect(NEG_CLUBE.parcelas.map((x) => x.id)).toEqual(['vista', 'parcelado']);
+    expect(NEG_CLUBE.parcelas[1].vista).toBeGreaterThan(0);
+    expect(NEG_CLUBE.parcelas[1].n).toBe(2);
     expect(Math.max(...CONTRATO.parcelas_aceita)).toBeLessThan(0.5);
   });
 });

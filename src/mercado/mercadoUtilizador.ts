@@ -17,6 +17,9 @@ export type Papel = (typeof NJ.papeis)[number];
 export type TipoNeg = 'transferencia' | 'emprestimo' | 'livre' | 'clausula' | 'renovacao';
 export type FaseNeg = 'clube' | 'jogador' | 'registo' | 'concluida' | 'rompeu' | 'rompeu_jogador' | 'desistiu' | 'falhou';
 
+/** Evento do mercado do utilizador: uma frase e as decisões possíveis (nenhuma, num aviso). */
+export interface EventoMercado { tipo: 'oferta' | 'recompra' | 'aviso'; dia: number; ref: number | null; decisoes: string[]; texto: string }
+
 export interface PropostaClube { valor: number; vendaFutura: number; parcelas: string; troca: number | null }
 export interface PropostaEmprestimo { salario: number; opcao: number }
 export interface Bonus { tipo: (typeof NJ.bonus_tipos)[number]; modo: (typeof NJ.bonus_modos)[number]; n: number; valor: number }
@@ -321,6 +324,28 @@ export class MercadoUtilizador {
       m.scouting.conhecer(c, j, 10 + 1.2 * qual, segunda);
     }
     if (this.shortlist.length) this.rodaShort = (this.rodaShort + nObs) % this.shortlist.length;
+  }
+
+  /** Avisos do mercado (Bloco D): o que aconteceu sem decisão do utilizador (venda futura recebida, recompra exercida,
+   *  cláusula paga, opção de compra, direitos que vêm com um reforço). Reconstroem-se no replay dos comandos. */
+  avisos: { dia: number; texto: string }[] = [];
+  avisar(dia: number, texto: string) { this.avisos.push({ dia, texto }); if (this.avisos.length > 60) this.avisos.shift(); }
+
+  /** Eventos do mercado para a interface: uma frase e uma decisão (ofertas recebidas e recompras à espera), mais os avisos
+   *  dos últimos x dias. */
+  eventos(dia: number, dias = 60): EventoMercado[] {
+    const w = this.w, st = this.st, m = this.m, M = (x: number) => fE(x);
+    const out: EventoMercado[] = [];
+    for (const n of m.negocios) if (n.vendedor === this.clube && n.aguardaUtilizador && n.estado === 'oferta') out.push({
+      tipo: 'oferta', dia: n.dia, ref: n.id, decisoes: n.tipo === 'emprestimo' ? ['aceitar', 'recusar'] : ['aceitar', 'recusar', 'contra'],
+      texto: n.tipo === 'emprestimo' ? `O ${w.clubes[n.comprador].nome} pede ${st.nomes[n.jogador]} emprestado.` : `O ${w.clubes[n.comprador].nome} oferece ${M(n.oferta)} por ${st.nomes[n.jogador]}.`,
+    });
+    for (const p of this.recomprasPendentes()) out.push({
+      tipo: 'recompra', dia, ref: p.negocio, decisoes: ['exercer', 'recusar'],
+      texto: `O ${w.clubes[p.comprador].nome} vai comprar ${st.nomes[p.jogador]} por ${M(p.oferta)}; tens a recompra por ${M(p.preco)} até ${new Date(p.ate * 864e5).toLocaleDateString("pt-PT", { timeZone: "UTC" })}.`,
+    });
+    for (const a of this.avisos) if (dia - a.dia <= dias) out.push({ tipo: 'aviso', dia: a.dia, ref: null, decisoes: [], texto: a.texto });
+    return out;
   }
 
   /** Resposta a uma oferta recebida (a IA espera; sem resposta em N dias desiste). */
