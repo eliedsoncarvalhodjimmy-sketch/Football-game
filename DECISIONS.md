@@ -354,3 +354,60 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - listas do apoio preparadas uma vez por decisão;
         - previsão da trajectória a cada 0,2 s.
       O alvo de 1,5 s (secção 14) fica para a Fase 5: vetores tipados e uma grelha espacial.
+190. **Motor 2D táctico, Fase 3: decisão completa, acções sem bola e defesa** (secção 13).
+    - **Ficheiros**: números em `src/config/match2d/fase3.ts`; código em `src/engine/match2d/portador.ts`, `semBola.ts`, `bola.ts` (bola em 3D) e `Motor2D.ts`.
+    - **Fora do âmbito**: remates e guarda-redes são uma base, e a afinação é da Fase 5. Também ficam para depois:
+        - penáltis, cartões e as bolas paradas completas (livres com barreira, cantos ensaiados): Fase 5;
+        - pé fraco e jogadas-padrão: Fases 4 e 5.
+
+    **Interpretações:**
+    - **Portador** (secção 7): as 10 opções têm a pontuação da secção 7.2.
+        - **Valor de falhar:** inclui também a ameaça da posição de partida, V(origem). Pela lógica do xT, falhar perde o que se tinha.
+        - **Remate:** vale xG − 0,8 × V(origem) e falhar custa a posse.
+        - **Escala:** a pontuação está em "ameaça × 25", para o ruído das Decisões (σ = 0,25 × (21 − Decisões) ÷ 20) e o softmax de temperatura 0,12 (entre as 3 melhores) não esmagarem as diferenças reais.
+        - **Peso do estilo:** multiplica as pontuações positivas e divide as negativas. Multiplicar uma pontuação negativa por um peso pequeno tornava-a melhor, e o Tiki-Taka (peso 0,3) acabava a preferir passes longos arriscados.
+        - **Manter a posse** vale 0,03 por unidade de sucesso.
+        - **Mapa V:** cai até 40% nos últimos 6 m antes da linha de fundo (o ângulo fecha).
+        - **Proteger** dura no máximo 2 s seguidos: ganha tempo, não é solução. Antes, um jogador ficava minutos encostado à linha.
+        - **Conduzir** só para pontos a pelo menos 3 m.
+        - **Previsão de sucesso:** conta também se o receptor chega a tempo e quem já está em cima da linha à saída do pé. Calibração medida: quando prevê 80–100% acerta 85%, e 60–80% acerta 76%.
+    - **Tempo de chegada** (usado na intercepção e na previsão): reacção + corrida com a aceleração do jogador a partir da velocidade que já leva. Antes assumia-se 85% da velocidade máxima desde o primeiro passo, o que dava 0,4 s para 3 m em vez de cerca de 1,1 s; daí as 450 intercepções por jogo.
+    - **Corte de um adversário:** na linha da bola (menos de 0,45 m) corta sempre, com o corpo. Com a perna, até 1 m, só depois do tempo de reacção (cerca de 0,22 s) e com uma probabilidade que desce com a distância e com a velocidade da bola.
+    - **Bola no ar** (secção 10.3):
+        - Gravidade, arrasto de 12% por segundo e ressalto que mantém 45% da velocidade vertical e 60% da horizontal.
+        - Joga-se com o pé abaixo de 1 m e com a cabeça abaixo de 2,5 m.
+        - Quem recebe um passe pelo ar só a pode jogar depois do ponto mais alto. Antes, um colega perto de quem passou ia "receber" a bola logo à saída do pé.
+        - Cabeceia-se quando há disputa (duelo por Cabeceamento, Impulsão e Força), quando um defensor afasta ou quando um atacante está na área. Sem oposição, o receptor deixa a bola descer.
+        - Na área adversária, o cabeceamento é um remate (xG × 0,6).
+    - **Remates**:
+        - Aponta ao canto oposto ao GR. O erro do ângulo é (0,06 + 0,008 × (20 − Finalização)) × (1 + d ÷ 30) × (1,7 sob pressão).
+        - Velocidade de 18 + 0,7 × Finalização (Remate de longe a mais de 20 m), até 32 m/s.
+        - Nos remates de longe há mais subida, e a bola pode sair por cima.
+        - Um defensor no caminho bloqueia: a bola desvia e perde 65% da velocidade.
+    - **Guarda-redes**:
+        - Na sua área chega mais longe: 1,5 + 0,05 × Agilidade m, até 2,9 m de altura.
+        - Agarra se (Reflexos + Pega) ÷ 40 − (v − 20) ÷ 40 + 0,25 passar o sorteio; senão desvia para o lado.
+        - Pode sair aos pés do portador dentro da área (Um-contra-um e Reflexos).
+        - Só conta remate à baliza o que ia entrar.
+    - **Acções sem bola** (secção 6): pontuação = peso do papel × peso do estilo × peso da fase × utilidade × (0,7 + 0,03 × atributos). As tabelas dos pesos, a partir das secções 6.4 e 8.2, estão no config.
+        - **Coordenação:** pressionam os mais próximos até ao máximo do estilo (mais 1 perto da baliza), o seguinte cobre, cada linha de passe é fechada por um só e cada atacante na área tem um só marcador. No máximo 2 atacam a profundidade e no máximo 2 fazem apoio entre linhas. A contagem actualiza-se dentro do tick.
+        - **Pressão:** quem pressiona primeiro fecha o lado da baliza e a linha de passe mais perigosa; o segundo e o terceiro fecham pelos lados (a ±90°, a 2,8 m).
+        - **Equilíbrio defensivo:** só com a bola no meio-campo adversário, e sem recuar mais de 10 m da âncora.
+        - **Profundidade:** com o portador pronto (tempo, de frente, Visão ≥ 11), corre 8–14 m para lá da linha. Sem isso, fica em linha com o último defensor.
+    - **Defesa** (secção 9):
+        - **Desarme:** só a menos de 1,5 m; uma tentativa a cada 0,8 s, com vontade 0,12 + 0,01 × (Agressividade − 10), +0,1 a pressionar.
+        - **Duelo:** P(ganha o defensor) = 0,5 + 0,6 × (defesa − ataque) ÷ 20, limitada a 0,1–0,9. O defensor do lado da baliza tem +2; quem protege a bola tem +2,5 e quem está de costas +1,5.
+        - **Falhar o desarme:** o defensor fica ultrapassado 0,5–1 s. A falta tem probabilidade 0,035 + 0,006 × (Agressividade − 10) + 0,05 e dá um livre simplificado.
+        - **Linha defensiva:** recua 7 m com a bola descoberta (portador sem ninguém a 5 m e de frente) e sobe 5 m durante 2,5 s depois de um passe adversário para trás.
+        - **Fora de jogo:** é assinalado quando o receptor estava para lá da linha no momento do passe. O portador evita-o, com um erro de leitura que depende da Visão.
+        - **Defender a área:** perto da própria baliza qualquer estilo sai ao portador. A distância de activação cresce até mais 14 m e a vontade de pressionar até 4 vezes.
+
+    **Medidas (90 min) e o que fica para a Fase 4:**
+    - **Futebol Total × Futebol Total:** 0–0; cerca de 850 passes por equipa com 62–66% de acerto; 14 e 8 remates; cerca de 75 desarmes por equipa.
+    - **Gegenpressen × Bloco Médio-Baixo:** 1–0 com 64 remates a 0; 70% de posse; a equipa do bloco médio-baixo só acerta 46% dos passes, com 52% de passes longos.
+    - Os comportamentos estão lá. A calibração entre estilos está longe das faixas da secção 12:
+        - os estilos de pressão dominam os defensivos;
+        - remates e xG a mais do lado dominante;
+        - passes e posses por jogo acima do real, e acerto de passe abaixo.
+    - É o critério da Fase 4 (faixas por estilo) e da Fase 5 (teste de 200 jogos). Os testes desta fase verificam os comportamentos, não estes números.
+    - **Desempenho:** 3,4 s por jogo de 90 minutos (pacote final em Node); o alvo de 1,5 s é da Fase 5.

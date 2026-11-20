@@ -46,9 +46,10 @@ export function intensidadePara(d: number, sprint: boolean): Intensidade {
  * Um passo de movimento (dt em s de jogo). `alvo` e `vAlvo` (velocidade do alvo) estão no referencial absoluto.
  * `olhar`: para onde o corpo vira quando vai devagar (a bola).
  */
-export function moverJogador(j: Jogador2D, alvo: V2, vAlvo: V2, intensidade: Intensidade, colegas: Jogador2D[], olhar: V2, dt: number) {
+export function moverJogador(j: Jogador2D, alvo: V2, vAlvo: V2, intensidade: Intensidade, colegas: Jogador2D[], olhar: V2, dt: number, fraccaoMax = 1) {
   const L = limitesFisicos(j);
-  const cap = Math.max(velocidadeIntensidade(j, intensidade), Math.min(L.velMax, hyp(vAlvo.x, vAlvo.y) * 1.15));
+  // fraccaoMax: com a bola (conduzir 70–85%) ou ultrapassado, não chega à velocidade máxima.
+  const cap = Math.min(L.velMax * fraccaoMax, Math.max(velocidadeIntensidade(j, intensidade), Math.min(L.velMax, hyp(vAlvo.x, vAlvo.y) * 1.15)));
   // Velocidade desejada: acompanhar o alvo (a sua velocidade) e corrigir o erro; dentro da zona morta, só acompanhar.
   const ex = alvo.x - j.p.x, ey = alvo.y - j.p.y, e = hyp(ex, ey);
   const corr = e < F.zona_morta_m ? 0 : (e - F.zona_morta_m) / e / F.seguir_tau_s;

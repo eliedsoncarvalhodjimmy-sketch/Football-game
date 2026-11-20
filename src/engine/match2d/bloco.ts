@@ -3,7 +3,8 @@ import { FORMAS_2D, AJUSTE_PAPEL } from '../../config/match2d/formacoes.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { BLOCO } from '../../config/match2d/bloco.ts';
 import { CAMPO_2D } from '../../config/match2d/fisica.ts';
-import { clamp, paraEquipa } from './referencial.ts';
+import { clamp, paraEquipa, hyp } from './referencial.ts';
+import { LINHA } from '../../config/match2d/fase3.ts';
 import type { Bloco, Equipa, Estado2D, Jogador2D, V2 } from './tipos.ts';
 
 export function forma(id: string) {
@@ -45,6 +46,17 @@ export function alvoBloco(s: Estado2D, e: Equipa, papeis: string[]): Bloco {
   const comBola = eq.mistura >= 0.5;
   const base = comBola ? P.linhaComBola : P.linhaSemBola;
   let linha = base + (comBola ? BLOCO.seguir_bola_com : BLOCO.seguir_bola_sem) * (b.x - CAMPO_2D.comprimento / 2);
+  if (!comBola) {
+    // Secção 9.1: bola descoberta (portador sem ninguém perto, de frente para a nossa baliza) → a linha recua;
+    // o adversário passou para trás → a linha sobe em bloco durante uns segundos.
+    const c = s.bola.dono ? s.jogadores.find((o) => o.id === s.bola.dono) : null;
+    if (c && c.equipa !== e) {
+      const livre = !s.jogadores.some((o) => o.equipa === e && hyp(o.p.x - c.p.x, o.p.y - c.p.y) < LINHA.descoberta_livre_m);
+      const deFrente = Math.cos(c.corpo - (e === 0 ? Math.PI : 0)) > 0.5;
+      if (livre && deFrente) linha -= LINHA.descoberta_recua;
+    }
+    if (s.tick < eq.subirAte) linha += LINHA.passe_atras_sobe;
+  }
   linha = Math.min(linha, base + BLOCO.linha_folga_max, comBola ? b.x + 10 : b.x - BLOCO.atras_bola_sem);
   const m = medidasForma(eq.formacao, papeis, comBola ? 1 : 0);
   let comprimento = comBola ? clamp((m.xMax - m.xDef) * CAMPO_2D.comprimento, BLOCO.comprimento_com[0], BLOCO.comprimento_com[1]) : P.comprimentoSemBola;

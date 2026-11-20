@@ -1,12 +1,13 @@
 // Camada 5 na Fase 2 (secções 7.2–7.4): o portador só faz passes curtos. Escolhe o colega com a melhor linha de passe,
 // pesando o sucesso previsto (com erro de leitura pela Visão), o ganho de ameaça (mapa V) e o risco; executa com erro
 // pela técnica, distância e pressão. O sucesso real não se sorteia: a bola viaja e quem lá chegar primeiro fica com ela.
-import { PASSE, AMEACA, DECISAO_PORTADOR } from '../../config/match2d/bola.ts';
+import { PASSE, AMEACA, DECISAO_PORTADOR, BOLA } from '../../config/match2d/bola.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { CAMPO_2D } from '../../config/match2d/fisica.ts';
 import { aleatorio } from '../decision/rng.ts';
 import { preverTrajectoria, velocidadePasse, tempoChegada } from './bola.ts';
 import { paraEquipa, dist } from './referencial.ts';
+import { distSegmento as distSeg } from '../decision/ContextBuilder.ts';
 import type { Estado2D, Jogador2D, V2 } from './tipos.ts';
 
 const at = (j: Jogador2D, k: string) => (j.attrs as Record<string, number | undefined>)[k] ?? 10;
@@ -19,6 +20,8 @@ export function ameaca(p: V2): number {
   let v = A.base + A.escala * Math.pow(x / CAMPO_2D.comprimento, A.expoente) * (1 - (A.largura * Math.min(dy, 34)) / 34);
   if (x > CAMPO_2D.comprimento - 16.5 && dy < 20.15) v += A.area;
   if (x > CAMPO_2D.comprimento - 5.5 && dy < 9.15) v += A.pequena_area;
+  // Nos últimos metros o ângulo fecha: o valor cai até 40% junto à linha de fundo (decisão 190).
+  if (x > CAMPO_2D.comprimento - A.fundo_m) v *= 1 - A.fundo_queda * (x - (CAMPO_2D.comprimento - A.fundo_m)) / A.fundo_m;
   return v;
 }
 
@@ -33,13 +36,16 @@ export function tempoDecisao(s: Estado2D, j: Jogador2D): number {
 export interface OpcaoPasse { receptor: Jogador2D; destino: V2; v0: number; sucesso: number; pontuacao: number; folga: number }
 
 /** Folga do passe: o menor (tempo do adversário − tempo da bola) ao longo da trajectória até ao receptor (s). */
-function folgaPasse(s: Estado2D, de: V2, destino: V2, v0: number, equipa: 0 | 1): number {
+export function folgaPasse(s: Estado2D, de: V2, destino: V2, v0: number, equipa: 0 | 1): number {
   const d = dist(de, destino), u = { x: (destino.x - de.x) / d, y: (destino.y - de.y) / d };
   const traj = preverTrajectoria(de, { x: u.x * v0, y: u.y * v0 });
   let folga = Infinity;
+  // Quem está ao alcance do percurso logo à saída do pé (o defensor encostado ao portador) corta-o já.
+  if (traj.length) for (const o of s.jogadores) if (o.equipa !== equipa && distSeg(o.p, de, traj[0].p) <= BOLA.alcance) folga = Math.min(folga, -0.1);
   for (const q of traj) {
     if (dist(de, q.p) > d + 1) break;
-    for (const o of s.jogadores) if (o.equipa !== equipa) folga = Math.min(folga, tempoChegada(o, q.p) - q.t);
+    // Quem já está em cima da linha não precisa de reagir: a bola vai ter com ele.
+    for (const o of s.jogadores) if (o.equipa !== equipa) folga = Math.min(folga, tempoChegada(o, q.p, dist(o.p, q.p) > BOLA.alcance + 1.5) - q.t);
   }
   return folga;
 }

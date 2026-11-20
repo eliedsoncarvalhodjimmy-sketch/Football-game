@@ -12,6 +12,9 @@ export const BOLA = {
   sem_retoque_s: 0.3,
   /** Bola conduzida/parada aos pés: distância à frente do corpo (m) e velocidade a que desliza para lá (m/s). */
   pe_m: 0.6, pe_desliza_ms: 8,
+  /** No ar (secção 10.3): gravidade (m/s²), arrasto do ar (fracção por segundo), ressalto (fracção da velocidade
+   *  vertical e da horizontal que fica) e velocidade vertical mínima para ainda ressaltar (m/s). */
+  g: 9.81, ar_k: 0.12, ressalto_vz: 0.45, ressalto_h: 0.6, ressalto_min_vz: 2,
   /** Previsão da trajectória: horizonte (s) e passo (s). */
   previsao_s: 4, previsao_passo_s: 0.1,
 };
@@ -19,6 +22,8 @@ export const BOLA = {
 export const RECEPCAO = {
   /** Tempo de reacção (s) = base − por ponto de Antecipação; quem corre para a bola parte ao fim deste tempo. */
   reaccao_base: 0.35, reaccao_ant: 0.01,
+  /** Na linha da bola (a menos de x m) o adversário corta com o corpo, sem precisar de reagir. */
+  corpo_m: 0.45,
   /** Para chegar a um ponto conta-se o arranque: a velocidade média é esta fracção da velocidade máxima. */
   vel_media_factor: 0.85,
   /**
@@ -50,7 +55,7 @@ export const DECISAO_PORTADOR = { pressao_m: 3, pressao_factor: 0.6, ruido_base:
  * Mapa de ameaça V(x, y) (secção 7.2), no referencial da equipa:
  *   V = 0,005 + 0,30 × (x/105)³ × (1 − 0,8 × |y − 34| / 34), +0,15 na área, +0,25 na pequena área.
  */
-export const AMEACA = { base: 0.005, escala: 0.3, expoente: 3, largura: 0.8, area: 0.15, pequena_area: 0.25 };
+export const AMEACA = { base: 0.005, escala: 0.3, expoente: 3, largura: 0.8, area: 0.15, pequena_area: 0.25, fundo_m: 6, fundo_queda: 0.6 };
 
 /** OFERECER_APOIO (secção 6.1 e 6.3). */
 export const APOIO = {

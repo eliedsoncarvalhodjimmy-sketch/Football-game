@@ -42,6 +42,12 @@ export interface Jogador2D extends JogadorBase2D {
    *  solta ou ir repor a bola — e o ponto onde a vai apanhar. */
   tarefaBola: TarefaBola | null;
   alvoBola: V2 | null;
+  /** Ultrapassado (falhou um desarme ou foi driblado): até este tick não desarma e mexe-se mais devagar. */
+  ultrapassadoAte: number;
+  /** Próximo tick em que pode tentar desarmar. */
+  proxDesarme: number;
+  /** Marcação individual (Catenaccio): o adversário que lhe foi atribuído. */
+  marcado: string | null;
 }
 
 export type TarefaBola = 'receber' | 'interceptar' | 'bola_solta' | 'repor';
@@ -52,20 +58,32 @@ export interface Bola2D {
   dono: string | null;
   /** Último a tocar, a equipa e o tick (para o "sem retoque" e as reposições). */
   ultimo: string | null; equipaUltima: Equipa; tickUltimo: number;
-  /** Passe em curso: de quem, para quem (o receptor pretendido) e o destino pretendido. */
-  passe: { de: string; para: string; destino: V2; tick: number } | null;
+  /** Passe em curso: de quem, para quem (o receptor pretendido), o destino pretendido, o tipo, se vai pelo ar e se o
+   *  receptor estava em fora de jogo quando a bola partiu. */
+  passe: { de: string; para: string; destino: V2; tick: number; tipo?: string; aereo?: boolean; foraDeJogo?: boolean } | null;
+  /** Remate em curso: de quem, o xG e o tick. */
+  remate: { de: string; xg: number; tick: number } | null;
 }
 
-export interface Evento2D { tick: number; tipo: 'passe' | 'recepcao' | 'intercepcao' | 'mau_toque' | 'bola_solta' | 'fora' | 'reposicao'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2 }
+export interface Evento2D { tick: number; tipo: 'passe' | 'recepcao' | 'intercepcao' | 'mau_toque' | 'bola_solta' | 'fora' | 'reposicao'
+  | 'remate' | 'golo' | 'defesa' | 'desarme' | 'falta' | 'fora_de_jogo' | 'cabeceamento' | 'cruzamento' | 'drible' | 'alivio' | 'bloqueio'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2; /** Tipo do passe (PASSE_CURTO, CRUZAMENTO, ...). */ subtipo?: string; /** Sucesso previsto pelo portador. */ previsto?: number }
 
 export interface Estatisticas2D {
   passes: [number, number]; certos: [number, number]; intercepcoes: [number, number]; mausToques: [number, number];
   /** Ticks com a bola de cada equipa; sequências (passes seguidos da mesma equipa) terminadas. */
   posse: [number, number]; sequencias: number[];
+  golos: [number, number]; remates: [number, number]; aBaliza: [number, number]; xg: [number, number];
+  desarmes: [number, number]; faltas: [number, number]; forasDeJogo: [number, number]; cruzamentos: [number, number];
+  passesLongos: [number, number]; dribles: [number, number];
+  /** Recuperações da bola no terço ofensivo (secção 12: Gegenpressen 2× a média). */
+  recuperacoesAltas: [number, number];
 }
 
 /** Reposição simplificada (Fase 2): quem repõe vai à bola (sem teletransporte) e recomeça ao chegar. */
-export interface Reposicao2D { tipo: 'lancamento' | 'baliza' | 'canto'; equipa: Equipa; local: V2; marcador: string; desde: number }
+export interface Reposicao2D { tipo: 'lancamento' | 'baliza' | 'canto' | 'livre' | 'saida'; equipa: Equipa; local: V2; marcador: string; desde: number }
+
+/** O que o portador está a fazer com a bola (a condução e o drible duram; o resto é instantâneo). */
+export interface Conducao { tipo: 'CONDUZIR' | 'DRIBLAR' | 'PROTEGER'; alvo: V2; desde: number; defensor: string | null }
 
 /** Bloco da equipa (secção 4.1), no referencial da equipa. */
 export interface Bloco { linhaDefX: number; comprimento: number; largura: number; centroY: number }
@@ -81,6 +99,8 @@ export interface EstadoEquipa {
   alvo: Bloco;
   /** Mistura das formas: 0 = sem bola, 1 = com bola (transição gradual). */
   mistura: number;
+  /** A linha sobe até este tick (o adversário passou para trás: secção 9.1). */
+  subirAte: number;
 }
 
 export interface Estado2D {
@@ -97,4 +117,6 @@ export interface Estado2D {
   posse: Equipa;
   equipas: [EstadoEquipa, EstadoEquipa];
   jogadores: Jogador2D[];
+  /** O portador a conduzir, driblar ou proteger (null quando só segura a bola para decidir). */
+  conducao: Conducao | null;
 }
