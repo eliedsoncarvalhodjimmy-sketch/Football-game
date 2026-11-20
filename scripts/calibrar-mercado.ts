@@ -1,5 +1,5 @@
 // Prompt 4, Bloco B (2.4): calibração do mercado — várias janelas sem interface, histogramas e fluxos entre ligas.
-// Uso: npx tsx scripts/calibrar-mercado.ts [épocas] [semente] → docs/relatorios/fase4_paragemB_mercado.md
+// Uso: npx tsx scripts/calibrar-mercado.ts [épocas] [semente] [ficheiro] → docs/relatorios/fase4_paragemB_mercado.md (por defeito)
 import { writeFileSync } from 'node:fs';
 import { LocalFileSource } from '../src/data/LocalFileSource.ts';
 import { carregarDados } from '../src/data/load.ts';
@@ -120,5 +120,5 @@ p(`| Semana com alguma janela aberta (média / máx.) | ${(jan.reduce((a, b) => 
 p(`| Semana sem janelas abertas (média / máx.) | ${(fora.reduce((a, b) => a + b, 0) / fora.length).toFixed(0)} / ${Math.max(...fora).toFixed(0)} ms → tablet pior ${(Math.max(...fora) * 6 / 1000).toFixed(2)} s | < 2 s |`);
 p(`| Semana de fecho de época (rollover; ${fecho.length}) (máx.) | ${Math.max(...fecho).toFixed(0)} ms → tablet ${(Math.max(...fecho) * 6 / 1000).toFixed(2)} s | ecrã de fim de época |`);
 p(`| Conhecimento guardado (scouting) | ${(m.scouting.bytes() / 1048576).toFixed(1)} MB | — |`);
-writeFileSync(new URL('../docs/relatorios/fase4_paragemB_mercado.md', import.meta.url), L.join('\n') + '\n');
+writeFileSync(process.argv[4] ?? new URL('../docs/relatorios/fase4_paragemB_mercado.md', import.meta.url), L.join('\n') + '\n');
 console.log(L.join('\n'));

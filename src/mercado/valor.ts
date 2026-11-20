@@ -40,6 +40,8 @@ export function precoPedido(w: World, m: Mercado, j: number, comprador: number, 
     const D = PLANO_PLANTEL.excedente_desconto;
     f.excedente = m.fimJanela(vend, dia) - dia <= D.semanas_finais * 7 ? D.final : D.normal;
   }
+  // Pechincha: o contrato acaba e o vendedor não o vai renovar (prefere vender barato a perdê-lo a custo zero).
+  if ((st.fimContrato[j] - dia) / 365 < P.fim_contrato.anos && (m.contratos.listado[j] > 0 || !m.planos.porClube.get(vend)?.lugar.has(j))) f.fim_contrato = P.fim_contrato.factor;
   // Importância no plantel e na filosofia.
   const plantel = w.plantel[vend].filter((x) => st.clube[x] === vend).sort((a, b) => st.ovrNat(b) - st.ovrNat(a));
   const ordem = plantel.indexOf(j);

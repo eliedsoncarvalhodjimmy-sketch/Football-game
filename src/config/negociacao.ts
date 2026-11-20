@@ -90,6 +90,21 @@ export const PLANO_PLANTEL = {
   /** Necessidades de qualidade e sucessão aceites por janela: base + pedidos do treinador (reforços × autonomia), até ao
    *  máximo. As de profundidade (posição sem gente, p. ex. depois de vender 10) ficam fora do tecto: repor não é opcional. */
   necessidades_base: 2, necessidades_max: 4,
+  /** Idades-alvo dos reforços por arquétipo (a sucessão procura sempre 18–26). */
+  idade_alvo: { formador: [17, 24], vendedor: [17, 24], analitico: [20, 27], comprador_estrelas: [22, 31], magnata_impaciente: [22, 31], outro: [20, 30] } as Record<string, [number, number]>,
+  /** Veteranos: ligas que compram jogadores mais velhos (idade máxima dos reforços) e clubes a lutar pelo título (nível
+   *  dos titulares ≥ média da liga + x: até y anos). */
+  ligas_veteranos: { KSA1: 34, UAE1: 34, USA1: 35, TUR1: 33, MEX1: 33, JPN1: 33 } as Record<string, number>,
+  titulo_margem: 4, titulo_idade_max: 33,
+  /** Estrelas: numa liga com riqueza ≥ riqueza_min, clubes de comprador de estrelas ou magnata com reputação ≥
+   *  reputacao_arquetipo, ou de reputação ≥ x numa liga com riqueza ≥ y, transformam a
+   *  necessidade de qualidade mais urgente numa "estrela" (uma por janela): nível mínimo = min(alvo + a, titular + b),
+   *  candidatos até + c pontos, escolhidos pelo nível (não pelo custo), e o orçamento da janela vai até ao tecto. */
+  estrela: { riqueza_min: 20, reputacao_arquetipo: 75, reputacao: 85, riqueza: 40, acima_alvo: 6, acima_titular: 8, faixa: 12, lance_maximo: 1.3 },
+  /** Desespero: titular em falta nas últimas x semanas da janela: o lance máximo vai até y × o pedido. */
+  desespero: { semanas: 2, lance_maximo: 1.35 },
+  /** Validade do plano com a janela aberta (dias); fora dela, um mês. */
+  validade_janela_dias: 14,
   /** Tentativas de compra por semana: as x necessidades mais urgentes, mais todas as de profundidade (até y). */
   tentativas_semana: 2, tentativas_max: 5,
   /** Clube com o nível dos titulares x pontos abaixo da média da liga: +1 necessidade (luta pela permanência). */

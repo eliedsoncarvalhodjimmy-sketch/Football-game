@@ -27,6 +27,8 @@ export interface Necessidade {
   /** Pedido do treinador (acima da base: entra pelos pedidos dele). */
   pedido: boolean;
   texto: string;
+  /** Estrela (Bloco C): o reforço grande da janela de um comprador rico; o orçamento concentra-se nele. */
+  estrela?: boolean;
 }
 
 export interface PlanoClube {
@@ -58,7 +60,9 @@ export class PlanosPlantel {
 
   obter(c: number, dia: number): PlanoClube {
     const p = this.porClube.get(c);
-    if (p && dia - p.dia <= 35 && !this.sujos.has(c)) return p;
+    // Com a janela aberta recalcula-se mais vezes (lesões, lacunas e descontentes contam logo, sobretudo no Inverno).
+    const validade = this.m.janelaAberta(c, dia) ? P.validade_janela_dias : 35;
+    if (p && dia - p.dia <= validade && !this.sujos.has(c)) return p;
     return this.calcular(c, dia);
   }
 
@@ -115,7 +119,11 @@ export class PlanosPlantel {
     if (li >= 0) { const x = this.nivelLiga.get(li) ?? { soma: 0, n: 0 }; const ant = this.porClube.get(c); if (ant) { x.soma -= ant.nivel; x.n--; } x.soma += media; x.n++; this.nivelLiga.set(li, x); }
     // Idades-alvo pelo arquétipo (a sucessão procura sempre mais novos).
     const arq = e.ia?.arquetipo[c];
-    const idadeArq: [number, number] = arq === 'formador' || arq === 'vendedor' ? [17, 24] : arq === 'analitico' ? [20, 27] : arq === 'comprador_estrelas' || arq === 'magnata_impaciente' ? [22, 31] : [20, 30];
+    // Veteranos (Bloco C): ligas que os compram (Arábia, MLS, ...) e clubes a lutar pelo título alargam a idade máxima.
+    const faixaIdade = P.idade_alvo[arq ?? ''] ?? P.idade_alvo.outro;
+    const ligaId = li >= 0 ? w.ligas[li].regras.id : '';
+    const candidatoTitulo = media >= liga + P.titulo_margem;
+    const idadeArq: [number, number] = [faixaIdade[0], Math.max(faixaIdade[1], P.ligas_veteranos[ligaId] ?? 0, candidatoTitulo ? P.titulo_idade_max : 0)];
     const U = P.urgencia, todas: Necessidade[] = [];
     // Nível mínimo de um reforço: o do alvo do clube, mas nunca mais do que o titular actual + x (um reforço realista é
     // melhor do que quem lá está, não necessariamente o jogador ideal).
@@ -150,6 +158,17 @@ export class PlanosPlantel {
     const prof = ordenadas.filter((n) => n.motivo === 'profundidade');
     const resto = ordenadas.filter((n) => n.motivo !== 'profundidade').slice(0, Math.max(0, Math.min(P.necessidades_max, base + extra) - prof.length));
     const necessidades = [...prof.map((n) => ({ ...n })), ...resto.map((n, i) => ({ ...n, pedido: prof.length + i >= base }))].sort((a, b) => b.urgencia - a.urgencia);
+    // Estrela (Bloco C): o comprador rico concentra a janela num reforço grande (um por janela).
+    const E = P.estrela, riqueza = li >= 0 ? w.ligas[li].regras.indice_riqueza : 0;
+    // Só os ricos de verdade (ligas ricas: Inglaterra, topo europeu, Arábia, ...): os de ligas pequenas não concentram.
+    const rico = riqueza >= E.riqueza_min && ((w.reputacao[c] >= E.reputacao_arquetipo && (arq === 'comprador_estrelas' || arq === 'magnata_impaciente')) || (w.reputacao[c] >= E.reputacao && riqueza >= E.riqueza));
+    const q = rico && !m.estrelaJanela.has(c) ? necessidades.find((n) => n.motivo === 'qualidade') : undefined;
+    if (q) {
+      const actual = Math.min(...(ocupados.get(q.pos) ?? []).filter((j) => lugar.get(j)!.titular).map((j) => lugar.get(j)!.nivel));
+      q.estrela = true;
+      q.nivelMin = Math.round(Math.min(alvo + E.acima_alvo, actual + E.acima_titular));
+      q.texto += ' (estrela da janela)';
+    }
     // Excedentes: a mais na posição, sem lugar no plano, ou que não encaixa no sistema (descontente do treinador).
     const insubstituiveis = new Set<number>();
     for (const [pos, occ] of ocupados) {
