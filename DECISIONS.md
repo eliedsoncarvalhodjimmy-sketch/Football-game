@@ -659,3 +659,36 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Contratações:** o máximo por clube numa janela baixou de 9–12 para 6.
         - **Bandas antigas** (10 épocas): 0–0 8,34%; campeões 93,3% dentro; últimos 91,3% dentro. Passam todas.
         - **Benchmark:** semana média de 282 → 303 ms, máximo de 674 → 660 ms. Os planos de todos os clubes custam 65–90 ms por mês.
+
+196. **Prompt 6, Bloco B (revisão, feedback na PARAGEM B): sem tecto rígido de contratações, rescisão como último recurso por arquétipo, promoções da academia não obrigatórias.**
+    - **Contratações sem tecto rígido:** as necessidades de profundidade (posição sem gente) ficam fora do tecto de 4; o tecto só limita a qualidade e a sucessão.
+        - **Recálculo:** cada negócio concluído (venda, compra, empréstimo) invalida o plano dos dois clubes, e o plano recalcula-se na consulta seguinte, não só uma vez por mês.
+        - **Tentativas por semana:** as 2 mais urgentes, ou todas as de profundidade (até 5).
+        - **Necessidades já cobertas:** a profundidade só desaparece quando o plano recalculado já tem gente que chegue.
+        - **Cenário forçado** (vender 10 no início da janela): o clube passa de 15 para 24 jogadores, com 9 entradas.
+    - **Vender e emprestar antes de rescindir:**
+        - **Preço:** o excedente listado é pedido com desconto (× 0,85), e × 0,65 nas últimas 3 semanas da janela. É um factor do preço pedido, dentro da faixa 0,6–2,5.
+        - **Empréstimo:** um excedente até 29 anos também se empresta, a um clube de reputação menor.
+        - **Clubes em luta pela permanência** (abaixo do nível da liga): procuram empréstimos mais vezes.
+        - **Colocação de jovens:** é o clube que empresta a tomar a iniciativa. Cada semana da janela, oferece um jovem sem lugar (ou um excedente até 23 anos) a 20 clubes ao acaso, de reputação 10 ou mais abaixo, a quem falte gente na posição natural dele e com o nível mínimo da necessidade. Não oferece a clubes em luta pela permanência, porque esses ficavam com jovens em vez de jogadores feitos e a banda dos últimos classificados caía para 86–88%.
+        - **Limites:** cedidos e recebidos por clube (12 e 6).
+    - **Rescisão, último recurso:**
+        - **Quando:** no fecho da janela, só os excedentes que ficaram, e só acima de 30 jogadores ou com 6 ou mais na mesma posição natural. Nunca abaixo de 22.
+        - **Disposição por arquétipo** (probabilidade por excedente): comprador de estrelas e magnata 0,9; analítico 0,5; tradicional 0,25; formador 0,2; vendedor 0,15.
+        - **Limite:** acima de 33 jogadores, perto do limite de inscrição, rescinde qualquer arquétipo.
+    - **Academia, promoções não obrigatórias:**
+        - **Lugar no plano:** um júnior com nível só sobe se tiver lugar no plano de plantel, numa posição da formação em que seja competente:
+            - comprador de estrelas e magnata: só se entrar no onze;
+            - formador: só pelo nível (cede mais lugar);
+            - os restantes: se entrar na profundidade da posição.
+        - **Saída cedo** (comprador de estrelas e magnata): o júnior de 19–21 anos sem lugar sobe ao plantel já para sair, emprestado (potencial ≥ OVR + 5) ou à venda.
+        - **Emprestam como os grandes:** estes dois arquétipos emprestam jovens sem lugar em qualquer liga, mesmo abaixo da reputação 70.
+        - **Mínimos:** nesses clubes não há subidas obrigatórias por mínimo de posição (repõe o mercado), e o mínimo do plantel que obriga a subir juniores é 20.
+    - **Resultados** (2 épocas; relatório em `docs/relatorios/prompt6_blocoB_plano.md`, secção 3):
+        - **Contratações:** máximo por clube numa janela de 6 para 9.
+        - **Empréstimos:** no Verão de 2027, de 76 para 379.
+        - **Rescisões:** 523 em 2 épocas; com disposição 1 seriam cerca de 750.
+        - **Posições repetidas:** clubes com 6+ na mesma posição natural no fim, 117 (B1) → 228 (agora). É o preço de rescindir menos; continua abaixo dos 282 do código antigo.
+        - **Plantéis:** máximo 33, médio 28,2.
+        - **Bandas antigas** (10 épocas): 0–0 8,47%; campeões 91,9% dentro; últimos 90,8% dentro.
+        - **Benchmark:** semana média de 283 ms, máximo de 659 ms.

@@ -8,6 +8,7 @@ import { PLANO_PLANTEL } from '../src/config/negociacao.ts';
 import { FORMACAO_POR_ID } from '../src/config/tacticas.ts';
 import { POSICOES, IDX_POS, FAMILIARIDADE } from '../src/config/papeis.ts';
 import type { Mercado } from '../src/mercado/mercado.ts';
+import { precoPedido } from '../src/mercado/valor.ts';
 
 let w: World, m: Mercado;
 const dia = diaInicioMundo() + 5;
@@ -22,7 +23,8 @@ describe('plano de plantel (Prompt 6, Bloco B)', () => {
       const f = FORMACAO_POR_ID[p.formacao];
       const tit = [...p.lugar.values()].filter((x) => x.titular);
       expect(tit.length).toBeLessThanOrEqual(f.lugares.length);
-      expect(p.necessidades.length).toBeLessThanOrEqual(PLANO_PLANTEL.necessidades_max);
+      // O tecto só vale para a qualidade e a sucessão; a profundidade (posição sem gente) entra sempre.
+      expect(p.necessidades.filter((n) => n.motivo !== 'profundidade').length).toBeLessThanOrEqual(PLANO_PLANTEL.necessidades_max);
       for (let k = 1; k < p.necessidades.length; k++) expect(p.necessidades[k - 1].urgencia).toBeGreaterThanOrEqual(p.necessidades[k].urgencia);
       if (p.necessidades.length) comNecessidades++;
       expect(m.plantel(c).length - p.excedentes.length).toBeGreaterThanOrEqual(22);
@@ -57,6 +59,56 @@ describe('plano de plantel (Prompt 6, Bloco B)', () => {
     let d = dia; while (new Date(d * 864e5).getUTCMonth() !== 8) d++;
     m.mes(d);
     expect(t.moral).toBeLessThan(70);
+  });
+
+  it('a profundidade não tem tecto: um clube que vende muitos quer repor todas as posições sem gente', () => {
+    const st = w.jogadores!, c = w.ligaPorId('NED1').clubes[5];
+    const guardado = [...w.plantel[c]];
+    // Vende (tira) os 14 melhores: ficam várias posições sem gente.
+    const tirar = m.plantel(c).sort((a, b) => st.ovrNat(b) - st.ovrNat(a)).slice(0, 14);
+    for (const j of tirar) st.clube[j] = -2;
+    w.plantel[c] = w.plantel[c].filter((j) => st.clube[j] === c);
+    const p = m.planos.calcular(c, dia);
+    const prof = p.todas.filter((n) => n.motivo === 'profundidade');
+    for (const n of prof) expect(p.necessidades.some((x) => x.pos === n.pos)).toBe(true);
+    expect(p.necessidades.length).toBeGreaterThan(PLANO_PLANTEL.necessidades_max);
+    for (const j of tirar) st.clube[j] = c;
+    w.plantel[c] = guardado;
+    m.planos.calcular(c, dia);
+  });
+
+  it('um excedente à venda fica mais barato, e mais ainda nas últimas semanas da janela', () => {
+    for (const c of w.ligaPorId('ENG1').clubes) {
+      const x = m.planos.calcular(c, dia).excedentes.find((e) => !e.motivo.startsWith('não encaixa'));
+      if (!x) continue;
+      m.contratos.listado[x.j] = 1;
+      const outro = w.ligaPorId('POR1').clubes[0];
+      const D = PLANO_PLANTEL.excedente_desconto;
+      expect(precoPedido(w, m, x.j, outro, dia).factores.excedente).toBe(D.normal);
+      expect(precoPedido(w, m, x.j, outro, m.fimJanela(c, dia) - 7).factores.excedente).toBe(D.final);
+      m.contratos.listado[x.j] = 0;
+      return;
+    }
+    throw new Error('nenhum excedente em Inglaterra');
+  });
+
+  it('comprador de estrelas: o júnior só sobe se entrar no onze; os outros saem cedo (emprestados ou à venda)', () => {
+    const ac = w.academia!, ia = w.economia!.ia!;
+    const c = w.ligaPorId('ENG1').clubes[0];
+    const arq0 = ia.arquetipo[c];
+    ia.arquetipo[c] = 'comprador_estrelas';
+    const p0 = ac.promovidos.length;
+    const d = Math.floor(Date.UTC(2026, 6, 25) / 864e5);
+    ac.fimDeEpoca(c, d);
+    const novos = ac.promovidos.slice(p0).filter((x) => x.clube === c);
+    // Sem promoções obrigatórias por posição; quem sobe pelo nível tem lugar no onze; os que saem cedo estão à venda ou a emprestar.
+    expect(novos.some((x) => x.motivo === 'posicao')).toBe(false);
+    for (const x of novos.filter((x) => x.motivo === 'nivel')) expect(m.planos.lugarParaJovem(c, x.jogador, d, 'titular')).toBe(true);
+    for (const x of novos.filter((x) => x.motivo === 'vender')) expect(m.contratos.listado[x.jogador]).toBeGreaterThan(0);
+    // (A emprestar, ou o plano recalculado já lhe dá um lugar de reserva no plantel.)
+    for (const x of novos.filter((x) => x.motivo === 'emprestar')) { const p = m.planos.obter(c, d); expect(p.emprestar.includes(x.jogador) || p.lugar.get(x.jogador)?.titular === false).toBe(true); }
+    console.log('promovidos (comprador de estrelas):', novos.map((x) => `${x.motivo} ${x.idade}a ${x.ovr}`).join('; '));
+    ia.arquetipo[c] = arq0;
   });
 
   it('depois de uma janela de Verão: nenhum clube sem ninguém numa posição da formação; poucos com 6 da mesma posição; contratações em faixa', () => {

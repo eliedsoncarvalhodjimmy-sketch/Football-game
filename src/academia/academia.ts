@@ -395,9 +395,21 @@ export class Academia {
     // do uso da academia do arquétipo (o formador até 25; o comprador de estrelas deixa as vagas para o mercado).
     const limiar = this.limiarPromocao(c);
     const alvo = PR.plantel_minimo + Math.round((PR.plantel_alvo - PR.plantel_minimo) * clamp(this.usoAcademia(c) * PR.alvo_por_academia, 0, 1));
+    // Promover não é obrigatório: depende do lugar no plano de plantel e do arquétipo.
+    const uso = this.usoAcademia(c), planos = w.mercado?.planos;
+    const poucaAcademia = uso < PR.so_titular_uso;
+    const formador = w.economia?.ia?.arquetipo[c] === 'formador';
+    const temLugar = (j: number) => !planos || formador || planos.lugarParaJovem(c, j, dia, poucaAcademia ? 'titular' : 'profundidade');
     for (const j of ord([...this.sub21[c]])) {
       const vaga = plantel() < alvo;
-      if (st.ovrNat(j) >= limiar && vaga) { this.promover(j, dia, false, 'nivel'); continue; }
+      if (st.ovrNat(j) >= limiar && vaga && temLugar(j)) { this.promover(j, dia, false, 'nivel'); continue; }
+      // Comprador de estrelas / magnata: o júnior sem lugar no onze sai cedo, emprestado ou vendido a um clube menor.
+      if (poucaAcademia && w.mercado && idade(j) >= PR.sair_cedo_idade && idade(j) < 22 && st.salario[j] > 0 && plantel() < PR.plantel_alvo + 3) {
+        const emprestar = st.pot[j] >= st.ovrNat(j) + 5;
+        this.promover(j, dia, false, emprestar ? 'emprestar' : 'vender');
+        if (!emprestar) w.mercado.contratos.listado[j] = 1;
+        continue;
+      }
       if (idade(j) >= 22) {
         const nivelLiga = L - 8;
         // Vender: sobe ao plantel já listado para venda (se houver lugar); senão é libertado.
@@ -417,6 +429,7 @@ export class Academia {
     for (const j of w.plantel[c]) if (st.clube[j] === c) porG[grupo(j)]++;
     const cand = ord([...this.sub21[c], ...this.sub18[c].filter((x) => idade(x) >= 16)]);
     for (const g of Object.keys(porG)) {
+      if (poucaAcademia) break; // quem usa pouco a academia repõe no mercado (a profundidade do plano não tem tecto)
       for (const j of cand) {
         if (porG[g] >= PR.minimos_posicao[g]) break;
         if (grupo(j) !== g || !this.escalao[j]) continue;
@@ -424,8 +437,10 @@ export class Academia {
       }
     }
     // Plantel abaixo do mínimo: sobem os melhores juniores, tenham ou não o nível.
-    for (const j of cand) { if (plantel() >= PR.plantel_minimo) break; if (this.escalao[j]) this.promover(j, dia, false, 'minimo'); }
+    const minimo = poucaAcademia ? PR.minimo_pouca_academia : PR.plantel_minimo;
+    for (const j of cand) { if (plantel() >= minimo) break; if (this.escalao[j]) this.promover(j, dia, false, 'minimo'); }
 
+    planos?.invalidar(c); // o plantel mudou: o plano (empréstimos, excedentes) recalcula-se
     // 2. Sub-18: aos 19 passam ao sub-21 (ou saem); fora da curva sobem antes.
     const med21 = (() => { const v = this.sub21[c].map((j) => st.ovrNat(j)).sort((a, b) => a - b); return v.length ? v[Math.floor(v.length * PR.fora_da_curva_sub21)] : L - 15; })();
     const p75 = (() => { const v = this.sub18[c].map((j) => st.pot[j]).sort((a, b) => a - b); return v.length ? v[Math.floor(v.length * PR.fora_da_curva_percentil)] : 99; })();
@@ -436,7 +451,7 @@ export class Academia {
         else this.libertar(j, dia);
       } else if (a < 18 && st.ovrNat(j) >= med21 && st.pot[j] >= p75) {
         // Fora da curva: directo à equipa principal se já tiver o nível; senão ao sub-21.
-        const principal = st.ovrNat(j) >= limiar && plantel() < PR.plantel_alvo;
+        const principal = st.ovrNat(j) >= limiar && plantel() < PR.plantel_alvo && temLugar(j);
         this.foraDaCurva.push({ dia, clube: c, jogador: j, idade: Math.floor(a), ovr: st.ovrNat(j), pot: st.pot[j], para: principal ? 'equipa principal' : 'sub-21' });
         if (principal) this.promover(j, dia, true, 'fora_da_curva');
         else if (this.sub21[c].length < ESCALOES.sub21.maximo) this.moverPara(j, ESC.sub21, c);

@@ -20,7 +20,7 @@ const N_POS = POSICOES.length;
 const mes = (d: number) => new Date(d * 864e5).getUTCMonth();
 const janelaDe = (d: number) => (mes(d) === 6 || mes(d) === 7 ? 'verao' : mes(d) === 0 ? 'inverno' : null);
 
-interface Janela { nome: string; transferencias: number; livres: number; emprestimos: number; porClube: number[]; semNecessidade?: number }
+interface Janela { nome: string; transferencias: number; livres: number; emprestimos: number; porClube: number[]; saidas: number[]; semNecessidade?: number }
 const janelas: Janela[] = [];
 const fotos: Record<string, number | string>[] = [];
 const semanas: number[] = [];
@@ -68,20 +68,24 @@ for (let e = 0; e < N; e++) for (let s = 0; s < 52; s++) {
     const jn = janelaDe(n.dia);
     if (!jn) continue;
     const nome = `${jn} ${new Date(n.dia * 864e5).getUTCFullYear()}`;
-    if (!actual || actual.nome !== nome) { if (actual) janelas.push(actual); actual = { nome, transferencias: 0, livres: 0, emprestimos: 0, porClube: new Array(w.clubes.length).fill(0) }; }
+    if (!actual || actual.nome !== nome) { if (actual) janelas.push(actual); actual = { nome, transferencias: 0, livres: 0, emprestimos: 0, porClube: new Array(w.clubes.length).fill(0), saidas: new Array(w.clubes.length).fill(0) }; }
     if (n.tipo === 'emprestimo') actual.emprestimos++; else if (n.tipo === 'livre') actual.livres++; else if (n.oferta > 0) actual.transferencias++;
     if (n.tipo !== 'pre_contrato') actual.porClube[n.comprador]++;
+    if (n.vendedor >= 0 && n.tipo !== 'pre_contrato' && n.tipo !== 'livre') actual.saidas[n.vendedor]++;
   }
 }
 if (actual) janelas.push(actual);
 const seg = (performance.now() - t0) / 1000;
 const q = (v: number[], p: number) => [...v].sort((x, y) => x - y)[Math.floor(p * (v.length - 1))];
 const res = {
-  epocas: N, segundos: +seg.toFixed(1), semanaMedia: +(semanas.reduce((x, y) => x + y, 0) / semanas.length).toFixed(0), semanaMax: +Math.max(...semanas).toFixed(0),
+  epocas: N, segundos: +seg.toFixed(1), rescisoes: m.estat.rescisoes, semanaMedia: +(semanas.reduce((x, y) => x + y, 0) / semanas.length).toFixed(0), semanaMax: +Math.max(...semanas).toFixed(0),
   janelas: janelas.map((j) => {
     const v = j.porClube.filter((_, c) => w.liga[c] >= 0);
+    // Clubes que perderam 8 ou mais (vendas, cláusulas, empréstimos) na janela: quantos repuseram.
+    const muitos = j.saidas.map((x, c) => [x, c]).filter(([x, c]) => x >= 8 && w.liga[c] >= 0);
     return { janela: j.nome, transferencias: j.transferencias, livres: j.livres, emprestimos: j.emprestimos, total: j.transferencias + j.livres + j.emprestimos,
-      contratacoesPorClube: { media: +(v.reduce((x, y) => x + y, 0) / v.length).toFixed(2), p90: q(v, 0.9), max: Math.max(...v), clubesSem: v.filter((x) => x === 0).length } };
+      contratacoesPorClube: { media: +(v.reduce((x, y) => x + y, 0) / v.length).toFixed(2), p90: q(v, 0.9), max: Math.max(...v), clubesSem: v.filter((x) => x === 0).length },
+      saidas8: { clubes: muitos.length, saidasMedia: muitos.length ? +(muitos.reduce((a, [x]) => a + x, 0) / muitos.length).toFixed(1) : 0, entradasMedia: muitos.length ? +(muitos.reduce((a, [, c]) => a + j.porClube[c], 0) / muitos.length).toFixed(1) : 0, entradasMax: Math.max(0, ...muitos.map(([, c]) => j.porClube[c])) } };
   }),
   fotos,
 };

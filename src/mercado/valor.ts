@@ -1,6 +1,7 @@
 // Valor de mercado e preço pedido (Prompt 4, Bloco A). Todos os factores limitados e em config/valor.ts.
 import { VALOR as V, PRECO as P } from '../config/valor.ts';
 import { POSICOES } from '../config/papeis.ts';
+import { PLANO_PLANTEL } from '../config/negociacao.ts';
 import type { World } from '../engine/world.ts';
 import type { Mercado } from './mercado.ts';
 
@@ -34,6 +35,11 @@ export function precoPedido(w: World, m: Mercado, j: number, comprador: number, 
   const f: Record<string, number> = {};
   f.necessidade = P.necessidade[e.clubes.saude[vend]] ?? 1;
   if (m.contratos.listado[j] === 3) f.necessidade = Math.min(f.necessidade, P.necessidade[3]);
+  // Excedente do plano à venda: mais barato, e ainda mais nas últimas semanas da janela (vender antes de rescindir).
+  if (m.contratos.listado[j] === 1 && m.planos.excedente(vend, j)) {
+    const D = PLANO_PLANTEL.excedente_desconto;
+    f.excedente = m.fimJanela(vend, dia) - dia <= D.semanas_finais * 7 ? D.final : D.normal;
+  }
   // Importância no plantel e na filosofia.
   const plantel = w.plantel[vend].filter((x) => st.clube[x] === vend).sort((a, b) => st.ovrNat(b) - st.ovrNat(a));
   const ordem = plantel.indexOf(j);

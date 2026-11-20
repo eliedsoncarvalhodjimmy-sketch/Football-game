@@ -87,8 +87,11 @@ export const PLANO_PLANTEL = {
   nivel_min: { qualidade: -1, profundidade: -8, sucessao: -4 } as Record<string, number>,
   /** …mas, na qualidade, nunca mais do que o titular actual + x (um reforço realista). */
   melhoria: 4,
-  /** Necessidades aceites por janela: base + pedidos do treinador (reforços × autonomia), até ao máximo. */
+  /** Necessidades de qualidade e sucessão aceites por janela: base + pedidos do treinador (reforços × autonomia), até ao
+   *  máximo. As de profundidade (posição sem gente, p. ex. depois de vender 10) ficam fora do tecto: repor não é opcional. */
   necessidades_base: 2, necessidades_max: 4,
+  /** Tentativas de compra por semana: as x necessidades mais urgentes, mais todas as de profundidade (até y). */
+  tentativas_semana: 2, tentativas_max: 5,
   /** Clube com o nível dos titulares x pontos abaixo da média da liga: +1 necessidade (luta pela permanência). */
   abaixo_da_liga: 3,
   /** Um jogador não encaixa no sistema (descontente do treinador): nível no sistema < OVR − x. */
@@ -97,9 +100,22 @@ export const PLANO_PLANTEL = {
   insubstituivel_margem: 5, insubstituivel_multiplo: 1.6,
   /** Jovens sem lugar no plano (≤ idade) dos clubes grandes: emprestam-se em vez de se venderem. */
   jovem_emprestar: 21,
-  /** Fim da janela: acima de x jogadores, ou com y ou mais na mesma posição natural, o clube rescinde os piores
-   *  excedentes do plano (nunca abaixo de 22), pagando z do salário que falta até ao fim do contrato. */
+  /** Excedentes à venda: o preço pedido desce durante a janela, de x (normal) até y nas últimas z semanas. */
+  excedente_desconto: { normal: 0.85, final: 0.65, semanas_finais: 3 },
+  /** Jovens a emprestar (e excedentes novos): cada semana da janela, com esta probabilidade, o clube oferece um a x clubes menores ao acaso. */
+  colocar_prob: 1, colocar_amostra: 20,
+  /** ... e os excedentes do plano até esta idade. */
+  colocar_idade_excedente: 23,
+  /** Excedentes até esta idade (29) também se emprestam (a um clube de reputação menor), antes de se pensar em rescindir. */
+  excedente_emprestar_idade: 29,
+  /** Último recurso, no fim da janela: os excedentes que não se venderam nem emprestaram. Acima de x jogadores, ou com
+   *  y ou mais na mesma posição natural, o clube rescinde (nunca abaixo de 22), pagando z do salário que falta. */
   plantel_max: 30, repetidos_max: 6, rescisao_fraccao: 0.3,
+  /** Acima de x jogadores (perto do limite de inscrição) rescinde qualquer arquétipo. */
+  plantel_limite: 33,
+  /** Disposição para rescindir, por arquétipo (probabilidade por excedente que ficou). Quem gasta muito corta sem
+   *  pena; o tradicional, o formador e o vendedor preferem manter e vender mais tarde. */
+  rescisao_arquetipo: { comprador_estrelas: 0.9, magnata_impaciente: 0.9, analitico: 0.5, tradicional: 0.25, formador: 0.2, vendedor: 0.15 } as Record<string, number>,
   /** Moral do treinador: −x por pedido não cumprido no fim da janela (0–100). */
   moral_pedido: 6,
   /** Atributos que cada estilo valoriza por zona do campo. */

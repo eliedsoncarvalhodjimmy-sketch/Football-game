@@ -66,6 +66,15 @@ export const PROMOCAO = {
   vender_formados_uso: 0.4,
   vender_formados_ordem: 14,
   vender_formados_idade: 23,
+  /** Promover não é obrigatório: o júnior sobe se tiver lugar no plano de plantel. Quem usa pouco a academia (uso < x:
+   *  comprador de estrelas, magnata) só promove quem entra no onze; o formador cede lugar só pelo nível (sem plano);
+   *  os outros exigem lugar na profundidade da posição. */
+  so_titular_uso: 0.4,
+  /** ... e, nesses clubes, o júnior sem lugar sai cedo (a partir desta idade): sobe ao plantel para ser emprestado
+   *  (potencial ≥ OVR + 5) ou vendido a um clube menor, antes de se estrear. */
+  sair_cedo_idade: 19,
+  /** Mínimo do plantel que obriga a subir juniores sem nível nesses clubes (o resto faz o mercado). */
+  minimo_pouca_academia: 20,
   /** Fora da curva: um sub-18 sobe ao sub-21 se o potencial ≥ este percentil do sub-18 ... */
   fora_da_curva_percentil: 0.9,
   /** ... e OVR ≥ este percentil do sub-21 (só com menos de 18 anos). */

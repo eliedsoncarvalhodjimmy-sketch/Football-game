@@ -77,53 +77,95 @@ Semente 2026, mundo completo. Gerado por `npx tsx scripts/relatorio-plano.ts` (s
 - **A emprestar** (jovens sem lugar): nenhum
 - **Insubstituíveis**: Florian Kuhnling (ED, 32 anos, 97); Kevin Wagmann (DE, 29 anos, 96); Ivan Perašević (GR, 25 anos, 90)
 
-## 2. A janela de Verão de Brackcombe Town, explicada pelo plano
+## 2. A janela de Verão de Deportivo Torredrón, explicada pelo plano
 
-Necessidades no início: DC (qualidade), MC (sucessao), ED (sucessao), EE (qualidade). Excedentes no início: 3.
+Necessidades no início: MC (qualidade), GR (qualidade). Excedentes no início: 3.
 
-- 2026-07-10 — **entra** Callum Whitby (DC, 27 anos, 79) (transferencia, 21.9 M€) → necessidade DC (qualidade: DC: titular Gonçalo Teiares (81) abaixo do nível do clube (93))
-- 2026-08-08 — **sai** Junior Kouaye (PL, 19 anos, 85) (emprestimo) → jovem sem lugar no plano: emprestado
+- 2026-07-07 — **sai** Bojan Maranić (ED, 27 anos, 67) (clausula, 6.4 M€) → cláusula de rescisão paga
+- 2026-07-13 — **sai** Antoine Moreau (MC, 24 anos, 70) (transferencia, 14.5 M€) → oferta aceite (não era insubstituível)
+- 2026-07-11 — **entra** Daniel Ashford (GR, 23 anos, 49) (livre) → plantel curto: livre para a profundidade de GR (nível mínimo 65; os olheiros estimavam-no acima do valor real)
+- 2026-07-14 — **sai** Javier Ferados (PL, 29 anos, 67) (transferencia, 5.9 M€) → oferta aceite (não era insubstituível)
+- 2026-08-11 — **entra** Mohammed El Sayed (EE, 31 anos, 52) (livre) → necessidade surgida durante a janela (plano recalculado)
+- 2026-08-16 — **entra** Caio Valeira (ED, 34 anos, 46) (livre) → necessidade surgida durante a janela (plano recalculado)
 
-Pedidos do treinador no fecho da janela: ED (por cumprir), MDC (cumprido).
-Moral do treinador: 70 no início; 76 antes do fecho (+2 por mês, a regra que já existia); 70 depois (−6 por pedido por cumprir).
-Rescisões de excedentes no mundo nesta janela: 37.
-## 3. Comparação antes/depois (2 épocas, mesma semente, mesma medição)
+Pedidos do treinador no fecho da janela: GR (cumprido).
+Moral do treinador: 70 no início; 76 antes do fecho (+2 por mês, a regra que já existia); 76 depois (−6 por pedido por cumprir).
+Rescisões de excedentes no mundo nesta janela: 28.
 
-Antes = versão do Bloco A (mínimos por grupo, reforços ao acaso); depois = plano de plantel. Gerado por `npx tsx scripts/comparar-mercado.ts --seasons 2`.
+## 3. Comparação (2 épocas, mesma semente, mesma medição)
 
-### Negócios por janela
+Três versões: **A** = Bloco A (mínimos por grupo, reforços ao acaso); **B1** = primeira versão do plano de plantel; **B2** = agora (profundidade sem tecto, plano recalculado a cada negócio, vender e emprestar antes de rescindir, rescisão por arquétipo, promoções da academia pelo plano). Gerado por `npx tsx scripts/comparar-mercado.ts --seasons 2`.
 
-| Janela | Transferências | Livres | Empréstimos | Total | Contratações por clube: média / p90 / máximo | Clubes sem contratações |
-|---|---|---|---|---|---|---|
-| verao 2026 | 332 → 367 | 982 → 928 | 61 → 51 | 1375 → 1346 | 1.57/3/9 → 1.56/3/6 | 192 → 168 |
-| inverno 2027 | 143 → 150 | 11 → 34 | 53 → 48 | 207 → 232 | 0.24/1/3 → 0.27/1/3 | 632 → 611 |
-| verao 2027 | 417 → 385 | 1099 → 947 | 125 → 76 | 1641 → 1408 | 1.92/4/12 → 1.63/3/6 | 168 → 142 |
-| inverno 2028 | 131 → 155 | 242 → 344 | 42 → 26 | 415 → 525 | 0.49/1/5 → 0.6/2/4 | 534 → 450 |
+### Negócios por janela (A → B1 → B2)
 
-### Plantéis depois de cada janela
+| Janela | Transferências | Livres | Empréstimos | Contratações por clube: média / p90 / máximo | Clubes sem contratações |
+|---|---|---|---|---|---|
+| verao 2026 | 332 → 367 → 401 | 982 → 928 → 933 | 61 → 51 → 153 | 1.57/3/9 → 1.56/3/6 → 1.69/3/6 | 192 → 168 → 146 |
+| inverno 2027 | 143 → 150 → 184 | 11 → 34 → 10 | 53 → 48 → 131 | 0.24/1/3 → 0.27/1/3 → 0.36/1/5 | 632 → 611 → 563 |
+| verao 2027 | 417 → 385 → 360 | 1099 → 947 → 952 | 125 → 76 → 379 | 1.92/4/12 → 1.63/3/6 → 1.95/4/9 | 168 → 142 → 128 |
+| inverno 2028 | 131 → 155 → 114 | 242 → 344 → 268 | 42 → 26 → 104 | 0.49/1/5 → 0.6/2/4 → 0.56/2/6 | 534 → 450 → 482 |
+
+### Plantéis depois de cada janela (A → B1 → B2)
 
 | Momento | Clubes com uma posição da formação vazia | Clubes com 6+ na mesma posição natural | Idade média | Plantel médio / máximo |
 |---|---|---|---|---|
-| início | 0 → 0 | 0 → 0 | 27.02 → 27.02 | 25/25 → 25/25 |
-| depois da janela (Outubro 2026) | 0 → 0 | 82 → 31 | 27.33 → 27.32 | 26.2/31 → 26.1/30 |
-| depois da janela (Março 2027) | 0 → 0 | 105 → 51 | 27.71 → 27.7 | 26.3/33 → 26.2/30 |
-| depois da janela (Outubro 2027) | 1 → 0 | 233 → 75 | 27.34 → 27.32 | 27.7/35 → 27.2/32 |
-| depois da janela (Março 2028) | 1 → 0 | 282 → 117 | 27.45 → 27.4 | 28.2/35 → 27.6/31 |
+| início | 0 → 0 → 0 | 0 → 0 → 0 | 27.02 → 27.02 → 27.02 | 25/25 → 25/25 → 25/25 |
+| depois da janela (Outubro 2026) | 0 → 0 → 0 | 82 → 31 → 52 | 27.33 → 27.32 → 27.32 | 26.2/31 → 26.1/30 → 26.1/32 |
+| depois da janela (Março 2027) | 0 → 0 → 0 | 105 → 51 → 89 | 27.71 → 27.7 → 27.7 | 26.3/33 → 26.2/30 → 26.2/32 |
+| depois da janela (Outubro 2027) | 1 → 0 → 0 | 233 → 75 → 192 | 27.34 → 27.32 → 27.25 | 27.7/35 → 27.2/32 → 27.7/33 |
+| depois da janela (Março 2028) | 1 → 0 → 0 | 282 → 117 → 228 | 27.45 → 27.4 → 27.33 | 28.2/35 → 27.6/31 → 28.2/33 |
+
+Rescisões de excedentes em 2 épocas (B2): 523. Com a disposição de rescindir igual a 1 em todos os arquétipos (como em B1), seriam cerca de 750, e os clubes com 6+ na mesma posição no fim seriam cerca de 140 em vez de 228.
+
+### Um clube que vende 10 numa janela (cenário forçado)
+
+Nenhum clube perde 8 ou mais jogadores numa janela destas 2 épocas, por isso o caso foi forçado (`npx tsx scripts/cenario-vende10.ts`, semente 2026): o Dunbury Wanderers (Inglaterra) vende os 10 melhores no início da janela de Verão e fica com 15 jogadores.
+
+- Necessidades logo a seguir: 5, todas de profundidade (PL, GR, DD, DE, ED). Em B1 o tecto era 4.
+- Na janela: 9 entradas (5 transferências, contando uma cláusula, e 4 livres). Plantel no fim: 24.
+- No fim já só tem necessidades de qualidade (PL, EE, DE, MC): os reforços de urgência são piores do que os que saíram.
+
+### Promoções da academia por arquétipo (1.ª passagem de época, Julho de 2027)
+
+| Arquétipo | Promovidos pelo nível (B1 → B2) | Sobem para empréstimo (B2) | Sobem para venda (B1 → B2) |
+|---|---|---|---|
+| Comprador de estrelas | 3 → 2 | 253 | 99 → 75 |
+| Magnata impaciente | 1 → 1 | 139 | 33 → 32 |
+| Formador | 204 → 205 | 8 | 369 → 377 |
+| Vendedor | 118 → 69 | 0 | 248 → 268 |
+| Tradicional | 37 → 27 | 2 | 266 → 264 |
+| Analítico | 14 → 15 | 2 | 153 → 153 |
+
+- **Antes (B1):** no comprador de estrelas e no magnata, os juniores sem nível ficavam no sub-21 até aos 22 anos.
+- **Agora (B2):** a partir dos 19 sobem ao plantel para serem emprestados ou vendidos a um clube menor.
+- **Até ao fecho da janela (6 de Setembro):**
+    - 47 já tinham saído (45 emprestados);
+    - 34 tinham jogado pela equipa principal;
+    - os restantes ficam como excedentes, à venda ou a emprestar na janela seguinte.
+- **Pouco tempo de janela:** a passagem de época é no fim de Julho, por isso sobra só um mês de janela.
 
 ### Desempenho
 
-Semana mundial (nesta máquina): média 282 → 303 ms; máximo 674 → 660 ms. Os planos de todos os clubes custam ~65–90 ms por mês (uma vez por mês, não por semana).
+Semana mundial (nesta máquina): média 282 (A) → 303 (B1) → 283 ms (B2); máximo 674 → 660 → 659 ms. Os planos recalculados a cada negócio custam cerca de 0,9 s em 30 semanas.
 
 ### Bandas anteriores (10 épocas, semente 2026)
 
-| Banda | Antes | Depois | Faixa |
-|---|---|---|---|
-| 0–0 | 8,40% | 8,34% | 6,5–8,5% |
-| Campeões com 1,9–2,85 pontos por jogo | 93,8% | 93,3% | ≥ 90% |
-| Últimos com 0,25–1,15 pontos por jogo | 90,8% | 91,3% | ≥ 90% |
+| Banda | A | B1 | B2 | Faixa |
+|---|---|---|---|---|
+| 0–0 | 8,40% | 8,34% | 8,47% | 6,5–8,5% |
+| Campeões com 1,9–2,85 pontos por jogo | 93,8% | 93,3% | 91,9% | ≥ 90% |
+| Últimos com 0,25–1,15 pontos por jogo | 90,8% | 91,3% | 90,8% | ≥ 90% |
 
 ### Notas
 
-- Na janela do Brackcombe, o central comprado (79 de OVR real) é pior do que o titular (81): o clube estimava-o em 85 ou mais. A IA só vê o que os seus olheiros viram (nevoeiro), e às vezes erra.
-- Os clubes com 6 ou mais na mesma posição são sobretudo de centrais em formações de 3 ou 5 defesas, e de clubes a lutar pela permanência, que guardam a profundidade.
-
+- As bandas ficam perto dos limites e mexem com qualquer mudança no mercado. Cada experiência foi medida com 10 épocas completas:
+    - **Disposição de rescindir intermédia** (1 / 0,7 / 0,5 / 0,4): 0–0 a 8,59%, fora da faixa.
+    - **Empréstimos de excedentes só para outras ligas:** últimos com 88,8% dentro, fora da faixa.
+    - **Qualidade exigida a mais** (margem 2 em vez de 3): últimos com 88,3% dentro, fora da faixa.
+    - **Jovens colocados para cobrir qualquer necessidade, incluindo nos clubes em luta pela permanência:** últimos com 86–88% dentro. Os clubes mais fracos ficavam com jovens em vez de jogadores feitos.
+    - **Versão escolhida:**
+        - jovens colocados só onde falta gente e nunca em quem luta pela permanência;
+        - disposição de rescindir por arquétipo;
+        - empréstimos de excedentes para os clubes abaixo do nível da liga.
+- Os jogadores rescindidos ficam livres, e são os clubes mais fracos que os contratam. Com menos rescisões, os últimos ficavam mais fracos. Por isso os clubes abaixo do nível da liga procuram mais empréstimos de excedentes dos clubes maiores.
+- Os clubes com 6 ou mais na mesma posição são sobretudo de centrais e médios centro. A maioria desses jogadores está à venda, mas só se vende a quem precise da posição.

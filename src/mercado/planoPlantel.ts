@@ -52,9 +52,13 @@ export class PlanosPlantel {
   constructor(private w: World, private m: Mercado) {}
 
   /** Plano do clube (calcula-o se não existir ou tiver mais de 35 dias). */
+  /** Clubes cujo plantel mudou (venda, compra, empréstimo): o plano recalcula-se na próxima consulta. */
+  private sujos = new Set<number>();
+  invalidar(c: number) { this.sujos.add(c); }
+
   obter(c: number, dia: number): PlanoClube {
     const p = this.porClube.get(c);
-    if (p && dia - p.dia <= 35) return p;
+    if (p && dia - p.dia <= 35 && !this.sujos.has(c)) return p;
     return this.calcular(c, dia);
   }
 
@@ -142,7 +146,10 @@ export class PlanosPlantel {
     const extra = pd ? Math.round(pd.reforcos * pd.autonomia * (1 + (e.ia?.pressao?.[c] ?? 0) * 0.5) / 2) : 0;
     // Um clube abaixo do nível da sua liga (luta pela permanência) aceita mais uma necessidade.
     const base = P.necessidades_base + (media < liga - P.abaixo_da_liga ? 1 : 0);
-    const necessidades = ordenadas.slice(0, Math.min(P.necessidades_max, base + extra)).map((n, i) => ({ ...n, pedido: i >= base }));
+    // A profundidade (posição sem gente) entra sempre; o tecto só limita a qualidade e a sucessão.
+    const prof = ordenadas.filter((n) => n.motivo === 'profundidade');
+    const resto = ordenadas.filter((n) => n.motivo !== 'profundidade').slice(0, Math.max(0, Math.min(P.necessidades_max, base + extra) - prof.length));
+    const necessidades = [...prof.map((n) => ({ ...n })), ...resto.map((n, i) => ({ ...n, pedido: prof.length + i >= base }))].sort((a, b) => b.urgencia - a.urgencia);
     // Excedentes: a mais na posição, sem lugar no plano, ou que não encaixa no sistema (descontente do treinador).
     const insubstituiveis = new Set<number>();
     for (const [pos, occ] of ocupados) {
@@ -153,7 +160,10 @@ export class PlanosPlantel {
       }
     }
     const excedentes: { j: number; motivo: string }[] = [], emprestar: number[] = [];
-    const grande = w.reputacao[c] >= 70;
+    // Emprestam os jovens sem lugar os clubes grandes e, em qualquer liga, os que usam pouco a academia (comprador de
+    // estrelas, magnata): o júnior vai para um clube menor antes de se estrear.
+    const arqC = e.ia?.arquetipo[c];
+    const grande = w.reputacao[c] >= 70 || arqC === 'comprador_estrelas' || arqC === 'magnata_impaciente';
     for (const j of pl) {
       const l = lugar.get(j);
       if (l) {
@@ -171,7 +181,29 @@ export class PlanosPlantel {
     excedentes.sort((a, b) => st.ovrNat(a.j) - st.ovrNat(b.j));
     const plano: PlanoClube = { dia, formacao, estilo, nivel: media, lugar, necessidades, todas: ordenadas, excedentes: excedentes.slice(0, maxVender), emprestar, insubstituiveis };
     this.porClube.set(c, plano);
+    this.sujos.delete(c);
     return plano;
+  }
+
+  /** O jogador é um excedente do plano do clube (à venda e emprestável), excepto os que só não encaixam no sistema? */
+  excedente(c: number, j: number): boolean {
+    return !!this.porClube.get(c)?.excedentes.some((x) => x.j === j && !x.motivo.startsWith('não encaixa'));
+  }
+
+  /** Há lugar no plano para um júnior? 'titular': entra no onze da sua posição; 'profundidade': entra nos pedidos da
+   *  posição (há vaga ou é melhor do que o pior que lá está). */
+  lugarParaJovem(c: number, j: number, dia: number, exigencia: 'titular' | 'profundidade'): boolean {
+    const st = this.w.jogadores!, p = this.obter(c, dia);
+    const lugares = FORMACAO_POR_ID[p.formacao].lugares;
+    // Qualquer posição da formação em que seja competente (não só a natural).
+    for (const pos of new Set(lugares.map((l) => l.pos as Posicao))) {
+      if (st.fam[j * N_POS + IDX_POS[pos]] < FAMILIARIDADE.competente) continue;
+      const n = lugares.filter((l) => l.pos === pos).length;
+      const lim = exigencia === 'titular' ? n : pos === 'GR' ? P.profundidade_gr : Math.ceil(n * P.profundidade_campo);
+      const occ = [...p.lugar.entries()].filter(([x, l]) => x !== j && l.pos === pos && (exigencia === 'profundidade' || l.titular)).map(([, l]) => l.nivel);
+      if (occ.length < lim || this.nivelNoSistema(j, pos, p.estilo) > Math.min(...occ)) return true;
+    }
+    return false;
   }
 
   /** O clube está abaixo do nível da sua liga (luta pela permanência)? */

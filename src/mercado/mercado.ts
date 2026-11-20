@@ -218,10 +218,15 @@ export class Mercado {
 
   /** Último dia da janela aberta (ou o dia, se fechada). */
   fimJanela(c: number, dia: number): number {
+    const k = this.w.liga[c] * 100000 + dia, x = this.cacheFimJanela.get(k);
+    if (x !== undefined) return x;
     let d = dia;
     while (this.janelaAberta(c, d + 1) && d - dia < 120) d++;
+    if (this.cacheFimJanela.size > 5000) this.cacheFimJanela.clear();
+    this.cacheFimJanela.set(k, d);
     return d;
   }
+  private cacheFimJanela = new Map<number, number>();
 
   /** Cláusula de rescisão, conforme o costume da liga, o poder do jogador e o arquétipo; limite por plantel. */
   talvezClausula(j: number, c: number, dia: number, rng: Rng) {
@@ -281,7 +286,8 @@ export class Mercado {
       this.livres.set(g, this.livres.get(g)!.filter((j) => st.clube[j] === -3));
       this.listados.set(g, a.filter((j) => this.contratos.listado[j] > 0));
       // Emprestáveis: jovens (≤ 21) de clubes grandes sem lugar no plano de plantel (antes do 1.º plano: fora dos 18 primeiros).
-      this.emprestaveis.set(g, a.filter((j) => { const c = st.clube[j]; return w.reputacao[c] >= EMPRESTIMOS.emprestador_reputacao && st.idade(j, this.hoje) <= EMPRESTIMOS.idade_maxima && !this.contratos.emprestimo.has(j) && (this.planos.porClube.get(c)?.emprestar.includes(j) ?? (this.ordem.get(j) ?? 0) >= 18); }));
+      // Mais os excedentes do plano (até 27 anos), de qualquer clube: emprestar vem antes de rescindir.
+      this.emprestaveis.set(g, a.filter((j) => { const c = st.clube[j]; if (this.contratos.emprestimo.has(j)) return false; const id = st.idade(j, this.hoje); if (id <= PLANO_PLANTEL.excedente_emprestar_idade && this.planos.excedente(c, j)) return true; const plano = this.planos.porClube.get(c); if (plano?.emprestar.includes(j)) return id <= EMPRESTIMOS.idade_maxima; return w.reputacao[c] >= EMPRESTIMOS.emprestador_reputacao && id <= EMPRESTIMOS.idade_maxima && !plano && (this.ordem.get(j) ?? 0) >= 18; }));
     }
   }
 
@@ -689,6 +695,8 @@ export class Mercado {
       this.recalcularFolha(para);
       n.rondas.push({ dia: n.dia, texto: `${st.nomes[j]} assina pelo ${w.clubes[para].nome} até ${data(st.fimContrato[j])}${k.clausula[j] ? ` (cláusula de rescisão de ${M(k.clausula[j])})` : ''}` });
     }
+    // O plantel mudou: os planos dos dois clubes recalculam-se (quem vendeu 10 numa janela tem de repor).
+    if (n.tipo !== 'pre_contrato') { if (n.comprador >= 0) this.planos.invalidar(n.comprador); if (de >= 0) this.planos.invalidar(de); }
     // Posições reforçadas pelo comprador nesta janela (as necessidades do plano cobertas; pedidos do treinador).
     if (n.comprador >= 0 && n.tipo !== 'pre_contrato') {
       const st2 = this.w.jogadores!, NP = POS_NOMES.length;
@@ -742,6 +750,7 @@ export class Mercado {
     if (mes === 4 || mes === 10) { this.gastoJanela.clear(); this.vendasJanela.clear(); }
     // IA: novas abordagens (compras e empréstimos na janela; livres sempre que faltam jogadores).
     this.abordagens(segunda, rng);
+    this.colocarEmprestimos(segunda, rng);
     // Negócios: rondas ao longo dos dias da semana.
     for (const n of [...this.negocios]) {
       const r = Rng.de(w.semente, 'negocio', n.id, segunda);
@@ -831,10 +840,13 @@ export class Mercado {
     }
   }
 
-  /** Fim da janela: rescisão dos excedentes do plano quando o plantel passa do máximo ou uma posição natural tem
-   *  jogadores a mais (os piores primeiro; nunca abaixo de 22; o clube paga parte do contrato que falta). */
+  /** Fim da janela, último recurso: os excedentes do plano que não se venderam (com o preço a descer) nem emprestaram.
+   *  Só quando o plantel passa do máximo ou uma posição natural tem jogadores a mais (os piores primeiro; nunca abaixo
+   *  de 22), e conforme o arquétipo (quem gasta muito corta; o tradicional e o formador mantêm e vendem mais tarde). */
   rescindirExcedentes(c: number, dia: number) {
     const w = this.w, st = w.jogadores!, e = w.economia!, P = PLANO_PLANTEL;
+    const disposicao = P.rescisao_arquetipo[e.ia?.arquetipo[c] ?? ''] ?? 0.5;
+    const rng = Rng.de(w.semente, 'rescisao', w.clubes[c].id, dia);
     const plano = this.planos.calcular(c, dia);
     let pl = this.plantel(c);
     const contar = () => { const n = new Map<number, number>(); for (const j of pl) n.set(st.posNat[j], (n.get(st.posNat[j]) ?? 0) + 1); return n; };
@@ -846,6 +858,7 @@ export class Mercado {
       const repetido = (porPos.get(st.posNat[j]) ?? 0) >= P.repetidos_max && !this.planos.abaixoDaLiga(c);
       if (pl.length <= P.plantel_max && !repetido) continue;
       if (this.contratos.emprestimo.has(j) || st.clube[j] !== c) continue;
+      if (pl.length <= P.plantel_limite && !rng.chance(disposicao)) continue; // fica à venda para a próxima janela
       const anos = Math.max(0, (st.fimContrato[j] - dia) / 365);
       e.clubes.lancar(c, 'indemnizacoes', P.rescisao_fraccao * anos * st.salario[j]);
       w.plantel[c] = w.plantel[c].filter((x) => x !== j);
@@ -871,9 +884,10 @@ export class Mercado {
       const aberta = this.janelaAberta(c, segunda + 3);
       const pl = this.plantel(c);
       const plano = this.planos.obter(c, segunda);
-      // As necessidades ainda por cobrir nesta janela (uma contratação para a posição cobre-a).
+      // As necessidades ainda por cobrir nesta janela (uma contratação para a posição cobre a qualidade e a sucessão; a
+      // profundidade só desaparece quando o plano recalculado já tem gente que chegue).
       const feitos = this.reforcosJanela.get(c) ?? [];
-      const nec = plano.necessidades.filter((n) => !feitos.includes(n.pos));
+      const nec = plano.necessidades.filter((n) => n.motivo === 'profundidade' || !feitos.includes(n.pos));
       if (!nec.length) continue; // sem necessidade não se compra (acabou o "comprar o melhor possível")
       const nivel = plano.nivel;
       // Livres: a qualquer momento, quando falta gente numa posição (profundidade) ou o plantel está curto.
@@ -893,8 +907,9 @@ export class Mercado {
       for (const n of nec) if (rng.chance(0.5)) this.propostasAgentes(c, grupoPos(IDX_POS[n.pos]), segunda, rng);
       const fim = this.fimJanela(c, segunda);
       const pico = fim - segunda < 7 ? N.pico_ultima_semana : 1;
-      // Uma tentativa por necessidade (as duas mais urgentes) por semana.
-      for (const n of nec.slice(0, 2)) {
+      // Uma tentativa por necessidade por semana: as mais urgentes e todas as de profundidade (sem tecto rígido).
+      const nProf = nec.filter((n) => n.motivo === 'profundidade').length;
+      for (const n of nec.slice(0, Math.min(PLANO_PLANTEL.tentativas_max, Math.max(PLANO_PLANTEL.tentativas_semana, nProf)))) {
         if (!rng.chance(Math.min(0.95, IA.prob_abordagem * pico))) continue;
         // Orçamento da janela: o maior entre o da caixa e uma fracção da receita (pela ambição), mais as vendas da janela, até ao tecto.
         const amb = e.ia?.ambicao[c] ?? 0.5;
@@ -903,17 +918,22 @@ export class Mercado {
         const alvoMin = n.nivelMin, alvoMax = n.nivelMin + 10;
         const [i0, i1] = n.idade;
         // Empréstimo (pouco orçamento, profundidade, clube pequeno): jovens de clubes grandes sem lugar no plano deles.
-        if (orc < 0.02 * s.receitaPrevista[c] || (n.motivo === 'profundidade' && rng.chance(0.4)) || (w.reputacao[c] < 60 && rng.chance(IA.prob_emprestimo))) {
-          const cand = this.alvos(c, g, alvoMin - 4, alvoMax, 16, EMPRESTIMOS.idade_maxima, segunda, rng).map((x) => x.j).filter((j) => {
+        // Quem luta pela permanência procura mais empréstimos (excedentes dos maiores).
+        if (orc < 0.02 * s.receitaPrevista[c] || (n.motivo === 'profundidade' && rng.chance(0.4)) || ((w.reputacao[c] < 60 || this.planos.abaixoDaLiga(c)) && rng.chance(IA.prob_emprestimo))) {
+          // Jovens sem lugar dos clubes grandes; ou excedentes do plano de outro clube (de reputação maior), que os empresta
+          // antes de pensar em rescindir.
+          const cand = this.alvos(c, g, alvoMin - 4, alvoMax, 16, PLANO_PLANTEL.excedente_emprestar_idade, segunda, rng).map((x) => x.j).filter((j) => {
             const d = st.clube[j];
-            return serve(j, n) && w.reputacao[d] >= EMPRESTIMOS.emprestador_reputacao && w.reputacao[d] > w.reputacao[c] + 10;
+            if (!serve(j, n)) return false;
+            if (this.planos.excedente(d, j)) return w.reputacao[d] > w.reputacao[c];
+            return st.idade(j, segunda) <= EMPRESTIMOS.idade_maxima && (w.reputacao[d] >= EMPRESTIMOS.emprestador_reputacao || !!this.planos.porClube.get(d)?.emprestar.includes(j)) && w.reputacao[d] > w.reputacao[c] + 10;
           });
           const j = cand[0];
           if (j !== undefined) {
             const recebidos = [...this.contratos.emprestimo.values()].filter((x) => x.dono !== c && pl.some((p) => this.contratos.emprestimo.get(p) === x)).length;
             if (recebidos < EMPRESTIMOS.max_recebidos) {
               const ne = this.abrir('emprestimo', j, c, segunda + rng.int(0, 4), 0, 0, rng);
-              if (ne) ne.emprestimo = { salario: EMPRESTIMOS.salario_receptor[0] + rng.next() * (EMPRESTIMOS.salario_receptor[1] - EMPRESTIMOS.salario_receptor[0]), opcao: rng.chance(EMPRESTIMOS.prob_opcao) ? Math.round(valorMercado(w, j, segunda, e.inflacao) * EMPRESTIMOS.opcao_multiplo) : 0, obrigacao: rng.chance(EMPRESTIMOS.prob_obrigacao) };
+              if (ne) ne.emprestimo = this.termosEmprestimo(j, segunda, rng);
             }
           }
           if (orc < 0.02 * s.receitaPrevista[c]) continue;
@@ -949,6 +969,42 @@ export class Mercado {
         if ((st.fimContrato[melhor] - segunda) / 30 <= CONTRATO.pre_contrato_meses && this.contratos.preContrato[melhor] < 0) { this.abrir('pre_contrato', melhor, c, segunda + rng.int(0, 4), 0, 0, rng); continue; }
         const oferta = pp.preco * (IA.oferta_inicial[0] + rng.next() * (IA.oferta_inicial[1] - IA.oferta_inicial[0]));
         this.abrir('transferencia', melhor, c, segunda + rng.int(0, 4), oferta, Math.min(orc, mp * 1.15), rng);
+      }
+    }
+  }
+
+  /** Termos de um empréstimo: fracção do salário paga por quem recebe, opção e obrigação de compra (sorteadas). */
+  private termosEmprestimo(j: number, dia: number, rng: Rng) {
+    return { salario: EMPRESTIMOS.salario_receptor[0] + rng.next() * (EMPRESTIMOS.salario_receptor[1] - EMPRESTIMOS.salario_receptor[0]), opcao: rng.chance(EMPRESTIMOS.prob_opcao) ? Math.round(valorMercado(this.w, j, dia, this.w.economia!.inflacao) * EMPRESTIMOS.opcao_multiplo) : 0, obrigacao: rng.chance(EMPRESTIMOS.prob_obrigacao) };
+  }
+
+  /** Quem tem jovens sem lugar no plano (a emprestar) procura-lhes destino: um por semana, na janela, oferecido a alguns
+   *  clubes menores (reputação 10+ abaixo, não em luta pela permanência) a quem falte gente na posição natural dele
+   *  (necessidade de profundidade), com o nível mínimo da necessidade. É o clube que
+   *  empresta a tomar a iniciativa (sem isto só saíam se quem precisa já os conhecesse). */
+  private colocarEmprestimos(segunda: number, rng: Rng) {
+    const w = this.w, st = w.jogadores!, e = w.economia!, P = PLANO_PLANTEL, NP = POS_NOMES.length;
+    const emJogo: number[] = [];
+    for (let c = 0; c < w.clubes.length; c++) if (w.liga[c] >= 0 && e.controlador(c).tipo !== 'utilizador') emJogo.push(c);
+    const cedidos = new Map<number, number>(), recebidos = new Map<number, number>();
+    for (const [j, x] of this.contratos.emprestimo) { cedidos.set(x.dono, (cedidos.get(x.dono) ?? 0) + 1); recebidos.set(st.clube[j], (recebidos.get(st.clube[j]) ?? 0) + 1); }
+    for (const [c, plano] of this.planos.porClube) {
+      // Os jovens a emprestar e os excedentes novos (até x anos).
+      const lista = [...plano.emprestar, ...plano.excedentes.filter((x) => !x.motivo.startsWith('não encaixa') && st.idade(x.j, segunda) <= P.colocar_idade_excedente).map((x) => x.j)];
+      if (!lista.length || e.controlador(c).tipo === 'utilizador' || !this.janelaAberta(c, segunda + 3)) continue;
+      if ((cedidos.get(c) ?? 0) >= EMPRESTIMOS.max_cedidos || !rng.chance(P.colocar_prob)) continue;
+      const j = lista.find((x) => st.clube[x] === c && !this.contratos.emprestimo.has(x) && !this.negocios.some((n) => n.jogador === x));
+      if (j === undefined) continue;
+      for (let k = 0; k < P.colocar_amostra; k++) {
+        const d = emJogo[rng.int(0, emJogo.length - 1)];
+        // Quem luta pela permanência não quer jovens emprestados (quer jogadores feitos).
+        if (d === c || w.reputacao[d] > w.reputacao[c] - 10 || (recebidos.get(d) ?? 0) >= EMPRESTIMOS.max_recebidos || this.planos.abaixoDaLiga(d) || !this.janelaAberta(d, segunda + 3)) continue;
+        const n = this.planos.porClube.get(d)?.necessidades.find((x) => x.motivo === 'profundidade' && st.fam[j * NP + IDX_POS[x.pos]] >= FAMILIARIDADE.natural && st.ovrNat(j) >= x.nivelMin);
+        if (!n) continue;
+        this.scouting.conhecer(d, j, CONHECIMENTO.ganho_proposta, segunda);
+        const ne = this.abrir('emprestimo', j, d, segunda + rng.int(0, 4), 0, 0, rng);
+        if (ne) ne.emprestimo = this.termosEmprestimo(j, segunda, rng);
+        break;
       }
     }
   }

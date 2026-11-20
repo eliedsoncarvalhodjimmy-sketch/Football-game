@@ -71,7 +71,9 @@ for (let s = 0; s < 12; s++) {
       const preco = n.oferta ? `, ${(n.oferta / 1e6).toFixed(1)} M€` : '';
       if (n.comprador === c) {
         const nec = I.nec.find((x) => POSICOES[st.posNat[j]] === x.pos);
-        linhasDe.get(c)!.push(`- ${d} — **entra** ${nomeJ(j)} (${n.tipo}${preco}) → ${nec ? `necessidade ${nec.pos} (${nec.motivo}${nec.pedido ? ', pedido do treinador' : ''}: ${nec.texto})` : 'necessidade surgida durante a janela (plano recalculado)'}`);
+        // Abaixo do nível mínimo da necessidade: um livre para um plantel curto (profundidade), que os olheiros estimavam acima.
+        const curto = nec && n.tipo === 'livre' && st.ovrNat(j) < nec.nivelMin;
+        linhasDe.get(c)!.push(`- ${d} — **entra** ${nomeJ(j)} (${n.tipo}${preco}) → ${curto ? `plantel curto: livre para a profundidade de ${nec!.pos} (nível mínimo ${nec!.nivelMin}; os olheiros estimavam-no acima do valor real)` : nec ? `necessidade ${nec.pos} (${nec.motivo}${nec.pedido ? ', pedido do treinador' : ''}: ${nec.texto})` : 'necessidade surgida durante a janela (plano recalculado)'}`);
       } else linhasDe.get(c)!.push(`- ${d} — **sai** ${nomeJ(j)} (${n.tipo}${preco}) → ${I.exc.has(j) ? `excedente: ${I.exc.get(j)}` : I.emp.has(j) ? 'jovem sem lugar no plano: emprestado' : n.tipo === 'clausula' ? 'cláusula de rescisão paga' : 'oferta aceite (não era insubstituível)'}`);
     }
   }
