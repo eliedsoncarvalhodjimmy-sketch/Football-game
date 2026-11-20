@@ -42,7 +42,7 @@ export const PASSE = {
   candidatos: 6,
   /** Erro de execução (secção 7.4): desvio do ângulo (rad) = (base + por ponto abaixo de 20 de Passe/Técnica) × (1 +
    *  distância ÷ 40) × (1 + pressão); a velocidade erra ± x%. Pé fraco: Fase 3. */
-  erro_ang_base: 0.015, erro_ang_ponto: 0.0045, erro_vel: 0.06, pressao_m: 3, pressao_factor: 0.8,
+  erro_ang_base: 0.012, erro_ang_ponto: 0.0035, erro_vel: 0.05, pressao_m: 3, pressao_factor: 0.8,
   /** Previsão do portador (secção 7.4): sucesso = logística da folga (tempo do defensor − tempo da bola) ÷ escala; o
    *  portador erra a leitura conforme a Visão (ruído na folga, s). */
   folga_escala_s: 0.25, leitura_ruido_s: 0.25,

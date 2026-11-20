@@ -4,6 +4,7 @@
 // com valor = V(destino) − V(origem) (mapa de ameaça; num remate, o xG), sucesso = previsão do portador (que erra a
 // leitura pela Visão) e custo = ameaça do sítio da perda para o adversário. Escolhe por softmax de temperatura baixa
 // entre as 3 melhores. A execução aplica o erro (técnica, distância, pressão) e a bola segue a física.
+import { pesoJogadaOpcao } from './jogadas.ts';
 import { PORTADOR, DUELO, REMATE, FORA_DE_JOGO, ESTADO_JOGO, pesoOpcaoEstilo, type OpcaoPortador } from '../../config/match2d/fase3.ts';
 import { PASSE, DECISAO_PORTADOR, BOLA } from '../../config/match2d/bola.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
@@ -64,7 +65,7 @@ function folgaAerea(s: Estado2D, de: V2, destino: V2, h: number, equipa: Equipa)
 
 /** Desvio do ângulo do passe (rad), pela técnica, distância e pressão (secção 7.4). */
 export function sigmaPasse(s: Estado2D, j: Jogador2D, d: number, tipo: OpcaoPortador | string, aereo: boolean): number {
-  const attr = tipo === 'CRUZAMENTO' ? at(j, 'cru') : aereo || d > 30 ? (at(j, 'plo') + at(j, 'tec')) / 2 : (at(j, 'pas') + at(j, 'tec')) / 2;
+  const attr = j.chave === 'GR' ? (aereo || d > 30 ? at(j, 'pon') : at(j, 'jpe')) : tipo === 'CRUZAMENTO' ? at(j, 'cru') : aereo || d > 30 ? (at(j, 'plo') + at(j, 'tec')) / 2 : (at(j, 'pas') + at(j, 'tec')) / 2;
   const pressao = pressionado(s, j, PASSE.pressao_m) ? PASSE.pressao_factor : 0;
   return (PASSE.erro_ang_base + PASSE.erro_ang_ponto * Math.max(0, 20 - attr)) * (1 + d / 40) * (1 + pressao);
 }
@@ -259,6 +260,8 @@ export function avaliarPortador(s: Estado2D, j: Jogador2D, semente: string): Esc
     const pt = K * comPeso(0.45 * vLand - 0.55 * vAdv + PORTADOR.aliviar_perigo * perigoAqui * aversao, pesoOpcaoEstilo(P, 'ALIVIAR')) + ruido('ali');
     out.push({ tipo: 'ALIVIAR', pontuacao: pt, sucesso: 0.45, valor: vLand - vOrig, destino: paraAbsoluto(e, alvoT), aereo: true, altura: PORTADOR.altura_alivio });
   }
+  // Jogada-padrão activa (secção 11): sobe as opções e os receptores da jogada (como o peso do estilo).
+  if (s.equipas[e].jogada) for (const o of out) { const w = pesoJogadaOpcao(s, e, o.tipo, o.receptor); if (w !== 1) o.pontuacao = comPeso(o.pontuacao, w); }
   return out.sort((a, b) => b.pontuacao - a.pontuacao);
 }
 
@@ -275,7 +278,8 @@ export function escolher(op: Escolha[], chave: string): Escolha | null {
 /** Execução de um passe/cruzamento/alívio: velocidade da bola (horizontal e vertical) com o erro (secção 7.4). */
 export function executarBola(s: Estado2D, j: Jogador2D, o: Escolha, semente: string): { v: V2; vz: number } {
   const destino = o.destino!, d = dist(s.bola.p, destino);
-  const attr = o.tipo === 'CRUZAMENTO' ? at(j, 'cru') : o.aereo || d > 30 ? (at(j, 'plo') + at(j, 'tec')) / 2 : (at(j, 'pas') + at(j, 'tec')) / 2;
+  // O guarda-redes passa com o Jogo com os pés (curto) e o Pontapé (longo).
+  const attr = j.chave === 'GR' ? (o.aereo || d > 30 ? at(j, 'pon') : at(j, 'jpe')) : o.tipo === 'CRUZAMENTO' ? at(j, 'cru') : o.aereo || d > 30 ? (at(j, 'plo') + at(j, 'tec')) / 2 : (at(j, 'pas') + at(j, 'tec')) / 2;
   const pressao = pressionado(s, j, PASSE.pressao_m) ? PASSE.pressao_factor : 0;
   const sigma = (PASSE.erro_ang_base + PASSE.erro_ang_ponto * Math.max(0, 20 - attr)) * (1 + d / 40) * (1 + pressao);
   const chave = `${semente}|${j.id}|${s.tick}|exec`;

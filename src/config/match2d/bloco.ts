@@ -4,7 +4,7 @@ export const BLOCO = {
   /** Recalcula o alvo do bloco a 5 Hz (s). */
   periodo_s: 0.2,
   /** Filtro suave do bloco (constante de tempo, s): o bloco desloca-se com atraso, não instantaneamente. */
-  filtro_s: 0.8,
+  filtro_s: 1.2,
   /** Quanto a linha defensiva acompanha a bola (m de linha por m de bola, a partir do meio-campo), sem e com bola. */
   seguir_bola_sem: 0.35, seguir_bola_com: 0.3,
   /** A linha nunca a menos de 7 m da própria baliza (o documento pede ≥ 6; 7 deixa o GR 3 m atrás); máximo acima do

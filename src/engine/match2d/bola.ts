@@ -3,7 +3,7 @@
 import { hyp } from './referencial.ts';
 import { BOLA, RECEPCAO } from '../../config/match2d/bola.ts';
 import { CAMPO_2D, TICK_S } from '../../config/match2d/fisica.ts';
-import { limitesFisicos } from './fisica.ts';
+import { limitesFisicos, reaccaoCansaco } from './fisica.ts';
 import type { Jogador2D, V2 } from './tipos.ts';
 
 const B = { ...BOLA }, R = { ...RECEPCAO };
@@ -78,7 +78,7 @@ export function tempoChegada(j: Jogador2D, alvo: V2, reaccao = true, alcance = B
   const dx = alvo.x - j.p.x, dy = alvo.y - j.p.y, dd = hyp(dx, dy);
   const d = Math.max(0, dd - alcance);
   const ant = (j.attrs as Record<string, number | undefined>).ant ?? 10;
-  const tr = reaccao ? R.reaccao_base - R.reaccao_ant * ant : 0;
+  const tr = reaccao ? R.reaccao_base - R.reaccao_ant * ant + reaccaoCansaco(j) : 0;
   if (d <= 0) return tr;
   const v0 = dd > 1e-6 ? Math.max(0, Math.min(L.velMax, (j.v.x * dx + j.v.y * dy) / dd)) : 0, a = L.acel, vm = L.velMax;
   const dAcel = (vm * vm - v0 * v0) / (2 * a); // distância até chegar à velocidade máxima

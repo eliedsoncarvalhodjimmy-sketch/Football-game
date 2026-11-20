@@ -1,4 +1,5 @@
 // Camadas 2 e 3 (secções 4 e 5): o bloco da equipa e a âncora de cada jogador dentro dele.
+import { linhaJogada } from './jogadas.ts';
 import { FORMAS_2D, AJUSTE_PAPEL } from '../../config/match2d/formacoes.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { BLOCO } from '../../config/match2d/bloco.ts';
@@ -47,7 +48,7 @@ export function alvoBloco(s: Estado2D, e: Equipa, papeis: string[]): Bloco {
   const base = comBola ? P.linhaComBola : P.linhaSemBola;
   let linha = base + (comBola ? BLOCO.seguir_bola_com : BLOCO.seguir_bola_sem) * (b.x - CAMPO_2D.comprimento / 2);
   // Estado do jogo: a ganhar a linha baixa, a perder sobe.
-  linha += eq.mentalidade * ESTADO_JOGO.linha_m;
+  linha += eq.mentalidade * ESTADO_JOGO.linha_m + linhaJogada(s, e);
   if (!comBola) {
     // Secção 9.1: bola descoberta (portador sem ninguém perto, de frente para a nossa baliza) → a linha recua;
     // o adversário passou para trás → a linha sobe em bloco durante uns segundos.
@@ -63,7 +64,9 @@ export function alvoBloco(s: Estado2D, e: Equipa, papeis: string[]): Bloco {
   const m = medidasForma(eq.formacao, papeis, comBola ? 1 : 0);
   let comprimento = comBola ? clamp((m.xMax - m.xDef) * CAMPO_2D.comprimento, BLOCO.comprimento_com[0], BLOCO.comprimento_com[1]) : P.comprimentoSemBola - Math.max(0, -eq.mentalidade) * ESTADO_JOGO.comprimento_m;
   // Sem bola: a linha de médios fica entre a bola e a baliza (só os avançados podem estar à frente da bola).
-  if (!comBola) linha = Math.min(linha, b.x - BLOCO.medios_atras_bola_m - ((m.xMed - m.xDef) / Math.max(0.05, m.xMax - m.xDef)) * comprimento);
+  // (Com o comprimento normal do estilo: encurtar o bloco a ganhar não pode subir a linha.) A mentalidade também baixa este
+  // limite: quem se fecha fica mais atrás da bola.
+  if (!comBola) linha = Math.min(linha, b.x - BLOCO.medios_atras_bola_m - ((m.xMed - m.xDef) / Math.max(0.05, m.xMax - m.xDef)) * P.comprimentoSemBola + Math.min(0, eq.mentalidade) * ESTADO_JOGO.linha_m);
   linha = Math.max(BLOCO.linha_min, linha);
   comprimento = Math.min(comprimento, CAMPO_2D.comprimento - 3 - linha);
   const largura = comBola ? P.larguraComBola : P.larguraSemBola;

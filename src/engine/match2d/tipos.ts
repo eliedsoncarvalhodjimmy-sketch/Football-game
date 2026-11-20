@@ -14,7 +14,7 @@ export type AccaoSemBola = 'MANTER_POSICAO' | 'OFERECER_APOIO' | 'DAR_LARGURA' |
 
 export type Intensidade = 'andar' | 'trote' | 'corrida' | 'sprint';
 
-export interface JogadorBase2D { id: string; nome: string; numero: number; pos: string; papel: string; attrs: Partial<Record<IdAtributo, number>> }
+export interface JogadorBase2D { id: string; nome: string; numero: number; pos: string; papel: string; attrs: Partial<Record<IdAtributo, number>>; /** Condição física à entrada (0–1; por defeito 1). */ condicao?: number }
 
 export interface Jogador2D extends JogadorBase2D {
   equipa: Equipa;
@@ -50,6 +50,10 @@ export interface Jogador2D extends JogadorBase2D {
   proxDesarme: number;
   /** Marcação individual (Catenaccio): o adversário que lhe foi atribuído. */
   marcado: string | null;
+  /** Cansaço (secção 10.2): condição física 0–1 e os limites físicos já com a quebra (null = sem quebra). */
+  condicao: number;
+  amarelos?: number;
+  limCansado?: { velMax: number; acel: number; desacel: number; viragem0: number } | null;
 }
 
 export type TarefaBola = 'receber' | 'interceptar' | 'bola_solta' | 'repor';
@@ -64,11 +68,11 @@ export interface Bola2D {
    *  receptor estava em fora de jogo quando a bola partiu. */
   passe: { de: string; para: string; destino: V2; tick: number; tipo?: string; aereo?: boolean; foraDeJogo?: boolean } | null;
   /** Remate em curso: de quem, o xG e o tick. */
-  remate: { de: string; xg: number; tick: number } | null;
+  remate: { de: string; xg: number; tick: number; tipo?: 'PENALTI' | 'LIVRE'; forcado?: 'golo' | 'defesa' | 'fora'; ignorar?: string[] } | null;
 }
 
 export interface Evento2D { tick: number; tipo: 'passe' | 'recepcao' | 'intercepcao' | 'mau_toque' | 'bola_solta' | 'fora' | 'reposicao'
-  | 'remate' | 'golo' | 'defesa' | 'desarme' | 'falta' | 'fora_de_jogo' | 'cabeceamento' | 'cruzamento' | 'drible' | 'alivio' | 'bloqueio' | 'mentalidade' | 'troca'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2; /** Tipo do passe (PASSE_CURTO, CRUZAMENTO, ...). */ subtipo?: string; /** Sucesso previsto pelo portador. */ previsto?: number }
+  | 'remate' | 'golo' | 'defesa' | 'desarme' | 'falta' | 'fora_de_jogo' | 'cabeceamento' | 'cruzamento' | 'drible' | 'alivio' | 'bloqueio' | 'mentalidade' | 'troca' | 'intervalo' | 'cartao' | 'penalti' | 'expulsao' | 'jogada'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2; /** Tipo do passe (PASSE_CURTO, CRUZAMENTO, ...). */ subtipo?: string; /** Sucesso previsto pelo portador. */ previsto?: number }
 
 export interface Estatisticas2D {
   passes: [number, number]; certos: [number, number]; intercepcoes: [number, number]; mausToques: [number, number];
@@ -82,10 +86,20 @@ export interface Estatisticas2D {
   cantos: [number, number];
   /** Distância percorrida (m, soma dos jogadores) e arranques em sprint, por equipa. */
   distancia: [number, number]; sprints: [number, number];
+  /** Fase 5: cartões, penáltis (assinalados e marcados) e livres directos. */
+  amarelos: [number, number]; vermelhos: [number, number]; penaltis: [number, number]; penaltisGolo: [number, number]; livresDirectos: [number, number];
 }
 
 /** Reposição simplificada (Fase 2): quem repõe vai à bola (sem teletransporte) e recomeça ao chegar. */
-export interface Reposicao2D { tipo: 'lancamento' | 'baliza' | 'canto' | 'livre' | 'saida'; equipa: Equipa; local: V2; marcador: string; desde: number }
+export interface Reposicao2D { tipo: 'lancamento' | 'baliza' | 'canto' | 'livre' | 'saida' | 'penalti'; equipa: Equipa; local: V2; marcador: string; desde: number; plano?: PlanoBolaParada | null }
+
+/** Bola parada planeada (Fase 5): quem marca, a variante, o alvo, as posições de todos e, num penálti, o resultado. */
+export interface PlanoBolaParada {
+  tipo: 'canto' | 'livre_cruzado' | 'livre_directo' | 'penalti';
+  variante?: string; executor: string; alvo?: V2; receptor?: string; curto?: string;
+  posicoes: Record<string, V2>; barreira?: string[];
+  resultado?: 'golo' | 'defesa' | 'fora'; lado?: number;
+}
 
 /** O que o portador está a fazer com a bola (a condução e o drible duram; o resto é instantâneo). */
 export interface Conducao { tipo: 'CONDUZIR' | 'DRIBLAR' | 'PROTEGER'; alvo: V2; desde: number; defensor: string | null }
@@ -110,6 +124,8 @@ export interface EstadoEquipa {
   mentalidade: number;
   /** x (no referencial da equipa) onde recuperou a bola (a transição acaba se não avançar). */
   xRecuperacao: number;
+  /** Jogada-padrão activa (secção 11): qual, até que tick e desde quando. */
+  jogada?: { id: string; ate: number; desde: number } | null;
 }
 
 export interface Estado2D {
@@ -129,3 +145,7 @@ export interface Estado2D {
   /** O portador a conduzir, driblar ou proteger (null quando só segura a bola para decidir). */
   conducao: Conducao | null;
 }
+
+/** Uma posse (sequência de uma equipa com a bola): para a selecção de lances (secção 2.2). `recuperacao`: ganhou a bola
+ *  em jogo (não numa reposição); xInicio/xMax no referencial da equipa. */
+export interface Posse2D { equipa: Equipa; inicio: number; fim: number; passes: number; xInicio: number; xMax: number; recuperacao: boolean }

@@ -28,7 +28,7 @@ export const PORTADOR = {
   /** Paciência: o valor de circular cai até um quarto ao fim de x × paciência passes seguidos. */
   paciencia_passes: 25,
   /** Zona de cruzamento: último terço e corredor lateral (|y − 34| acima de x m). */
-  cruzamento_x: 68, cruzamento_corredor: 14,
+  cruzamento_x: 72, cruzamento_corredor: 14,
   /** Conduzir: distância do alvo (m), velocidade (fracção da máxima, 70–85%), toques (a bola afasta-se 0,6–1,8 m, a cada x s). */
   conduzir_m: 7, conduzir_min_m: 3, conduzir_vel: 0.78, toque_min: 0.6, toque_max: 1.8, toque_periodo_s: 0.6,
   /** Revisão da decisão durante a condução ou o drible (s). */
@@ -38,7 +38,7 @@ export const PORTADOR = {
   /** Rematar: só a menos de x m da baliza. */
   remate_max_m: 35,
   /** Leitura do fora de jogo: o portador erra a linha em ~x m × (21 − Visão)/20. */
-  erro_fora_m: 2,
+  erro_fora_m: 3.5,
   /** Proteger: no máximo x s seguidos (ganha tempo para o apoio chegar, não é uma solução). */
   proteger_max_s: 2,
   /** Remate: valor = xG − x × V(origem) (decisão 190). */
@@ -59,9 +59,9 @@ export const DUELO = {
   /** Falhar deixa o defensor ultrapassado durante 0,5–1 s. */
   ultrapassado_s: [0.5, 1.0] as [number, number],
   /** Falta: base + por ponto de Agressividade acima de 10, mais se falhou o desarme. */
-  falta_base: 0.08, falta_agr: 0.008, falta_falhou: 0.06,
+  falta_base: 0.56, falta_agr: 0.008, falta_falhou: 0.06,
   /** Um desarme certo também pode ser falta (entrada por trás, de lado). */
-  falta_desarme_certo: 0.05,
+  falta_desarme_certo: 0.28,
   /** Proteger a bola (de costas, com força e equilíbrio) dá ao portador este bónus no duelo. */
   proteger_bonus: 2.5, costas_bonus: 1.5,
   /** O defensor entre o atacante e a baliza tem vantagem no duelo de drible e de desarme. */
@@ -98,13 +98,13 @@ export const GR = {
   /** Alcance a mergulhar (m) = base + por ponto de Agilidade; reacção (s) = base − por ponto de Reflexos. */
   alcance_base: 1.7, alcance_agi: 0.05, reaccao_base: 0.25, reaccao_ref: 0.01, z_max: 2.9,
   /** Antes de reagir, só o corpo chega à bola (m); o mergulho leva x s a chegar ao alcance máximo. */
-  corpo_m: 0.6, mergulho_s: 0.22,
+  corpo_m: 0.6, mergulho_s: 0.27,
   /** P(defender um remate que passa ao alcance) = base − 0,75 × d/alcance − (v − 20)/35 + (Reflexos − 10)/40. */
   defesa_base: 1.3,
   /** Defesa: qualidade = (Reflexos + Pega) ÷ 40 − (velocidade − 20) ÷ 40; agarra se passar o sorteio, senão desvia. */
   agarrar_folga: 0.25,
   /** Ao desviar, a bola vai para trás da linha de fundo (canto) nesta fracção das vezes. */
-  desvio_canto: 0.5,
+  desvio_canto: 0.75,
   /** Sai aos cruzamentos dentro da pequena área (+ x m) se lá chegar. */
   sai_cruzamento_m: 3,
 };
@@ -255,5 +255,5 @@ export const MARCAS = {
   /** Jogo Directo: segunda bola — os médios a 8–12 m da queda da bola longa. */
   segunda_bola_m: 9,
   /** Gegenpressen: depois do minuto x a pressão perde alcance (× y) e um pressionante. */
-  fadiga_min: 65, fadiga_alcance: 0.75,
+  fadiga_min: 70, fadiga_alcance: 0.75,
 };

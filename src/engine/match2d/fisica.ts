@@ -1,7 +1,7 @@
 // Camada 6 (secção 10.1): movimento fisicamente realista. Velocidade máxima, aceleração e desaceleração pelos atributos;
 // a capacidade de virar desce com a velocidade (em sprint não se muda 90° de repente); segue a âncora sem oscilar
 // (velocidade da âncora + erro ÷ τ, com zona morta); separação de 3 m entre colegas; corpo orientado.
-import { FISICA, CAMPO_2D } from '../../config/match2d/fisica.ts';
+import { FISICA, CAMPO_2D, CANSACO } from '../../config/match2d/fisica.ts';
 import { difAngulo, rodar, hyp } from './referencial.ts';
 import type { Intensidade, Jogador2D, V2 } from './tipos.ts';
 
@@ -17,6 +17,9 @@ interface Limites { velMax: number; acel: number; desacel: number; viragem0: num
  *  factor por cima). */
 const CACHE = new WeakMap<object, Limites>();
 export function limitesFisicos(j: Jogador2D): Limites {
+  return j.limCansado ?? limitesBase(j);
+}
+function limitesBase(j: Jogador2D): Limites {
   let L = CACHE.get(j.attrs);
   if (!L) {
     const acel = F.acel_base + F.acel_por_ponto * at(j, 'ace');
@@ -46,13 +49,15 @@ export function intensidadePara(d: number, sprint: boolean): Intensidade {
  * Um passo de movimento (dt em s de jogo). `alvo` e `vAlvo` (velocidade do alvo) estão no referencial absoluto.
  * `olhar`: para onde o corpo vira quando vai devagar (a bola).
  */
-export function moverJogador(j: Jogador2D, alvo: V2, vAlvo: V2, intensidade: Intensidade, colegas: Jogador2D[], olhar: V2, dt: number, fraccaoMax = 1) {
+export function moverJogador(j: Jogador2D, alvo: V2, vAlvo: V2, intensidade: Intensidade, colegas: Jogador2D[], olhar: V2, dt: number, fraccaoMax = 1, zonaMorta = F.zona_morta_m) {
   const L = limitesFisicos(j);
   // fraccaoMax: com a bola (conduzir 70–85%) ou ultrapassado, não chega à velocidade máxima.
-  const cap = Math.min(L.velMax * fraccaoMax, Math.max(velocidadeIntensidade(j, intensidade), Math.min(L.velMax, hyp(vAlvo.x, vAlvo.y) * 1.15)));
+  // Acompanhar um alvo que se mexe (âncora, adversário) não passa da corrida: só se sprinta com intenção (secção 10.1).
+  const vInt = velocidadeIntensidade(j, intensidade);
+  const cap = Math.min(L.velMax * fraccaoMax, Math.max(vInt, Math.min(intensidade === 'sprint' ? L.velMax : F.seguir_max, hyp(vAlvo.x, vAlvo.y) * 1.15)));
   // Velocidade desejada: acompanhar o alvo (a sua velocidade) e corrigir o erro; dentro da zona morta, só acompanhar.
   const ex = alvo.x - j.p.x, ey = alvo.y - j.p.y, e = hyp(ex, ey);
-  const corr = e < F.zona_morta_m ? 0 : (e - F.zona_morta_m) / e / F.seguir_tau_s;
+  const corr = e < zonaMorta ? 0 : (e - zonaMorta) / e / F.seguir_tau_s;
   let dx = vAlvo.x + ex * corr, dy = vAlvo.y + ey * corr;
   // Separação dos colegas (a menos de 3 m).
   for (const o of colegas) {
@@ -96,4 +101,34 @@ export function moverJogador(j: Jogador2D, alvo: V2, vAlvo: V2, intensidade: Int
   // Corpo: a correr olha para onde vai; devagar, para a bola.
   const paraCorpo = ns > F.corpo_correr_ms ? th : Math.atan2(olhar.y - j.p.y, olhar.x - j.p.x);
   j.corpo = rodar(j.corpo, paraCorpo, F.corpo_rad_s * dt);
+}
+
+/** Quebra física (0 a queda_max) pela condição: nada acima do limiar; máxima `queda_intervalo` abaixo dele. */
+export function quebraCansaco(j: Jogador2D): number {
+  const C = CANSACO;
+  return C.queda_max * Math.max(0, Math.min(1, (C.limiar - j.condicao) / C.queda_intervalo));
+}
+
+/** Um passo de cansaço depois de o jogador se mexer `d` metros (dt s). Os limites com a quebra recalculam-se quando a
+ *  quebra muda mais de 0,5 pontos percentuais. */
+export function gastar(j: Jogador2D, d: number, dt: number) {
+  const C = CANSACO, v = d / dt;
+  const ritmo = C.res_base - C.res_ponto * at(j, 'res');
+  j.condicao -= (d * (C.por_km + (v > C.sprint_ms ? C.sprint_por_km : 0)) / 1000) * ritmo;
+  if (v < C.recupera_v) j.condicao += C.recupera_s * dt;
+  j.condicao = Math.max(0, Math.min(1, j.condicao));
+  actualizarQuebra(j);
+}
+export function actualizarQuebra(j: Jogador2D) {
+  const q = quebraCansaco(j);
+  if (q <= 0) { j.limCansado = null; return; }
+  const actual = j.limCansado ? 1 - j.limCansado.velMax / limitesBase(j).velMax : 0;
+  if (Math.abs(q - actual) < 0.005) return;
+  const B = limitesBase(j), f = 1 - q;
+  j.limCansado = { velMax: B.velMax * f, acel: B.acel * f, desacel: B.desacel * f, viragem0: B.viragem0 };
+}
+
+/** Reacção mais lenta com o cansaço (s). */
+export function reaccaoCansaco(j: Jogador2D): number {
+  return CANSACO.queda_max > 0 ? (quebraCansaco(j) / CANSACO.queda_max) * CANSACO.reaccao_extra_s : 0;
 }

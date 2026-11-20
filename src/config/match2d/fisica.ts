@@ -13,7 +13,11 @@ export const FISICA = {
   /** Distância à âncora (m) a partir da qual se trota e se corre; em RECUPERAR corre-se a fundo. */
   dist_trote: 6, dist_corrida: 15,
   /** Seguimento da âncora: velocidade desejada = velocidade da âncora + erro ÷ tau (s); zona morta (m). */
-  seguir_tau_s: 1.1, zona_morta_m: 0.3,
+  seguir_tau_s: 1.5, zona_morta_m: 0.3,
+  /** A manter a posição (sem tarefa com a bola), a zona morta é maior: não se corrige cada metro que a âncora mexe. */
+  zona_morta_posicao_m: 1.5,
+  /** A seguir um alvo em movimento sem intenção de sprint, não passa desta velocidade (m/s). */
+  seguir_max: 5,
   /** Viragem (rad/s): (base + Agilidade e Equilíbrio) ÷ (1 + velocidade ÷ v_ref). Parado roda quase no sítio. */
   viragem_base: 3.0, viragem_agi: 0.12, viragem_equ: 0.06, viragem_v_ref: 2.5,
   /** Separação entre colegas (m) e força. */
@@ -33,3 +37,16 @@ export const FISICA = {
 /** Velocidades de apresentação (secção 2.2, modelo FM): 1× = tempo real dentro dos lances; 2× e 4× aceleram; 0,5× para
  *  ver em detalhe. O avanço rápido (⏩) é o que se usa entre lances, independente da velocidade escolhida. */
 export const VELOCIDADES_FASE1: [string, number][] = [['0,5×', 0.5], ['1×', 1], ['2×', 2], ['4×', 4], ['⏩ 12×', 12]];
+
+/** Cansaço (secção 10.2). A condição física (1 = fresco) desce com cada metro e mais com cada metro em sprint; a
+ *  Resistência dá o ritmo: factor = res_base − res_ponto × Resistência (20 → 0,5; 10 → 1; 1 → 1,45). Parado ou a andar
+ *  recupera um pouco; ao intervalo recupera `intervalo`. Abaixo de `limiar` a velocidade máxima e a aceleração descem até
+ *  `queda_max` (atingida `queda_intervalo` abaixo do limiar) e a reacção piora até `reaccao_extra_s`. */
+export const CANSACO = {
+  por_km: 0.032, sprint_por_km: 0.12, sprint_ms: 7, res_base: 1.5, res_ponto: 0.05,
+  recupera_s: 0.00003, recupera_v: 1.5, intervalo: 0.06,
+  limiar: 0.8, queda_max: 0.1, queda_intervalo: 0.4, reaccao_extra_s: 0.1,
+  /** Abaixo disto o jogador poupa-se: só sprinta para a bola ou quando ficou fora de posição. */
+  poupar: 0.6,
+};
+

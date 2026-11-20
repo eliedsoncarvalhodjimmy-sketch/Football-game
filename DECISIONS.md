@@ -457,3 +457,77 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - Os sprints e os km por jogador ainda estão acima do real.
         - Com 6 jogos por estilo, a variância é de cerca de ±5 pontos de posse.
     - **Velocidade:** cerca de 3,4–4 s por jogo. O utilizador aceitou ("15 min para mostrar os highlights de 90 min"); o alvo de 1,5 s deixa de ser obrigatório.
+
+192. **Motor 2D táctico, Fase 5: remates, bolas paradas, jogadas-padrão, cansaço e apresentação por lances** (secção 13).
+    - **Ficheiros**:
+        - Números: `src/config/match2d/fase5.ts` (`BOLA_PARADA`, `PENALTI`, `CARTOES`, `CANTOS`, `JOGADAS`, `LANCES`) e `CANSACO` em `fisica.ts`.
+        - Código: `bolaParada.ts`, `jogadas.ts`, `lances.ts`, `apresentacao.ts`, `fisica.ts`, `Motor2D.ts`.
+        - Validação: `scripts/validar-motor2d.ts`.
+    - **Cansaço (10.2):**
+        - A condição física desce por metro e mais por metro em sprint, ao ritmo da Resistência. Parado recupera um pouco; ao intervalo recupera 6%.
+        - Abaixo de 80% a velocidade máxima e a aceleração descem até 10% e a reacção piora até 0,1 s. Abaixo de 60% o jogador só sprinta para a bola ou quando ficou fora de posição.
+        - O Gegenpressen quebra depois do minuto 70.
+        - Para os km e os sprints ficarem reais:
+            - quem só acompanha a âncora não passa dos 5 m/s;
+            - o sprint de recuperação é só para quem ficou para lá da bola ou está em transição;
+            - quem mantém a posição tem uma zona morta de 1,5 m e τ 1,5 s;
+            - o bloco filtra com τ 1,2 s.
+    - **Intervalo:** aos 45 minutos, cada um volta ao seu meio-campo e a outra equipa dá a saída. Não há troca de campo nem tempo de compensação.
+    - **Bolas paradas:**
+        - **Cantos:** quatro variantes (primeiro poste, segundo poste, curto, entrada da área). A zona da variante fica com o melhor cabeceador (na entrada da área, com o melhor rematador de longe).
+            - Ataque: 5 na área (Catenaccio: 4), 2 ficam atrás.
+            - Defesa mista: 3 marcam os melhores cabeceadores e 4 ficam à zona; o Catenaccio marca individualmente.
+            - Ficam 2 à frente (Catenaccio: 1).
+            - Todos vão às posições antes de se bater (até 12 s).
+        - **Livre directo** (< 28 m, central):
+            - Marca o melhor em Bolas paradas e Remate de longe. Barreira de 2 a 4 jogadores a 9,15 m.
+            - A barreira bloqueia com probabilidade 22%; senão, a bola passa-lhe por cima ou ao lado (abstracção: o motor não tem efeito na bola).
+        - **Livre lateral perigoso:** cruzado como um canto.
+        - **Lançamentos:** reposição normal (curta); não há atributo de lançamento longo.
+    - **Penáltis:** falta na própria grande área. O resultado sai dos atributos: P(golo) = 0,76 ± Finalização, Compostura e Bolas paradas do marcador e Reflexos e Um-contra-um do GR, entre 0,55 e 0,92; dos falhados, 30% saem fora. Depois a bola é batida para esse resultado. Na área, a probabilidade de falta multiplica por 0,009.
+    - **Cartões:**
+        - **Amarelo:** base, mais se a falta corta um ataque prometedor ou é por trás, e com a Agressividade.
+        - **Vermelho directo:** quando tira uma ocasião clara (último homem, central, perto da área), raro; ou, muito raro, por violência.
+        - Quem tem amarelo arrisca metade das faltas e o árbitro é mais brando.
+        - **Expulsão:** a equipa joga com menos um; o lugar fica por ocupar (a reorganização da forma fica para a Fase 6).
+    - **Cantos (4–6):** na própria área, saem pela linha de fundo:
+        - 90% dos cruzamentos cortados e 35% dos passes rasteiros cortados;
+        - 70% dos alívios de cabeça;
+        - 75% dos remates bloqueados;
+        - 75% das defesas do GR que não agarram.
+    - **Jogadas-padrão (secção 11):** as 25 jogadas são intenções, não guiões.
+        - Cada uma tem um gatilho (em código) e efeitos em config: acções sem bola por grupo de lugar, opções do portador, receptores e altura da linha.
+        - Duram N s e abandonam-se quando a equipa perde (jogadas com bola) ou ganha (jogadas sem bola) a bola.
+        - Uma de cada vez, sorteada uma vez por gatilho.
+        - Os lugares agrupam-se em DC, LAT, MDC, MC, MO, EXT e PL.
+    - **Estatísticas:**
+        - Um alívio deixou de contar como passe (como nas estatísticas reais).
+        - O GR passa com Jogo com os pés (curto) e Pontapé (longo).
+        - Quem vai receber um passe corre ao ponto da bola: antes caminhava e a bola passava-lhe a 1 m.
+        - "Passes por sequência" é a mediana das posses com pelo menos um passe certo.
+    - **Apresentação por lances (secção 2.2):**
+        - **Escolha dos lances:**
+            - Cada posse tem o seu momento mais importante: golo, penálti, vermelho, remate com xG ≥ 0,15, defesa difícil, contra-ataque, livre directo, remate enquadrado, canto, cruzamento perigoso, amarelo ou corte na área.
+            - Um contra-ataque é uma recuperação no próprio meio-campo com remate ou cruzamento em ≤ 12 s.
+            - As posses sem nada disso e com 5 ou mais passes são jogo corrido.
+        - **Clip:** começa no início da sequência, no máximo 13 s antes do momento-chave (bola parada: 8 s). Acaba 3 s depois, ou 5 s num golo, que tem replay de 6 s a 0,5×.
+        - **Níveis:**
+            - **Alargados:** lances "sempre", de prioridade alta e média, mais 1 de jogo corrido a cada 6 min. Orçamento de 15 min a 1×, contando o avanço rápido a 16× entre lances. Primeiro cortam-se os lances médios menos importantes e depois os altos.
+            - **Lances-chave:** só "sempre" e alta, com "só relato" entre lances (uma opção da 2.2). Com avanço rápido a 16×, os intervalos sozinhos já passariam dos 5 min.
+            - **Jogo completo:** o jogo todo a 1×.
+        - **Simulação por blocos:**
+            - O motor simula 5 min de cada vez, pelo menos 1,5 blocos à frente do ecrã. Cada bloco escolhe os seus lances até 30 s antes do fim dele.
+            - Um controlador dá a cada bloco a parte proporcional do orçamento que falta.
+            - O ecrã nunca mostra estatísticas nem relato do futuro.
+        - O resto da tabela de compressão por zonas (2,2–14×) que ainda estava no documento ficou substituído pelo modelo FM (decisão 188).
+    - **Validação (200 jogos neutro × neutro, força 70; `npx tsx scripts/validar-motor2d.ts 200 --estilos`):**
+        - Todas as faixas gerais passam: golos 2,85; remates 13,6; enquadrados 5,4; passes 433; precisão 77%; cruzamentos 21,2; cantos 4,5; faltas 10,6; foras de jogo 1,1; 11,4 km; 4 passes por sequência.
+        - Por jogo: 4,4 amarelos, 0,24 vermelhos e 0,36 penáltis.
+        - **Lances** (50 jogos): Alargados de 14,8 a 15,4 min, com cerca de 34 lances; 132 de 132 golos vistos; jogo corrido ≥ 20% do mostrado; Lances-chave com cerca de 5,4 min.
+        - **Estilos** (20 jogos cada contra o neutro):
+            - Na faixa de posse: Tiki-Taka 63%, Contra-ataque 37%, Catenaccio 32%, Jogo Directo 43%, Futebol Total 60%, Bloco Médio-Baixo 42%.
+            - Fora da faixa de posse: Gegenpressen 47% (faixa 52–58) e Pelas Alas 43% (faixa 50–56).
+            - Fora da faixa de passes: Tiki-Taka 832 (máximo 800), Jogo Directo 428 (máximo 420), Pelas Alas 396 (mínimo 450).
+            - Ficam para a calibração da Fase 6.
+        - Os testes da Fase 4 passaram a comparar o Gegenpressen com 1,5× a média dos estilos (a secção 12 diz "2× a média") e o Jogo Directo com > 18% de passes longos (secção 12).
+    - **Desempenho:** cerca de 4,8 s por jogo em Node (o utilizador aceitou; decisão 191). 200 jogos levam cerca de 4 min em 4 processos.

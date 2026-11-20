@@ -3,6 +3,7 @@
 // e escolhe a melhor com compromisso (decide a cada 0,33–0,66 s, mantém ≥ 1 s, só troca se ≥ 1,25×). A coordenação
 // faz-se por ordem: só os mais próximos pressionam (até ao limite do estilo), o seguinte cobre, no máximo 2 atacam a
 // profundidade e um mínimo fica em equilíbrio defensivo.
+import { pesoJogadaAccao } from './jogadas.ts';
 import { SEM_BOLA as SB, PESO_PAPEL, PESO_ESTILO, PESO_FASE, ATRIBUTOS_SEM_BOLA, ESTADO_JOGO, TRANSICAO, MARCAS } from '../../config/match2d/fase3.ts';
 import { ESTILOS_2D } from '../../config/match2d/estilos.ts';
 import { CAMPO_2D } from '../../config/match2d/fisica.ts';
@@ -95,7 +96,7 @@ export function contextoEquipa(s: Estado2D, e: Equipa, gatilhosExtra: { passeAtr
 
 const peso = (s: Estado2D, j: Jogador2D, a: AccaoSemBola) => {
   const eq = s.equipas[j.equipa];
-  return (PESO_PAPEL[j.papel]?.[a] ?? 1) * (PESO_ESTILO[eq.estilo]?.[a] ?? 1) * (PESO_FASE[eq.fase]?.[a] ?? 1);
+  return (PESO_PAPEL[j.papel]?.[a] ?? 1) * (PESO_ESTILO[eq.estilo]?.[a] ?? 1) * (PESO_FASE[eq.fase]?.[a] ?? 1) * pesoJogadaAccao(s, j, a);
 };
 const factorAttr = (j: Jogador2D, a: AccaoSemBola) => { const l = ATRIBUTOS_SEM_BOLA[a]; return 0.7 + (0.03 * l.reduce((x, k) => x + at(j, k), 0)) / l.length; };
 const largo = (j: Jogador2D) => /^(DD|DE|AD|AE|ED|EE|ME|MD)$/.test(j.chave);

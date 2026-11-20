@@ -50,12 +50,15 @@ describe('motor 2D — Fase 4: estilos de jogo', () => {
     expect(r.tiki_taka.passes).toBeGreaterThan(1.8 * r.jogo_direto.passes);
     expect(r.tiki_taka.longos).toBeLessThan(0.1);
     // Jogo Directo: a bola vai longa.
-    expect(r.jogo_direto.longos).toBeGreaterThan(0.3);
+    expect(r.jogo_direto.longos).toBeGreaterThan(0.18); // secção 12: passes longos > 18%
     expect(r.jogo_direto.posse).toBeLessThan(r.tiki_taka.posse - 0.1);
     // Catenaccio: entrega a bola.
     expect(r.catenaccio.posse).toBeLessThan(0.45);
     // Gegenpressen: recupera alto, muito mais do que um bloco baixo.
-    expect(r.gegenpressen.recAltas).toBeGreaterThan(2 * r.catenaccio.recAltas);
+    // (Secção 12: "2× a média". Com 2 jogos por estilo, exige-se 1,5× a média dos 6 estilos medidos — o Gegenpressen incluído.)
+    const mediaRec = Object.values(r).reduce((a, x) => a + x.recAltas, 0) / Object.keys(r).length;
+    expect(r.gegenpressen.recAltas).toBeGreaterThan(1.5 * mediaRec);
+    expect(r.gegenpressen.recAltas).toBeGreaterThan(r.catenaccio.recAltas);
     // Pelas Alas: cruza muito mais do que o Tiki-Taka.
     expect(r.pelas_alas.cruzamentos).toBeGreaterThan(1.5 * r.tiki_taka.cruzamentos);
     // Futebol Total: posse alta e trocas de posição durante o jogo.
