@@ -2,7 +2,7 @@
 // linha defensiva paralela, bloco real contra o alvo, colegas demasiado perto, velocidade e aceleração.
 import { TICK_S } from '../../config/match2d/fisica.ts';
 import { limitesFisicos } from './fisica.ts';
-import { paraEquipa, difAngulo, dist } from './referencial.ts';
+import { paraEquipa, difAngulo, dist, hyp } from './referencial.ts';
 import type { Motor2D } from './Motor2D.ts';
 
 export class Medidor {
@@ -18,7 +18,7 @@ export class Medidor {
     const s = m.estado;
     this.n++;
     for (const j of s.jogadores) {
-      const v = Math.hypot(j.v.x, j.v.y), L = limitesFisicos(j);
+      const v = hyp(j.v.x, j.v.y), L = limitesFisicos(j);
       if (v > L.velMax + 1e-6) this.acima++;
       const va = this.vel.get(j.id);
       if (va !== undefined && Math.abs(v - va) / TICK_S > L.desacel + 1e-6) this.acelExcesso++;

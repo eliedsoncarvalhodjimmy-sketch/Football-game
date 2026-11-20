@@ -9,7 +9,9 @@ export const paraEquipa = (e: Equipa, p: V2): V2 => (e === 0 ? { x: p.x, y: p.y 
 export const paraAbsoluto = paraEquipa;
 export const anguloAbsoluto = (e: Equipa, a: number) => (e === 0 ? a : a + Math.PI);
 
-export const dist = (a: V2, b: V2) => Math.hypot(a.x - b.x, a.y - b.y);
+/** Comprimento de um vector (Math.hypot é lento no V8; este é o caminho quente do motor). */
+export const hyp = (x: number, y: number) => Math.sqrt(x * x + y * y);
+export const dist = (a: V2, b: V2) => { const x = a.x - b.x, y = a.y - b.y; return Math.sqrt(x * x + y * y); };
 export const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 export function difAngulo(a: number, b: number): number {
   let d = a - b;

@@ -89,7 +89,7 @@ export function ancora(s: Estado2D, j: Jogador2D, papeis: string[], medidas?: Re
   const eq = s.equipas[j.equipa], b = eq.bloco;
   if (j.chave === 'GR') {
     const bola = paraEquipa(j.equipa, s.bola.p);
-    const d = clamp(BLOCO.gr_min + (b.linhaDefX - 16) * BLOCO.gr_por_linha + (j.papel === 'gr_lib' ? BLOCO.gr_libero_extra : 0), BLOCO.gr_min, BLOCO.gr_max);
+    const d = Math.max(BLOCO.gr_min, Math.min(clamp(BLOCO.gr_min + (b.linhaDefX - 16) * BLOCO.gr_por_linha + (j.papel === 'gr_lib' ? BLOCO.gr_libero_extra : 0), BLOCO.gr_min, BLOCO.gr_max), b.linhaDefX - BLOCO.gr_atras_linha));
     const y = CAMPO_2D.largura / 2 + clamp((bola.y - CAMPO_2D.largura / 2) * (d / Math.max(d, bola.x)), -CAMPO_2D.largura * BLOCO.gr_desvio_y, CAMPO_2D.largura * BLOCO.gr_desvio_y);
     return { x: d, y };
   }

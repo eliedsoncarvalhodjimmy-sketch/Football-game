@@ -1,5 +1,6 @@
 // Caminho pré-definido da bola para a Fase 1 (sem bola real): circula pelo campo a uma velocidade de passe/condução,
 // passando pelas alas, pelo meio, pelas áreas, para se ver o bloco a deslizar. Referencial absoluto.
+import { hyp } from './referencial.ts';
 import type { V2 } from './tipos.ts';
 
 export const CAMINHO_BOLA: V2[] = [
@@ -8,7 +9,7 @@ export const CAMINHO_BOLA: V2[] = [
 ];
 const VEL_BOLA = 7; // m/s de jogo (média entre conduções e passes)
 
-const comprimentos = CAMINHO_BOLA.map((p, k) => { const q = CAMINHO_BOLA[(k + 1) % CAMINHO_BOLA.length]; return Math.hypot(q.x - p.x, q.y - p.y); });
+const comprimentos = CAMINHO_BOLA.map((p, k) => { const q = CAMINHO_BOLA[(k + 1) % CAMINHO_BOLA.length]; return hyp(q.x - p.x, q.y - p.y); });
 const total = comprimentos.reduce((a, b) => a + b, 0);
 
 /** Posição da bola no caminho ao fim de t segundos de jogo. */

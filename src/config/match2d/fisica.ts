@@ -17,9 +17,15 @@ export const FISICA = {
   /** Viragem (rad/s): (base + Agilidade e Equilíbrio) ÷ (1 + velocidade ÷ v_ref). Parado roda quase no sítio. */
   viragem_base: 3.0, viragem_agi: 0.12, viragem_equ: 0.06, viragem_v_ref: 2.5,
   /** Separação entre colegas (m) e força. */
-  separacao_m: 3, separacao_forca: 1.6,
+  separacao_m: 3, separacao_forca: 2.5,
+  /** Quem defende não fica em cima de um adversário: põe-se a esta distância dele, do lado da própria baliza (m). */
+  separacao_adv_m: 1.5,
   /** Corpo: roda (rad/s) e a partir desta velocidade olha para onde corre; abaixo, para a bola. */
   corpo_rad_s: 5, corpo_correr_ms: 3.5,
+  /** Abaixo desta velocidade (m/s) os passos são curtos: a velocidade muda como vector (para inverter, pára primeiro). */
+  devagar_ms: 1.5,
+  /** Suavização da intenção de movimento (s). */
+  intencao_s: 0.25,
   /** De costas para onde olha anda-se mais devagar (fracção da velocidade máxima). */
   costas: 0.55, lado: 0.8,
 };

@@ -7,8 +7,9 @@ export const BLOCO = {
   filtro_s: 0.8,
   /** Quanto a linha defensiva acompanha a bola (m de linha por m de bola, a partir do meio-campo), sem e com bola. */
   seguir_bola_sem: 0.35, seguir_bola_com: 0.3,
-  /** A linha nunca a menos de 6 m da própria baliza (excepto bola parada); máximo acima do valor do estilo. */
-  linha_min: 6, linha_folga_max: 14,
+  /** A linha nunca a menos de 7 m da própria baliza (o documento pede ≥ 6; 7 deixa o GR 3 m atrás); máximo acima do
+   *  valor do estilo. */
+  linha_min: 7, linha_folga_max: 14,
   /** Sem bola, a linha de médios fica do lado da própria baliza, pelo menos x m atrás da bola: a defesa e os médios
    *  defendem entre a bola e a baliza; só os avançados podem estar à frente dela. */
   medios_atras_bola_m: 2,
@@ -26,6 +27,8 @@ export const BLOCO = {
   comprimento_min: 22,
   /** Guarda-redes: distância à linha de golo (m) conforme a linha defensiva; o líbero sai mais. */
   gr_min: 4, gr_max: 15, gr_por_linha: 0.2, gr_libero_extra: 4, gr_desvio_y: 0.25,
+  /** O GR fica pelo menos x m atrás da linha defensiva (não se cola aos centrais). */
+  gr_atras_linha: 3,
 };
 
 export const FASES = {
