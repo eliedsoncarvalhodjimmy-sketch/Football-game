@@ -123,7 +123,9 @@ export class PlanosPlantel {
     const faixaIdade = P.idade_alvo[arq ?? ''] ?? P.idade_alvo.outro;
     const ligaId = li >= 0 ? w.ligas[li].regras.id : '';
     const candidatoTitulo = media >= liga + P.titulo_margem;
-    const idadeArq: [number, number] = [faixaIdade[0], Math.max(faixaIdade[1], P.ligas_veteranos[ligaId] ?? 0, candidatoTitulo ? P.titulo_idade_max : 0)];
+    // Uma liga com idade de veteranos própria manda (a bonificação dos candidatos ao título só vale nas outras).
+    const idadeLiga = P.ligas_veteranos[ligaId];
+    const idadeArq: [number, number] = [faixaIdade[0], idadeLiga !== undefined ? Math.max(faixaIdade[1], idadeLiga) : Math.max(faixaIdade[1], candidatoTitulo ? P.titulo_idade_max : 0)];
     const U = P.urgencia, todas: Necessidade[] = [];
     // Nível mínimo de um reforço: o do alvo do clube, mas nunca mais do que o titular actual + x (um reforço realista é
     // melhor do que quem lá está, não necessariamente o jogador ideal).
