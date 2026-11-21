@@ -32,4 +32,6 @@ export const SIMULACAO = {
  * Parâmetros do modo rápido com jogadores (Fase 2). Partem dos da Fase 1 e são afinados à parte, para o
  * modo 'reputacao' (alternativa da Fase 1) manter a sua calibração.
  */
-export const SIMULACAO_ONZE = { ...SIMULACAO, base: 1.278, casa: 1.17, rho: -0.02, empate_fator: 1.12 };
+// Prompt 6 (fecho): rho −0,02 → −0,01. O mercado novo deixou o 0-0 em 8,51% (3 sementes, faixa até 8,5%); com −0,01
+// fica em 8,35%, com os golos (2,545), a casa (45,2%), os empates (24,8%) e os 5+ (11,9%) nas faixas.
+export const SIMULACAO_ONZE = { ...SIMULACAO, base: 1.278, casa: 1.17, rho: -0.01, empate_fator: 1.12 };
