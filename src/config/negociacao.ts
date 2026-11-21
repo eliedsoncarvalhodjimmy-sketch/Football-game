@@ -96,7 +96,7 @@ export const PLANO_PLANTEL = {
   idade_alvo: { formador: [17, 24], vendedor: [17, 24], analitico: [20, 27], comprador_estrelas: [22, 31], magnata_impaciente: [22, 31], outro: [20, 30] } as Record<string, [number, number]>,
   /** Veteranos: ligas que compram jogadores mais velhos (idade máxima dos reforços) e clubes a lutar pelo título (nível
    *  dos titulares ≥ média da liga + x: até y anos). */
-  ligas_veteranos: { KSA1: 32, UAE1: 32, USA1: 35, TUR1: 33, MEX1: 33, JPN1: 33 } as Record<string, number>,
+  ligas_veteranos: { KSA1: 31, UAE1: 31, USA1: 35, TUR1: 33, MEX1: 33, JPN1: 33 } as Record<string, number>,
   titulo_margem: 4, titulo_idade_max: 33,
   /** Estrelas: numa liga com riqueza ≥ riqueza_min, clubes de comprador de estrelas ou magnata com reputação ≥
    *  reputacao_arquetipo, ou de reputação ≥ x numa liga com riqueza ≥ y, transformam a
