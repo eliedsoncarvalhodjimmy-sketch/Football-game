@@ -13,6 +13,11 @@ const w = construirMundo(await carregarDados(new LocalFileSource(new URL('../pac
 const m = w.mercado!, st = w.jogadores!;
 const ligaDe = new Map<number, string>();
 const sim = new Simulador(w);
+// Saúde financeira (0 saudável, 1 apertado, 2 crise, 3 administração) das grandes ligas, no início.
+const LIGAS_FIN = ['ENG1', 'ESP1', 'ITA1', 'GER1', 'FRA1', 'POR1', 'KSA1', 'BRA1'];
+const saudeLiga = () => Object.fromEntries(LIGAS_FIN.map((id) => { const cs = w.ligaPorId(id).clubes; const sd = w.economia!.clubes.saude; return [id, `${cs.filter((c) => sd[c] >= 2).length}/${cs.length}`]; }));
+const saude0 = saudeLiga();
+const divida0 = Object.fromEntries(LIGAS_FIN.map((id) => [id, w.ligaPorId(id).clubes.reduce((a, c) => a + w.economia!.clubes.dividaBanco[c] + w.economia!.clubes.dividaParcelas[c], 0)]));
 const semanas: { ms: number; janela: boolean; fecho: boolean }[] = [];
 const grupos = [...sim.temporadas.keys()];
 const n0 = m.registo.length;
@@ -55,6 +60,25 @@ const razoes = pagos.map((r) => r.fee / Math.max(1, r.valor)).sort((a, b) => a -
 p(`| Razão preço/valor (mediana; p5–p95) | ${razoes[Math.floor(razoes.length / 2)]?.toFixed(2)} (${razoes[Math.floor(razoes.length * 0.05)]?.toFixed(2)}–${razoes[Math.floor(razoes.length * 0.95)]?.toFixed(2)}) | 0,6–2,5, extremos raros |`);
 p(`| Cláusulas activadas por época | ${(clau.length / N).toFixed(1)} | 5–30 |`);
 p(`| Gasto total em transferências por época | ${M(pagos.reduce((a, r) => a + r.fee, 0) / N)} | — |`);
+// Negócios de elite (Prompt 6, fecho): por época, quantos ≥ 50/60/100 M€, a parte comprada por clubes ingleses, o maior
+// preço e o maior gasto de um clube numa só janela (mês da janela: Verão = Jun–Set, Inverno = resto).
+{
+  const ge = (x: number) => pagos.filter((r) => r.fee >= x * 1e6);
+  const eng = ge(50).filter((r) => r.lp === 'ENG1').length;
+  p(`| Transferências ≥ 50 / ≥ 60 / ≥ 100 M€ por época | ${(ge(50).length / N).toFixed(1)} / ${(ge(60).length / N).toFixed(1)} / ${(ge(100).length / N).toFixed(1)} | 25–45 / — / 3–8 |`);
+  p(`| Parte das ≥ 50 M€ compradas por clubes da ENG1 | ${ge(50).length ? Math.round((100 * eng) / ge(50).length) : 0}% | ≥ 70% |`);
+  p(`| Maior transferência | ${M(Math.max(0, ...pagos.map((r) => r.fee)))} | ≤ 200 M€ |`);
+  const jan = new Map<string, number>();
+  for (const r of pagos) { const d = new Date(r.dia * 864e5), mm = d.getUTCMonth(); const k = `${r.para}|${d.getUTCFullYear()}|${mm >= 5 && mm <= 8 ? 'V' : 'I'}`; jan.set(k, (jan.get(k) ?? 0) + r.fee); }
+  const top = [...jan.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${w.clubes[Number(k.split('|')[0])].nome} ${M(v)}`);
+  p(`| Maior gasto de um clube numa janela | ${top.join('; ')} | 300–550 M€ |`);
+}
+{
+  const s1 = saudeLiga();
+  const d1 = Object.fromEntries(LIGAS_FIN.map((id) => [id, w.ligaPorId(id).clubes.reduce((a, c) => a + w.economia!.clubes.dividaBanco[c] + w.economia!.clubes.dividaParcelas[c], 0)]));
+  p(`| Clubes em crise ou administração (início → fim) | ${LIGAS_FIN.map((id) => `${id} ${saude0[id]} → ${s1[id]}`).join('; ')} | sem subida grande |`);
+  p(`| Dívida (banco + parcelas) por liga (início → fim) | ${LIGAS_FIN.slice(0, 5).map((id) => `${id} ${M(divida0[id])} → ${M(d1[id])}`).join('; ')} | — |`);
+}
 // Gasto e saldo por liga.
 const gasto = new Map<string, number>(), receita = new Map<string, number>(), n = new Map<string, number>();
 for (const r of pagos) { gasto.set(r.lp, (gasto.get(r.lp) ?? 0) + r.fee); receita.set(r.ld, (receita.get(r.ld) ?? 0) + r.fee); }

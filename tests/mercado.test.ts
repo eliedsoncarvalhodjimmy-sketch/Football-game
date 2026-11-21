@@ -169,10 +169,11 @@ describe('ajustes da Paragem A', () => {
     expect(pp.preco / pp.valor).toBeGreaterThan(5);
   }, 60000);
 
-  it('pagamento: só dois modos, à vista ou parcelado (metade à vista, 2 parcelas semestrais), para o utilizador e a IA', () => {
+  it('pagamento: só dois modos, à vista ou parcelado (30% à vista, 3 parcelas anuais), para o utilizador e a IA', () => {
     expect(NEG_CLUBE.parcelas.map((x) => x.id)).toEqual(['vista', 'parcelado']);
     expect(NEG_CLUBE.parcelas[1].vista).toBeGreaterThan(0);
-    expect(NEG_CLUBE.parcelas[1].n).toBe(2);
-    expect(Math.max(...CONTRATO.parcelas_aceita)).toBeLessThan(0.5);
+    expect(NEG_CLUBE.parcelas[1].n).toBe(3);
+    // Quem está em crise quer o dinheiro já (aceita menos parcelas).
+    for (let k = 1; k < CONTRATO.parcelas_aceita.length; k++) expect(CONTRATO.parcelas_aceita[k]).toBeLessThan(CONTRATO.parcelas_aceita[k - 1]);
   });
 });

@@ -9,11 +9,11 @@ export const NEG_CLUBE = {
   venda_futura_por_ponto: 0.004,
   /** Opções de venda futura numa oferta (%); a soma por jogador nunca passa o limite dos direitos (50%). */
   venda_futura_opcoes: [0, 10, 15, 20, 25],
-  /** Pagamento (Prompt 6, Bloco D): só dois modos, os mesmos para o utilizador e para a IA. Parcelado: metade à vista e
-   *  o resto em 2 parcelas semestrais; o vendedor exige +x por esperar. */
+  /** Pagamento (Prompt 6, Bloco D): só dois modos, os mesmos para o utilizador e para a IA. Parcelado: 30% à vista e o
+   *  resto em 3 parcelas anuais (como as grandes transferências reais); o vendedor exige +x por esperar. */
   parcelas: [
     { id: 'vista', nome: 'À vista', extra: 0, n: 0, dias: 0, vista: 1 },
-    { id: 'parcelado', nome: 'Parcelado (metade à vista, 2 parcelas semestrais)', extra: 0.03, n: 2, dias: 182, vista: 0.5 },
+    { id: 'parcelado', nome: 'Parcelado (30% à vista, 3 parcelas anuais)', extra: 0.05, n: 3, dias: 365, vista: 0.3 },
   ],
   /** Jogador do plantel dado em troca: conta x × o valor de mercado. */
   troca_valor: 0.8,

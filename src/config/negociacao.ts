@@ -53,13 +53,30 @@ export const IA_MERCADO = {
   /** Um livre não entra acima do 11.º melhor + x (os livres não são reforços de borla). */
   livre_acima: 1,
   livre_dias_maximo: 400,
-  /** Orçamento da janela: fracção da receita × (0,5 + ambição), mais as vendas, até ao tecto (fracção da receita). */
-  orcamento_receita: 0.12,
+  /** Poder de compra por riqueza da liga (Prompt 6, fecho; dados reais do Verão de 2026: a Premier League gastou
+   *  ~65% da receita, as outras grandes ligas 25–45%). Por escalão (o primeiro com riqueza ≤ a da liga):
+   *    janela: orçamento-base da janela = janela × receita × (0,5 + ambição), mais as vendas da janela;
+   *    tecto: o orçamento da janela nunca passa tecto × receita;
+   *    negocio: um só negócio nunca passa negocio × receita;
+   *    estrelas: "estrelas" por janela, para clubes com reputação ≥ estrela_rep (ou compradores de estrelas e magnatas com
+   *    reputação ≥ estrela.reputacao_arquetipo);
+   *    necessidades: necessidades de qualidade e sucessão a mais por janela (base e máximo), como a rotação dos ricos. */
+  /** Prudência: o orçamento da janela × x pela saúde financeira (saudável, apertado, crise, administração), e as parcelas
+   *  em dívida nunca passam y × a receita (acima disso, só se compra com o dinheiro em caixa). */
+  prudencia_saude: [1, 0.5, 0, 0],
+  parcelas_max_receita: 0.5,
+  /** ... a caixa acima de x meses de despesa paga a parte à vista; o salário do reforço cabe na folga
+   *  salarial + y × a receita. */
+  reserva_meses: 2,
+  folga_salarial_receita: 0.12,
+  poder_compra: [
+    { riqueza: 80, janela: 0.3, tecto: 0.65, negocio: 0.3, estrelas: 2, estrela_rep: 72, necessidades: 1 },
+    { riqueza: 40, janela: 0.25, tecto: 0.6, negocio: 0.45, estrelas: 1, estrela_rep: 85, necessidades: 1 },
+    { riqueza: 15, janela: 0.15, tecto: 0.45, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
+    { riqueza: 0, janela: 0.12, tecto: 0.35, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
+  ],
   /** Clubes com reputação < 60: probabilidade de pedir um empréstimo em cada tentativa. */
   prob_emprestimo: 0.45,
-  orcamento_tecto: 0.35,
-  /** Tecto de um só negócio: x × a receita prevista do comprador (com a receita do maior clube, ~550 M€, dá ~200 M€). */
-  negocio_maximo_receita: 0.4,
   /** Oferta inicial = fracção do preço pedido. */
   oferta_inicial: [0.65, 0.85] as [number, number],
 };
@@ -98,11 +115,10 @@ export const PLANO_PLANTEL = {
    *  dos titulares ≥ média da liga + x: até y anos). */
   ligas_veteranos: { KSA1: 31, UAE1: 31, USA1: 35, TUR1: 33, MEX1: 33, JPN1: 33 } as Record<string, number>,
   titulo_margem: 4, titulo_idade_max: 33,
-  /** Estrelas: numa liga com riqueza ≥ riqueza_min, clubes de comprador de estrelas ou magnata com reputação ≥
-   *  reputacao_arquetipo, ou de reputação ≥ x numa liga com riqueza ≥ y, transformam a
-   *  necessidade de qualidade mais urgente numa "estrela" (uma por janela): nível mínimo = min(alvo + a, titular + b),
-   *  candidatos até + c pontos, escolhidos pelo nível (não pelo custo), e o orçamento da janela vai até ao tecto. */
-  estrela: { riqueza_min: 40, reputacao_arquetipo: 75, reputacao: 85, riqueza: 40, acima_alvo: 6, acima_titular: 8, faixa: 12, lance_maximo: 1.3 },
+  /** Estrelas: nos escalões de poder de compra com estrelas (Inglaterra; topo de Alemanha, Espanha e Itália), a
+   *  necessidade de qualidade mais urgente passa a "estrela": nível mínimo = min(alvo + a, titular + b), candidatos até
+   *  + c pontos, escolhidos pelo nível (não pelo custo), o orçamento da janela vai até ao tecto e o lance até × lance_maximo. */
+  estrela: { reputacao_arquetipo: 75, acima_alvo: 6, acima_titular: 8, faixa: 12, lance_maximo: 1.3 },
   /** Desespero: titular em falta nas últimas x semanas da janela: o lance máximo vai até y × o pedido. */
   desespero: { semanas: 2, lance_maximo: 1.35 },
   /** Validade do plano com a janela aberta (dias); fora dela, um mês. */

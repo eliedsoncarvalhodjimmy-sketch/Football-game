@@ -155,16 +155,17 @@ export class PlanosPlantel {
     const pd = t?.pedidos;
     const extra = pd ? Math.round(pd.reforcos * pd.autonomia * (1 + (e.ia?.pressao?.[c] ?? 0) * 0.5) / 2) : 0;
     // Um clube abaixo do nível da sua liga (luta pela permanência) aceita mais uma necessidade.
-    const base = P.necessidades_base + (media < liga - P.abaixo_da_liga ? 1 : 0);
+    const extraRico = m.poderCompra(c).necessidades;
+    const base = P.necessidades_base + extraRico + (media < liga - P.abaixo_da_liga ? 1 : 0);
     // A profundidade (posição sem gente) entra sempre; o tecto só limita a qualidade e a sucessão.
     const prof = ordenadas.filter((n) => n.motivo === 'profundidade');
-    const resto = ordenadas.filter((n) => n.motivo !== 'profundidade').slice(0, Math.max(0, Math.min(P.necessidades_max, base + extra) - prof.length));
+    const resto = ordenadas.filter((n) => n.motivo !== 'profundidade').slice(0, Math.max(0, Math.min(P.necessidades_max + extraRico, base + extra) - prof.length));
     const necessidades = [...prof.map((n) => ({ ...n })), ...resto.map((n, i) => ({ ...n, pedido: prof.length + i >= base }))].sort((a, b) => b.urgencia - a.urgencia);
     // Estrela (Bloco C): o comprador rico concentra a janela num reforço grande (um por janela).
-    const E = P.estrela, riqueza = li >= 0 ? w.ligas[li].regras.indice_riqueza : 0;
-    // Só os ricos de verdade (ligas ricas: Inglaterra, topo europeu, Arábia, ...): os de ligas pequenas não concentram.
-    const rico = riqueza >= E.riqueza_min && ((w.reputacao[c] >= E.reputacao_arquetipo && (arq === 'comprador_estrelas' || arq === 'magnata_impaciente')) || (w.reputacao[c] >= E.reputacao && riqueza >= E.riqueza));
-    const q = rico && !m.estrelaJanela.has(c) ? necessidades.find((n) => n.motivo === 'qualidade') : undefined;
+    const E = P.estrela, PC = m.poderCompra(c), rep = w.reputacao[c];
+    // Só os ricos de verdade (escalões com estrelas: Inglaterra, topo europeu): os de ligas pequenas não concentram.
+    const rico = PC.estrelas > 0 && (rep >= PC.estrela_rep || (rep >= E.reputacao_arquetipo && (arq === 'comprador_estrelas' || arq === 'magnata_impaciente')));
+    const q = rico && (m.estrelaJanela.get(c) ?? 0) < PC.estrelas ? necessidades.find((n) => n.motivo === 'qualidade') : undefined;
     if (q) {
       const actual = Math.min(...(ocupados.get(q.pos) ?? []).filter((j) => lugar.get(j)!.titular).map((j) => lugar.get(j)!.nivel));
       q.estrela = true;

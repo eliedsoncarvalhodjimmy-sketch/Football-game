@@ -32,8 +32,8 @@ export const CONTRATO = {
   jovem_aumento: 0.6,
   /** Pagamento entre clubes da IA: à vista, ou "parcelado" (o mesmo modo do utilizador, em NEG_CLUBE.parcelas) acima de
    *  x € e se o vendedor aceitar (saudável / apertado / crise ou administração: quer dinheiro já). */
-  parcelas_acima: 5_000_000,
-  parcelas_aceita: [0.25, 0.15, 0.05],
+  parcelas_acima: 20_000_000,
+  parcelas_aceita: [0.7, 0.5, 0.15],
 };
 
 /**

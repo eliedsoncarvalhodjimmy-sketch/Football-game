@@ -32,14 +32,14 @@ describe('mercado, Bloco C (Prompt 6)', () => {
       expect(e.length).toBeLessThanOrEqual(1);
       if (!e.length) continue;
       estrelas++;
-      expect(l.regras.indice_riqueza).toBeGreaterThanOrEqual(PLANO_PLANTEL.estrela.riqueza_min);
+      expect(m.poderCompra(c).estrelas).toBeGreaterThan(0);
       expect(e[0].motivo).toBe('qualidade');
     }
     expect(estrelas).toBeGreaterThan(0);
-    // Depois de a contratar, o clube não marca outra nessa janela.
+    // Depois de contratar as estrelas do seu escalão, o clube não marca outra nessa janela.
     const c = w.ligaPorId('ENG1').clubes.find((x) => m.planos.calcular(x, dia).necessidades.some((n) => n.estrela));
     if (c !== undefined) {
-      m.estrelaJanela.add(c);
+      m.estrelaJanela.set(c, m.poderCompra(c).estrelas);
       expect(m.planos.calcular(c, dia).necessidades.some((n) => n.estrela)).toBe(false);
       m.estrelaJanela.delete(c);
     }

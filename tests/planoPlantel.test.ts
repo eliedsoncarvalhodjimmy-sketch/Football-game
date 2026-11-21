@@ -24,7 +24,7 @@ describe('plano de plantel (Prompt 6, Bloco B)', () => {
       const tit = [...p.lugar.values()].filter((x) => x.titular);
       expect(tit.length).toBeLessThanOrEqual(f.lugares.length);
       // O tecto só vale para a qualidade e a sucessão; a profundidade (posição sem gente) entra sempre.
-      expect(p.necessidades.filter((n) => n.motivo !== 'profundidade').length).toBeLessThanOrEqual(PLANO_PLANTEL.necessidades_max);
+      expect(p.necessidades.filter((n) => n.motivo !== 'profundidade').length).toBeLessThanOrEqual(PLANO_PLANTEL.necessidades_max + m.poderCompra(c).necessidades);
       for (let k = 1; k < p.necessidades.length; k++) expect(p.necessidades[k - 1].urgencia).toBeGreaterThanOrEqual(p.necessidades[k].urgencia);
       if (p.necessidades.length) comNecessidades++;
       expect(m.plantel(c).length - p.excedentes.length).toBeGreaterThanOrEqual(22);

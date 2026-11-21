@@ -53,7 +53,7 @@ describe('mercado do utilizador (Prompt 6, Bloco D)', () => {
     expect(avisos.every((e) => e.decisoes.length === 0)).toBe(true);
   }, 180000);
 
-  it('oferta com 25% de venda futura e pagamento parcelado: o direito fica com o vendedor; pagam-se 2 parcelas semestrais', async () => {
+  it('oferta com 25% de venda futura e pagamento parcelado: o direito fica com o vendedor; pagam-se 3 parcelas anuais', async () => {
     const a = new Sessao(fonte());
     const paises = await a.novoMundo(2026);
     a.comecar(paises.find((p) => p.id === 'por')!.ligas[0].clubes[2].id, { nome: 'Teste', perfilDono: 'dono-banca' });
@@ -72,7 +72,7 @@ describe('mercado do utilizador (Prompt 6, Bloco D)', () => {
     expect(n.fase).toBe('concluida');
     expect(m.direitos.de(alvo).find((d) => d.tipo === 'venda_futura' && d.clube === outro)?.pct).toBeCloseTo(0.25);
     const parc = m.parcelas.filter((p) => p.pagador === c && p.recebedor === outro);
-    expect(parc.length).toBe(2);
+    expect(parc.length).toBe(NEG_CLUBE.parcelas[1].n);
     expect(parc[1].dia - parc[0].dia).toBe(NEG_CLUBE.parcelas[1].dias);
     expect(() => a.comando({ tipo: 'propostaClube', id: n.id, valor: 1, vendaFutura: 30, parcelas: 'vista', troca: null })).toThrow();
   }, 180000);

@@ -87,7 +87,7 @@ export class Mercado {
   /** Posições reforçadas por clube na janela em curso (para os pedidos do treinador). */
   reforcosJanela = new Map<number, string[]>();
   /** Clubes que já contrataram a estrela da janela (Bloco C: uma por janela). */
-  estrelaJanela = new Set<number>();
+  estrelaJanela = new Map<number, number>();
   negocios: Negocio[] = [];
   concluidos: Negocio[] = [];
   parcelas: Parcela[] = [];
@@ -648,7 +648,7 @@ export class Mercado {
         receber(vista);
         if (vista < fee) {
           parcelar(fee - vista, modo.n, modo.dias);
-          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${modo.n} parcelas semestrais de ${M((fee - vista) / modo.n)}` });
+          n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(vista)} à vista e ${modo.n} parcelas anuais de ${M((fee - vista) / modo.n)}` });
         } else n.rondas.push({ dia: n.dia, texto: `pagamento: ${M(fee)} à vista` });
         // Avisos ao utilizador: a % de venda futura que recebe.
         for (const p of partilhas) if (this.util && p.clube === this.util.clube) this.util.avisar(n.dia, `Recebes ${M(p.fraccao * fee)} (${Math.round(100 * p.fraccao)}% de venda futura) pela transferência de ${st.nomes[j]} do ${w.clubes[de].nome} para o ${w.clubes[para].nome}.`);
@@ -709,7 +709,7 @@ export class Mercado {
     }
     // O plantel mudou: os planos dos dois clubes recalculam-se (quem vendeu 10 numa janela tem de repor).
     if (n.tipo !== 'pre_contrato') { if (n.comprador >= 0) this.planos.invalidar(n.comprador); if (de >= 0) this.planos.invalidar(de); }
-    if (n.estrela) this.estrelaJanela.add(n.comprador);
+    if (n.estrela) this.estrelaJanela.set(n.comprador, (this.estrelaJanela.get(n.comprador) ?? 0) + 1);
     // Posições reforçadas pelo comprador nesta janela (as necessidades do plano cobertas; pedidos do treinador).
     if (n.comprador >= 0 && n.tipo !== 'pre_contrato') {
       const st2 = this.w.jogadores!, NP = POS_NOMES.length;
@@ -935,12 +935,20 @@ export class Mercado {
         if (!rng.chance(Math.min(0.95, IA.prob_abordagem * pico))) continue;
         // Orçamento da janela: o maior entre o da caixa e uma fracção da receita (pela ambição), mais as vendas da janela, até ao tecto.
         const amb = e.ia?.ambicao[c] ?? 0.5;
-        const orc = Math.min(IA.orcamento_tecto * s.receitaPrevista[c], Math.max(s.orcTransferencias[c], IA.orcamento_receita * (0.5 + amb) * s.receitaPrevista[c]) + (this.vendasJanela.get(c) ?? 0)) - (this.gastoJanela.get(c) ?? 0);
+        const PC = this.poderCompra(c), R = s.receitaPrevista[c];
+        const orc = (Math.min(PC.tecto * R, Math.max(s.orcTransferencias[c], PC.janela * (0.5 + amb) * R) + (this.vendasJanela.get(c) ?? 0)) - (this.gastoJanela.get(c) ?? 0)) * (IA.prudencia_saude[Math.min(3, s.saude[c])] ?? 0);
         const g = grupoPos(IDX_POS[n.pos]);
         const E = PLANO_PLANTEL.estrela;
         // Estrela: o orçamento da janela vai até ao tecto (concentra-se num negócio grande).
         // Num só negócio, nenhum clube paga mais do que x da receita (poucos podem pagar 200 M€).
-        const orcN = Math.min(IA.negocio_maximo_receita * s.receitaPrevista[c], n.estrela ? Math.max(orc, IA.orcamento_tecto * s.receitaPrevista[c] - (this.gastoJanela.get(c) ?? 0)) : orc);
+        // Prudência: a caixa acima da reserva (x meses de despesa) tem de cobrir a parte à vista;
+        // e as parcelas em dívida não passam y × a receita.
+        const PAR = NEG_CLUBE.parcelas[1], primeiro = PAR.vista;
+        const livreCaixa = Math.max(0, s.caixa[c] - (IA.reserva_meses / 12) * e.despesaAnual(c));
+        const pagavel = Math.min(livreCaixa / primeiro, livreCaixa + Math.max(0, IA.parcelas_max_receita * R - s.dividaParcelas[c]) / (1 - PAR.vista));
+        // Salários: o reforço tem de caber na folga do orçamento salarial, mais x da receita.
+        const folgaSal = e.clubes.orcSalarios[c] - e.clubes.folha[c] + IA.folga_salarial_receita * R;
+        const orcN = Math.min(PC.negocio * R, pagavel, n.estrela ? Math.max(orc, PC.tecto * R - (this.gastoJanela.get(c) ?? 0)) * (IA.prudencia_saude[Math.min(3, s.saude[c])] ?? 0) : orc);
         const alvoMin = n.nivelMin, alvoMax = n.nivelMin + (n.estrela ? E.faixa : 10);
         const [i0, i1] = n.idade;
         // Empréstimo (pouco orçamento, profundidade, clube pequeno): jovens de clubes grandes sem lugar no plano deles.
@@ -971,7 +979,7 @@ export class Mercado {
           const pp = precoPedido(w, this, j, c, segunda, 1);
           const clau = this.contratos.clausula[j];
           const custo = Math.min(pp.preco, clau > 0 ? clau : Infinity);
-          if (custo > orcN) continue;
+          if (custo > orcN || this.salarioMercado(j, c, segunda) > folgaSal) continue;
           // A estrela escolhe-se pelo nível (o custo só desempata); as outras pelo nível face ao custo.
           const v = est - n.nivelMin - custo / Math.max(1, orcN) * (n.estrela ? 0.5 : 3) + (this.contratos.listado[j] ? 2 : 0) + (natural(j, n) ? PLANO_PLANTEL.bonus_natural : 0);
           if (v > mv) { mv = v; melhor = j; mp = custo; }
@@ -1003,6 +1011,12 @@ export class Mercado {
         if (nt && n.estrela) nt.estrela = true;
       }
     }
+  }
+
+  /** Poder de compra do clube pela riqueza da sua liga (escalões em IA_MERCADO.poder_compra). */
+  poderCompra(c: number) {
+    const l = this.w.liga[c], r = l >= 0 ? this.w.ligas[l].regras.indice_riqueza : 0;
+    return IA.poder_compra.find((x) => r >= x.riqueza) ?? IA.poder_compra[IA.poder_compra.length - 1];
   }
 
   /** Termos de um empréstimo: fracção do salário paga por quem recebe, opção e obrigação de compra (sorteadas). */
