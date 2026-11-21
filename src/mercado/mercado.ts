@@ -454,7 +454,9 @@ export class Mercado {
         n.direitosPlano ??= planearDireitos(w, this.contratos, this.direitos, n.jogador, n.vendedor, n.comprador, n.pedido, n.dia, `${w.semente}|dir|${n.id}`);
         if (n.direitosPlano.vendaFutura > 0) n.pedido = Math.round((n.pedido * (1 - 100 * n.direitosPlano.vendaFutura * NEG_CLUBE.venda_futura_por_ponto)) / 10000) * 10000;
         // Insubstituível no plano do vendedor (titular sem alternativa): só sai muito acima do valor (Bloco B).
-        if (this.contratos.listado[n.jogador] !== 3 && this.planos.porClube.get(n.vendedor)?.insubstituiveis.has(n.jogador))
+        // Quem luta pela permanência não vende titulares (salvo muito acima do valor), como os insubstituíveis.
+        const pv = this.planos.porClube.get(n.vendedor);
+        if (this.contratos.listado[n.jogador] !== 3 && (pv?.insubstituiveis.has(n.jogador) || (pv?.lugar.get(n.jogador)?.titular && this.planos.abaixoDaLiga(n.vendedor))))
           n.pedido = Math.min(PRECO.preco_maximo, Math.max(n.pedido, Math.round(valorMercado(w, n.jogador, n.dia, e.inflacao) * PLANO_PLANTEL.insubstituivel_multiplo / 10000) * 10000));
       }
       // Contra-proposta do vendedor igualada: aceita.

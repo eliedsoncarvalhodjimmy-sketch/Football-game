@@ -744,3 +744,6 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - **Motor** (decisão do utilizador: afinar o motor em vez de alargar a faixa): com o mercado novo, o 0–0 ficava em 8,51% nas 3 sementes (faixa até 8,5%). O rho de Dixon-Coles do modo rápido passa de −0,02 para −0,01.
         - **Resultado:** 0–0 8,35%; golos 2,545; casa 45,2%; empates 24,8%; 5+ golos 11,9%; 7+ golos 1,0%.
         - **Não serve:** os parâmetros `base_criacao` e `ritmo_jogo_desvio` só existem no modo detalhado (jogo do utilizador); não mexem nas ligas.
+    - **Permanência** (mercado, para a banda dos últimos classificados): um clube abaixo do nível da sua liga não vende titulares do seu plano, a não ser por 1,6 × o valor ou pela cláusula de rescisão (a mesma regra dos insubstituíveis).
+        - **Porquê:** com o rho novo, os últimos ficavam com 89,4% dentro da faixa nas 3 sementes; com esta regra ficam com 90,9%.
+        - **O resto, com a regra:** campeões 92,8%; 0–0 8,39%; golos 2,543; casa 45,3%; empates 24,8%.
