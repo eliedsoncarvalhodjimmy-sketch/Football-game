@@ -53,28 +53,25 @@ export const IA_MERCADO = {
   /** Um livre não entra acima do 11.º melhor + x (os livres não são reforços de borla). */
   livre_acima: 1,
   livre_dias_maximo: 400,
-  /** Poder de compra por riqueza da liga (Prompt 6, fecho; dados reais do Verão de 2026: a Premier League gastou
-   *  ~65% da receita, as outras grandes ligas 25–45%). Por escalão (o primeiro com riqueza ≤ a da liga):
-   *    janela: orçamento-base da janela = janela × receita × (0,5 + ambição), mais as vendas da janela;
-   *    tecto: o orçamento da janela nunca passa tecto × receita;
-   *    negocio: um só negócio nunca passa negocio × receita;
-   *    estrelas: "estrelas" por janela, para clubes com reputação ≥ estrela_rep (ou compradores de estrelas e magnatas com
-   *    reputação ≥ estrela.reputacao_arquetipo);
-   *    necessidades: necessidades de qualidade e sucessão a mais por janela (base e máximo), como a rotação dos ricos. */
-  /** Prudência: o orçamento da janela × x pela saúde financeira (saudável, apertado, crise, administração), e as parcelas
-   *  em dívida nunca passam y × a receita (acima disso, só se compra com o dinheiro em caixa). */
-  prudencia_saude: [1, 0.5, 0, 0],
-  parcelas_max_receita: 0.5,
-  /** ... a caixa acima de x meses de despesa paga a parte à vista; o salário do reforço cabe na folga
-   *  salarial + y × a receita. */
-  reserva_meses: 2,
-  folga_salarial_receita: 0.12,
+  /** Poder de compra do clube (Prompt 6, fecho, decisão do utilizador): depende do clube (receita, dono, dívida), não da
+   *  liga. Por receita prevista do clube (o primeiro escalão com receita ≥ x):
+   *    janela: orçamento-base = janela × receita × (0,5 + ambição), mais as vendas da janela; tecto: nunca passa tecto × receita;
+   *    negocio: um só negócio ≤ negocio × receita; estrelas por janela (com reputação ≥ estrela_rep, ou compradores de
+   *    estrelas e magnatas com reputação ≥ estrela.reputacao_arquetipo); necessidades de qualidade a mais por janela. */
   poder_compra: [
-    { riqueza: 80, janela: 0.3, tecto: 0.65, negocio: 0.3, estrelas: 2, estrela_rep: 72, necessidades: 1 },
-    { riqueza: 40, janela: 0.18, tecto: 0.45, negocio: 0.45, estrelas: 1, estrela_rep: 85, necessidades: 1 },
-    { riqueza: 15, janela: 0.12, tecto: 0.35, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
-    { riqueza: 0, janela: 0.12, tecto: 0.35, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
+    { receita: 600e6, janela: 0.3, tecto: 0.7, negocio: 0.3, estrelas: 2, estrela_rep: 80, necessidades: 1 },
+    { receita: 250e6, janela: 0.22, tecto: 0.55, negocio: 0.4, estrelas: 1, estrela_rep: 80, necessidades: 1 },
+    { receita: 80e6, janela: 0.15, tecto: 0.4, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
+    { receita: 0, janela: 0.12, tecto: 0.35, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
   ],
+  /** Dinheiro (substitui "só compra com caixa"): um negócio é pagável com a caixa acima da reserva (x meses de despesa),
+   *  o que o dono ainda pode injectar este ano (pelo perfil) e a folga até ao tecto de dívida bancária; e não passa o
+   *  limite tipo PSR: (salários + amortizações + o novo salário + o preço ÷ anos de contrato) ≤ custo_plantel_max × receita,
+   *  com mais margem para donos estado e bilionários (capital próprio). A saúde financeira continua a travar: um clube
+   *  apertado usa metade do orçamento; em crise ou administração não compra. */
+  prudencia_saude: [1, 0.5, 0, 0],
+  reserva_meses: 2,
+  psr: { custo_plantel_max: 0.7, bonus_dono: { estado: 0.15, bilionario: 0.15, multiclube: 0.05 } as Record<string, number> },
   /** Clubes com reputação < 60: probabilidade de pedir um empréstimo em cada tentativa. */
   prob_emprestimo: 0.45,
   /** Oferta inicial = fracção do preço pedido. */
@@ -162,4 +159,16 @@ export const PLANO_PLANTEL = {
     futebol_total: { MED: ['tec', 'pas', 'msb'], DEF: ['pas', 'tec'], LAT: ['tec', 'msb'] },
     bloco_medio_baixo: { DEF: ['pos', 'mar', 'cab'], MED: ['pos', 'des', 'teq'] },
   } as Record<string, Partial<Record<'GR' | 'DEF' | 'LAT' | 'MED' | 'EXT' | 'PL', string[]>>>,
+};
+
+/** Titulares dos gigantes ficam (Prompt 6, fecho, pedido do utilizador). Depende da reputação do clube e da importância do
+ *  jogador no plano de plantel (titular):
+ *   (a) o clube (IA) só vende um titular por ≥ multiplo × o valor, a subir de 1 (reputação reputacao_min) até
+ *       multiplo_max (reputação reputacao_max); em crise (saúde ≥ crise_saude) vende como os outros;
+ *   (b) o jogador recusa descer de reputação: um titular de um clube com reputação ≥ reputacao_min perde
+ *       peso × (diferença ÷ 10) × (importância do clube) na decisão quando o comprador tem ≥ diferenca pontos a menos;
+ *       não conta com salário ≥ salario_enorme × o actual, idade ≥ idade_fim ou descontentamento ≥ descontente. */
+export const GIGANTES = {
+  reputacao_min: 80, reputacao_max: 95, multiplo_max: 2.2, crise_saude: 2,
+  descida: { diferenca: 10, peso: 1.5, salario_enorme: 2, idade_fim: 32, descontente: 50 },
 };

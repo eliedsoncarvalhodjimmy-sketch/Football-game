@@ -775,3 +775,22 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - **Metas** (12 sementes): Inglaterra 30,8% dos títulos europeus; Arábia 5,0 dos 10 asiáticos. As duas à justa.
         - **Variante rejeitada:** com mais orçamento para as grandes ligas e para o escalão médio, a Inglaterra caía para 27,2% e a Arábia subia para 5,5.
     - **Banda dos últimos** (decisão do utilizador): com o mercado final, os últimos com 0,25–1,15 pontos por jogo ficam em 88,9% nas 3 sementes. O mínimo passa de 90% para 88%. Esta faixa passou e falhou 4 vezes durante a calibração, com cada afinação do mercado; os casos de fora são últimos muito fracos (menos de 9,5 pontos em 38 jogos), espalhados por muitas ligas.
+
+201. **Prompt 6 (fecho, pontos 3–6 aprovados pelo utilizador): dinheiro, poder de compra pelo clube, gigantes, alarmes.** O ponto 1 (valores contra o dataset do Transfermarkt) e a calibração final das quantidades (ponto 2) ficam para quando o utilizador der a amostra; as metas do ponto 2 já estão fixadas: 25–40 transferências de 50 M€ ou mais por época, 3–8 de 100 M€ ou mais, gasto por liga entre 70% e 110% do real (Premier League 2 900–4 500 M€), maior gasto de um clube numa janela 300–550 M€.
+    - **Dinheiro** (substitui "só compra com caixa"):
+        - **Capacidade:** um negócio é pagável com a caixa acima de 2 meses de despesa, o que o dono ainda pode injectar este ano (pelo perfil, a capacidade que já existia) e a folga até ao tecto de dívida bancária do clube (política do dono e arquétipo; em crise o banco não empresta).
+        - **Cobrir a falta:** logo depois de uma compra, a falta de caixa cobre-se pela ordem de financiamento do clube (`cobrirFalta`, a mesma do fecho mensal), para a caixa não ficar negativa até ao fim do mês.
+        - **Limite tipo PSR:** salários + amortização anual (preço ÷ anos de contrato) + o reforço ≤ 70% da receita, mais 15 pontos para donos estado e bilionários (capital próprio) e 5 para multiclube. A amortização de cada jogador guarda-se nos contratos (`amortAnual`, `amortAte`).
+        - **Saúde:** apertado usa metade do orçamento; em crise ou administração não compra (como antes).
+        - **Removido:** `parcelas_max_receita`, `folga_salarial_receita` e a regra da caixa para a parte à vista.
+    - **Poder de compra pelo clube:**
+        - **Escalões pela receita do clube** (600 M€+, 250 M€+, 80 M€+, resto), já não pela riqueza da liga. Os gigantes de fora (Real Madrid, Barcelona, Bayern, PSG) ficam no mesmo escalão dos ingleses de topo; Inter, Atlético e Dortmund ficam no escalão de baixo e competem gastando menos.
+        - **Prémio de riqueza do comprador:** até × 1,15 (era × 1,5).
+    - **Receitas provisórias dos gigantes** (só para teste, a substituir pelos ficheiros de clubes; `RECEITAS_PROVISORIAS`): Espanha 1.º 1 050 M€ e 2.º 900 M€; Alemanha 1.º e França 1.º 825 M€, pela ordem de reputação. Entram como receita comercial e mantêm-se nas renovações do patrocínio; não se aplicam a clubes com linha em `financas.csv`.
+    - **Titulares dos gigantes ficam** (`GIGANTES`), pela reputação do clube e pela importância do jogador (titular do plano):
+        - **O clube** só vende um titular por pelo menos um múltiplo do valor, de 1 (reputação 80) a 2,2 (reputação 95), excepto em crise.
+        - **O jogador** recusa descer: um titular de um clube com reputação 80 ou mais perde 1,5 × (diferença ÷ 10) × (0,5 a 1, pela importância do clube) na decisão quando o comprador tem 10 ou mais pontos de reputação a menos. Não conta com salário de pelo menos 2 × o actual, 32 anos ou mais, ou descontentamento de 50 ou mais (falta de minutos).
+    - **Alarmes** (`scripts/analisar-regressao.py`): Inglaterra 25–45% dos títulos europeus; Arábia 3–5 dos 10 asiáticos. Fora do alarme não se ajusta o mercado em silêncio: mostram-se os números e as opções ao utilizador.
+    - **Medição intermédia** (2 épocas, semente 2026, valores ainda por calibrar):
+        - **Gasto por época:** Premier League 986 M€; 6,5 transferências de 50 M€ ou mais; nenhuma de 100 M€ ou mais; 2 clubes em crise (França).
+        - **O que trava agora:** o limite tipo PSR. Os salários dos gigantes estão em 55–61% da receita, por isso a folga até 70% dá cerca de um reforço grande por janela. A calibrar com os valores (ponto 1) e as escalas salariais.

@@ -21,4 +21,8 @@ for m, rs in res.items():
         print(f"{s} | {r['dist']:.2f} / {r['min']} | {r['dez']} | {r['eng']:.0f}% | {r['ksa']}/{r['nAsia']} | {r['bra']}/{r['nLib']} | {r['pl']}")
     n = len(rs); a = lambda k: sum(r[k] for _, r in rs)/n
     print(f"média | {a('dist'):.2f} | {a('dez'):.2f} | {a('eng'):.1f}% | {a('ksa'):.1f} | {a('bra'):.1f} | todas as ligas {a('todos'):.2f}")
+    # Alarmes (Prompt 6, fecho, decisão do utilizador): Inglaterra 25–45% dos europeus; Arábia 3–5 dos 10 asiáticos.
+    # Fora do alarme não se ajusta o mercado em silêncio: mostram-se os números e as opções.
+    al = [x for x, ok in [(f"ENG {a('eng'):.1f}% fora de 25–45%", 25 <= a('eng') <= 45), (f"KSA {a('ksa'):.1f} fora de 3–5", 3 <= a('ksa') <= 5)] if not ok]
+    print('ALARME: ' + '; '.join(al) if al else 'alarmes: nenhum')
     print()

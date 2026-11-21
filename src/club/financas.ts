@@ -32,7 +32,7 @@ function evento(e: Economia, ev: EventoClube) {
 }
 
 /** Dinheiro que o dono ainda pode pôr nesta época: a capacidade dele, até 25% da receita (capital; empréstimos à parte). */
-function capacidadeRestante(e: Economia, c: number, capital = true): number {
+export function capacidadeRestante(e: Economia, c: number, capital = true): number {
   const d = e.donos[c];
   if (!d) return 0;
   const cap = capacidadeAnual(d);
@@ -71,13 +71,29 @@ export function fimProximaJanela(e: Economia, c: number, dia: number): number {
 
 // ---------------------------------------------------------------- mensal
 
-export function gerirMes(e: Economia, c: number, dia: number) {
+/** Tecto de dívida bancária do clube (fracção da receita × receita), pela política do dono e pelo arquétipo. */
+function tectoBanco(e: Economia, c: number): number {
+  const d = e.donos[c];
+  const arqDiv = e.ia.arquetipo[c] ? PARAMETROS[e.ia.arquetipo[c]].divida : 0;
+  return Math.min(DV.limite_banco, (d ? politicaDivida(d) : DV.limite_banco) + arqDiv) * Math.max(1, e.clubes.receitaPrevista[c]);
+}
+
+/** Dinheiro de fora que o clube ainda consegue (Prompt 6, fecho): o que o dono pode injectar este ano (capital, pelo
+ *  perfil) mais a folga até ao tecto de dívida bancária. Em crise o banco já não empresta. */
+export function folgaFinanciamento(e: Economia, c: number): number {
+  const s = e.clubes;
+  if (s.administracaoAte[c]) return 0;
+  const banco = e.calcularSaude(c) >= 2 ? 0 : Math.max(0, tectoBanco(e, c) - s.divida(c));
+  return capacidadeRestante(e, c) + banco;
+}
+
+/** Falta de caixa: o clube pede dinheiro pela ordem do controlador (dono, empréstimo do dono, banco). Também chamada logo
+ *  depois de uma compra, para que o pagamento não deixe a caixa negativa até ao fecho do mês. */
+export function cobrirFalta(e: Economia, c: number, dia: number, rng: Rng) {
   const w = e.w, s = e.clubes;
-  const receita = Math.max(1, s.receitaPrevista[c]);
-  const rng = Rng.de(w.semente, 'financas-mes', w.clubes[c].id, dia);
-  // 1. Falta de caixa: o clube pede dinheiro pela ordem do controlador.
   const reserva = DV.reserva_meses * despesaMensal(e, c);
-  if (s.caixa[c] < reserva && !s.administracaoAte[c]) {
+  if (!(s.caixa[c] < reserva && !s.administracaoAte[c])) return false;
+  {
     for (const via of e.controlador(c).financiamento(w, e, c, reserva - s.caixa[c])) {
       const defice = reserva - s.caixa[c];
       if (defice <= 0) break;
@@ -90,8 +106,7 @@ export function gerirMes(e: Economia, c: number, dia: number) {
         const v = Math.min(defice, capacidadeRestante(e, c, false));
         if (v > 0) { s.caixa[c] += v; s.dividaDono[c] += v; evento(e, { dia, clube: c, tipo: 'emprestimo_dono', texto: 'empréstimo do dono', valor: v }); }
       } else if (via === 'banco') {
-        const arqDiv = e.ia.arquetipo[c] ? PARAMETROS[e.ia.arquetipo[c]].divida : 0;
-        const tecto = Math.min(DV.limite_banco, (d ? politicaDivida(d) : DV.limite_banco) + arqDiv) * receita;
+        const tecto = tectoBanco(e, c);
         const div = s.divida(c);
         const saude = e.calcularSaude(c);
         if (saude === 2 && div > tecto / 2) continue;
@@ -105,7 +120,17 @@ export function gerirMes(e: Economia, c: number, dia: number) {
         }
       }
     }
-  } else if (s.dividaBanco[c] > 0 && s.caixa[c] > DV.amortizar_acima_meses * despesaMensal(e, c)) {
+  }
+  return true;
+}
+
+export function gerirMes(e: Economia, c: number, dia: number) {
+  const w = e.w, s = e.clubes;
+  const receita = Math.max(1, s.receitaPrevista[c]);
+  const rng = Rng.de(w.semente, 'financas-mes', w.clubes[c].id, dia);
+  // 1. Falta de caixa: o clube pede dinheiro pela ordem do controlador.
+  if (cobrirFalta(e, c, dia, rng)) { /* financiado */ }
+  else if (s.dividaBanco[c] > 0 && s.caixa[c] > DV.amortizar_acima_meses * despesaMensal(e, c)) {
     const v = Math.min(s.dividaBanco[c], DV.amortizar_fraccao * (s.caixa[c] - DV.amortizar_acima_meses * despesaMensal(e, c)));
     s.caixa[c] -= v;
     s.dividaBanco[c] -= v;

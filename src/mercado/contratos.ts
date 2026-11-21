@@ -28,6 +28,9 @@ export class Contratos {
   preContrato = new Int32Array(0);
   /** Listado para venda pelo clube (1) ou pediu para sair (2); venda forçada (3). */
   listado = new Uint8Array(0);
+  /** Amortização (Prompt 6, fecho): preço da transferência ÷ anos do contrato, por ano, até ao fim do contrato. */
+  amortAnual = new Float64Array(0);
+  amortAte = new Int32Array(0);
   emprestimo = new Map<number, Emprestimo>();
   /** Salário acordado num pré-contrato (o que o jogador recebe quando chega). Os direitos futuros (venda futura,
    *  recompra) estão em Mercado.direitos. */

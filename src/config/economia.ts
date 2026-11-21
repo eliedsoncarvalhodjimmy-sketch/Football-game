@@ -147,3 +147,9 @@ export const FAIR_PLAY = { padrao: 0.8 };
 
 /** Reputação: histórico guardado (épocas). */
 export const HISTORICO_CLUBE = { anos: 10 };
+
+/** RECEITAS PROVISÓRIAS (Prompt 6, fecho; decisão do utilizador: só para teste, a substituir pelos ficheiros de clubes).
+ *  Os gigantes de fora de Inglaterra com receitas realistas (€/época), por liga e por ordem de reputação na liga:
+ *  Espanha 1.º ~1 050 M€ (Real Madrid), 2.º ~900 M€ (Barcelona); Alemanha 1.º e França 1.º ~825 M€ (Bayern, PSG).
+ *  Só se aplicam a clubes sem linha em financas.csv; a diferença entra como receita comercial (patrocínio). */
+export const RECEITAS_PROVISORIAS: Record<string, number[]> = { ESP1: [1_050_000_000, 900_000_000], GER1: [825_000_000], FRA1: [825_000_000] };

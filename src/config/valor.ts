@@ -34,7 +34,7 @@ export const PRECO = {
   jovem_casa: 1.2,
   /** Riqueza do comprador: × (1 + x × (índice comprador − índice vendedor)/100), limitado. */
   riqueza_comprador: 0.25,
-  riqueza_limites: [0.9, 1.5] as [number, number],
+  riqueza_limites: [0.9, 1.15] as [number, number],
   /** Prémio da liga do comprador (força desportiva acima da do vendedor). */
   liga_comprador: 0.003,
   liga_limites: [1, 1.15] as [number, number],

@@ -14,7 +14,7 @@ import type { JogoR } from '../engine/competitions/base.ts';
 import type { Premio, RegrasLiga } from '../data/types.ts';
 import { CORTES_CRISE } from '../config/divida.ts';
 import { INFLACAO, TV_RENEGOCIACAO } from '../config/valor.ts';
-import { SALARIO, BILHETEIRA as B, COMERCIAL as CM, ADEPTOS as AD, DESPESAS as DP, FINANCAS_INICIAIS as FI, SAUDE as SA, TV, FAIR_PLAY, CONTRATOS as K, HISTORICO_CLUBE } from '../config/economia.ts';
+import { SALARIO, BILHETEIRA as B, COMERCIAL as CM, ADEPTOS as AD, DESPESAS as DP, FINANCAS_INICIAIS as FI, SAUDE as SA, TV, FAIR_PLAY, CONTRATOS as K, HISTORICO_CLUBE, RECEITAS_PROVISORIAS } from '../config/economia.ts';
 import { TIPOS_INFRA, INFRA, EFEITOS_INFRA as EI, NIVEIS_INICIAIS } from '../config/infraestruturas.ts';
 import { ClubStore, N_INFRA, RECEITAS, DESPESAS_R, N_RUB, type BalancoEpoca, type Rubrica } from '../club/store.ts';
 import { IA, custoObra, factorCustoInfra, type ClubController } from '../club/controlador.ts';
@@ -215,8 +215,28 @@ export class Economia {
     const dia = this.w.jogadores ? diaReferencia(this.w) : 0;
     for (let c = n0; c < n; c++) this.iniciarClube(c, financas.get(this.w.clubes[c].id));
     for (let c = n0; c < n; c++) this.clubes.receitaPrevista[c] = this.estimarReceita(c);
+    if (n0 === 0) this.receitasProvisorias(financas);
     if (n0 === 0) this.calibrarEscalas(dia);
     for (let c = n0; c < n; c++) this.iniciarCaixa(c, dia, financas.get(this.w.clubes[c].id));
+  }
+
+  /** Receita comercial a mais dos gigantes (provisória, ver RECEITAS_PROVISORIAS): mantém-se nas renovações do patrocínio. */
+  comercialExtra = new Map<number, number>();
+  private receitasProvisorias(financas: Map<string, LinhaFinancas>) {
+    const w = this.w, s = this.clubes;
+    for (const [id, alvos] of Object.entries(RECEITAS_PROVISORIAS)) {
+      const L = w.ligas.find((l) => l.regras.id === id);
+      if (!L) continue;
+      const ordem = [...L.clubes].sort((a, b) => w.reputacao[b] - w.reputacao[a]);
+      alvos.forEach((alvo, k) => {
+        const c = ordem[k];
+        if (c === undefined || financas.get(w.clubes[c].id)) return;
+        const extra = Math.max(0, alvo - s.receitaPrevista[c]);
+        this.comercialExtra.set(c, extra);
+        s.patrocinio[c] += extra;
+        s.receitaPrevista[c] = this.estimarReceita(c);
+      });
+    }
   }
 
   private iniciarClube(c: number, f?: LinhaFinancas) {
@@ -551,7 +571,7 @@ export class Economia {
     for (const p of t.pacotes) for (const li of p.ligas) for (const c of w.ligas[li].clubes) {
       if (s.patrocinioFim[c] > ano) continue;
       const rng = Rng.de(w.semente, 'patrocinio', w.clubes[c].id, ano);
-      s.patrocinio[c] = valorComercial(w.reputacao[c], indiceRiqueza(w, c), s.adeptos[c]) * Math.exp(rng.normal(0, CM.ruido_renovacao));
+      s.patrocinio[c] = valorComercial(w.reputacao[c], indiceRiqueza(w, c), s.adeptos[c]) * Math.exp(rng.normal(0, CM.ruido_renovacao)) + (this.comercialExtra.get(c) ?? 0);
       s.patrocinioFim[c] = ano + rng.int(CM.anos[0], CM.anos[1]);
     }
     fecharEpocaFinancas(this, t, reg);

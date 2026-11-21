@@ -4,9 +4,10 @@
 // A IA nunca percorre todos os jogadores: usa índices por grupo de posições (ordenados por OVR), listados, livres e
 // contratos a acabar, e escolhe de amostras curtas. (O nevoeiro de informação chega no Bloco B.)
 import { Rng } from '../core/rng.ts';
+import { folgaFinanciamento, cobrirFalta } from '../club/financas.ts';
 import { CONTRATO, EMPRESTIMOS, ESTATUTOS, type Estatuto } from '../config/contratosJogador.ts';
 import { CLAUSULAS as CL } from '../config/clausulas.ts';
-import { NEGOCIACAO as N, JANELAS_ANO_CIVIL, INSCRICAO, IA_MERCADO as IA, PLANO_PLANTEL } from '../config/negociacao.ts';
+import { NEGOCIACAO as N, JANELAS_ANO_CIVIL, INSCRICAO, IA_MERCADO as IA, PLANO_PLANTEL, GIGANTES } from '../config/negociacao.ts';
 import { PlanosPlantel, type Necessidade } from './planoPlantel.ts';
 import { IDX_POS, FAMILIARIDADE, POSICOES as POS_NOMES } from '../config/papeis.ts';
 import { CONFEDERACAO_PAIS } from '../config/paises.ts';
@@ -458,6 +459,12 @@ export class Mercado {
         const pv = this.planos.porClube.get(n.vendedor);
         if (this.contratos.listado[n.jogador] !== 3 && (pv?.insubstituiveis.has(n.jogador) || (pv?.lugar.get(n.jogador)?.titular && this.planos.abaixoDaLiga(n.vendedor))))
           n.pedido = Math.min(PRECO.preco_maximo, Math.max(n.pedido, Math.round(valorMercado(w, n.jogador, n.dia, e.inflacao) * PLANO_PLANTEL.insubstituivel_multiplo / 10000) * 10000));
+        // Gigantes: um titular do plano só sai muito acima do valor (salvo crise grave do clube).
+        const G = GIGANTES, rv = w.reputacao[n.vendedor];
+        if (this.contratos.listado[n.jogador] !== 3 && rv >= G.reputacao_min && pv?.lugar.get(n.jogador)?.titular && e.clubes.saude[n.vendedor] < G.crise_saude) {
+          const mult = 1 + (G.multiplo_max - 1) * Math.min(1, (rv - G.reputacao_min) / (G.reputacao_max - G.reputacao_min));
+          n.pedido = Math.min(PRECO.preco_maximo, Math.max(n.pedido, Math.round(valorMercado(w, n.jogador, n.dia, e.inflacao) * mult / 10000) * 10000));
+        }
       }
       // Contra-proposta do vendedor igualada: aceita.
       let resp: 'aceitar' | 'recusar' | { contra: number };
@@ -707,6 +714,12 @@ export class Mercado {
       this.recalcularFolha(para);
       n.rondas.push({ dia: n.dia, texto: `${st.nomes[j]} assina pelo ${w.clubes[para].nome} até ${data(st.fimContrato[j])}${k.clausula[j] ? ` (cláusula de rescisão de ${M(k.clausula[j])})` : ''}` });
     }
+    // Amortização (limite tipo PSR): preço ÷ anos de contrato, por ano; e a falta de caixa do comprador cobre-se já.
+    if (n.oferta > 0 && n.tipo !== 'livre' && n.tipo !== 'emprestimo' && n.tipo !== 'pre_contrato') {
+      const anos = Math.max(1, (st.fimContrato[j] - n.dia) / 365);
+      k.amortAnual[j] = n.oferta / anos; k.amortAte[j] = st.fimContrato[j];
+      if (para >= 0 && w.liga[para] >= 0) cobrirFalta(e, para, n.dia, Rng.de(w.semente, 'compra-financiamento', n.id));
+    } else { k.amortAnual[j] = 0; k.amortAte[j] = 0; }
     // O plantel mudou: os planos dos dois clubes recalculam-se (quem vendeu 10 numa janela tem de repor).
     if (n.tipo !== 'pre_contrato') { if (n.comprador >= 0) this.planos.invalidar(n.comprador); if (de >= 0) this.planos.invalidar(de); }
     if (n.estrela) this.estrelaJanela.set(n.comprador, (this.estrelaJanela.get(n.comprador) ?? 0) + 1);
@@ -939,15 +952,16 @@ export class Mercado {
         const orc = (Math.min(PC.tecto * R, Math.max(s.orcTransferencias[c], PC.janela * (0.5 + amb) * R) + (this.vendasJanela.get(c) ?? 0)) - (this.gastoJanela.get(c) ?? 0)) * (IA.prudencia_saude[Math.min(3, s.saude[c])] ?? 0);
         const g = grupoPos(IDX_POS[n.pos]);
         const E = PLANO_PLANTEL.estrela;
-        // Estrela: o orçamento da janela vai até ao tecto (concentra-se num negócio grande).
-        // Num só negócio, nenhum clube paga mais do que x da receita (poucos podem pagar 200 M€).
-        // Prudência: a caixa acima da reserva (x meses de despesa) tem de cobrir a parte à vista;
-        // e as parcelas em dívida não passam y × a receita.
-        const PAR = NEG_CLUBE.parcelas[1], primeiro = PAR.vista;
+        // Estrela: o orçamento da janela vai até ao tecto (concentra-se num negócio grande). Num só negócio, nenhum clube
+        // paga mais do que x da receita.
+        // Dinheiro: pagável com a caixa acima da reserva, o que o dono ainda pode injectar e a folga de dívida bancária
+        // (o pagamento é à vista ou parcelado; a falta de caixa cobre-se logo a seguir à compra).
         const livreCaixa = Math.max(0, s.caixa[c] - (IA.reserva_meses / 12) * e.despesaAnual(c));
-        const pagavel = Math.min(livreCaixa / primeiro, livreCaixa + Math.max(0, IA.parcelas_max_receita * R - s.dividaParcelas[c]) / (1 - PAR.vista));
-        // Salários: o reforço tem de caber na folga do orçamento salarial, mais x da receita.
-        const folgaSal = e.clubes.orcSalarios[c] - e.clubes.folha[c] + IA.folga_salarial_receita * R;
+        const pagavel = livreCaixa + folgaFinanciamento(e, c);
+        // Limite tipo PSR: salários + amortizações (+ o reforço) ≤ x × a receita (mais margem para donos ricos).
+        const dn = e.donos[c];
+        const limitePSR = (IA.psr.custo_plantel_max + (dn ? IA.psr.bonus_dono[dn.tipo] ?? 0 : 0)) * R;
+        const custoPl = this.custoPlantel(c, segunda);
         const orcN = Math.min(PC.negocio * R, pagavel, n.estrela ? Math.max(orc, PC.tecto * R - (this.gastoJanela.get(c) ?? 0)) * (IA.prudencia_saude[Math.min(3, s.saude[c])] ?? 0) : orc);
         const alvoMin = n.nivelMin, alvoMax = n.nivelMin + (n.estrela ? E.faixa : 10);
         const [i0, i1] = n.idade;
@@ -979,7 +993,7 @@ export class Mercado {
           const pp = precoPedido(w, this, j, c, segunda, 1);
           const clau = this.contratos.clausula[j];
           const custo = Math.min(pp.preco, clau > 0 ? clau : Infinity);
-          if (custo > orcN || this.salarioMercado(j, c, segunda) > folgaSal) continue;
+          if (custo > orcN || custoPl + this.salarioMercado(j, c, segunda) + custo / CONTRATO.anos(st.idade(j, segunda))[1] > limitePSR) continue;
           // A estrela escolhe-se pelo nível (o custo só desempata); as outras pelo nível face ao custo.
           const v = est - n.nivelMin - custo / Math.max(1, orcN) * (n.estrela ? 0.5 : 3) + (this.contratos.listado[j] ? 2 : 0) + (natural(j, n) ? PLANO_PLANTEL.bonus_natural : 0);
           if (v > mv) { mv = v; melhor = j; mp = custo; }
@@ -1013,10 +1027,18 @@ export class Mercado {
     }
   }
 
-  /** Poder de compra do clube pela riqueza da sua liga (escalões em IA_MERCADO.poder_compra). */
+  /** Poder de compra do clube pela sua receita (escalões em IA_MERCADO.poder_compra): o clube, não a liga. */
   poderCompra(c: number) {
-    const l = this.w.liga[c], r = l >= 0 ? this.w.ligas[l].regras.indice_riqueza : 0;
-    return IA.poder_compra.find((x) => r >= x.riqueza) ?? IA.poder_compra[IA.poder_compra.length - 1];
+    const r = this.w.economia?.clubes.receitaPrevista[c] ?? 0;
+    return IA.poder_compra.find((x) => r >= x.receita) ?? IA.poder_compra[IA.poder_compra.length - 1];
+  }
+
+  /** Custo do plantel tipo PSR: salários + amortização anual das transferências pagas (preço ÷ anos do contrato). */
+  custoPlantel(c: number, dia: number): number {
+    const k = this.contratos;
+    let a = 0;
+    for (const j of this.plantel(c)) if (k.amortAte[j] > dia) a += k.amortAnual[j];
+    return (this.w.economia?.clubes.folha[c] ?? 0) + a;
   }
 
   /** Termos de um empréstimo: fracção do salário paga por quem recebe, opção e obrigação de compra (sorteadas). */

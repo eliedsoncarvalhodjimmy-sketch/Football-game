@@ -1,6 +1,7 @@
 // Decisão do jogador (Prompt 4, Bloco A): aceitar ou recusar uma mudança; descontentamento.
 // O jogador conhece os seus próprios atributos ocultos (ambição, profissionalismo); os clubes não.
 import { DECISAO as D } from '../config/decisaoJogador.ts';
+import { GIGANTES } from '../config/negociacao.ts';
 import { CONTRATO } from '../config/contratosJogador.ts';
 import { IDADE_DECISAO } from '../config/scouting.ts';
 import type { Rng } from '../core/rng.ts';
@@ -37,12 +38,27 @@ export function pontuarProposta(w: World, m: Mercado, j: number, p: PropostaJoga
     ligacao: -D.ligacao * (1 + D.profissionalismo * (prof - 10)) * (actual >= 0 ? Math.min(1.5, (dia - m.contratos.chegada[j]) / 1460) : 0),
     descontentamento: actual >= 0 ? m.contratos.descontentamento[j] / 100 : 0,
     agente: D.agente * 0.3,
+    descida: descida(w, m, j, p, dia, salAct),
   };
   return { total: Object.values(parcelas).reduce((a, b) => a + b, 0), parcelas };
 }
 
 export function aceita(w: World, m: Mercado, j: number, p: PropostaJogador, dia: number, rng: Rng): boolean {
   return pontuarProposta(w, m, j, p, dia).total > D.limiar + rng.normal(0, D.ruido);
+}
+
+/** Um titular de um gigante recusa descer de reputação (Prompt 6, fecho): penalização pela diferença de reputação e pela
+ *  importância do clube actual; não conta com salário enorme, em fim de carreira ou sem minutos (descontente). */
+function descida(w: World, m: Mercado, j: number, p: PropostaJogador, dia: number, salAct: number): number {
+  const st = w.jogadores!, G = GIGANTES, Dd = G.descida;
+  const actual = st.clube[j];
+  if (actual < 0 || w.reputacao[actual] < G.reputacao_min) return 0;
+  const dif = w.reputacao[actual] - w.reputacao[p.clube];
+  if (dif < Dd.diferenca) return 0;
+  if (!m.planos.porClube.get(actual)?.lugar.get(j)?.titular) return 0;
+  if (p.salario >= Dd.salario_enorme * salAct || st.idade(j, dia) >= Dd.idade_fim || m.contratos.descontentamento[j] >= Dd.descontente) return 0;
+  const importancia = Math.min(1, (w.reputacao[actual] - G.reputacao_min) / (G.reputacao_max - G.reputacao_min));
+  return -Dd.peso * (dif / 10) * (0.5 + 0.5 * importancia);
 }
 
 /** Fracção de minutos que o jogador espera no clube actual (pela ordem no plantel). */
