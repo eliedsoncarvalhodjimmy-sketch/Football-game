@@ -8,6 +8,9 @@ import { atribuirVagas } from '../src/engine/season/qualify.ts';
 import { serializarHistorico, desserializarHistorico } from '../src/storage/serializar.ts';
 import { metricasRealismo, type DadosRelatorio } from '../src/cli/relatorioEpocas.ts';
 
+/** Sementes extra (além da 2026) para as bandas de calibração e de pontos. */
+const SEMENTES_BANDAS = [7, 11];
+
 describe('10 épocas do mundo fictício', async () => {
   const w = await mundo(2026);
   const sim = new Simulador(w);
@@ -28,6 +31,18 @@ describe('10 épocas do mundo fictício', async () => {
   calendario.push(...verificarCalendarioMundo(fechadas).map((p) => `entre calendários: ${p.msg}`));
   const favoritos: DadosRelatorio['favoritos'] = sim.inicios;
   const H = sim.historico;
+  // Bandas de calibração e de pontos (Prompt 6, decisão do utilizador): medidas na soma de 3 sementes (2026, 7, 11), não
+  // só na 2026. Com uma semente as faixas ficavam dentro do ruído dos limites, e qualquer mudança no mercado as fazia
+  // passar ou falhar ao acaso. A integridade, o determinismo e as outras métricas estruturais continuam na 2026.
+  const HS = [H], ppgCamp: number[] = [], ppgUlt: number[] = [];
+  { const r = metricasRealismo(w, H, favoritos); ppgCamp.push(...r.ppgCamp); ppgUlt.push(...r.ppgUlt); }
+  for (const semente of SEMENTES_BANDAS) {
+    const wx = await mundo(semente), sx = new Simulador(wx);
+    sx.simularEpocas(10);
+    HS.push(sx.historico);
+    const r = metricasRealismo(wx, sx.historico, sx.inicios);
+    ppgCamp.push(...r.ppgCamp); ppgUlt.push(...r.ppgUlt);
+  }
 
   it('integridade: cada clube numa só divisão; nº de clubes por divisão constante', () => {
     expect(integridade).toEqual([]);
@@ -53,8 +68,8 @@ describe('10 épocas do mundo fictício', async () => {
     expect(calendario).toEqual([]);
   });
 
-  it('calibração em 10 épocas de jogos de liga', () => {
-    const e = H.reduce((s, r) => ({ j: s.j + r.estatLiga.jogos, g: s.g + r.estatLiga.golos, c: s.c + r.estatLiga.casa, d: s.d + r.estatLiga.empates, z: s.z + r.estatLiga.zero, c5: s.c5 + r.estatLiga.cincoMais, c7: s.c7 + r.estatLiga.seteMais }), { j: 0, g: 0, c: 0, d: 0, z: 0, c5: 0, c7: 0 });
+  it('calibração em 10 épocas de jogos de liga (3 sementes)', () => {
+    const e = HS.flat().reduce((s, r) => ({ j: s.j + r.estatLiga.jogos, g: s.g + r.estatLiga.golos, c: s.c + r.estatLiga.casa, d: s.d + r.estatLiga.empates, z: s.z + r.estatLiga.zero, c5: s.c5 + r.estatLiga.cincoMais, c7: s.c7 + r.estatLiga.seteMais }), { j: 0, g: 0, c: 0, d: 0, z: 0, c5: 0, c7: 0 });
     expect(e.g / e.j).toBeGreaterThan(2.5);
     expect(e.g / e.j).toBeLessThan(2.7);
     expect(e.c / e.j).toBeGreaterThan(0.43);
@@ -71,8 +86,9 @@ describe('10 épocas do mundo fictício', async () => {
   it('realismo estrutural: pontos, campeões diferentes, favoritos, mobilidade', () => {
     const m = metricasRealismo(w, H, favoritos);
     const dentro = (xs: number[], a: number, b: number) => xs.filter((x) => x >= a && x <= b).length / xs.length;
-    expect(dentro(m.ppgCamp, 1.9, 2.85)).toBeGreaterThanOrEqual(0.9);
-    expect(dentro(m.ppgUlt, 0.25, 1.15)).toBeGreaterThanOrEqual(0.9);
+    // Pontos dos campeões e dos últimos: nas 3 sementes.
+    expect(dentro(ppgCamp, 1.9, 2.85)).toBeGreaterThanOrEqual(0.9);
+    expect(dentro(ppgUlt, 0.25, 1.15)).toBeGreaterThanOrEqual(0.9);
     const media = m.distintos.reduce((a, b) => a + b, 0) / m.distintos.length;
     expect(media).toBeGreaterThanOrEqual(2.5);
     expect(media).toBeLessThanOrEqual(7);
