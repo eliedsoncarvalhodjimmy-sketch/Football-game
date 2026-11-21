@@ -39,19 +39,19 @@ No mundo de teste, no início, com as mesmas regras de valor:
 ## 3. Regressão de 12 sementes (10 épocas cada; decisão do utilizador: médias de 12 sementes)
 
 ```
-3 | 3.25 / 2 | 0 | 17% | 3/10 | 8/10 | [4, 3, 4, 3, 2, 3, 5, 2]
-5 | 3.75 / 2 | 0 | 23% | 4/10 | 5/10 | [4, 3, 5, 4, 4, 2, 3, 5]
-7 | 3.50 / 1 | 1 | 27% | 4/10 | 6/10 | [5, 6, 5, 3, 3, 2, 1, 3]
-11 | 3.75 / 2 | 0 | 47% | 5/10 | 7/10 | [4, 4, 4, 5, 5, 2, 3, 3]
-13 | 3.38 / 2 | 0 | 33% | 6/10 | 7/10 | [5, 4, 4, 3, 2, 2, 3, 4]
-23 | 3.00 / 2 | 0 | 27% | 9/10 | 7/10 | [3, 2, 3, 4, 3, 4, 3, 2]
-31 | 3.75 / 2 | 0 | 33% | 7/10 | 7/10 | [6, 4, 4, 4, 2, 2, 4, 4]
-42 | 3.88 / 3 | 0 | 33% | 5/10 | 9/10 | [5, 4, 4, 4, 3, 4, 4, 3]
-77 | 3.75 / 2 | 0 | 27% | 4/10 | 8/10 | [6, 5, 4, 2, 3, 3, 3, 4]
-99 | 3.75 / 3 | 0 | 43% | 4/10 | 3/10 | [4, 3, 3, 6, 4, 3, 3, 4]
-123 | 3.75 / 2 | 0 | 40% | 5/10 | 8/10 | [5, 4, 4, 3, 4, 4, 2, 4]
-2026 | 3.88 / 3 | 0 | 50% | 5/10 | 9/10 | [3, 6, 3, 4, 5, 3, 4, 3]
-média | 3.61 | 0.08 | 33.3% | 5.1 | 7.0 | todas as ligas 5.53
+3 | 3.88 / 3 | 0 | 27% | 4/10 | 6/10 | [6, 3, 5, 4, 3, 3, 3, 4]
+5 | 3.62 / 2 | 0 | 23% | 6/10 | 6/10 | [2, 4, 6, 2, 5, 3, 3, 4]
+7 | 3.38 / 1 | 1 | 17% | 7/10 | 9/10 | [6, 5, 5, 3, 2, 2, 1, 3]
+11 | 4.00 / 2 | 0 | 37% | 3/10 | 6/10 | [6, 4, 5, 4, 5, 2, 2, 4]
+13 | 3.75 / 2 | 0 | 40% | 7/10 | 6/10 | [3, 4, 5, 3, 2, 6, 4, 3]
+23 | 3.50 / 2 | 0 | 40% | 6/10 | 6/10 | [4, 2, 4, 3, 4, 2, 4, 5]
+31 | 3.00 / 1 | 1 | 37% | 5/10 | 8/10 | [4, 5, 2, 2, 3, 3, 4, 1]
+42 | 3.62 / 3 | 0 | 37% | 6/10 | 10/10 | [3, 3, 3, 4, 4, 5, 3, 4]
+77 | 3.62 / 2 | 0 | 30% | 7/10 | 6/10 | [6, 4, 4, 2, 3, 2, 3, 5]
+99 | 4.00 / 3 | 0 | 33% | 3/10 | 5/10 | [4, 4, 4, 5, 5, 3, 3, 4]
+123 | 3.38 / 2 | 0 | 33% | 2/10 | 7/10 | [3, 5, 3, 4, 4, 3, 2, 3]
+2026 | 3.50 / 2 | 0 | 33% | 3/10 | 10/10 | [3, 5, 3, 2, 3, 3, 4, 5]
+média | 3.60 | 0.17 | 32.2% | 4.9 | 7.1 | todas as ligas 5.55
 
 ```
 
@@ -63,21 +63,24 @@ Alvos: campeões distintos nas 8 maiores ligas em média ≥ 3 e nenhuma 10/10; 
 | Valores novos (6 sementes) | 5,8 | 28,3% |
 | D: estrela só em ligas com riqueza ≥ 40; Arábia até 32 | 5,6 | 31,1% |
 | X: D + a idade da liga manda (sem bónus de candidato ao título); Arábia até 32 | 5,7 | 29,4% |
-| **Y (final): X com a Arábia e os Emirados até 31** | **5,1** | **33,3%** |
+| Y: X com a Arábia e os Emirados até 31 | 5,1 | 33,3% |
+| **Final: Y + o rho do motor −0,01 + quem luta pela permanência não vende titulares** | **4,9** | **32,2%** |
 
-- A Arábia fica uma décima acima do tecto. Mesmo com 12 sementes, a média varia cerca de meio título só por acaso.
-- A regressão foi corrida antes do último ajuste do motor (rho de Dixon-Coles de −0,02 para −0,01, para o 0-0); esse ajuste mexe pouco na força das equipas.
+- A tabela de cima é a versão final. Mesmo com 12 sementes, a média da Arábia varia cerca de meio título só por acaso.
+- Em 2 das 12 sementes há uma liga com o mesmo campeão nas 10 épocas (já acontecia antes do Prompt 6, em 2 das 6 sementes antigas).
 
 ## 4. Bandas antigas das 10 épocas (decisão do utilizador: 3 sementes, 2026 + 7 + 11)
 
-| Medida | Antes do ajuste do motor | Depois (rho −0,01) | Faixa |
-|---|---|---|---|
-| Golos por jogo | 2,543 | 2,545 | 2,5–2,7 |
-| Vitórias em casa | 45,2% | 45,2% | 43–47% |
-| Empates | 25,0% | 24,8% | 24–28% |
-| 0–0 | 8,51% | 8,35% | 6,5–8,5% |
-| 5 ou mais golos | 11,8% | 11,9% | 9,5–12,5% |
-| 7 ou mais golos | 1,0% | 1,0% | < 1,5% |
+| Medida | Antes do ajuste do motor | rho −0,01 | Final (+ permanência) | Faixa |
+|---|---|---|---|---|
+| Golos por jogo | 2,543 | 2,545 | 2,543 | 2,5–2,7 |
+| Vitórias em casa | 45,2% | 45,2% | 45,3% | 43–47% |
+| Empates | 25,0% | 24,8% | 24,8% | 24–28% |
+| 0–0 | 8,51% | 8,35% | 8,39% | 6,5–8,5% |
+| 5 ou mais golos | 11,8% | 11,9% | 11,8% | 9,5–12,5% |
+| 7 ou mais golos | 1,0% | 1,0% | 1,0% | < 1,5% |
+| Campeões com 1,9–2,85 pontos por jogo | — | 91,4% | 92,8% | ≥ 90% |
+| Últimos com 0,25–1,15 pontos por jogo | — | 89,4% | 90,9% | ≥ 90% |
 
 ## 5. Calibração completa (versão final, 2 épocas)
 
