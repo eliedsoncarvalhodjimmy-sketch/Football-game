@@ -774,3 +774,4 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Crises no fim:** só 1 clube (Alemanha); antes Inglaterra 1, Alemanha 1, Brasil 2.
     - **Metas** (12 sementes): Inglaterra 30,8% dos títulos europeus; Arábia 5,0 dos 10 asiáticos. As duas à justa.
         - **Variante rejeitada:** com mais orçamento para as grandes ligas e para o escalão médio, a Inglaterra caía para 27,2% e a Arábia subia para 5,5.
+    - **Banda dos últimos** (decisão do utilizador): com o mercado final, os últimos com 0,25–1,15 pontos por jogo ficam em 88,9% nas 3 sementes. O mínimo passa de 90% para 88%. Esta faixa passou e falhou 4 vezes durante a calibração, com cada afinação do mercado; os casos de fora são últimos muito fracos (menos de 9,5 pontos em 38 jogos), espalhados por muitas ligas.

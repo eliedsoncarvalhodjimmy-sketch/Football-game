@@ -88,7 +88,9 @@ describe('10 épocas do mundo fictício', async () => {
     const dentro = (xs: number[], a: number, b: number) => xs.filter((x) => x >= a && x <= b).length / xs.length;
     // Pontos dos campeões e dos últimos: nas 3 sementes.
     expect(dentro(ppgCamp, 1.9, 2.85)).toBeGreaterThanOrEqual(0.9);
-    expect(dentro(ppgUlt, 0.25, 1.15)).toBeGreaterThanOrEqual(0.9);
+    // Últimos: ≥ 88% (decisão do utilizador no fecho do Prompt 6; era 90%). Há épocas reais de últimos com 10–15 pontos;
+    // a faixa continua a apanhar um mercado que destrua os clubes pequenos.
+    expect(dentro(ppgUlt, 0.25, 1.15)).toBeGreaterThanOrEqual(0.88);
     const media = m.distintos.reduce((a, b) => a + b, 0) / m.distintos.length;
     expect(media).toBeGreaterThanOrEqual(2.5);
     expect(media).toBeLessThanOrEqual(7);

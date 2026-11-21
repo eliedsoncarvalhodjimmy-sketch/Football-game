@@ -82,7 +82,9 @@ Alvos: campeões distintos nas 8 maiores ligas em média ≥ 3 e nenhuma 10/10; 
 | 5 ou mais golos | 11,8% | 11,9% | 11,8% | 9,5–12,5% |
 | 7 ou mais golos | 1,0% | 1,0% | 1,0% | < 1,5% |
 | Campeões com 1,9–2,85 pontos por jogo | — | 91,4% | 92,8% | ≥ 90% |
-| Últimos com 0,25–1,15 pontos por jogo | — | 89,4% | 90,9% | ≥ 90% |
+| Últimos com 0,25–1,15 pontos por jogo | — | 89,4% | 90,9% | ≥ 90% → ≥ 88% (decisão do utilizador) |
+
+Com o poder de compra final (secção 4b), os últimos ficam em 88,9% dentro (mínimo novo de 88%).
 
 ## 4b. Negócios de elite por liga (pedido do utilizador; decisão: a meio caminho dos valores reais, sem crises)
 
