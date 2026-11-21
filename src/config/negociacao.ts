@@ -71,8 +71,8 @@ export const IA_MERCADO = {
   folga_salarial_receita: 0.12,
   poder_compra: [
     { riqueza: 80, janela: 0.3, tecto: 0.65, negocio: 0.3, estrelas: 2, estrela_rep: 72, necessidades: 1 },
-    { riqueza: 40, janela: 0.25, tecto: 0.6, negocio: 0.45, estrelas: 1, estrela_rep: 85, necessidades: 1 },
-    { riqueza: 15, janela: 0.15, tecto: 0.45, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
+    { riqueza: 40, janela: 0.18, tecto: 0.45, negocio: 0.45, estrelas: 1, estrela_rep: 85, necessidades: 1 },
+    { riqueza: 15, janela: 0.12, tecto: 0.35, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
     { riqueza: 0, janela: 0.12, tecto: 0.35, negocio: 0.4, estrelas: 0, estrela_rep: 999, necessidades: 0 },
   ],
   /** Clubes com reputação < 60: probabilidade de pedir um empréstimo em cada tentativa. */

@@ -39,19 +39,19 @@ No mundo de teste, no início, com as mesmas regras de valor:
 ## 3. Regressão de 12 sementes (10 épocas cada; decisão do utilizador: médias de 12 sementes)
 
 ```
-3 | 3.88 / 3 | 0 | 27% | 4/10 | 6/10 | [6, 3, 5, 4, 3, 3, 3, 4]
-5 | 3.62 / 2 | 0 | 23% | 6/10 | 6/10 | [2, 4, 6, 2, 5, 3, 3, 4]
-7 | 3.38 / 1 | 1 | 17% | 7/10 | 9/10 | [6, 5, 5, 3, 2, 2, 1, 3]
-11 | 4.00 / 2 | 0 | 37% | 3/10 | 6/10 | [6, 4, 5, 4, 5, 2, 2, 4]
-13 | 3.75 / 2 | 0 | 40% | 7/10 | 6/10 | [3, 4, 5, 3, 2, 6, 4, 3]
-23 | 3.50 / 2 | 0 | 40% | 6/10 | 6/10 | [4, 2, 4, 3, 4, 2, 4, 5]
-31 | 3.00 / 1 | 1 | 37% | 5/10 | 8/10 | [4, 5, 2, 2, 3, 3, 4, 1]
-42 | 3.62 / 3 | 0 | 37% | 6/10 | 10/10 | [3, 3, 3, 4, 4, 5, 3, 4]
-77 | 3.62 / 2 | 0 | 30% | 7/10 | 6/10 | [6, 4, 4, 2, 3, 2, 3, 5]
-99 | 4.00 / 3 | 0 | 33% | 3/10 | 5/10 | [4, 4, 4, 5, 5, 3, 3, 4]
-123 | 3.38 / 2 | 0 | 33% | 2/10 | 7/10 | [3, 5, 3, 4, 4, 3, 2, 3]
-2026 | 3.50 / 2 | 0 | 33% | 3/10 | 10/10 | [3, 5, 3, 2, 3, 3, 4, 5]
-média | 3.60 | 0.17 | 32.2% | 4.9 | 7.1 | todas as ligas 5.55
+3 | 3.25 / 2 | 0 | 17% | 3/10 | 4/10 | [4, 4, 3, 5, 2, 2, 3, 3]
+5 | 4.25 / 3 | 0 | 30% | 2/10 | 6/10 | [4, 4, 5, 4, 4, 3, 5, 5]
+7 | 3.38 / 2 | 0 | 17% | 7/10 | 8/10 | [3, 5, 4, 4, 4, 3, 2, 2]
+11 | 4.00 / 2 | 0 | 33% | 6/10 | 7/10 | [6, 4, 4, 4, 4, 3, 2, 5]
+13 | 3.88 / 2 | 0 | 20% | 7/10 | 6/10 | [5, 4, 4, 4, 2, 4, 4, 4]
+23 | 3.12 / 2 | 0 | 43% | 9/10 | 4/10 | [3, 2, 4, 4, 3, 3, 4, 2]
+31 | 4.12 / 2 | 0 | 30% | 5/10 | 9/10 | [6, 6, 6, 3, 4, 3, 3, 2]
+42 | 3.88 / 2 | 0 | 30% | 4/10 | 8/10 | [6, 5, 3, 5, 3, 4, 3, 2]
+77 | 3.50 / 2 | 0 | 33% | 6/10 | 6/10 | [6, 5, 4, 2, 3, 2, 2, 4]
+99 | 3.75 / 3 | 0 | 43% | 3/10 | 5/10 | [5, 4, 3, 5, 4, 3, 3, 3]
+123 | 4.25 / 2 | 0 | 40% | 3/10 | 8/10 | [5, 6, 5, 5, 2, 3, 3, 5]
+2026 | 3.88 / 2 | 0 | 33% | 5/10 | 9/10 | [5, 5, 3, 5, 2, 4, 3, 4]
+média | 3.77 | 0.00 | 30.8% | 5.0 | 6.7 | todas as ligas 5.54
 
 ```
 
@@ -64,10 +64,12 @@ Alvos: campeões distintos nas 8 maiores ligas em média ≥ 3 e nenhuma 10/10; 
 | D: estrela só em ligas com riqueza ≥ 40; Arábia até 32 | 5,6 | 31,1% |
 | X: D + a idade da liga manda (sem bónus de candidato ao título); Arábia até 32 | 5,7 | 29,4% |
 | Y: X com a Arábia e os Emirados até 31 | 5,1 | 33,3% |
-| **Final: Y + o rho do motor −0,01 + quem luta pela permanência não vende titulares** | **4,9** | **32,2%** |
+| Y + o rho do motor −0,01 + quem luta pela permanência não vende titulares | 4,9 | 32,2% |
+| Poder de compra solto (grandes ligas 0,25/0,6, escalão médio 0,15/0,45) | 5,5 | 27,2% |
+| **Final: poder de compra por liga (Q, entrada 200 do DECISIONS)** | **5,0** | **30,8%** |
 
 - A tabela de cima é a versão final. Mesmo com 12 sementes, a média da Arábia varia cerca de meio título só por acaso.
-- Em 2 das 12 sementes há uma liga com o mesmo campeão nas 10 épocas (já acontecia antes do Prompt 6, em 2 das 6 sementes antigas).
+- Na versão final, nenhuma das 12 sementes tem uma liga com o mesmo campeão nas 10 épocas (antes do Prompt 6 acontecia em 2 das 6 sementes antigas).
 
 ## 4. Bandas antigas das 10 épocas (decisão do utilizador: 3 sementes, 2026 + 7 + 11)
 
@@ -81,6 +83,60 @@ Alvos: campeões distintos nas 8 maiores ligas em média ≥ 3 e nenhuma 10/10; 
 | 7 ou mais golos | 1,0% | 1,0% | 1,0% | < 1,5% |
 | Campeões com 1,9–2,85 pontos por jogo | — | 91,4% | 92,8% | ≥ 90% |
 | Últimos com 0,25–1,15 pontos por jogo | — | 89,4% | 90,9% | ≥ 90% |
+
+## 4b. Negócios de elite por liga (pedido do utilizador; decisão: a meio caminho dos valores reais, sem crises)
+
+Dados reais do Verão de 2026 (utilizador): Premier League 4 112 M€; Itália 1 163; Alemanha 784; Espanha 755; França 607; 35 transferências de 50 M€ ou mais (29 inglesas); 6 acima de 100 M€; o maior gasto de um clube numa janela foi 526 M€. Mundo de teste, versão final (2 épocas, semente 2026):
+
+
+| Medida | Valor | Faixa proposta |
+|---|---|---|
+| Negócios por janela (média, todas as ligas) | 1718 | emergente (necessidade, vontade do jogador, dinheiro) |
+| Transferências pagas / livres / empréstimos / cláusulas | 1324 / 4361 / 1157 / 30 | — |
+| % livres e % empréstimos | 63% / 17% | emergente |
+| Idade média dos transferidos (pagos) | 25.1 | 24–27 |
+| Razão preço/valor (mediana; p5–p95) | 1.07 (0.75–1.65) | 0,6–2,5, extremos raros |
+| Cláusulas activadas por época | 15.0 | 5–30 |
+| Gasto total em transferências por época | 3470 M€ | — |
+| Transferências ≥ 50 / ≥ 60 / ≥ 100 M€ por época | 9.0 / 4.5 / 0.0 | 25–45 / — / 3–8 |
+| Parte das ≥ 50 M€ compradas por clubes da ENG1 | 72% | ≥ 70% |
+| Maior transferência | 89 M€ | ≤ 200 M€ |
+| Maior gasto de um clube numa janela | Stourby City 122 M€; Hathercombe United 119 M€; Brombury United 108 M€ | 300–550 M€ |
+| Clubes em crise ou administração (início → fim) | ENG1 0/20 → 0/20; ESP1 0/20 → 0/20; ITA1 0/20 → 0/20; GER1 0/18 → 1/18; FRA1 0/18 → 0/18; POR1 0/18 → 0/18; KSA1 0/18 → 0/18; BRA1 0/20 → 0/20 | sem subida grande |
+| Dívida (banco + parcelas) por liga (início → fim) | ENG1 1018 M€ → 1690 M€; ESP1 686 M€ → 476 M€; ITA1 449 M€ → 379 M€; GER1 597 M€ → 532 M€; FRA1 413 M€ → 118 M€ | — |
+
+
+Gasto por liga (por época):
+
+
+| Liga | Gasto | Receita | Saldo líquido | Entradas (todas) |
+|---|---:|---:|---:|---:|
+| ENG1 | 1275 M€ | 257 M€ | -1017 M€ | 80 |
+| ESP1 | 429 M€ | 263 M€ | -166 M€ | 66 |
+| ITA1 | 383 M€ | 258 M€ | -126 M€ | 71 |
+| GER1 | 332 M€ | 186 M€ | -147 M€ | 64 |
+| FRA1 | 139 M€ | 365 M€ | 225 M€ | 68 |
+| KSA1 | 107 M€ | 42 M€ | -65 M€ | 63 |
+| TUR1 | 74 M€ | 71 M€ | -3 M€ | 97 |
+| POR1 | 71 M€ | 171 M€ | 100 M€ | 80 |
+| USA1 | 62 M€ | 51 M€ | -10 M€ | 85 |
+| BRA1 | 52 M€ | 157 M€ | 105 M€ | 41 |
+| NED1 | 49 M€ | 143 M€ | 94 M€ | 77 |
+| ENG2 | 47 M€ | 83 M€ | 37 M€ | 122 |
+| SCO1 | 42 M€ | 97 M€ | 55 M€ | 50 |
+| MEX1 | 42 M€ | 52 M€ | 10 M€ | 64 |
+| ESP2 | 33 M€ | 45 M€ | 12 M€ | 97 |
+| BEL1 | 30 M€ | 147 M€ | 116 M€ | 83 |
+| ARG1 | 29 M€ | 127 M€ | 98 M€ | 61 |
+| JPN1 | 28 M€ | 54 M€ | 26 M€ | 74 |
+| DEN1 | 22 M€ | 67 M€ | 45 M€ | 56 |
+| GRE1 | 21 M€ | 109 M€ | 88 M€ | 49 |
+| SUI1 | 21 M€ | 85 M€ | 64 M€ | 42 |
+| GER2 | 18 M€ | 22 M€ | 4 M€ | 83 |
+| ITA2 | 17 M€ | 12 M€ | -5 M€ | 80 |
+| POL1 | 16 M€ | 69 M€ | 53 M€ | 70 |
+| EUR1 | 15 M€ | 43 M€ | 28 M€ | 67 |
+
 
 ## 5. Calibração completa (versão final, 2 épocas)
 

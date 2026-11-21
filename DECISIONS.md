@@ -747,3 +747,30 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - **Permanência** (mercado, para a banda dos últimos classificados): um clube abaixo do nível da sua liga não vende titulares do seu plano, a não ser por 1,6 × o valor ou pela cláusula de rescisão (a mesma regra dos insubstituíveis).
         - **Porquê:** com o rho novo, os últimos ficavam com 89,4% dentro da faixa nas 3 sementes; com esta regra ficam com 90,9%.
         - **O resto, com a regra:** campeões 92,8%; 0–0 8,39%; golos 2,543; casa 45,3%; empates 24,8%.
+
+200. **Prompt 6 (fecho): negócios de elite por liga, a meio caminho dos valores reais.**
+    - **Dados do utilizador** (Verão de 2026): Premier League 4 112 M€, Itália 1 163 M€, Alemanha 784 M€, Espanha 755 M€, França 607 M€; 35 transferências de 50 M€ ou mais (29 de clubes ingleses); 6 acima de 100 M€; o maior gasto de um clube numa janela foi 526 M€.
+    - **Decisão do utilizador:** ficar a meio caminho, sem mexer na economia, e nenhum clube pode entrar em crise por causa do mercado. A receita das ligas do mundo de teste já é parecida com a real; o que travava era o poder de compra e a caixa.
+    - **Poder de compra por riqueza da liga** (`IA_MERCADO.poder_compra`). Substitui `orcamento_receita`, `orcamento_tecto` e `negocio_maximo_receita`.
+
+| Escalão (riqueza da liga) | Orçamento-base da janela (× receita × (0,5 + ambição)) | Tecto da janela | Máximo num só negócio | Estrelas por janela | Necessidades a mais |
+|---|---|---|---|---|---|
+| Premier League (≥ 80) | 0,30 | 0,65 | 0,30 | 2 (reputação ≥ 72) | +1 |
+| Grandes ligas (≥ 40) | 0,18 | 0,45 | 0,45 | 1 (reputação ≥ 85) | +1 |
+| Arábia, Brasil, MLS, Turquia (≥ 15) | 0,12 | 0,35 | 0,40 | — | — |
+| Resto | 0,12 | 0,35 | 0,40 | — | — |
+
+    - **Prémio inglês:** o factor de riqueza do comprador vai até × 1,5 (era × 1,3). Vender a um rival mais forte da mesma liga custa × 1,15 (era × 1,4); na realidade, muito dinheiro da Premier League fica dentro da liga.
+    - **Parcelado:** 30% à vista e 3 parcelas anuais, com +5% para o vendedor (era metade à vista e 2 parcelas semestrais). Na IA é o pagamento habitual acima de 20 M€ (aceita com 70% / 50% / 15% de probabilidade, conforme a saúde do vendedor).
+    - **Prudência:**
+        - **Saúde:** um clube apertado usa metade do orçamento; em crise ou administração não compra.
+        - **Caixa:** a caixa acima de 2 meses de despesa paga a parte à vista.
+        - **Parcelas:** a dívida de parcelas não passa 0,5 × a receita.
+        - **Salário:** o do reforço cabe na folga salarial + 12% da receita.
+        - **Porquê:** sem estas regras, o gasto inglês subia para ~1,75 mil M€, mas até 6 dos 20 clubes entravam em crise em 2 épocas.
+    - **Resultado** (2 épocas, semente 2026):
+        - **Gasto por época:** Premier League 1 275 M€ (antes 1 066); Espanha 429, Itália 383, Alemanha 332 M€.
+        - **Negócios grandes:** 9 de 50 M€ ou mais por época (antes 3,5), 72% comprados por clubes ingleses; o maior gasto de um clube numa janela foi 122 M€.
+        - **Crises no fim:** só 1 clube (Alemanha); antes Inglaterra 1, Alemanha 1, Brasil 2.
+    - **Metas** (12 sementes): Inglaterra 30,8% dos títulos europeus; Arábia 5,0 dos 10 asiáticos. As duas à justa.
+        - **Variante rejeitada:** com mais orçamento para as grandes ligas e para o escalão médio, a Inglaterra caía para 27,2% e a Arábia subia para 5,5.
