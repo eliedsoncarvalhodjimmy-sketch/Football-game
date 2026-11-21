@@ -715,7 +715,7 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Razão preço/valor:** p5–p95 de 0,82–1,69 para 0,74–1,63.
         - **Arábia e MLS:** Arábia 28–33 e MLS 30+ passam a ✅.
         - **Negócios no Inverno:** de 518/787 para 539/871.
-        - **Bandas antigas** (10 épocas): 0–0 8,36%; campeões 91,7%; últimos 90,2%.
+        - **Bandas antigas:** ver a entrada 199 (versão final).
 
 198. **Prompt 6, Bloco D: experiência do utilizador.**
     - **Pagamento:** só "à vista" e "parcelado" (metade à vista e 2 parcelas semestrais; o vendedor exige +3%). São os mesmos dois modos para o utilizador e para a IA.
@@ -726,3 +726,21 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Avisos, sem decisão:** venda futura recebida; recompra exercida por outro clube sobre uma venda do utilizador; cláusula de rescisão paga; opção ou obrigação de compra de um empréstimo; direitos (recompra, venda futura) que vêm com um reforço.
         - **Gravação:** os avisos reconstroem-se no replay dos comandos e não aumentam a gravação.
     - **O mesmo motor:** o utilizador negoceia com as mesmas regras e direitos da IA. A interface nova é do utilizador, mais tarde; os ecrãs existentes de negociação já lêem as opções da configuração.
+
+199. **Prompt 6 (fecho): valores realistas, versão final do mercado e medição das bandas.**
+    - **Valores de mercado como no Transfermarkt** (pedido do utilizador: ninguém acima de 300 M€; acima de 200 M€ só o top 3 mundial):
+        - **Compressão:** acima de 20 M€ o valor cresce como (v / 20 M€)^0,72; abaixo nada muda.
+        - **Tectos:** 200 M€ para todos; até 300 M€ só os 3 mais valiosos do mundo. O limiar do top 3 recalcula-se no índice mensal do mercado.
+        - **Resultado:** os 3 maiores com 199, 171 e 163 M€; 7 jogadores com 150 M€ ou mais; 49 com 100 M€ ou mais; 216 com 50 M€ ou mais. Antes eram 487 M€ no topo e 143 jogadores com 100 M€ ou mais.
+        - **Preço pedido:** nunca passa os 300 M€, qualquer que seja o factor (talento, insubstituível); a cláusula de rescisão é à parte.
+        - **Poucos podem pagar:** num só negócio, no máximo 40% da receita do comprador.
+    - **Versão final do mercado** (escolhida pelo utilizador entre as variantes medidas):
+        - **Estrela da janela:** só nas ligas com riqueza 40 ou mais (Inglaterra, Alemanha, Espanha, Itália).
+        - **Veteranos:** na Arábia e nos Emirados até 31 anos. Numa liga com idade de veteranos própria, essa idade manda; o bónus dos candidatos ao título (até 33) só vale nas outras ligas.
+        - **Resultado** (12 sementes): Arábia 5,1 dos 10 títulos asiáticos (o tecto é 5; dentro do ruído de cerca de meio título); Inglaterra 33,3% dos europeus; 3,61 campeões distintos; 0,08 ligas 10/10.
+    - **Medição das bandas** (decisão do utilizador: mais sementes, as mesmas faixas): com uma só semente, as faixas ficavam dentro do ruído dos limites.
+        - **Regressão:** o Arábia/Inglaterra/campeões distintos mede-se na média de 12 sementes (7, 11, 23, 42, 99, 2026, 3, 5, 13, 31, 77, 123).
+        - **Teste das 10 épocas:** a calibração dos jogos e os pontos dos campeões e dos últimos medem-se na soma das sementes 2026, 7 e 11. A integridade, o determinismo e as outras métricas estruturais continuam na 2026.
+    - **Motor** (decisão do utilizador: afinar o motor em vez de alargar a faixa): com o mercado novo, o 0–0 ficava em 8,51% nas 3 sementes (faixa até 8,5%). O rho de Dixon-Coles do modo rápido passa de −0,02 para −0,01.
+        - **Resultado:** 0–0 8,35%; golos 2,545; casa 45,2%; empates 24,8%; 5+ golos 11,9%; 7+ golos 1,0%.
+        - **Não serve:** os parâmetros `base_criacao` e `ritmo_jogo_desvio` só existem no modo detalhado (jogo do utilizador); não mexem nas ligas.
