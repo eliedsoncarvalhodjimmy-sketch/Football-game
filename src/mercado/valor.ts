@@ -148,7 +148,7 @@ function calcValor(w: World, j: number, dia: number, opc: OpcoesValor, fc: Retur
   const ovr = st.ovrNat(j), pot = Math.max(ovr, st.pot[j]);
   const q = ovr + curva(VM.peso_potencial, idade) * (pot - ovr);
   const base = VM.v_ref * Math.exp(VM.beta * (q - VM.q_ref)) * Math.exp(VM.topo.gama * Math.max(0, q - VM.topo.q));
-  const fIdade = curva(VM.idade, idade - (VM.desvio_idade[pos] ?? 0));
+  const fIdade = pos === 'GR' && VM.idade_gr ? curva(VM.idade_gr, idade) : curva(VM.idade, idade - (VM.desvio_idade[pos] ?? 0));
   const anos = c >= 0 ? Math.max(0, (st.fimContrato[j] - dia) / 365) : 0;
   let fContrato = c >= 0 ? curva(VM.contrato, anos) : VM.livre;
   if (c >= 0 && idade >= VM.contrato_idade_fraco) fContrato = 1 - (1 - fContrato) / 2;

@@ -26,6 +26,8 @@ export const VALOR_MERCADO = {
   /** F_idade para a mesma qualidade; os GR envelhecem ~2 anos mais tarde; extremos e avançados ~1 ano mais cedo. */
   idade: [[26, 1], [27, 0.97], [28, 0.9], [29, 0.8], [30, 0.68], [31, 0.55], [32, 0.42], [33, 0.32], [34, 0.24], [35, 0.17]] as Curva,
   desvio_idade: { GR: 2, ED: -1, EE: -1, PL: -1 } as Partial<Record<Posicao, number>>,
+  /** Curva própria dos guarda-redes (se existir, substitui a curva geral com o desvio). */
+  idade_gr: undefined as Curva | undefined,
   /** F_contrato (anos restantes); efeito mais fraco a partir de idade_fraco (só metade do desconto). */
   contrato: [[0.25, 0.5], [0.5, 0.62], [1, 0.8], [2, 0.93], [3, 0.98], [4, 1]] as Curva,
   contrato_idade_fraco: 32,
