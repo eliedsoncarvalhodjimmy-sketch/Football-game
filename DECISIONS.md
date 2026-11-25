@@ -821,3 +821,11 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - nenhum ficheiro do jogo a importa (o build só empacota `/packs/` e o que o código importa);
         - o teste `tests/referencia.test.ts` garante-o.
     - **Desempenho** (decisão do utilizador): o recálculo trimestral corre só 4 vezes por ano. Aceita-se até ~500 ms no tablet, por partes ou fora do fio principal, e não se optimiza além disso.
+
+204. **Prompt 6B, PARAGEM B (decisão do utilizador: opção 1).** A fórmula de valor de mercado fica desligada (o `valorMercado` actual continua a ser o usado) até chegarem os ficheiros reais de clubes e plantéis.
+    - **Porquê:** com o mundo fictício, a calibração só reproduz as medianas reais porque os factores corrigem o próprio mundo, em vez de medirem efeitos de mercado:
+        - **F_liga:** México 2,1 e Bélgica 2,1 acima da Alemanha 1,25;
+        - **F_posição:** laterais 0,52 e extremos 0,57;
+        - **clubes:** a mediana dos jogadores dos gigantes dá 40 M€ no jogo contra 6 M€ na referência.
+    - **O que fica pronto:** o script `scripts/calibrar-valor.ts` e o relatório `docs/relatorios/valor_mercado.md`. Com os ficheiros reais, corre-se o mesmo script, revêem-se os critérios de aceitação e volta-se à PARAGEM B.
+    - **Propostas ainda por decidir** (para essa altura): mais peso do potencial nos 16–21 anos (prémio dos jovens de elite) e um tecto suave em vez do corte nos 250 M€.
