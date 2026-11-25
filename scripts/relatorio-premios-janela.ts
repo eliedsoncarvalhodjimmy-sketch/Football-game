@@ -16,11 +16,13 @@ const sim = new Simulador(w, true);
 const st = w.jogadores!, m = w.mercado!;
 const tempos: number[] = [];
 // Até ao dia 28 de Julho do ano seguinte (antes do cálculo de 29/7), guardando o estado da janela.
-let fotoAntes: { n: number; wJogos: Uint16Array; wClube: Int32Array; wMinCat: Uint16Array; wGolos: Uint16Array; wAssist: Uint16Array; wMinutos: Uint16Array } | null = null;
+type Foto = Record<string, Uint16Array & Int32Array> & { n: number };
+let fotoAntes: Foto | null = null;
 for (let k = 0; k < 60; k++) {
   const t0 = performance.now(); sim.simularSemana(); tempos.push(performance.now() - t0);
   const d = sim.segunda, x = new Date(d * 864e5);
-  if (!fotoAntes && x.getUTCFullYear() === 2027 && x.getUTCMonth() === 6 && x.getUTCDate() >= 22) fotoAntes = { n: st.n, wJogos: st.wJogos.slice(), wClube: st.wClube.slice(), wMinCat: st.wMinCat.slice(), wGolos: st.wGolos.slice(), wAssist: st.wAssist.slice(), wMinutos: st.wMinutos.slice() };
+  // A última semana antes do cálculo de 29/7 (nessa semana a janela seguinte abre e zera os contadores).
+  if (x.getUTCFullYear() === 2027 && x.getUTCMonth() === 6 && x.getUTCDate() >= 20 && x.getUTCDate() <= 27) fotoAntes = Object.assign(Object.fromEntries(Object.entries(st).filter(([k, v]) => ArrayBuffer.isView(v) && /^w[A-Z]/.test(k)).map(([k, v]) => [k, (v as Uint16Array).slice()])), { n: st.n }) as Foto;
   if (w.historico!.premiosJogo.length) break;
 }
 const f = fotoAntes!;
@@ -46,10 +48,11 @@ for (const j of cands.slice(0, 3)) {
   p('', `Movimentos: ${neg.join('; ') || '—'}.`, '');
 }
 // Guarda-redes.
-const grs = []; for (let j = 0; j < f.n; j++) if (st.posNat[j] === 0 && st.wJogos[j] >= 30) grs.push(j);
-grs.sort((a, b) => st.wJogos[b] - st.wJogos[a]);
+const grs = []; for (let j = 0; j < f.n; j++) if (st.posNat[j] === 0 && f.wJogos[j] >= 30) grs.push(j);
+grs.sort((a, b) => f.wJogos[b] - f.wJogos[a]);
 p('## 3. Guarda-redes (estatísticas novas)', '', '| GR | Jogos | Remates à baliza sofridos | Defesas | Golos sofridos | xG sofrido | Golos evitados (xG − golos) | Sem sofrer | Penáltis defendidos | Erros |', '|---|---|---|---|---|---|---|---|---|---|');
-for (const j of grs.slice(0, 5)) { const gs = st.wRematesSofridos[j] - st.wDefesas[j], xg = st.wXgSofrido[j] / 10; p(`| ${st.nomes[j]} | ${st.wJogos[j]} | ${st.wRematesSofridos[j]} | ${st.wDefesas[j]} | ${gs} | ${xg.toFixed(1)} | ${(xg - gs).toFixed(1)} | ${st.wSemSofrer[j]} | ${st.wPenaltisDefendidos[j]} | ${st.wErros[j]} |`); }
+for (const j of grs.slice(0, 5)) { const gs = f.wRematesSofridos[j] - f.wDefesas[j], xg = f.wXgSofrido[j] / 10; p(`| ${st.nomes[j]} | ${f.wJogos[j]} | ${f.wRematesSofridos[j]} | ${f.wDefesas[j]} | ${gs} | ${xg.toFixed(1)} | ${(xg - gs).toFixed(1)} | ${f.wSemSofrer[j]} | ${f.wPenaltisDefendidos[j]} | ${f.wErros[j]} |`); }
+{ let e = 0, nE = 0; for (let j = 0; j < f.n; j++) { e += f.wErros[j]; if (f.wErros[j]) nE++; } p('', `Erros que levam a golo na janela: ${e} (${nE} jogadores).`); }
 p('');
 // Prémios da janela.
 p('## 4. Prémios desta janela (cálculo a 29 de Julho; pontuação ainda a do Prompt 4, o Bloco B muda-a)', '');

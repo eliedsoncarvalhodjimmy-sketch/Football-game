@@ -116,7 +116,8 @@ export class Simulador {
     const jp = this.w.janelaPremios;
     if (jp && st) for (let d = this.segunda; d < this.segunda + 7; d++) {
       const x = new Date(d * 864e5), m = x.getUTCMonth() + 1, dd = x.getUTCDate(), ano = x.getUTCFullYear();
-      if (m === CALENDARIO_PREMIOS.anuncio_finalistas.mes && dd === CALENDARIO_PREMIOS.anuncio_finalistas.dia) {
+      // No 1.º Verão do mundo ainda não houve janela (os prémios desse ano são os reais, do histórico): nada a calcular.
+      if (m === CALENDARIO_PREMIOS.anuncio_finalistas.mes && dd === CALENDARIO_PREMIOS.anuncio_finalistas.dia && jp.inicio >= 0) {
         const regs = this.historico.filter((r) => r.epoca === ano - 1);
         const aviso = atribuirPremios(this.w, regs, ano);
         if (aviso) this.avisosPremios.push(aviso);

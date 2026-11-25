@@ -829,3 +829,27 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **clubes:** a mediana dos jogadores dos gigantes dá 40 M€ no jogo contra 6 M€ na referência.
     - **O que fica pronto:** o script `scripts/calibrar-valor.ts` e o relatório `docs/relatorios/valor_mercado.md`. Com os ficheiros reais, corre-se o mesmo script, revêem-se os critérios de aceitação e volta-se à PARAGEM B.
     - **Propostas ainda por decidir** (para essa altura): mais peso do potencial nos 16–21 anos (prémio dos jovens de elite) e um tecto suave em vez do corte nos 250 M€.
+
+205. **Prompt 8, Bloco A: janela dos prémios, estatísticas novas e histórico de 3 épocas.**
+    - **Janela única** (decisão do utilizador): 1 de Agosto a 28 de Julho, para todas as ligas. Finalistas e cálculo a 29 de Julho; cerimónia a 30 de Julho. O prémio tem o nome do ano da cerimónia.
+        - **Contadores:** a janela tem contadores próprios por jogador (`w*` no store), somados entre clubes e separados das estatísticas da época. Nada os zera antes do cálculo: zeram-se a 1 de Agosto, quando abre a janela seguinte.
+        - **Quando corre:** o cálculo passa da passagem de época (`rollover.ts`) para o simulador, depois do fecho das épocas da semana.
+        - **1.º Verão:** no primeiro Verão do mundo ainda não houve janela, e os prémios desse ano são os reais, do histórico; não se calcula nada.
+        - **Guarda de integridade:** com a janela incompleta não há prémios, e o simulador guarda o aviso.
+    - **Títulos:** contam pela passagem do jogador pelo clube vencedor, nos minutos que jogou nessa categoria de competição (liga, taça, continental 1–3) com esse clube, a dividir pelos minutos possíveis (jogos do clube × 90).
+        - **Passagens:** até duas passagens na janela; um 3.º clube junta-se à 2.ª passagem.
+        - **Antes:** os títulos iam inteiros para o clube actual.
+    - **Selecções** (decisão do utilizador, opção 1): o jogo não simula jogos de selecções, por isso a componente de selecção fica a 0 até haver torneios de selecções (num prompt à parte).
+    - **Estatísticas novas** (modo rápido e 2D, com um sorteio próprio que não mexe no resultado):
+        - **Remates à baliza sofridos:** golos + Poisson(max(0, 3,2 × xG do adversário − golos)); defesas = remates à baliza − golos.
+        - **GR:** xG sofrido; jogos sem sofrer (GR com 60+ minutos e 0 golos); penáltis defendidos nos desempates (70% dos falhados).
+        - **Erros que levam a golo:** 6% dos golos sofridos, atribuídos a um defesa ou ao GR, pela compostura.
+        - **Jogos grandes:** eliminatória decisiva ou final, ou jogo de liga entre dois dos 5 maiores (reputação). Ficam com as notas.
+        - **2D:** usa as mesmas estimativas (o motor 2D ainda não regista remates à baliza nem defesas por jogador).
+    - **Histórico das últimas 3 épocas por jogador** (pedido do utilizador; não entra nos prémios): época, clube, jogos, minutos, golos, assistências e nota média, gravados no fecho de cada época antes de se zerarem as estatísticas.
+    - **Custo:**
+        - **Memória:** 123 bytes por jogador (com as internacionalizações e o histórico): 11,2 MB na capacidade alocada.
+        - **Exportação:** 8,7 MB na exportação binária do store de jogadores.
+        - **Save:** o save é a repetição dos comandos e não cresce.
+    - **Benchmark:** a semana mundial fica em média 303 ms, máximo 661 ms (o mesmo de antes).
+    - **Ligas de ano civil** (nota do utilizador: no jogo, todas vão seguir o mesmo calendário): a janela conta os jogos pela data e funciona com qualquer calendário. A mudança de calendário fica por decidir quando.

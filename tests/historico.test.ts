@@ -86,6 +86,8 @@ describe('à medida que a simulação avança', () => {
     const por = h.competicao('POR1', sim.historico);
     expect(por[por.length - 2]).toMatchObject({ epoca: '2025–26', campeao: 'FC Porto', fonte: 'real' });
     expect(por[por.length - 1].melhorMarcador.length).toBeGreaterThan(2);
+    // Os prémios calculam-se a 29 de Julho (Prompt 8), na semana a seguir ao fecho da época: avança até lá.
+    for (let k = 0; k < 8 && !h.premiosJogo.length; k++) sim.simularSemana();
     for (const p of ['melhor_do_mundo', 'golden_boy', 'guarda_redes'] as const) {
       const L = h.premios(p);
       const u = L[L.length - 1];
