@@ -76,6 +76,9 @@ export function importarLinhas(w: World, st: PlayerStore, rows: Record<string, s
     st.origem[i] = origem;
     st.recalcular(i);
     st.pot[i] = Math.max(st.ovrNat(i), Number(r.potencial) || st.pot[i]);
+    // Jogos pela selecção (Prompt 6B): coluna opcional; sem ela o número é estimado (e assinalado) ao criar o mundo.
+    if (r.internacionalizacoes !== undefined && r.internacionalizacoes !== '') { st.internacionalizacoes[i] = Math.max(0, Math.min(65535, Number(r.internacionalizacoes) || 0)); st.intEstimada[i] = 0; }
+    else st.intEstimada[i] = 2; // 2 = ainda por estimar
   }
   return { sobrepostos, criados, erros };
 }

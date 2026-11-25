@@ -79,6 +79,11 @@ export class PlayerStore {
   eNotas!: Int32Array;
   /** Minutos jogados no mês corrente (para a evolução). */
   minMes!: Uint16Array;
+  // ---- Selecção (Prompt 6B) ----
+  /** Jogos pela selecção (carreira). */
+  internacionalizacoes!: Uint16Array;
+  /** 1 = o número inicial foi estimado (os ficheiros não o traziam). */
+  intEstimada!: Uint8Array;
   // ---- Caches ----
   /** Adequação a cada papel × 10 (10–200). */
   adeq!: Uint8Array;
@@ -131,6 +136,8 @@ export class PlayerStore {
     for (const k of ['eJogos', 'eTitular', 'eMinutos', 'eGolos', 'eAssist', 'eAmarelos', 'eVermelhos', 'eLesoes', 'eRemates', 'eSofridos'] as const) this[k] = g(this[k], Uint16Array);
     this.eNotas = g(this.eNotas, Int32Array);
     this.minMes = g(this.minMes, Uint16Array);
+    this.internacionalizacoes = g(this.internacionalizacoes, Uint16Array);
+    this.intEstimada = g(this.intEstimada, Uint8Array);
     this.adeq = g(this.adeq, Uint8Array, N_PAPEIS);
     this.ovr = g(this.ovr, Uint8Array, N_POS);
     this.adeqMaxPos = g(this.adeqMaxPos, Uint8Array, N_POS);

@@ -12,6 +12,8 @@ import { baseDias } from './calendar/datas.ts';
 import type { JogoR } from './competitions/base.ts';
 import { evoluirMes, parteMinutosPorOrdem } from '../players/evolucao.ts';
 import { MOTOR } from '../config/motor.ts';
+import { paragemSelecoes } from '../players/selecoes.ts';
+import { modelo } from './calendar/scheduler.ts';
 import { EVOLUCAO } from '../config/evolucao.ts';
 
 export interface InicioEpoca {
@@ -96,6 +98,8 @@ export class Simulador {
     }
     this.w.motor?.semana();
     this.w.academia?.semana(this.segunda);
+    // Paragem de selecções (calendário de Agosto a Maio): os convocados de cada país somam jogos pela selecção.
+    { const t = this.temporadas.get('ago_mai'); if (st && t && modelo('ago_mai').paragens_selecoes.includes(Math.round((this.segunda - t.base) / 7))) paragemSelecoes(this.w, this.segunda); }
     for (const [g, t] of [...this.temporadas]) {
       const local = Math.round((this.segunda - t.base) / 7);
       if (local < 0) continue; // ainda não começou (ex.: ano civil antes de Janeiro de 2027)

@@ -1,5 +1,6 @@
 // Estado do mundo em estruturas compactas. Os clubes são indexados por um
 // inteiro (0..N-1); os atributos usados na simulação vivem em arrays tipados.
+import { iniciarInternacionalizacoes } from '../players/selecoes.ts';
 import type { Dados, Continental } from '../data/load.ts';
 import type { Clube, Manifest, RegrasLiga, RegrasTaca } from '../data/types.ts';
 import { completarPacote, novoContexto, clamp, type OpcoesGeracao, type ContextoGeracao } from '../gen/mundoFicticio.ts';
@@ -199,6 +200,8 @@ export function gerarJogadoresMundo(w: World, d: Dados, afinar = true) {
   w.motor = new MotorMundo(gerarTreinadores(w));
   if (afinar) for (let c = 0; c < w.clubes.length; c++) afinarPlantel(w, c, w.motor.treinadores[c], dia + 40, Rng.de(w.semente, 'afinacao', w.clubes[c].id));
   for (let c = 0; c < w.clubes.length; c++) registarReferencia(w, st, c);
+  // Jogos pela selecção (Prompt 6B): os que não vieram dos ficheiros estimam-se (e ficam assinalados).
+  iniciarInternacionalizacoes(w, dia);
 }
 
 /** Economia (Prompt 3): estádios e rivalidades editáveis (estadios.csv, rivalidades.csv) e finanças iniciais (financas.csv). */

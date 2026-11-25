@@ -794,3 +794,22 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - **Medição intermédia** (2 épocas, semente 2026, valores ainda por calibrar):
         - **Gasto por época:** Premier League 986 M€; 6,5 transferências de 50 M€ ou mais; nenhuma de 100 M€ ou mais; 2 clubes em crise (França).
         - **O que trava agora:** o limite tipo PSR. Os salários dos gigantes estão em 55–61% da receita, por isso a folga até 70% dá cerca de um reforço grande por janela. A calibrar com os valores (ponto 1) e as escalas salariais.
+
+202. **Prompt 6B, Bloco 1: fórmula própria de valor de mercado (estrutura; ainda não ligada ao mercado).**
+    - **Fórmula** (`valorFormula` e `calcularValores` em `src/mercado/valor.ts`; números em `src/config/valorMercado.ts`):
+        - Q efectiva = OVR + w(idade) × (POT − OVR).
+        - V_base = V_ref × exp(β × (Q − Q_ref)) × convexidade do topo.
+        - Valor = V_base × F_idade × F_contrato × F_liga × F_clube × F_posição × F_visibilidade × F_forma × F_lesão × F_inflação × (1 + ruído determinístico de ±3% por jogador e trimestre).
+        - Os números são as hipóteses do Prompt 6B, a calibrar no Bloco 2 contra `data/referencia/`.
+        - O `valorMercado` antigo continua activo até à integração (Bloco 4).
+    - **F_visibilidade** (decisão do utilizador): só internacionalizações (até +10% com 60 jogos) e competição continental do clube (+5%), no máximo +15%. O prestígio do clube fica no F_clube, pelos escalões de reputação (gigante 88+, grande 78+, médio 65+, pequeno). O efeito do F_clube é mais forte em jovens e mais fraco em veteranos, sem contar em dobro.
+    - **Contador de jogos pela selecção** (`internacionalizacoes`, `intEstimada` no store de jogadores; `src/players/selecoes.ts`):
+        - **Inicial:** vem da coluna opcional `internacionalizacoes` de `players.csv`. Sem ela, é estimado pela idade e pelo lugar entre os melhores do país (1.º–11.º: 7 jogos por ano desde os 20; 12.º–23.º: 4; 24.º–40.º: 1,5) e assinalado como estimado.
+        - **Paragens:** o jogo ainda não simula jogos de selecções; em cada paragem de selecções do calendário de Agosto a Maio, os 23 melhores de cada país (por OVR) somam 2 jogos.
+    - **Decisões do utilizador para o Bloco 3:**
+        - **Datas:** a actualização trimestral é a 8 de Setembro, 8 de Dezembro, 8 de Março e 8 de Junho.
+        - **Gravação:** o array de valores grava-se no save. Os jogadores criados fora das datas recebem valor na criação, e a migração calcula-o ao carregar saves antigos.
+        - **Leitores:** leilões, direitos futuros e interface lêem o array.
+        - **Prémios:** o efeito dos prémios de Julho aplica-se na actualização de 8 de Setembro.
+    - **Hipóteses ainda por calibrar** (mundo de teste, início): o topo bate no tecto de 250 M€ (61 jogadores com 150 M€ ou mais) e as medianas por idade e liga ficam muito baixas.
+    - **Desempenho:** o recálculo dos 60 222 jogadores demora 49 ms em Node; está por optimizar para o alvo de 100 ms no tablet.
