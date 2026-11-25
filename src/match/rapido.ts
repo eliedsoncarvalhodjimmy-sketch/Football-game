@@ -11,6 +11,9 @@ import { ESTADO as E } from '../config/estado.ts';
 import { EFEITOS_TREINADOR as ET } from '../config/treinadores.ts';
 import { CANSACO_INSTRUCOES } from '../config/tacticas.ts';
 import { RAPIDO } from '../config/motor.ts';
+import { ESTATISTICAS_JANELA } from '../config/premios.ts';
+import { passagem } from '../premios/janela.ts';
+import { N_CAT } from '../players/store.ts';
 import { golosEsperados, sortearGolos } from '../engine/match/quickSim.ts';
 import { SIMULACAO_ONZE } from '../config/simulacao.ts';
 import { escolherOnze, condicaoActual, type EscolhaOnze } from './onze.ts';
@@ -189,7 +192,10 @@ export interface DetalheLado {
   minutos: [number, number][];
 }
 
-export function registarLado(w: World, lado: Lado, golos: number, sofridos: number, xg: number, duracao: number, dia: number, rng: Rng, rival: boolean, d?: DetalheLado): ResumoLado {
+/** Contexto do jogo para a janela dos prémios (Prompt 8): categoria da competição, jogo grande, xG do adversário. */
+export interface CtxJanela { cat: number; grande: boolean; xgContra: number; penaltisDefendidos?: number }
+
+export function registarLado(w: World, lado: Lado, golos: number, sofridos: number, xg: number, duracao: number, dia: number, rng: Rng, rival: boolean, d?: DetalheLado, ctx?: CtxJanela): ResumoLado {
   const st = w.jogadores!;
   const t = w.motor!.treinadores[lado.clube];
   const parts = d ? detalheParticipacoes(lado, d, duracao) : participacoes(st, lado, duracao, dia, rng);
@@ -281,8 +287,48 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
     st.minMes[j] += p.minutos;
     st.eNotas[j] += Math.round(nota * 10);
     if (p.pos === 'GR') st.eSofridos[j] += sofridos;
+    if (ctx) {
+      const k = passagem(w, j, lado.clube);
+      st.wJogos[j]++;
+      if (p.titular) st.wTitular[j]++;
+      st.wMinutos[j] = Math.min(65535, st.wMinutos[j] + p.minutos);
+      st.wNotas[j] += Math.round(nota * 10);
+      const ic = (j * 2 + k) * N_CAT + ctx.cat;
+      st.wMinCat[ic] = Math.min(65535, st.wMinCat[ic] + p.minutos);
+      if (ctx.grande) { st.wGrandes[j]++; st.wNotasGrandes[j] += Math.round(nota * 10); }
+    }
   }
+  if (ctx) registarJanelaLado(w, lado, parts, r, sofridos, dia, ctx);
   return r;
+}
+
+/** Janela dos prémios: golos, assistências, cartões e as estatísticas que o motor não gera jogada a jogada (remates à
+ *  baliza sofridos, defesas, xG sofrido, jogos sem sofrer, erros). Usa um sorteio próprio: não mexe no resultado. */
+function registarJanelaLado(w: World, lado: Lado, parts: Participacao[], r: ResumoLado, sofridos: number, dia: number, ctx: CtxJanela) {
+  const st = w.jogadores!, EJ = ESTATISTICAS_JANELA;
+  for (const j of r.marcadores) st.wGolos[j]++;
+  for (const j of r.assistencias) st.wAssist[j]++;
+  for (const j of r.amarelos) st.wAmarelos[j]++;
+  for (const j of r.vermelhos) st.wVermelhos[j]++;
+  const rj = Rng.de(w.semente, 'janela', lado.clube, dia, sofridos, Math.round(ctx.xgContra * 100));
+  const gr = parts.filter((x) => x.pos === 'GR').sort((a, b) => b.minutos - a.minutos)[0];
+  if (gr) {
+    const alvo = sofridos + rj.poisson(Math.max(0, EJ.remates_baliza_por_xg * ctx.xgContra - sofridos));
+    st.wRematesSofridos[gr.j] = Math.min(65535, st.wRematesSofridos[gr.j] + alvo);
+    st.wDefesas[gr.j] = Math.min(65535, st.wDefesas[gr.j] + alvo - sofridos);
+    st.wXgSofrido[gr.j] = Math.min(65535, st.wXgSofrido[gr.j] + Math.round(ctx.xgContra * 10));
+    if (sofridos === 0 && gr.minutos >= EJ.sem_sofrer_minutos) st.wSemSofrer[gr.j]++;
+    if (ctx.penaltisDefendidos) st.wPenaltisDefendidos[gr.j] += ctx.penaltisDefendidos;
+  }
+  // Erros que levam a golo: um defensor (ou o GR), pela falta de compostura.
+  const def = parts.filter((x) => x.pos === 'GR' || ['DC', 'DD', 'DE', 'ALD', 'ALE', 'MDC'].includes(x.pos));
+  if (def.length) for (let g = 0; g < sofridos; g++) {
+    if (!rj.chance(EJ.prob_erro_por_golo)) continue;
+    const pesos = def.map((x) => 1 + (20 - st.atr[x.j * 39 + IDX.cmp]) / 10);
+    let u = rj.next() * pesos.reduce((a, b) => a + b, 0), k = 0;
+    while (k < def.length - 1 && (u -= pesos[k]) > 0) k++;
+    st.wErros[def[k].j]++;
+  }
 }
 
 /** Participações a partir do motor 2D: os titulares, com os minutos jogados (prolongamento: todos até ao fim). */
@@ -304,7 +350,7 @@ function registarDetalhe(st: PlayerStore, r: ResumoLado, d: DetalheLado) {
 }
 
 /** Penáltis (desempate) com os 5 melhores marcadores contra o guarda-redes. */
-export function desempatePenaltis(w: World, casa: Lado, fora: Lado, rng: Rng): [number, number] {
+export function desempatePenaltis(w: World, casa: Lado, fora: Lado, rng: Rng, info?: { tentativas: number }): [number, number] {
   const st = w.jogadores!;
   const prob = (atacante: Lado, defensor: Lado) => {
     const gr = defensor.escolha.onze.jogadores[0];
@@ -318,7 +364,9 @@ export function desempatePenaltis(w: World, casa: Lado, fora: Lado, rng: Rng): [
   const pc = prob(casa, fora), pf = prob(fora, casa);
   let a = 0, b = 0;
   for (let k = 0; k < 5; k++) { if (rng.next() < pc(k)) a++; if (rng.next() < pf(k)) b++; }
-  for (let k = 5; a === b && k < 30; k++) { if (rng.next() < pc(k)) a++; if (rng.next() < pf(k)) b++; }
+  let k = 5;
+  for (; a === b && k < 30; k++) { if (rng.next() < pc(k)) a++; if (rng.next() < pf(k)) b++; }
+  if (info) info.tentativas = k;
   if (a === b) a++;
   return [a, b];
 }

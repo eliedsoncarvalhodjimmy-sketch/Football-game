@@ -1,11 +1,13 @@
 // Prémios individuais anuais (pedido do utilizador): Melhor do Mundo (Bola de Ouro), Melhor guarda-redes, Golden Boy (melhor sub-21).
-// Época de avaliação: 1 de Agosto a 15 de Julho. Finalistas a 16 de Julho; cerimónia a 30 de Julho.
+// Período de avaliação (Prompt 8, decisão do utilizador): 1 de Agosto a 28 de Julho, para todas as ligas; finalistas a
+// 29 de Julho (depois do fim do período); cerimónia a 30 de Julho. O prémio tem o nome do ano da cerimónia
+// (Bola de Ouro 2028: 01/08/2027 a 28/07/2028).
 
 export const CALENDARIO_PREMIOS = {
   /** Período de avaliação (mês 1–12, dia). */
   inicio: { mes: 8, dia: 1 },
-  fim: { mes: 7, dia: 15 },
-  anuncio_finalistas: { mes: 7, dia: 16 },
+  fim: { mes: 7, dia: 28 },
+  anuncio_finalistas: { mes: 7, dia: 29 },
   cerimonia: { mes: 7, dia: 30 },
   /** Ordem da cerimónia; cada etapa tem botão de saltar. */
   ordem: ['golden_boy', 'guarda_redes', 'melhor_do_mundo'] as const,
@@ -41,3 +43,18 @@ export const PONTUACAO = {
 
 /** Na cerimónia, do 30.º ao 4.º lugar com intervalo curto; o top 3 com suspense. */
 export const CERIMONIA = { intervalo_ms: 450, suspense_ms: 1800 };
+
+/** Janela dos prémios (Prompt 8, Bloco A): categorias de competição (índice nos contadores por categoria) e a sua
+ *  correspondência com os pesos dos títulos (PONTUACAO.titulos). */
+export const CATEGORIAS = ['liga', 'taca', 'supertaca', 'continental_1', 'continental_2', 'continental_3', 'outra'] as const;
+export type Categoria = (typeof CATEGORIAS)[number];
+/** Competições continentais por categoria (1 = a principal de cada confederação). */
+export const CATEGORIA_CONTINENTAL: Record<string, Categoria> = { UCL: 'continental_1', CLI: 'continental_1', ACLE: 'continental_1', UEL: 'continental_2', UECL: 'continental_3' };
+
+/** Estatísticas que o modo rápido não gera jogada a jogada (também no 2D, que não as regista):
+ *  remates à baliza sofridos ≈ golos + Poisson(max(0, x × xG do adversário − golos)); defesas = remates à baliza − golos;
+ *  um golo sofrido é "erro" com probabilidade p (atribuído a um defesa ou ao GR, pela compostura). Jogo sem sofrer: GR
+ *  com ≥ min minutos e 0 golos. Jogo grande: eliminatória ou final, ou jogo de liga entre dois dos `top` maiores da liga. */
+export const ESTATISTICAS_JANELA = { remates_baliza_por_xg: 3.2, prob_erro_por_golo: 0.06, sem_sofrer_minutos: 60, top: 5,
+  /** Desempate por penáltis: fracção dos penáltis falhados que conta como defesa do GR. */
+  penaltis_defendidos_fraccao: 0.7 };

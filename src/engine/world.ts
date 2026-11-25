@@ -1,5 +1,6 @@
 // Estado do mundo em estruturas compactas. Os clubes são indexados por um
 // inteiro (0..N-1); os atributos usados na simulação vivem em arrays tipados.
+import { JanelaPremios } from '../premios/janela.ts';
 import { iniciarInternacionalizacoes } from '../players/selecoes.ts';
 import type { Dados, Continental } from '../data/load.ts';
 import type { Clube, Manifest, RegrasLiga, RegrasTaca } from '../data/types.ts';
@@ -87,6 +88,8 @@ export class World {
   academia: Academia | null = null;
   /** Histórico das competições e dos prémios (real + jogo). */
   historico: HistoricoMundo | null = null;
+  /** Janela dos prémios individuais (Prompt 8): 1 de Agosto a 28 de Julho. */
+  janelaPremios: JanelaPremios | null = null;
   private porId = new Map<string, number>();
 
   constructor(semente: number, epoca: number, continental: Continental | null) {
@@ -187,6 +190,7 @@ export function construirMundo(d: Dados, op: OpcoesGeracao, epoca = 2026): World
   if (op.jogadores !== false && op.economia !== false) iniciarEconomia(w, d);
   // Histórico real das competições e dos prémios (PDFs do utilizador); as épocas do jogo juntam-se à medida que passam.
   w.historico = new HistoricoMundo(w, d.historico ?? {});
+  w.janelaPremios = new JanelaPremios(w);
   return w;
 }
 

@@ -24,6 +24,9 @@ const PESOS_ESPARSOS = PESOS_PAPEL.map((v) => {
   return { idx: Int32Array.from(idx), w: Float32Array.from(w) };
 });
 
+/** Categorias de competição na janela dos prémios: liga, taça, supertaça, continental 1, 2 e 3 (e outras). */
+export const N_CAT = 7;
+
 export class PlayerStore {
   n = 0;
   cap: number;
@@ -84,6 +87,24 @@ export class PlayerStore {
   internacionalizacoes!: Uint16Array;
   /** 1 = o número inicial foi estimado (os ficheiros não o traziam). */
   intEstimada!: Uint8Array;
+  // ---- Janela dos prémios (Prompt 8): 1 de Agosto a 28 de Julho, somada entre clubes; nada a zera antes do cálculo ----
+  wJogos!: Uint16Array; wTitular!: Uint16Array; wMinutos!: Uint16Array; wGolos!: Uint16Array; wAssist!: Uint16Array;
+  wAmarelos!: Uint16Array; wVermelhos!: Uint16Array;
+  /** Soma das notas × 10. */
+  wNotas!: Int32Array;
+  /** Até duas passagens por clubes na janela: o clube (−1 = nenhuma) e os minutos por categoria de competição (× N_CAT). */
+  wClube!: Int32Array;
+  wMinCat!: Uint16Array;
+  /** Guarda-redes: remates à baliza sofridos, defesas, penáltis defendidos, jogos sem sofrer; xG sofrido × 10. */
+  wRematesSofridos!: Uint16Array; wDefesas!: Uint16Array; wPenaltisDefendidos!: Uint16Array; wSemSofrer!: Uint16Array; wXgSofrido!: Uint16Array;
+  /** Erros que levam a golo (qualquer posição). */
+  wErros!: Uint16Array;
+  /** Jogos grandes (finais, eliminatórias, jogos entre os 5 primeiros) e a soma das notas × 10 neles. */
+  wGrandes!: Uint16Array; wNotasGrandes!: Int32Array;
+  // ---- Histórico das últimas 3 épocas (Prompt 8; não entra nos prémios). Índice k = 0 a mais recente (× 3) ----
+  hEpoca!: Uint16Array; hClube!: Int32Array; hJogos!: Uint16Array; hMinutos!: Uint16Array; hGolos!: Uint16Array; hAssist!: Uint16Array;
+  /** Nota média × 10. */
+  hNota!: Uint16Array;
   // ---- Caches ----
   /** Adequação a cada papel × 10 (10–200). */
   adeq!: Uint8Array;
@@ -138,6 +159,13 @@ export class PlayerStore {
     this.minMes = g(this.minMes, Uint16Array);
     this.internacionalizacoes = g(this.internacionalizacoes, Uint16Array);
     this.intEstimada = g(this.intEstimada, Uint8Array);
+    for (const k of ['wJogos', 'wTitular', 'wMinutos', 'wGolos', 'wAssist', 'wAmarelos', 'wVermelhos', 'wRematesSofridos', 'wDefesas', 'wPenaltisDefendidos', 'wSemSofrer', 'wXgSofrido', 'wErros', 'wGrandes'] as const) this[k] = g(this[k], Uint16Array);
+    this.wNotas = g(this.wNotas, Int32Array);
+    this.wNotasGrandes = g(this.wNotasGrandes, Int32Array);
+    { const velho = this.wClube?.length ?? 0; this.wClube = g(this.wClube, Int32Array, 2); this.wClube.fill(-1, velho); }
+    this.wMinCat = g(this.wMinCat, Uint16Array, 2 * N_CAT);
+    for (const k of ['hEpoca', 'hJogos', 'hMinutos', 'hGolos', 'hAssist', 'hNota'] as const) this[k] = g(this[k], Uint16Array, 3);
+    { const velho = this.hClube?.length ?? 0; this.hClube = g(this.hClube, Int32Array, 3); this.hClube.fill(-1, velho); }
     this.adeq = g(this.adeq, Uint8Array, N_PAPEIS);
     this.ovr = g(this.ovr, Uint8Array, N_POS);
     this.adeqMaxPos = g(this.adeqMaxPos, Uint8Array, N_POS);
@@ -215,9 +243,20 @@ export class PlayerStore {
     return (dia - this.nasc[i]) / 365.25;
   }
 
-  /** Repõe as estatísticas da época de um conjunto de jogadores. */
-  zerarEstatisticas(js: Iterable<number>) {
+  /** Repõe a janela dos prémios (1 de Agosto) de todos os jogadores. */
+  zerarJanela() {
+    for (const k of ['wJogos', 'wTitular', 'wMinutos', 'wGolos', 'wAssist', 'wAmarelos', 'wVermelhos', 'wRematesSofridos', 'wDefesas', 'wPenaltisDefendidos', 'wSemSofrer', 'wXgSofrido', 'wErros', 'wGrandes', 'wNotas', 'wNotasGrandes', 'wMinCat'] as const) this[k].fill(0);
+    this.wClube.fill(-1);
+  }
+
+  /** Repõe as estatísticas da época de um conjunto de jogadores; antes, a época entra no histórico (últimas 3). */
+  zerarEstatisticas(js: Iterable<number>, epoca?: number) {
     for (const i of js) {
+      if (epoca !== undefined && this.eJogos[i] > 0) {
+        for (const k of ['hEpoca', 'hClube', 'hJogos', 'hMinutos', 'hGolos', 'hAssist', 'hNota'] as const) { const a = this[k]; a[i * 3 + 2] = a[i * 3 + 1]; a[i * 3 + 1] = a[i * 3]; }
+        this.hEpoca[i * 3] = epoca; this.hClube[i * 3] = this.clube[i]; this.hJogos[i * 3] = this.eJogos[i]; this.hMinutos[i * 3] = this.eMinutos[i];
+        this.hGolos[i * 3] = this.eGolos[i]; this.hAssist[i * 3] = this.eAssist[i]; this.hNota[i * 3] = Math.round(this.eNotas[i] / this.eJogos[i]);
+      }
       this.eJogos[i] = this.eTitular[i] = this.eMinutos[i] = this.eGolos[i] = this.eAssist[i] = 0;
       this.eAmarelos[i] = this.eVermelhos[i] = this.eLesoes[i] = this.eRemates[i] = this.eSofridos[i] = 0;
       this.eNotas[i] = 0;

@@ -15,7 +15,8 @@ import { modelo } from '../calendar/scheduler.ts';
 import { jogoRapido, prolongamento, penaltis } from '../match/quickSim.ts';
 import { MOTOR } from '../../config/motor.ts';
 import { SIMULACAO_ONZE } from '../../config/simulacao.ts';
-import { prepararLados, golosRapido, registarLado, desempatePenaltis, saoRivais } from '../../match/rapido.ts';
+import { prepararLados, golosRapido, registarLado, desempatePenaltis, saoRivais, type CtxJanela } from '../../match/rapido.ts';
+import { ESTATISTICAS_JANELA } from '../../config/premios.ts';
 
 export interface Estatisticas {
   jogos: number;
@@ -239,6 +240,7 @@ export class Temporada {
     j.r = { gc, gf };
     let duracao = 90;
     const xgTot: [number, number] = [xg[0], xg[1]];
+    const infoPen = { tentativas: 0 };
     if (j.decisivo) {
       let c = gc, f = gf;
       if (j.ida) { c += j.ida.r!.gf; f += j.ida.r!.gc; }
@@ -247,13 +249,25 @@ export class Temporada {
         const b = rng.poisson(xg[1] * SIMULACAO_ONZE.prolongamento);
         xgTot[0] += xg[0] * SIMULACAO_ONZE.prolongamento; xgTot[1] += xg[1] * SIMULACAO_ONZE.prolongamento;
         j.r.gc += a; j.r.gf += b; j.r.prol = true; duracao = 120;
-        if (a === b) j.r.pen = desempatePenaltis(w, casa, fora, rng);
+        if (a === b) { j.r.pen = desempatePenaltis(w, casa, fora, rng, infoPen); }
       }
     }
     const rival = saoRivais(w, j.casa, j.fora);
+    // Janela dos prémios (Prompt 8): categoria da competição, jogo grande, jogos por clube e penáltis defendidos.
+    const jp = w.janelaPremios;
+    let ctxC: CtxJanela | undefined, ctxF: CtxJanela | undefined;
+    if (jp && jp.inicio >= 0) {
+      const tipo = this.ligas.has(j.comp) || this.playoffsCampeao.has(j.comp) ? 'liga' : this.tacas.has(j.comp) ? 'taca' : this.continentais.has(j.comp) ? 'continental' : 'outra';
+      const cat = jp.categoria(j.comp, tipo), grande = jp.grande(j.comp, tipo, j.casa, j.fora, !!j.decisivo);
+      jp.contarJogo(cat, j.casa); jp.contarJogo(cat, j.fora);
+      const def = (falhados: number) => Math.round(falhados * ESTATISTICAS_JANELA.penaltis_defendidos_fraccao);
+      const pen = j.r.pen;
+      ctxC = { cat, grande, xgContra: xgTot[1], penaltisDefendidos: pen ? def(Math.max(0, infoPen.tentativas - pen[1])) : 0 };
+      ctxF = { cat, grande, xgContra: xgTot[0], penaltisDefendidos: pen ? def(Math.max(0, infoPen.tentativas - pen[0])) : 0 };
+    }
     const det = (k: 0 | 1) => d2 ? { marcadores: d2.marcadores[k], assistencias: d2.assistencias[k], rematesPor: d2.rematesPor[k], amarelos: d2.amarelos[k], vermelhos: d2.vermelhos[k], minutos: d2.minutos[k] } : undefined;
-    const rc = registarLado(w, casa, j.r.gc, j.r.gf, xgTot[0], duracao, dia, rng, rival, det(0));
-    const rf = registarLado(w, fora, j.r.gf, j.r.gc, xgTot[1], duracao, dia, rng, rival, det(1));
+    const rc = registarLado(w, casa, j.r.gc, j.r.gf, xgTot[0], duracao, dia, rng, rival, det(0), ctxC);
+    const rf = registarLado(w, fora, j.r.gf, j.r.gc, xgTot[1], duracao, dia, rng, rival, det(1), ctxF);
     j.est = { xg: [Math.round(xgTot[0] * 100) / 100, Math.round(xgTot[1] * 100) / 100], remates: [rc.remates, rf.remates] };
     if (d2) j.detalhado = true;
   }

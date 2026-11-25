@@ -13,6 +13,8 @@ import type { JogoR } from './competitions/base.ts';
 import { evoluirMes, parteMinutosPorOrdem } from '../players/evolucao.ts';
 import { MOTOR } from '../config/motor.ts';
 import { paragemSelecoes } from '../players/selecoes.ts';
+import { atribuirPremios } from '../premios/premios.ts';
+import { CALENDARIO_PREMIOS } from '../config/premios.ts';
 import { modelo } from './calendar/scheduler.ts';
 import { EVOLUCAO } from '../config/evolucao.ts';
 
@@ -29,6 +31,8 @@ export class Simulador {
   historico: RegistoEpoca[] = [];
   /** Época a decorrer em cada calendário. */
   temporadas = new Map<string, Temporada>();
+  /** Avisos dos prémios (janela incompleta: não se atribui nada nesse ano). */
+  avisosPremios: string[] = [];
   /** Segunda-feira actual (dia absoluto). */
   segunda: number;
   /** Favoritos registados no início de cada época (para as métricas de realismo). */
@@ -106,6 +110,18 @@ export class Simulador {
       while (t.semana < Math.min(local, 52)) t.simularSemana(); // segurança: não salta semanas
       if (local < 52 && t.semana === local) out.push(...t.simularSemana());
       if (t.semana >= 52) this.fechar(g, t);
+    }
+    // Prémios individuais (Prompt 8): a 29 de Julho, com a janela de avaliação (1/8 a 28/7) e os títulos das épocas que
+    // fecharam nela; depois, a 1 de Agosto, abre a janela seguinte. Correm depois do fecho das épocas desta semana.
+    const jp = this.w.janelaPremios;
+    if (jp && st) for (let d = this.segunda; d < this.segunda + 7; d++) {
+      const x = new Date(d * 864e5), m = x.getUTCMonth() + 1, dd = x.getUTCDate(), ano = x.getUTCFullYear();
+      if (m === CALENDARIO_PREMIOS.anuncio_finalistas.mes && dd === CALENDARIO_PREMIOS.anuncio_finalistas.dia) {
+        const regs = this.historico.filter((r) => r.epoca === ano - 1);
+        const aviso = atribuirPremios(this.w, regs, ano);
+        if (aviso) this.avisosPremios.push(aviso);
+      }
+      if (m === CALENDARIO_PREMIOS.inicio.mes && dd === CALENDARIO_PREMIOS.inicio.dia) jp.abrir(d);
     }
     this.w.economia?.semana(this.segunda, out);
     this.w.mercado?.semana(this.segunda, out);

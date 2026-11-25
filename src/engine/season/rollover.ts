@@ -2,7 +2,6 @@
 // play-offs, barragens e clubes exteriores), vagas continentais da época
 // seguinte e actualização da reputação. Só corre depois de TODAS as
 // competições terminarem.
-import { atribuirPremios } from '../../premios/premios.ts';
 import { Rng, hash32 } from '../../core/rng.ts';
 import { REPUTACAO } from '../../config/reputacao.ts';
 import { GERACAO } from '../../config/geracao.ts';
@@ -229,15 +228,14 @@ export function fecharEpoca(w: World, t: Temporada, guardarJogos = true, histori
   if (w.jogadores) {
     const dia = t.base + 51 * 7;
     const st = w.jogadores;
-    // Prémios individuais (Melhor do Mundo, Golden Boy, guarda-redes) da época de Agosto–Maio, antes de zerar as estatísticas.
-    if (grupo === 'ago_mai') atribuirPremios(w, reg, dia);
+    // (Os prémios individuais calculam-se a 29 de Julho com a janela de avaliação, no simulador: Prompt 8.)
     // Potencial dinâmico (Bloco C), com os minutos da época que acaba.
     w.academia?.ajustarPotenciais([...t.ligas.values()].flatMap((c) => c.clubes), dia);
     for (const [id, c] of t.ligas) {
       const js = c.clubes.flatMap((x) => w.plantel[x] ?? []);
       reg.jogadores[id] = js.filter((j) => st.eJogos[j] > 0).sort((a, b) => st.eGolos[b] - st.eGolos[a] || st.eAssist[b] - st.eAssist[a]).slice(0, 10)
         .map((j) => ({ j, nome: st.nomes[j], clube: st.clube[j], golos: st.eGolos[j], assist: st.eAssist[j], jogos: st.eJogos[j], nota: st.eJogos[j] ? st.eNotas[j] / st.eJogos[j] / 10 : 0 }));
-      st.zerarEstatisticas(js);
+      st.zerarEstatisticas(js, ep);
     }
     if (w.mercado) w.mercado.fimDeContratos(t, dia);
     else w.economia?.renovarContratos(t, dia);
