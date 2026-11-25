@@ -813,3 +813,11 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Prémios:** o efeito dos prémios de Julho aplica-se na actualização de 8 de Setembro.
     - **Hipóteses ainda por calibrar** (mundo de teste, início): o topo bate no tecto de 250 M€ (61 jogadores com 150 M€ ou mais) e as medianas por idade e liga ficam muito baixas.
     - **Desempenho:** o recálculo dos 60 222 jogadores demora 49 ms em Node; está por optimizar para o alvo de 100 ms no tablet.
+
+203. **Prompt 6B: dados de referência fora do jogo e desempenho.**
+    - **`data/referencia/`** (dataset público do Transfermarkt, CC0) só serve para calibrar offline:
+        - está no `.gitignore` (não se distribui);
+        - o service worker nunca a põe em cache;
+        - nenhum ficheiro do jogo a importa (o build só empacota `/packs/` e o que o código importa);
+        - o teste `tests/referencia.test.ts` garante-o.
+    - **Desempenho** (decisão do utilizador): o recálculo trimestral corre só 4 vezes por ano. Aceita-se até ~500 ms no tablet, por partes ou fora do fio principal, e não se optimiza além disso.

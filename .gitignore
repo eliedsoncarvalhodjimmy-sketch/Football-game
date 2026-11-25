@@ -2,3 +2,5 @@ node_modules/
 dist/
 out/
 *.log
+# Dados de referência do Prompt 6B (dataset público do Transfermarkt): só para calibrar, não se distribuem.
+data/referencia/
