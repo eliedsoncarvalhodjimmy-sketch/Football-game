@@ -147,7 +147,7 @@ export class MercadoUtilizador {
 
   private paraJogador(n: NegUtilizador, dia: number) {
     const st = this.st, j = n.jogador;
-    let sal = salarioPedido(this.w, j, this.m.salarioMercado(j, this.clube, dia));
+    let sal = salarioPedido(this.w, j, this.m.salarioMercado(j, this.clube, dia), dia);
     if (n.tipo === 'livre') sal = Math.max(sal * 0.85, this.m.contratos.salarioAnterior.get(j) ?? 0);
     // Renovação: nunca pede menos do que ganha, e o descontentamento encarece.
     if (n.tipo === 'renovacao') sal = Math.max(sal, st.salario[j]) * (1 + this.m.contratos.descontentamento[j] / 200);

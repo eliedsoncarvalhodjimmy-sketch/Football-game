@@ -78,6 +78,9 @@ export function precoPedido(w: World, m: Mercado, j: number, comprador: number, 
   const T = P.talento;
   const absurdo = st.idade(j, dia) <= T.idade && st.pot[j] >= T.potencial && w.reputacao[vend] <= w.reputacao[comprador] - T.diferenca_reputacao;
   if (absurdo) f.talento = Math.min(T.factor_maximo, 1 + T.por_ponto * (st.pot[j] - T.base));
+  // Marca dos prémios (Prompt 8, Bloco C): no preço pedido, nunca no valor de mercado.
+  const marca = w.prestigio?.marca(j, dia) ?? 1;
+  if (marca > 1) f.marca = marca;
   let preco = valor;
   for (const x of Object.values(f)) preco *= x;
   preco = Math.min(P.preco_maximo, clamp(preco, P.razao[0] * valor, (absurdo ? T.razao_maxima : P.razao[1]) * valor));

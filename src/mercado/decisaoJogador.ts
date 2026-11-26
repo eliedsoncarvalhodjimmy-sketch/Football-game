@@ -33,7 +33,8 @@ export function pontuarProposta(w: World, m: Mercado, j: number, p: PropostaJoga
   const parcelas: Record<string, number> = {
     salario: fSal * D.salario * Math.log(Math.max(0.2, p.salario / salAct)),
     projecto: D.projecto * (1 + D.ambicao * (amb - 10)) * (((e.ia?.ambicao[p.clube] ?? 0.5) - (actual >= 0 ? e.ia?.ambicao[actual] ?? 0.5 : 0)) * 1.5),
-    prestigio: fPre * D.prestigio * (1 + D.ambicao * (amb - 10)) * ((rep(p.clube) - rep(actual)) / 25 + (fd(p.clube) - fd(actual)) / 60 + 0.4 * (europa(p.clube) - europa(actual))),
+    // Exigência de projecto: um jogador premiado pesa mais a grandeza do clube (Prompt 8, Bloco C).
+    prestigio: fPre * D.prestigio * (w.prestigio?.exigencia(j, dia) ?? 1) * (1 + D.ambicao * (amb - 10)) * ((rep(p.clube) - rep(actual)) / 25 + (fd(p.clube) - fd(actual)) / 60 + 0.4 * (europa(p.clube) - europa(actual))),
     minutos: D.minutos * (p.minutos - minutosEsperados(w, m, j)),
     ligacao: -D.ligacao * (1 + D.profissionalismo * (prof - 10)) * (actual >= 0 ? Math.min(1.5, (dia - m.contratos.chegada[j]) / 1460) : 0),
     descontentamento: actual >= 0 ? m.contratos.descontentamento[j] / 100 : 0,
@@ -71,12 +72,13 @@ export function minutosEsperados(w: World, m: Mercado, j: number): number {
 }
 
 /** Salário que o jogador pede (renovação ou mudança): mercado × rendimento, com a estrutura do clube como referência. */
-export function salarioPedido(w: World, j: number, base: number): number {
+export function salarioPedido(w: World, j: number, base: number, dia: number): number {
   const st = w.jogadores!;
   const jogos = st.eJogos[j];
   const nota = jogos ? st.eNotas[j] / jogos / 10 : 6.6;
   const f = 1 + Math.min(CONTRATO.renovacao_maximo, Math.max(0, (nota - 6.8) * 10 * CONTRATO.renovacao_por_decima));
-  return Math.round((base * f) / 1000) * 1000;
+  // Prestígio dos prémios (Prompt 8, Bloco C): o pedido sobe 5 a 10% para os vencedores.
+  return Math.round((base * f * (w.prestigio?.salario(j, dia) ?? 1)) / 1000) * 1000;
 }
 
 /** Descontentamento mensal: minutos abaixo do prometido sobem-no; a moral desce com ele; acima do limiar pede para sair. */

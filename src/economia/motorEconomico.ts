@@ -389,6 +389,8 @@ export class Economia {
   semana(segunda: number, jogos: JogoR[]) {
     const w = this.w, s = this.clubes;
     this.garantir(w.clubes.length);
+    // Receitas comerciais a mais pelos jogadores premiados (Prompt 8, Bloco C), por clube.
+    const marcaPremios = this.w.prestigio?.comercial(segunda);
     for (let c = 0; c < s.n; c++) {
       if (w.liga[c] < 0) continue;
       const ind = indiceRiqueza(w, c);
@@ -413,7 +415,7 @@ export class Economia {
       }
       s.lancar(c, 'juros', (s.dividaBanco[c] * s.juroBanco[c]) / 52);
       this.receber(c, 'tv', this.tvFixa[c] / 52);
-      this.receber(c, 'comercial', s.patrocinio[c] / 52);
+      this.receber(c, 'comercial', (s.patrocinio[c] / 52) * (1 + (marcaPremios?.get(c) ?? 0)));
       if (s.paraquedasAnos[c]) this.receber(c, 'tv', s.paraquedas[c] / 52);
     }
     for (const j of jogos) {

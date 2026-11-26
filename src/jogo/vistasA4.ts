@@ -241,7 +241,7 @@ export function vistaEscritorio(w: World, c: number, dia: number, nome: string, 
   const renovacoes = m.plantel(c).filter((j) => st.fimContrato[j] > 0 && (st.fimContrato[j] - dia) / 365 <= RENOVACAO.anos_maximos && !m.contratos.emprestimo.has(j))
     .sort((a, b) => st.fimContrato[a] - st.fimContrato[b] || st.ovrNat(b) - st.ovrNat(a))
     .map((j) => ({ id: st.ids[j], nome: st.nomes[j], pos: POSICOES[st.posNat[j]], idade: Math.floor(st.idade(j, dia)), ovr: st.ovrNat(j), salario: st.salario[j], fim: anoDe(st.fimContrato[j]),
-      pedido: Math.round(Math.max(salarioPedido(w, j, m.salarioMercado(j, c, dia)), st.salario[j]) * (1 + m.contratos.descontentamento[j] / 200) / 1000) * 1000,
+      pedido: Math.round(Math.max(salarioPedido(w, j, m.salarioMercado(j, c, dia), dia), st.salario[j]) * (1 + m.contratos.descontentamento[j] / 200) / 1000) * 1000,
       descontente: m.contratos.descontentamento[j] >= 40, negociacao: m.util?.activa(j)?.id ?? null, valor: valorMercado(w, j, dia, e.inflacao) }));
   return { nome, clube: w.clubes[c].nome, cores: w.clubes[c].cores, desde: dataPt(inicio), carreira, titulos, compras, vendas, injeccoes: Math.round(e.clubes.injeccoes[c]), renovacoes };
 }

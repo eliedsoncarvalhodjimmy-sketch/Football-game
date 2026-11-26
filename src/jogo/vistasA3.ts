@@ -83,7 +83,7 @@ export function vistaMercado(w: World, c: number, dia: number): VistaMercado {
   }).sort(ordenar).slice(0, LIMITE_LISTA);
   const livres = m.todosLivres().map((j) => {
     const l = linhaMercado(w, c, j, dia);
-    l.salario = Math.round(salarioPedido(w, j, m.salarioMercado(j, c, dia)) / 1000) * 1000;
+    l.salario = Math.round(salarioPedido(w, j, m.salarioMercado(j, c, dia), dia) / 1000) * 1000;
     l.semanasLivre = Math.max(0, Math.floor((dia - m.contratos.livreDesde[j]) / 7));
     return l;
   }).sort(ordenar).slice(0, LIMITE_LISTA);

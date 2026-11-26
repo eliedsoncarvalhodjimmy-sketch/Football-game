@@ -882,3 +882,24 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Determinístico** pela semente, prémio e ano. Vence quem tiver mais pontos; unânime com 80% dos 1.º lugares.
     - **Histórico:** cada finalista fica com a decomposição (`comp`) e os 1.º lugares; o prémio fica com a votação (boletins, margem, unanimidade, pontos do vencedor por país).
     - **Mundo de teste (2027):** Bola de Ouro Galato (PL; top 3 Galato, Sarani, Fairstone), Golden Boy Sangaroré (DE), Melhor GR Valujo. O GR Marardi saiu do top 3 da Bola de Ouro. Relatório: `docs/relatorios/premios_blocoB_pontuacao.md`.
+
+208. **Prompt 8, Bloco C: o selo dos prémios na carreira e na economia.** Os números estão em `PRESTIGIO` (`src/config/premios.ts`). Toda a lógica fica num módulo, `src/premios/prestigio.ts`, chamado pelo preço pedido, pelo salário, pela decisão do jogador, pelo scouting, pelas cláusulas e pelas receitas comerciais.
+    - **Regra de ouro:** nunca mexe em atributos, moral ou rendimento. Um teste garante que o motor dos jogos, a evolução e o store dos jogadores não leem o prestígio.
+    - **Selos:**
+        - **O que se regista:** cada prémio do jogo dá selos ao vencedor, ao top 3 e aos restantes finalistas (prémio, ano, lugar, dia da cerimónia).
+        - **Prémios reais:** os dos últimos 3 anos dão o selo ao vencedor se existir no mundo um só jogador com esse nome (para os ficheiros reais de jogadores; no mundo de teste não há nenhum).
+        - **Gravação:** o save é a repetição dos comandos, por isso não cresce. Em memória, cerca de 2,5 kB por ano de prémios.
+    - **Prestígio (0–100):**
+        - **Pontos por selo:** Bola de Ouro 100 / 55 / 20; Golden Boy 50 / 20 / 8; Melhor GR 45 / 20 / 10 (vencedor / top 3 / finalista).
+        - **Decaimento:** meia-vida de 2 anos a partir da cerimónia; o selo deixa de contar aos 3 anos.
+    - **Preço pedido:**
+        - **Factor de marca:** Bola de Ouro +12,5% / +5% / +2%; Golden Boy +8% / +2%; Melhor GR +5% / +1,5%. Decai como o prestígio, com tecto total de +25%.
+        - **Limites:** só no preço pedido, nunca no valor de mercado; a razão preço/valor continua entre 0,6 e 2,5.
+    - **Salário:** o pedido sobe 10% × prestígio / 100 (Bola de Ouro +10%, Golden Boy +5% a 7%).
+    - **Exigência de projecto:** na decisão do jogador, a parcela do prestígio do clube × (1 + 0,5 × prestígio / 100). O premiado prefere clubes grandes e de Champions.
+    - **Cláusulas:** a probabilidade de pôr cláusula no contrato sobe 0,3 × prestígio / 100; o múltiplo da cláusula × marca.
+    - **Visibilidade:** o vencedor e o top 3 ficam conhecidos de todos os clubes (conhecimento mínimo de 70) durante 2 anos. Entram no radar da IA de mercado e dos compradores de estrelas.
+    - **Receitas comerciais:** o patrocínio semanal do clube × (1 + 0,0003 × soma do prestígio dos seus jogadores), até +5%. Sem efeito desportivo nem na reputação do clube.
+    - **Legado:** a contagem de prémios por jogador dá o Hall of Fame (`hallOfFame()`) e a reputação de entrada de um ex-craque como treinador ou staff (`reputacaoLegado()`: 40 + 15 por Bola de Ouro + 8 por Melhor GR + 6 por Golden Boy + 3 por top 3, até 95).
+        - **PENDÊNCIA:** o funil de treinadores e staff vindos de ex-jogadores (Prompt 7) ainda não existe no código. A função fica pronta para ele.
+    - **Relatório:** `docs/relatorios/premios_blocoC_prestigio.md`.

@@ -24,6 +24,7 @@ import type { World } from '../engine/world.ts';
 import type { Temporada } from '../engine/season/temporada.ts';
 import type { MercadoUtilizador, TermosUtilizador } from './mercadoUtilizador.ts';
 import { NEG_CLUBE } from '../config/negociacaoUtilizador.ts';
+import { PRESTIGIO } from '../config/premios.ts';
 import { Direitos, planearDireitos } from './direitos.ts';
 import { DIREITOS } from '../config/contratosJogador.ts';
 import { LIVRES_INICIAIS } from '../config/mundo.ts';
@@ -243,6 +244,7 @@ export class Mercado {
     const nivel = 35 + 0.6 * w.reputacao[c];
     p += Math.max(0, CL.poder_jovem * (st.pot[j] - nivel) / 10) * (st.idade(j, dia) <= 21 ? 1 : 0);
     p += CL.arquetipo[w.economia?.ia?.arquetipo[c] ?? ''] ?? 0;
+    p += (PRESTIGIO.clausula_prob * (w.prestigio?.valor(j, dia) ?? 0)) / 100; // premiados: mais cláusulas (Prompt 8, Bloco C)
     if (!universal) {
       const max = comum ? CL.maximo_tradicao : CL.maximo_plantel;
       const com = this.plantel(c).filter((x) => this.contratos.clausula[x] > 0).length;
@@ -250,7 +252,7 @@ export class Mercado {
     }
     if (!rng.chance(Math.min(1, p))) return;
     const jovem = st.idade(j, dia) <= 21 ? clamp((st.pot[j] - st.ovrNat(j)) / 20, 0, 1) : 0;
-    const mult = CL.multiplo[0] + (CL.multiplo[1] - CL.multiplo[0]) * (0.3 * rng.next() + 0.7 * jovem);
+    const mult = (CL.multiplo[0] + (CL.multiplo[1] - CL.multiplo[0]) * (0.3 * rng.next() + 0.7 * jovem)) * (w.prestigio?.marca(j, dia) ?? 1);
     this.contratos.clausula[j] = Math.round((valorMercado(w, j, dia, w.economia!.inflacao) * mult) / 100000) * 100000;
     this.contratos.clausulaDesde[j] = dia;
   }
@@ -512,7 +514,7 @@ export class Mercado {
       // Termos pessoais: o jogador decide (salário pedido no clube comprador, minutos pelo estatuto previsto).
       const ordem = this.plantel(n.comprador).filter((x) => st.ovrNat(x) > st.ovrNat(n.jogador)).length;
       n.estatuto = ordem < 11 ? 'titular' : ordem < 18 ? 'rotacao' : st.idade(n.jogador, n.dia) <= 21 ? 'promessa' : 'suplente';
-      let sal = salarioPedido(w, n.jogador, this.salarioMercado(n.jogador, n.comprador, n.dia));
+      let sal = salarioPedido(w, n.jogador, this.salarioMercado(n.jogador, n.comprador, n.dia), n.dia);
       if (n.tipo === 'livre') sal *= Math.max(CONTRATO.livre_minimo, 1 - CONTRATO.livre_desconto_mes * ((n.dia - this.contratos.livreDesde[n.jogador]) / 30));
       if (n.tipo === 'emprestimo') sal = st.salario[n.jogador];
       // Donos ricos e ambiciosos pagam acima do mercado para atrair reforços (pago com as injecções).
@@ -856,7 +858,7 @@ export class Mercado {
         if (!quer || st.idade(j, dia) > 34) { if (!doUtilizador && !this.contratos.listado[j] && st.idade(j, dia) <= 33) this.contratos.listado[j] = 1; continue; }
         if (!rng.chance(0.35)) continue;
         // A oferta não desce abaixo de x × o salário actual (o clube quer mantê-lo).
-        const sal = Math.round(Math.max(salarioPedido(w, j, this.salarioMercado(j, c, dia)), IA.renovacao_minimo_actual * st.salario[j]) / 1000) * 1000;
+        const sal = Math.round(Math.max(salarioPedido(w, j, this.salarioMercado(j, c, dia), dia), IA.renovacao_minimo_actual * st.salario[j]) / 1000) * 1000;
         const folga = e.clubes.orcSalarios[c] - e.clubes.folha[c] + st.salario[j];
         // Sem folga salarial só se deixa sair quem pede um aumento grande (os outros renovam-se ao salário pedido).
         if (sal > folga && i >= 11 && sal > st.salario[j] * IA.renovacao_aumento_sem_folga) { this.estat.renovSemFolga++; continue; }

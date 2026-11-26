@@ -102,10 +102,12 @@ export class Scouting {
   nivel(c: number, j: number, dia: number): number {
     const st = this.w.jogadores!;
     if (st.clube[j] === c && (!this.w.mercado || dia - this.w.mercado.contratos.chegada[j] >= K.plantel_dias)) return 100;
+    // Vencedores e top 3 dos prémios recentes: conhecidos de todos os clubes (Prompt 8, Bloco C).
+    const minimo = this.w.prestigio?.conhecimentoMinimo(j, dia) ?? 0;
     const v = this.conh[c]?.get(j);
-    if (v === undefined) return st.clube[j] === c ? 60 : 0;
+    if (v === undefined) return Math.max(minimo, st.clube[j] === c ? 60 : 0);
     const n = Math.floor(v / 65536), d = (v % 65536) + this.base;
-    return Math.max(0, n - Math.floor((dia - d) / K.decaimento_dias));
+    return Math.max(minimo, n - Math.floor((dia - d) / K.decaimento_dias));
   }
 
   /** Factor do erro pela familiaridade com a liga do jogador. */

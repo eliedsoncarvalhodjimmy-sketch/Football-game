@@ -11,6 +11,7 @@ import {
 import { IDX_CAT } from './janela.ts';
 import type { World } from '../engine/world.ts';
 import type { RegistoEpoca } from '../engine/history.ts';
+import type { LinhaPremio } from '../historico/historico.ts';
 
 export const GRUPO: Record<string, string> = { GR: 'GR', DC: 'DEF', DD: 'DEF', DE: 'DEF', ALD: 'DEF', ALE: 'DEF', MDC: 'MED', MC: 'MED', MO: 'MED', ED: 'AVA', EE: 'AVA', PL: 'AVA' };
 
@@ -203,11 +204,13 @@ export function atribuirPremios(w: World, regs: RegistoEpoca[], ano: number): st
   for (const k of Object.keys(res) as IdPremio[]) {
     const v = res[k].candidatos[0];
     if (!v) continue;
-    w.historico.registarPremio({
+    const linha: LinhaPremio = {
       ano, premio: k, jogador: v.jogador, clube: v.clube, nota: '', fonte: 'jogo', idx: v.idx,
       finalistas: res[k].candidatos.map((x) => ({ jogador: x.jogador, clube: x.clube, pontos: x.pontos, idx: x.idx, comp: x.comp, primeiros: x.primeiros })),
       votacao: res[k].votacao,
-    });
+    };
+    w.historico.registarPremio(linha);
+    w.prestigio?.registar(linha);
   }
   return null;
 }

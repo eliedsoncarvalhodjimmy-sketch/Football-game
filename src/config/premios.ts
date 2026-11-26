@@ -106,3 +106,37 @@ export const CATEGORIA_CONTINENTAL: Record<string, Categoria> = { UCL: 'continen
 export const ESTATISTICAS_JANELA = { remates_baliza_por_xg: 3.2, prob_erro_por_golo: 0.06, sem_sofrer_minutos: 60, top: 5,
   /** Desempate por penáltis: fracção dos penáltis falhados que conta como defesa do GR. */
   penaltis_defendidos_fraccao: 0.7 };
+
+/** Prompt 8, Bloco C: efeito do selo na carreira e na economia (nunca nos atributos, na moral nem no rendimento).
+ *  Cada selo (prémio, ano, lugar) vale pontos de prestígio que decaem com meia-vida de 2 anos (a partir da cerimónia) e
+ *  deixam de contar ao fim de `duracao_anos`. O prestígio do jogador é a soma, até 100. */
+export const PRESTIGIO = {
+  meia_vida_anos: 2,
+  duracao_anos: 3,
+  /** Pontos de prestígio por selo (no dia da cerimónia). */
+  pontos: {
+    melhor_do_mundo: { vencedor: 100, top3: 55, finalista: 20 },
+    golden_boy: { vencedor: 50, top3: 20, finalista: 8 },
+    guarda_redes: { vencedor: 45, top3: 20, finalista: 10 },
+  } as Record<string, { vencedor: number; top3: number; finalista: number }>,
+  /** Factor de marca no preço pedido (não no valor de mercado), por selo, a decair como o prestígio; tecto total. */
+  preco: {
+    melhor_do_mundo: { vencedor: 0.125, top3: 0.05, finalista: 0.02 },
+    golden_boy: { vencedor: 0.08, top3: 0.02, finalista: 0 },
+    guarda_redes: { vencedor: 0.05, top3: 0.015, finalista: 0 },
+  } as Record<string, { vencedor: number; top3: number; finalista: number }>,
+  preco_tecto: 0.25,
+  /** Pedido salarial: + maximo × prestígio / 100 (5 a 10% para os vencedores). */
+  salario_maximo: 0.1,
+  /** Exigência de projecto: a parcela de prestígio do clube na decisão × (1 + x × prestígio / 100). */
+  exigencia_projecto: 0.5,
+  /** Cláusulas de rescisão: + x × prestígio / 100 na probabilidade de a pôr no contrato; o múltiplo × (1 + marca). */
+  clausula_prob: 0.3,
+  /** Visibilidade: vencedores e top 3 conhecidos de todos os clubes (conhecimento mínimo) enquanto o selo dura. */
+  conhecimento_minimo: 70,
+  visibilidade_anos: 2,
+  /** Receitas comerciais do clube: + por_ponto × soma do prestígio dos seus jogadores, até ao tecto (fracção do patrocínio). */
+  comercial: { por_ponto: 0.0003, tecto: 0.05 },
+  /** Legado (funil de treinadores e staff): reputação de entrada de um ex-craque. */
+  legado: { base: 40, melhor_do_mundo: 15, golden_boy: 6, guarda_redes: 8, top3: 3, tecto: 95 },
+};
