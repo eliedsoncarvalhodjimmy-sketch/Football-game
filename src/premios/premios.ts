@@ -148,9 +148,16 @@ export function calcularPremios(w: World, titulos: TituloJanela[], ano: number, 
   const pts = (z: number) => DS.base + DS.escala * z;
   const ptsGR = (z: number) => GRC.base + GRC.escala * z;
   const bo: Candidato[] = [], gb: Candidato[] = [], gr: Candidato[] = [];
+  const dBruto = (b: Base) => (b.g === 'GR' ? ptsGR(b.zgr) : pts(b.z));
+  // Época histórica: o melhor defesa ou GR do mundo, destacado e com um título a sério, perde o viés de posição.
+  const historicos = new Set<number>();
+  if (vies) for (const [g, H] of Object.entries(VIES_POSICAO.historica)) {
+    const xs = B.filter((b) => b.g === g && b.min >= EL.minutos_minimos).sort((a, c) => dBruto(c) - dBruto(a) || a.j - c.j);
+    if (xs.length >= 2 && dBruto(xs[0]) - dBruto(xs[1]) >= H.margem && (CO.peso.melhor_do_mundo ?? 0.5) * colectivo(xs[0].j) >= H.colectivo) historicos.add(xs[0].j);
+  }
   for (const b of B) {
-    const d = b.g === 'GR' ? ptsGR(b.zgr) : pts(b.z);
-    if (b.min >= EL.minutos_minimos) bo.push(cand(b, 'melhor_do_mundo', d * (vies ? VIES_POSICAO.factor[b.g] ?? 1 : 1), true));
+    const d = dBruto(b);
+    if (b.min >= EL.minutos_minimos) bo.push(cand(b, 'melhor_do_mundo', d * (vies && !historicos.has(b.j) ? VIES_POSICAO.factor[b.g] ?? 1 : 1), true));
     if (b.g === 'GR' && b.min >= EL.minutos_minimos_gr) gr.push(cand(b, 'guarda_redes', ptsGR(b.zgr), true));
     // Golden Boy: só o rendimento real (o potencial não entra; sem fama), com o ajuste pela força da liga.
     if (st.idade(b.j, inicio) <= GOLDEN_BOY.idade_maxima && b.min >= EL.minutos_minimos_golden_boy) gb.push(cand(b, 'golden_boy', d * (vies ? VIES_POSICAO.golden_boy[b.g] ?? 1 : 1), false));

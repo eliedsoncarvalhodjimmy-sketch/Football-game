@@ -923,3 +923,10 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Selos e histórico:** os selos ocupam cerca de 2,5 kB por ano de prémios; o histórico guarda os finalistas com a decomposição.
         - **Save:** é a repetição dos comandos e não cresce.
     - **Removido da pontuação antiga:** a nota × 22, o bónus fixo da força da liga, o ruído único por candidato e os títulos todos para o clube actual.
+    - **Correcções aprovadas na PARAGEM D** (e nota do utilizador: tem de haver defesas e GR vencedores, raríssimos, sobretudo os GR):
+        - **Viés da Bola de Ouro:** MED × 0,93 (era 0,9), DEF × 0,8 (era 0,75), GR × 0,65 (era 0,55).
+        - **Época histórica:** o melhor defesa do mundo (desempenho com 3+ pontos sobre o 2.º e colectivo ≥ 15, ou seja, um título a sério) e o melhor GR (10+ pontos e colectivo ≥ 5) perdem o viés nesse ano.
+            - **Porquê:** suavizar o viés não chegava. Os avançados têm golos e extremos que um defesa nunca atinge, por isso os vencedores eram 92 a 96% avançados e nenhum defesa ou GR.
+            - **Afinação:** feita fora do jogo em 100 anos (2 sementes × 50 épocas, com todos os candidatos de cada ano gravados): AVA 82%, MED 13%, DEF 4%, GR 1%.
+        - **Golden Boy com viés suave:** DEF × 0,85, GR × 0,7. Antes os defesas eram 38% dos vencedores.
+        - **Big 5:** o factor de fora das 5 grandes ligas na Bola de Ouro passa de 0,68 a 0,65.

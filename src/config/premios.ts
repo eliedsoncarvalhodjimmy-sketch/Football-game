@@ -72,7 +72,11 @@ export const AURA = { ano_1: 0.05, ano_2: 0.025 };
 /** Viés de posição (decisão do utilizador: ligado, moderado): factor por grupo no desempenho da Bola de Ouro. */
 export const VIES_POSICAO = {
   ligado: true,
-  factor: { AVA: 1, MED: 0.9, DEF: 0.8, GR: 0.65 } as Record<string, number>,
+  factor: { AVA: 1, MED: 0.93, DEF: 0.8, GR: 0.65 } as Record<string, number>,
+  /** Época histórica (decisão do utilizador: defesas e GR vencedores raríssimos, mas têm de existir): o melhor do mundo
+   *  no seu grupo, com `margem` pontos de desempenho sobre o 2.º e colectivo ≥ `colectivo` (um título a sério), perde o
+   *  viés nesse ano. Afinado fora do jogo em 100 anos: AVA 82%, MED 13%, DEF 4%, GR 1% dos vencedores. */
+  historica: { DEF: { margem: 3, colectivo: 15 }, GR: { margem: 10, colectivo: 5 } } as Record<string, { margem: number; colectivo: number }>,
   /** Golden Boy (PARAGEM D): viés mais suave, no desempenho e com o mesmo botão. */
   golden_boy: { AVA: 1, MED: 1, DEF: 0.85, GR: 0.7 } as Record<string, number>,
 };
