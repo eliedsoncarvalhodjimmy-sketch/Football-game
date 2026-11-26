@@ -13,6 +13,7 @@ import { adequacaoEstilo, estiloDe } from '../match/estilos.ts';
 import type { Lado } from '../match/rapido.ts';
 import { generatePlayerFace } from '../players/faceGenerator.ts';
 import { valorMercado } from '../mercado/valor.ts';
+import { selosJogador, type SelosJogador } from './vistasPremios.ts';
 import { DISPOSICAO_CAMPO } from '../config/interface.ts';
 import { corpoJogador, ESC } from '../academia/academia.ts';
 
@@ -46,6 +47,8 @@ export interface VistaJogador {
   /** Jogador de outro clube: o que o scouting sabe (conhecimento %, OVR em intervalo) e o que se pode fazer. */
   scouting: { conhecimento: number; ovr: [number, number]; scout: string | null; vies: string | null } | null;
   mercado: { listado: boolean; shortlist: boolean; negociacao: number | null; clausula: number; livre: boolean; emprestavel: boolean } | null;
+  /** Selos dos prémios e prestígio (Prompt 8); null sem prémios. */
+  premios: SelosJogador | null;
 }
 
 export interface CaixaTactica { pos: Posicao; x: number; y: number; jogadores: { j: number; id: string; nome: string; idade: number; ovr: number; pos: Posicao; lesionado: boolean }[] }
@@ -154,6 +157,7 @@ export function vistaJogador(w: World, j: number, dia: number, clubeUtilizador: 
     linha, clube: c >= 0 ? w.clubes[c].nome : 'Sem clube', cores: c >= 0 ? w.clubes[c].cores : ['#555', '#ddd'], pais: linha.pais,
     altura: corpo.altura, peso: corpo.peso, pe: PE[st.pe[j]] ?? 'Direito', posicoes, grupos, papeis, potencial: pot,
     minutos: st.eMinutos[j], notaMedia: st.eJogos[j] ? r1(st.eNotas[j] / st.eJogos[j] / 10) : null, lesoesEpoca: st.eLesoes[j], valor, meu, scouting, mercado,
+    premios: w.prestigio?.selos.has(j) ? selosJogador(w, j, dia) : null,
   };
 }
 
