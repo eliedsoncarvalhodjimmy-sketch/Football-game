@@ -6,7 +6,7 @@ import { Rng } from '../core/rng.ts';
 import { POSICOES } from '../config/papeis.ts';
 import {
   PONTUACAO as PT, FINALISTAS, ELEGIBILIDADE as EL, GOLDEN_BOY, CALENDARIO_PREMIOS as CAL, CATEGORIAS, CATEGORIA_CONTINENTAL,
-  DESEMPENHO as DS, COLECTIVO as CO, CLASSE as CL, FAMA, AURA, VIES_POSICAO, GUARDA_REDES as GRC, JURI,
+  DESEMPENHO as DS, COLECTIVO as CO, VISIBILIDADE_LIGA as VL, CLASSE as CL, FAMA, AURA, VIES_POSICAO, GUARDA_REDES as GRC, JURI,
 } from '../config/premios.ts';
 import { IDX_CAT } from './janela.ts';
 import type { World } from '../engine/world.ts';
@@ -14,7 +14,7 @@ import type { RegistoEpoca } from '../engine/history.ts';
 
 export const GRUPO: Record<string, string> = { GR: 'GR', DC: 'DEF', DD: 'DEF', DE: 'DEF', ALD: 'DEF', ALE: 'DEF', MDC: 'MED', MC: 'MED', MO: 'MED', ED: 'AVA', EE: 'AVA', PL: 'AVA' };
 
-export interface Componentes { desempenho: number; colectivo: number; classe: number; fama: number; aura: number; total: number }
+export interface Componentes { desempenho: number; colectivo: number; classe: number; fama: number; aura: number; /** Factor da liga (1 nas Big 5). */ visibilidade: number; total: number }
 export interface Candidato {
   idx: number; jogador: string; clube: string; clubeIdx: number;
   /** Pontos do júri (a classificação final); `comp.total` é a pontuação antes do júri. */
@@ -120,11 +120,14 @@ export function calcularPremios(w: World, titulos: TituloJanela[], ano: number, 
   // 4. Colectivo (títulos e fases, pelos minutos de cada passagem), classe, fama e aura.
   const pesoTitulo = new Map<string, number>();
   for (const t of titulos) pesoTitulo.set(`${t.cat}|${t.clube}`, (pesoTitulo.get(`${t.cat}|${t.clube}`) ?? 0) + t.peso);
-  const colectivo = (j: number) => {
+  const CONT = new Set([IDX_CAT.continental_1, IDX_CAT.continental_2, IDX_CAT.continental_3]);
+  const colectivo = (j: number, soContinental = false) => {
     let s = 0;
-    for (let k = 0; k < 2; k++) { const cl = st.wClube[j * 2 + k]; if (cl < 0) continue; for (let cat = 0; cat < CATEGORIAS.length; cat++) { const p = pesoTitulo.get(`${cat}|${cl}`); if (p) s += p * jp.participacao(j, cat, cl); } }
-    return s + CO.selecao;
+    for (let k = 0; k < 2; k++) { const cl = st.wClube[j * 2 + k]; if (cl < 0) continue; for (let cat = 0; cat < CATEGORIAS.length; cat++) { if (soContinental && !CONT.has(cat)) continue; const p = pesoTitulo.get(`${cat}|${cl}`); if (p) s += p * jp.participacao(j, cat, cl); } }
+    return s + (soContinental ? 0 : CO.selecao);
   };
+  const big5 = new Set(VL.big5);
+  const visibilidade = (b: Base, premio: IdPremio) => (big5.has(w.ligas[b.liga].regras.id) ? 1 : Math.min(1, (VL.fora_big5[premio] ?? 1) + Math.min(VL.continental.tecto, VL.continental.por_ponto * colectivo(b.j, true))));
   const classe = (j: number) => -Math.min(CL.tecto, CL.amarelo * st.wAmarelos[j] + CL.vermelho * st.wVermelhos[j]);
   const fama = (j: number) => FAMA.peso * Math.max(0, Math.min(100, (st.ovrNat(j) - 55) * 2.6));
   const aura = (premio: IdPremio, j: number) => {
@@ -132,11 +135,12 @@ export function calcularPremios(w: World, titulos: TituloJanela[], ano: number, 
     const ganhou = (a: number) => h.some((p) => p.premio === premio && p.ano === a && p.idx === j);
     return ganhou(ano - 1) ? AURA.ano_1 : ganhou(ano - 2) ? AURA.ano_2 : 0;
   };
-  const cand = (b: Base, premio: IdPremio, desempenho: number, pesoColectivo: number, comFama: boolean): Candidato => {
-    const col = pesoColectivo * colectivo(b.j), cla = classe(b.j), fa = comFama ? fama(b.j) : 0, au = aura(premio, b.j);
-    const total = (desempenho + col + cla + fa) * (1 + au);
+  const cand = (b: Base, premio: IdPremio, desempenho: number, comFama: boolean): Candidato => {
+    const col = (CO.peso[premio] ?? 0.5) * colectivo(b.j), cla = classe(b.j), fa = comFama ? fama(b.j) : 0, au = aura(premio, b.j);
+    const vi = visibilidade(b, premio);
+    const total = (desempenho + col + cla + fa) * vi * (1 + au);
     const r1 = (x: number) => Math.round(x * 10) / 10;
-    const comp = { desempenho: r1(desempenho), colectivo: r1(col), classe: r1(cla), fama: r1(fa), aura: au, total: r1(total) };
+    const comp = { desempenho: r1(desempenho), colectivo: r1(col), classe: r1(cla), fama: r1(fa), aura: au, visibilidade: Math.round(vi * 1000) / 1000, total: r1(total) };
     opc.todos?.set(`${premio}|${b.j}`, comp);
     return { idx: b.j, jogador: st.nomes[b.j], clube: w.clubes[st.clube[b.j]]?.nome ?? '', clubeIdx: st.clube[b.j], pontos: 0, primeiros: 0, comp };
   };
@@ -145,10 +149,10 @@ export function calcularPremios(w: World, titulos: TituloJanela[], ano: number, 
   const bo: Candidato[] = [], gb: Candidato[] = [], gr: Candidato[] = [];
   for (const b of B) {
     const d = b.g === 'GR' ? ptsGR(b.zgr) : pts(b.z);
-    if (b.min >= EL.minutos_minimos) bo.push(cand(b, 'melhor_do_mundo', d * (vies ? VIES_POSICAO.factor[b.g] ?? 1 : 1), 1, true));
-    if (b.g === 'GR' && b.min >= EL.minutos_minimos_gr) gr.push(cand(b, 'guarda_redes', ptsGR(b.zgr), 0.5, true));
+    if (b.min >= EL.minutos_minimos) bo.push(cand(b, 'melhor_do_mundo', d * (vies ? VIES_POSICAO.factor[b.g] ?? 1 : 1), true));
+    if (b.g === 'GR' && b.min >= EL.minutos_minimos_gr) gr.push(cand(b, 'guarda_redes', ptsGR(b.zgr), true));
     // Golden Boy: só o rendimento real (o potencial não entra; sem fama), com o ajuste pela força da liga.
-    if (st.idade(b.j, inicio) <= GOLDEN_BOY.idade_maxima && b.min >= EL.minutos_minimos_golden_boy) gb.push(cand(b, 'golden_boy', d, 0.5, false));
+    if (st.idade(b.j, inicio) <= GOLDEN_BOY.idade_maxima && b.min >= EL.minutos_minimos_golden_boy) gb.push(cand(b, 'golden_boy', d, false));
   }
   return { melhor_do_mundo: votar(w, 'melhor_do_mundo', bo, ano), golden_boy: votar(w, 'golden_boy', gb, ano), guarda_redes: votar(w, 'guarda_redes', gr, ano) };
 }

@@ -6,7 +6,7 @@ import { describe, expect, it, beforeAll } from 'vitest';
 import { mundo } from './helpers.ts';
 import { Simulador } from '../src/engine/simulador.ts';
 import { calcularPremios, titulosDaJanela, type Componentes } from '../src/premios/premios.ts';
-import { DESEMPENHO, VIES_POSICAO, JURI } from '../src/config/premios.ts';
+import { DESEMPENHO, VIES_POSICAO, JURI, VISIBILIDADE_LIGA as VL } from '../src/config/premios.ts';
 import type { World } from '../src/engine/world.ts';
 
 describe('pontuação dos prémios (Prompt 8, Bloco B)', () => {
@@ -39,6 +39,10 @@ describe('pontuação dos prémios (Prompt 8, Bloco B)', () => {
     const dif = ca!.desempenho - cb!.desempenho;
     const fd = (id: string) => w.ligaPorId(id).regras.forca_desportiva;
     expect(dif).toBeGreaterThan(0);
+    // Fora das Big 5, o total ainda leva o factor da liga (mais o bónus continental, até ao tecto).
+    expect(ca!.visibilidade).toBe(1);
+    expect(cb!.visibilidade).toBeGreaterThanOrEqual(VL.fora_big5.melhor_do_mundo);
+    expect(cb!.visibilidade).toBeLessThanOrEqual(VL.fora_big5.melhor_do_mundo + VL.continental.tecto + 1e-9);
     // Na faixa do config: a diferença vem sobretudo do termo da liga (mais o contexto de cada liga e dos adversários).
     expect(dif).toBeLessThan(2 * DESEMPENHO.escala * DESEMPENHO.liga_por_20 * (fd('ENG1') - fd('EUR1')) / 20 + 20);
   });
@@ -77,5 +81,10 @@ describe('pontuação dos prémios (Prompt 8, Bloco B)', () => {
     expect(soma).toBeLessThanOrEqual(JURI.jurados * JURI.pontos.reduce((a, b) => a + b, 0));
     expect(Object.values(v.porPais).reduce((a, b) => a + b, 0)).toBe(r1.melhor_do_mundo.candidatos[0].pontos);
     expect(r1.melhor_do_mundo.candidatos[0].comp.total).toBeGreaterThan(0);
+  });
+
+  it('Big 5: ninguém de fora das 5 grandes ligas no top 20 da Bola de Ouro', () => {
+    const r = calcularPremios(w, titulosDaJanela(regs), 2027)!;
+    expect(r.melhor_do_mundo.candidatos.slice(0, 20).filter((c) => c.comp.visibilidade < 1)).toEqual([]);
   });
 });

@@ -866,6 +866,11 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Pontos:** 50 + 15 × z.
     - **Guarda-redes:** pontuação própria, com o z entre todos os GR do mundo: golos evitados (xG − golos) por 90, defesas por 90, penáltis defendidos, jogos sem sofrer acima do esperado pelo xG, erros e jogos grandes, mais a força da liga. Um GR de equipa fraca não perde por sofrer mais golos se evitar os mesmos.
     - **Colectivo:** títulos (pesos do Prompt 4) e fase continental (oitavos 4, quartos 7, meias 11, final e vencedor 16, por peso da competição: 1 / 0,45 / 0,25), pelos minutos de cada passagem. Selecção: 0 (opção 1 do Bloco A).
+        - **Peso** (decisão do utilizador na PARAGEM B, opção 1: metade): × 0,5 na Bola de Ouro, × 0,25 no Melhor GR e no Golden Boy. Antes, o campeão europeu tinha 8 dos 10 primeiros.
+    - **Big 5** (nota do utilizador: jogadores de fora das 5 grandes ligas raramente aparecem no top 30; um caso fora da curva na POR1, NED1 ou TUR1 com boa campanha europeia entra, mas fora do top 20):
+        - **Factor:** fora de ENG1, ESP1, ITA1, GER1 e FRA1 (pela liga da passagem principal na janela), o total × 0,68 na Bola de Ouro, × 0,8 no Melhor GR e × 0,85 no Golden Boy.
+        - **Bónus continental:** + 0,004 por ponto continental do jogador (título e fase, pelos minutos), até + 0,08.
+        - **Medido** (sementes 2026, 7 e 11): ninguém de fora no top 20; o único no top 30 é um avançado da NED1 com 50 golos e boa campanha europeia, em 27.º.
     - **Classe:** −0,3 por amarelo e −2 por vermelho, até −8. **Fama:** 0,08 × fama (pela qualidade actual). **Aura:** +5% para o vencedor do ano anterior, +2,5% para o de há dois anos.
     - **Por prémio:**
         - **Bola de Ouro:** desempenho × viés de posição + colectivo + classe + fama.
@@ -876,4 +881,4 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Votos:** cada jurado ordena os candidatos pelo total × (1 + ruído pessoal de 3% + narrativa de ±2%), mais vieses pequenos: +4% para a sua nacionalidade, +3% para a sua liga. Dá 15, 12, 10, 8, 7, 6, 5, 4, 3, 2, 1 pontos.
         - **Determinístico** pela semente, prémio e ano. Vence quem tiver mais pontos; unânime com 80% dos 1.º lugares.
     - **Histórico:** cada finalista fica com a decomposição (`comp`) e os 1.º lugares; o prémio fica com a votação (boletins, margem, unanimidade, pontos do vencedor por país).
-    - **Mundo de teste (2027):** Bola de Ouro Galato (PL), Golden Boy Sangaroré (DE), Melhor GR Valujo. O GR Marardi saiu do top 3 da Bola de Ouro. Relatório: `docs/relatorios/premios_blocoB_pontuacao.md`.
+    - **Mundo de teste (2027):** Bola de Ouro Galato (PL; top 3 Galato, Sarani, Fairstone), Golden Boy Sangaroré (DE), Melhor GR Valujo. O GR Marardi saiu do top 3 da Bola de Ouro. Relatório: `docs/relatorios/premios_blocoB_pontuacao.md`.

@@ -47,6 +47,17 @@ export const COLECTIVO = {
   fase: { liga: 0, playoff: 1, oitavos: 4, quartos: 7, meias: 11, final: 16, vencedor: 16 } as Record<string, number>,
   peso_competicao: { continental_1: 1, continental_2: 0.45, continental_3: 0.25 } as Record<string, number>,
   selecao: 0,
+  /** Peso do colectivo no total (decisão do utilizador na PARAGEM B: metade do que era, para o campeão não encher o top 10). */
+  peso: { melhor_do_mundo: 0.5, guarda_redes: 0.25, golden_boy: 0.25 } as Record<string, number>,
+};
+
+/** Visibilidade das ligas (nota do utilizador): as Big 5 pesam sempre muito. Fora delas, o total × factor do prémio,
+ *  mais um bónus pela campanha continental do jogador (pontos continentais brutos × por_ponto, até ao tecto). Um caso
+ *  fora da curva na POR1/NED1/TUR1 com boa campanha europeia pode entrar no top 30 da Bola de Ouro, mas não no top 20. */
+export const VISIBILIDADE_LIGA = {
+  big5: ['ENG1', 'ESP1', 'ITA1', 'GER1', 'FRA1'],
+  fora_big5: { melhor_do_mundo: 0.68, guarda_redes: 0.8, golden_boy: 0.85 } as Record<string, number>,
+  continental: { por_ponto: 0.004, tecto: 0.08 },
 };
 
 /** Classe e fair play: − por amarelo e por vermelho na janela, até ao tecto. */
