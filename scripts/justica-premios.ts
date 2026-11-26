@@ -10,13 +10,14 @@ import { construirMundo } from '../src/engine/world.ts';
 import { Simulador } from '../src/engine/simulador.ts';
 import { VIES_POSICAO, CATEGORIAS, ELEGIBILIDADE } from '../src/config/premios.ts';
 import { POSICOES } from '../src/config/papeis.ts';
-import { GRUPO } from '../src/premios/premios.ts';
+import { GRUPO, calcularPremios, titulosDaJanela, type Componentes } from '../src/premios/premios.ts';
 import { RAIZ_PACKS } from '../src/cli/args.ts';
 import type { LinhaPremio } from '../src/historico/historico.ts';
 
 interface F { idx: number; liga: string; clube: string; grupo: string; pais: string; calendario: string; bruto: number; total: number }
 interface Ano { ano: number; premio: string; fin: F[] }
-interface Corrida { vies: boolean; semente: number; epocas: number; segundos: number; anos: Ano[]; elegiveis: { ano: number; calendario: Record<string, number>; liga: Record<string, number> }[] }
+interface Pool { ano: number; c: { idx: number; g: string; liga: string; d: number; col: number; cla: number; fa: number; au: number; vi: number }[] }
+interface Corrida { pools?: Pool[]; vies: boolean; semente: number; epocas: number; segundos: number; anos: Ano[]; elegiveis: { ano: number; calendario: Record<string, number>; liga: Record<string, number> }[] }
 
 if (process.argv[2] !== '--relatorio') {
   const semente = Number(process.argv[2] ?? 2026), N = Number(process.argv[3] ?? 50), saida = process.argv[4] ?? 'justica.json';
@@ -32,7 +33,8 @@ if (process.argv[2] !== '--relatorio') {
     return melhor;
   };
   const ligaDe = (c: number) => (c >= 0 && w.liga[c] >= 0 ? w.ligas[w.liga[c]].regras : null);
-  const r: Corrida = { vies, semente, epocas: N, segundos: 0, anos: [], elegiveis: [] };
+  const r: Corrida = { vies, semente, epocas: N, segundos: 0, anos: [], elegiveis: [], pools: [] };
+  const sim = new Simulador(w);
   const original = h.registarPremio.bind(h);
   h.registarPremio = (p: LinhaPremio) => {
     original(p);
@@ -43,6 +45,13 @@ if (process.argv[2] !== '--relatorio') {
     });
     r.anos.push({ ano: p.ano, premio: p.premio, fin });
     if (p.premio === 'melhor_do_mundo') {
+      // Todos os elegíveis da Bola de Ouro sem viés (para afinar as regras de posição fora do jogo): os 15 melhores de cada grupo.
+      const todos = new Map<string, Componentes>();
+      calcularPremios(w, titulosDaJanela(sim.historico.filter((x) => x.epoca === p.ano - 1)), p.ano, { viesPosicao: false, todos });
+      const xs = [...todos.entries()].filter(([k]) => k.startsWith('melhor_do_mundo|')).map(([k, c]) => { const idx = Number(k.split('|')[1]); const L = ligaDe(principal(idx)); return { idx, g: GRUPO[POSICOES[st.posNat[idx]]], liga: L?.id ?? '—', d: c.desempenho, col: c.colectivo, cla: c.classe, fa: c.fama, au: c.aura, vi: c.visibilidade }; });
+      const pool: Pool['c'] = [];
+      for (const g of ['AVA', 'MED', 'DEF', 'GR']) pool.push(...xs.filter((x) => x.g === g).sort((a, b) => b.d + b.col - a.d - a.col).slice(0, 15));
+      r.pools!.push({ ano: p.ano, c: pool });
       // Universo de elegíveis da Bola de Ouro nesse ano (minutos mínimos), por calendário e por liga.
       const cal: Record<string, number> = {}, lig: Record<string, number> = {};
       for (let j = 0; j < st.n; j++) { if (st.clube[j] < 0 || st.wMinutos[j] < ELEGIBILIDADE.minutos_minimos) continue; const L = ligaDe(principal(j)); if (!L) continue; cal[L.epoca.calendario] = (cal[L.epoca.calendario] ?? 0) + 1; lig[L.id] = (lig[L.id] ?? 0) + 1; }
@@ -50,7 +59,7 @@ if (process.argv[2] !== '--relatorio') {
     }
   };
   const t0 = performance.now();
-  new Simulador(w).simularEpocas(N);
+  sim.simularEpocas(N);
   r.segundos = (performance.now() - t0) / 1000;
   writeFileSync(saida, JSON.stringify(r));
   console.log(`${saida}: ${r.anos.length} prémios em ${r.segundos.toFixed(0)} s`);
