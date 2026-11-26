@@ -908,3 +908,18 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Noutras 4 sementes:** 8,46% com prestígio contra 8,42% sem, dentro da variação entre sementes. A semente 42 sem prémios já dá 8,49%.
         - **Conclusão:** é ruído (os prémios só baralham as transferências), não um efeito dos prémios nos jogos. As bandas ficam como estão.
     - **Regressão das 6 sementes (10 épocas):** Inglaterra 33,9% dos títulos europeus (antes 28,9%; alarme 25–45%); Arábia 3,8 dos asiáticos (antes 3,3; alarme 3–5); 3,81 campeões distintos por liga (antes 3,90).
+
+209. **Prompt 8, Bloco D: provas de justiça (50 épocas) e dados para a interface.**
+    - **Interface** (`src/jogo/vistasPremios.ts`; a UI vem depois):
+        - **`vistaVotacao`:** finalistas com a decomposição, os pontos e os 1.º lugares, a votação (boletins, margem, unanimidade, pontos do vencedor por país) e a ordem da cerimónia (do último ao 4.º com intervalo curto, o top 3 com suspense, config `CERIMONIA`).
+        - **`selosJogador`:** os selos e o prestígio do jogador; está também na ficha (`VistaJogador.premios`, `null` sem prémios).
+    - **Histórico:** o real (`premiosReais`, do CSV) e o do jogo (`premiosJogo`) ficam separados. Um teste garante que o cálculo nunca escreve nos reais.
+    - **Clube do utilizador:** um teste dá o controlo do clube do vencedor ao utilizador e confirma a mesma pontuação e os mesmos votos.
+    - **Justiça em 50 épocas** (semente 2026, viés ligado e desligado): `docs/relatorios/premios_blocoD_justica.md`, com as faixas propostas. **As faixas esperam a validação do utilizador.**
+        - **Viés ligado:** vencedores da Bola de Ouro AVA 84%, MED 16%, DEF 0%, GR 0%; 5 ligas vencedoras (a maior com 28%); o melhor desempenho bruto ganha 40% das vezes e fica no top 3 em 80%.
+        - **Viés desligado:** 10% de GR vencedores (irrealista).
+    - **Memória:**
+        - **Por jogador:** 127 bytes (os 123 do Bloco A mais os 4 do `wRepAdv`).
+        - **Selos e histórico:** os selos ocupam cerca de 2,5 kB por ano de prémios; o histórico guarda os finalistas com a decomposição.
+        - **Save:** é a repetição dos comandos e não cresce.
+    - **Removido da pontuação antiga:** a nota × 22, o bónus fixo da força da liga, o ruído único por candidato e os títulos todos para o clube actual.
