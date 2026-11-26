@@ -162,14 +162,24 @@ export function calcularPremios(w: World, titulos: TituloJanela[], ano: number, 
     // Golden Boy: só o rendimento real (o potencial não entra; sem fama), com o ajuste pela força da liga.
     if (st.idade(b.j, inicio) <= GOLDEN_BOY.idade_maxima && b.min >= EL.minutos_minimos_golden_boy) gb.push(cand(b, 'golden_boy', d * (vies ? VIES_POSICAO.golden_boy[b.g] ?? 1 : 1), false));
   }
-  return { melhor_do_mundo: votar(w, 'melhor_do_mundo', bo, ano), golden_boy: votar(w, 'golden_boy', gb, ano), guarda_redes: votar(w, 'guarda_redes', gr, ano) };
+  // Nomeação garantida (decisão do utilizador: tem de haver GR entre os 30, raríssimos): os 2 melhores GR do mundo pela
+  // sua própria pontuação entram sempre na lista de nomeados da Bola de Ouro, sem qualquer ajuda no júri.
+  const grTop2 = B.filter((b) => b.g === 'GR' && b.min >= EL.minutos_minimos).map((b) => bo.find((c) => c.idx === b.j)).filter((c): c is Candidato => !!c).sort((a, b) => b.comp.total - a.comp.total).slice(0, 2).map((c) => c.idx);
+  return { melhor_do_mundo: votar(w, 'melhor_do_mundo', bo, ano, grTop2), golden_boy: votar(w, 'golden_boy', gb, ano), guarda_redes: votar(w, 'guarda_redes', gr, ano) };
 }
 
 /** Júri simulado: jurados pelos países das ligas (peso pela força desportiva), cada um ordena os seus melhores com os
- *  pontos por posição, com vieses pequenos (nacionalidade, liga, narrativa) e um ruído pessoal. Determinístico. */
-function votar(w: World, premio: IdPremio, lista: Candidato[], ano: number): ResultadoPremio {
+ *  pontos por posição, com vieses pequenos (nacionalidade, liga, narrativa) e um ruído pessoal. Determinístico.
+ *  `garantir`: índices de jogadores com nomeação garantida entre os finalistas (ex.: 2 GR na Bola de Ouro), sem qualquer
+ *  ajuda no júri — entram no boletim e, se os votos não bastarem, tomam o lugar dos piores candidatos na lista final. */
+function votar(w: World, premio: IdPremio, lista: Candidato[], ano: number, garantir: number[] = []): ResultadoPremio {
   const st = w.jogadores!;
-  const cs = lista.sort((a, b) => b.comp.total - a.comp.total || a.idx - b.idx).slice(0, JURI.candidatos);
+  let cs = lista.sort((a, b) => b.comp.total - a.comp.total || a.idx - b.idx).slice(0, JURI.candidatos);
+  if (garantir.length) {
+    const presentes = new Set(cs.map((c) => c.idx));
+    const faltamNoBoletim = lista.filter((c) => garantir.includes(c.idx) && !presentes.has(c.idx));
+    if (faltamNoBoletim.length) cs = [...cs.slice(0, Math.max(0, JURI.candidatos - faltamNoBoletim.length)), ...faltamNoBoletim];
+  }
   const rng = Rng.de(w.semente, 'juri', premio, ano);
   // Jurados: ligas de 1.ª divisão, com peso pela força desportiva.
   const ligas = w.ligas.map((l, i) => ({ i, pais: l.regras.pais ?? l.regras.id, p: l.regras.nivel === 1 ? Math.max(1, l.regras.forca_desportiva) : 0 })).filter((x) => x.p > 0);
@@ -198,7 +208,12 @@ function votar(w: World, premio: IdPremio, lista: Candidato[], ano: number): Res
   }
   const iVenc = cs.reduce((m, c, i) => (c.pontos > cs[m].pontos ? i : m), 0);
   Object.assign(porPais, pontosPais.get(iVenc) ?? {});
-  const fin = [...cs].sort((a, b) => b.pontos - a.pontos || b.comp.total - a.comp.total || a.idx - b.idx).slice(0, FINALISTAS[premio]);
+  const ordenados = [...cs].sort((a, b) => b.pontos - a.pontos || b.comp.total - a.comp.total || a.idx - b.idx);
+  let fin = ordenados.slice(0, FINALISTAS[premio]);
+  if (garantir.length) {
+    const faltamNaLista = garantir.map((idx) => ordenados.find((c) => c.idx === idx)).filter((c): c is Candidato => !!c && !fin.includes(c));
+    if (faltamNaLista.length) fin = [...fin.slice(0, Math.max(0, FINALISTAS[premio] - faltamNaLista.length)), ...faltamNaLista].sort((a, b) => b.pontos - a.pontos || b.comp.total - a.comp.total || a.idx - b.idx);
+  }
   return { candidatos: fin, votacao: { boletins, unanime: !!fin[0] && fin[0].primeiros >= JURI.unanimidade * boletins, margem: fin.length > 1 ? fin[0].pontos - fin[1].pontos : 0, porPais } };
 }
 

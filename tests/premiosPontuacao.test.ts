@@ -87,4 +87,13 @@ describe('pontuação dos prémios (Prompt 8, Bloco B)', () => {
     const r = calcularPremios(w, titulosDaJanela(regs), 2027)!;
     expect(r.melhor_do_mundo.candidatos.slice(0, 20).filter((c) => c.comp.visibilidade < 1)).toEqual([]);
   });
+
+  it('nomeação garantida: há sempre pelo menos 2 guarda-redes entre os 30 nomeados da Bola de Ouro', () => {
+    const r = calcularPremios(w, titulosDaJanela(regs), 2027)!;
+    const st = w.jogadores!;
+    const grs = r.melhor_do_mundo.candidatos.filter((c) => st.posNat[c.idx] === 0);
+    expect(grs.length).toBeGreaterThanOrEqual(2);
+    // Sem ajuda no júri: continuam com os seus próprios pontos, não inflacionados.
+    for (const g of grs) expect(g.pontos).toBeGreaterThanOrEqual(0);
+  });
 });

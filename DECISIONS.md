@@ -930,3 +930,4 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
             - **Afinação:** feita fora do jogo em 100 anos (2 sementes × 50 épocas, com todos os candidatos de cada ano gravados): AVA 82%, MED 13%, DEF 4%, GR 1%.
         - **Golden Boy com viés suave:** DEF × 0,85, GR × 0,7. Antes os defesas eram 38% dos vencedores.
         - **Big 5:** o factor de fora das 5 grandes ligas na Bola de Ouro passa de 0,68 a 0,65.
+    - **Nomeação garantida de GR** (decisão do utilizador na PARAGEM D, confirmada com Sonnet 5): os 2 melhores GR do mundo pela sua própria pontuação entram sempre nos 30 nomeados da Bola de Ouro, mesmo quando não chegariam lá pelos votos. Sem qualquer ajuda no júri: continuam com os seus pontos reais (tipicamente perto de 0 votos); só a presença na lista é garantida, como acontece com os GR da France Football na vida real.
