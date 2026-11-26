@@ -193,7 +193,7 @@ export interface DetalheLado {
 }
 
 /** Contexto do jogo para a janela dos prémios (Prompt 8): categoria da competição, jogo grande, xG do adversário. */
-export interface CtxJanela { cat: number; grande: boolean; xgContra: number; penaltisDefendidos?: number }
+export interface CtxJanela { cat: number; grande: boolean; xgContra: number; penaltisDefendidos?: number; repAdv: number }
 
 export function registarLado(w: World, lado: Lado, golos: number, sofridos: number, xg: number, duracao: number, dia: number, rng: Rng, rival: boolean, d?: DetalheLado, ctx?: CtxJanela): ResumoLado {
   const st = w.jogadores!;
@@ -296,6 +296,7 @@ export function registarLado(w: World, lado: Lado, golos: number, sofridos: numb
       const ic = (j * 2 + k) * N_CAT + ctx.cat;
       st.wMinCat[ic] = Math.min(65535, st.wMinCat[ic] + p.minutos);
       if (ctx.grande) { st.wGrandes[j]++; st.wNotasGrandes[j] += Math.round(nota * 10); }
+      st.wRepAdv[j] += ctx.repAdv;
     }
   }
   if (ctx) registarJanelaLado(w, lado, parts, r, sofridos, dia, ctx);

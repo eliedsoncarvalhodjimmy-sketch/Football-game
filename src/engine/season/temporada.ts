@@ -262,8 +262,8 @@ export class Temporada {
       jp.contarJogo(cat, j.casa); jp.contarJogo(cat, j.fora);
       const def = (falhados: number) => Math.round(falhados * ESTATISTICAS_JANELA.penaltis_defendidos_fraccao);
       const pen = j.r.pen;
-      ctxC = { cat, grande, xgContra: xgTot[1], penaltisDefendidos: pen ? def(Math.max(0, infoPen.tentativas - pen[1])) : 0 };
-      ctxF = { cat, grande, xgContra: xgTot[0], penaltisDefendidos: pen ? def(Math.max(0, infoPen.tentativas - pen[0])) : 0 };
+      ctxC = { cat, grande, xgContra: xgTot[1], penaltisDefendidos: pen ? def(Math.max(0, infoPen.tentativas - pen[1])) : 0, repAdv: w.reputacao[j.fora] };
+      ctxF = { cat, grande, xgContra: xgTot[0], penaltisDefendidos: pen ? def(Math.max(0, infoPen.tentativas - pen[0])) : 0, repAdv: w.reputacao[j.casa] };
     }
     const det = (k: 0 | 1) => d2 ? { marcadores: d2.marcadores[k], assistencias: d2.assistencias[k], rematesPor: d2.rematesPor[k], amarelos: d2.amarelos[k], vermelhos: d2.vermelhos[k], minutos: d2.minutos[k] } : undefined;
     const rc = registarLado(w, casa, j.r.gc, j.r.gf, xgTot[0], duracao, dia, rng, rival, det(0), ctxC);

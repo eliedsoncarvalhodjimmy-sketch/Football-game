@@ -37,7 +37,9 @@ export interface LinhaPremio {
   /** Índice do jogador no PlayerStore (só prémios do jogo). */
   idx: number | null;
   /** Classificação completa da votação (só prémios do jogo): finalistas por ordem. */
-  finalistas?: { jogador: string; clube: string; pontos: number; idx: number }[];
+  finalistas?: { jogador: string; clube: string; pontos: number; idx: number; comp?: { desempenho: number; colectivo: number; classe: number; fama: number; aura: number; total: number }; primeiros?: number }[];
+  /** Votação do júri (Prompt 8, Bloco B): boletins, unanimidade, margem e os pontos do vencedor por país dos jurados. */
+  votacao?: { boletins: number; unanime: boolean; margem: number; porPais: Record<string, number> };
 }
 
 const semAcentos = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();

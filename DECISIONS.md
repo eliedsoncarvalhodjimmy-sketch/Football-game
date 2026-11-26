@@ -853,3 +853,27 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
         - **Save:** o save é a repetição dos comandos e não cresce.
     - **Benchmark:** a semana mundial fica em média 303 ms, máximo 661 ms (o mesmo de antes).
     - **Ligas de ano civil** (nota do utilizador: no jogo, todas vão seguir o mesmo calendário): a janela conta os jogos pela data e funciona com qualquer calendário. A mudança de calendário fica por decidir quando.
+
+206. **PENDÊNCIA GUARDADA (decisão do utilizador): ligas de ano civil → calendário único.** No jogo, todas as ligas vão seguir o mesmo calendário (Agosto–Maio). Hoje há 9 de ano civil (NOR1, URU1, BRA1, BRA2, ARG1, USA1, KOR1, COL1, ECU1) e a Libertadores (CLI) também.
+    - **O que a mudança toca:** os ficheiros das competições em `packs/*/competicoes/*.json`, 12 ficheiros do código que distinguem `ano_civil` e 2 testes (`tests/calendario.test.ts`, `tests/epocas.test.ts`).
+    - **Quando:** fica para outro momento; o assistente avisa quando for oportuno (antes de importar os ficheiros reais de clubes ou de qualquer trabalho de calendário).
+    - **Prémios:** a janela já funciona com qualquer calendário.
+
+207. **Prompt 8, Bloco B: pontuação por componentes e júri simulado.** Todos os números estão em `src/config/premios.ts`.
+    - **Elegibilidade:** 2 000 minutos na janela (Bola de Ouro e Melhor GR), 1 200 no Golden Boy (até 21 anos). Antes contavam os jogos.
+    - **Desempenho:** z das métricas por 90 dentro de (liga, grupo de posição), com pesos por grupo (AVA: nota 0,4, golos 0,45, assistências 0,15; MED 0,5/0,2/0,3; DEF 0,8/0,1/0,1).
+        - **Ajustes:** força da liga (+0,6 z por 20 pontos acima de 50), adversários (+0,25 z por 10 pontos de reputação média acima da média da liga) e jogos grandes (nota nesses jogos acima da média, até 12 jogos).
+        - **Pontos:** 50 + 15 × z.
+    - **Guarda-redes:** pontuação própria, com o z entre todos os GR do mundo: golos evitados (xG − golos) por 90, defesas por 90, penáltis defendidos, jogos sem sofrer acima do esperado pelo xG, erros e jogos grandes, mais a força da liga. Um GR de equipa fraca não perde por sofrer mais golos se evitar os mesmos.
+    - **Colectivo:** títulos (pesos do Prompt 4) e fase continental (oitavos 4, quartos 7, meias 11, final e vencedor 16, por peso da competição: 1 / 0,45 / 0,25), pelos minutos de cada passagem. Selecção: 0 (opção 1 do Bloco A).
+    - **Classe:** −0,3 por amarelo e −2 por vermelho, até −8. **Fama:** 0,08 × fama (pela qualidade actual). **Aura:** +5% para o vencedor do ano anterior, +2,5% para o de há dois anos.
+    - **Por prémio:**
+        - **Bola de Ouro:** desempenho × viés de posição + colectivo + classe + fama.
+        - **Melhor GR:** pontuação de GR + metade do colectivo + classe + fama.
+        - **Golden Boy:** desempenho + metade do colectivo + classe, sem fama; o potencial não entra.
+    - **Viés de posição** (botão no config, ligado por defeito): AVA × 1, MED × 0,9, DEF × 0,75, GR × 0,55 no desempenho da Bola de Ouro.
+    - **Júri simulado:** os 50 melhores totais vão a votos; 100 jurados das ligas de 1.ª divisão, sorteados pelo peso da força desportiva.
+        - **Votos:** cada jurado ordena os candidatos pelo total × (1 + ruído pessoal de 3% + narrativa de ±2%), mais vieses pequenos: +4% para a sua nacionalidade, +3% para a sua liga. Dá 15, 12, 10, 8, 7, 6, 5, 4, 3, 2, 1 pontos.
+        - **Determinístico** pela semente, prémio e ano. Vence quem tiver mais pontos; unânime com 80% dos 1.º lugares.
+    - **Histórico:** cada finalista fica com a decomposição (`comp`) e os 1.º lugares; o prémio fica com a votação (boletins, margem, unanimidade, pontos do vencedor por país).
+    - **Mundo de teste (2027):** Bola de Ouro Galato (PL), Golden Boy Sangaroré (DE), Melhor GR Valujo. O GR Marardi saiu do top 3 da Bola de Ouro. Relatório: `docs/relatorios/premios_blocoB_pontuacao.md`.

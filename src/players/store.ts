@@ -101,6 +101,8 @@ export class PlayerStore {
   wErros!: Uint16Array;
   /** Jogos grandes (finais, eliminatórias, jogos entre os 5 primeiros) e a soma das notas × 10 neles. */
   wGrandes!: Uint16Array; wNotasGrandes!: Int32Array;
+  /** Soma da reputação dos adversários (um por jogo), para o ajuste pela força do adversário (Bloco B). */
+  wRepAdv!: Int32Array;
   // ---- Histórico das últimas 3 épocas (Prompt 8; não entra nos prémios). Índice k = 0 a mais recente (× 3) ----
   hEpoca!: Uint16Array; hClube!: Int32Array; hJogos!: Uint16Array; hMinutos!: Uint16Array; hGolos!: Uint16Array; hAssist!: Uint16Array;
   /** Nota média × 10. */
@@ -162,6 +164,7 @@ export class PlayerStore {
     for (const k of ['wJogos', 'wTitular', 'wMinutos', 'wGolos', 'wAssist', 'wAmarelos', 'wVermelhos', 'wRematesSofridos', 'wDefesas', 'wPenaltisDefendidos', 'wSemSofrer', 'wXgSofrido', 'wErros', 'wGrandes'] as const) this[k] = g(this[k], Uint16Array);
     this.wNotas = g(this.wNotas, Int32Array);
     this.wNotasGrandes = g(this.wNotasGrandes, Int32Array);
+    this.wRepAdv = g(this.wRepAdv, Int32Array);
     { const velho = this.wClube?.length ?? 0; this.wClube = g(this.wClube, Int32Array, 2); this.wClube.fill(-1, velho); }
     this.wMinCat = g(this.wMinCat, Uint16Array, 2 * N_CAT);
     for (const k of ['hEpoca', 'hJogos', 'hMinutos', 'hGolos', 'hAssist', 'hNota'] as const) this[k] = g(this[k], Uint16Array, 3);
@@ -245,7 +248,7 @@ export class PlayerStore {
 
   /** Repõe a janela dos prémios (1 de Agosto) de todos os jogadores. */
   zerarJanela() {
-    for (const k of ['wJogos', 'wTitular', 'wMinutos', 'wGolos', 'wAssist', 'wAmarelos', 'wVermelhos', 'wRematesSofridos', 'wDefesas', 'wPenaltisDefendidos', 'wSemSofrer', 'wXgSofrido', 'wErros', 'wGrandes', 'wNotas', 'wNotasGrandes', 'wMinCat'] as const) this[k].fill(0);
+    for (const k of ['wJogos', 'wTitular', 'wMinutos', 'wGolos', 'wAssist', 'wAmarelos', 'wVermelhos', 'wRematesSofridos', 'wDefesas', 'wPenaltisDefendidos', 'wSemSofrer', 'wXgSofrido', 'wErros', 'wGrandes', 'wNotas', 'wNotasGrandes', 'wMinCat', 'wRepAdv'] as const) this[k].fill(0);
     this.wClube.fill(-1);
   }
 
