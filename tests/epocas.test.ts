@@ -9,7 +9,7 @@ import { serializarHistorico, desserializarHistorico } from '../src/storage/seri
 import { metricasRealismo, type DadosRelatorio } from '../src/cli/relatorioEpocas.ts';
 
 /** Sementes extra (além da 2026) para as bandas de calibração e de pontos. */
-const SEMENTES_BANDAS = [7, 11];
+const SEMENTES_BANDAS = [7, 11, 42, 99, 123];
 
 describe('10 épocas do mundo fictício', async () => {
   const w = await mundo(2026);
@@ -31,7 +31,7 @@ describe('10 épocas do mundo fictício', async () => {
   calendario.push(...verificarCalendarioMundo(fechadas).map((p) => `entre calendários: ${p.msg}`));
   const favoritos: DadosRelatorio['favoritos'] = sim.inicios;
   const H = sim.historico;
-  // Bandas de calibração e de pontos (Prompt 6, decisão do utilizador): medidas na soma de 3 sementes (2026, 7, 11), não
+  // Bandas de calibração e de pontos (Prompt 6, decisão do utilizador): medidas na soma de 6 sementes (2026, 7, 11, 42, 99, 123; Prompt 8, Bloco C: eram 3), não
   // só na 2026. Com uma semente as faixas ficavam dentro do ruído dos limites, e qualquer mudança no mercado as fazia
   // passar ou falhar ao acaso. A integridade, o determinismo e as outras métricas estruturais continuam na 2026.
   const HS = [H], ppgCamp: number[] = [], ppgUlt: number[] = [];
@@ -68,7 +68,7 @@ describe('10 épocas do mundo fictício', async () => {
     expect(calendario).toEqual([]);
   });
 
-  it('calibração em 10 épocas de jogos de liga (3 sementes)', () => {
+  it('calibração em 10 épocas de jogos de liga (6 sementes)', () => {
     const e = HS.flat().reduce((s, r) => ({ j: s.j + r.estatLiga.jogos, g: s.g + r.estatLiga.golos, c: s.c + r.estatLiga.casa, d: s.d + r.estatLiga.empates, z: s.z + r.estatLiga.zero, c5: s.c5 + r.estatLiga.cincoMais, c7: s.c7 + r.estatLiga.seteMais }), { j: 0, g: 0, c: 0, d: 0, z: 0, c5: 0, c7: 0 });
     expect(e.g / e.j).toBeGreaterThan(2.5);
     expect(e.g / e.j).toBeLessThan(2.7);
@@ -86,7 +86,7 @@ describe('10 épocas do mundo fictício', async () => {
   it('realismo estrutural: pontos, campeões diferentes, favoritos, mobilidade', () => {
     const m = metricasRealismo(w, H, favoritos);
     const dentro = (xs: number[], a: number, b: number) => xs.filter((x) => x >= a && x <= b).length / xs.length;
-    // Pontos dos campeões e dos últimos: nas 3 sementes.
+    // Pontos dos campeões e dos últimos: nas 6 sementes.
     expect(dentro(ppgCamp, 1.9, 2.85)).toBeGreaterThanOrEqual(0.9);
     // Últimos: ≥ 88% (decisão do utilizador no fecho do Prompt 6; era 90%). Há épocas reais de últimos com 10–15 pontos;
     // a faixa continua a apanhar um mercado que destrua os clubes pequenos.

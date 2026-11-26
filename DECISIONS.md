@@ -903,3 +903,8 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - **Legado:** a contagem de prémios por jogador dá o Hall of Fame (`hallOfFame()`) e a reputação de entrada de um ex-craque como treinador ou staff (`reputacaoLegado()`: 40 + 15 por Bola de Ouro + 8 por Melhor GR + 6 por Golden Boy + 3 por top 3, até 95).
         - **PENDÊNCIA:** o funil de treinadores e staff vindos de ex-jogadores (Prompt 7) ainda não existe no código. A função fica pronta para ele.
     - **Relatório:** `docs/relatorios/premios_blocoC_prestigio.md`.
+    - **Bandas com 6 sementes** (decisão do utilizador na PARAGEM C, opção 1): as bandas do teste de 10 épocas passam a medir-se na soma de 6 sementes (2026, 7, 11, 42, 99, 123), em vez de 3.
+        - **Porquê:** com o Bloco C, os 0-0 das 3 sementes deram 8,51% (limite 8,5%); sem prestígio, 8,30%.
+        - **Noutras 4 sementes:** 8,46% com prestígio contra 8,42% sem, dentro da variação entre sementes. A semente 42 sem prémios já dá 8,49%.
+        - **Conclusão:** é ruído (os prémios só baralham as transferências), não um efeito dos prémios nos jogos. As bandas ficam como estão.
+    - **Regressão das 6 sementes (10 épocas):** Inglaterra 33,9% dos títulos europeus (antes 28,9%; alarme 25–45%); Arábia 3,8 dos asiáticos (antes 3,3; alarme 3–5); 3,81 campeões distintos por liga (antes 3,90).
