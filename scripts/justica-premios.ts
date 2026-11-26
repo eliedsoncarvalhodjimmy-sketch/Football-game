@@ -22,6 +22,8 @@ if (process.argv[2] !== '--relatorio') {
   const semente = Number(process.argv[2] ?? 2026), N = Number(process.argv[3] ?? 50), saida = process.argv[4] ?? 'justica.json';
   const vies = process.env.VIES !== '0';
   VIES_POSICAO.ligado = vies;
+  // Variantes para afinar (opcionais): VIES_DEF, VIES_GR, VIES_MED.
+  for (const [g, k] of [['DEF', 'VIES_DEF'], ['GR', 'VIES_GR'], ['MED', 'VIES_MED']] as const) if (process.env[k]) VIES_POSICAO.factor[g] = Number(process.env[k]);
   const w = construirMundo(await carregarDados(new LocalFileSource(RAIZ_PACKS)), { semente, modo: 'teste' });
   const st = w.jogadores!, h = w.historico!, NC = CATEGORIAS.length;
   const principal = (j: number) => {
@@ -36,7 +38,7 @@ if (process.argv[2] !== '--relatorio') {
     original(p);
     const fin = (p.finalistas ?? []).map((f) => {
       const c = principal(f.idx), L = ligaDe(c), pos = POSICOES[st.posNat[f.idx]], g = GRUPO[pos];
-      const fac = p.premio === 'melhor_do_mundo' && vies ? VIES_POSICAO.factor[g] ?? 1 : 1;
+      const fac = !vies ? 1 : p.premio === 'melhor_do_mundo' ? VIES_POSICAO.factor[g] ?? 1 : p.premio === 'golden_boy' ? VIES_POSICAO.golden_boy[g] ?? 1 : 1;
       return { idx: f.idx, liga: L?.id ?? '—', clube: c >= 0 ? w.clubes[c].nome : '—', grupo: g, pais: st.paises[st.pais[f.idx]], calendario: L?.epoca.calendario ?? '—', bruto: (f.comp?.desempenho ?? 0) / fac, total: f.comp?.total ?? 0 };
     });
     r.anos.push({ ano: p.ano, premio: p.premio, fin });

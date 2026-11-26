@@ -153,7 +153,7 @@ export function calcularPremios(w: World, titulos: TituloJanela[], ano: number, 
     if (b.min >= EL.minutos_minimos) bo.push(cand(b, 'melhor_do_mundo', d * (vies ? VIES_POSICAO.factor[b.g] ?? 1 : 1), true));
     if (b.g === 'GR' && b.min >= EL.minutos_minimos_gr) gr.push(cand(b, 'guarda_redes', ptsGR(b.zgr), true));
     // Golden Boy: só o rendimento real (o potencial não entra; sem fama), com o ajuste pela força da liga.
-    if (st.idade(b.j, inicio) <= GOLDEN_BOY.idade_maxima && b.min >= EL.minutos_minimos_golden_boy) gb.push(cand(b, 'golden_boy', d, false));
+    if (st.idade(b.j, inicio) <= GOLDEN_BOY.idade_maxima && b.min >= EL.minutos_minimos_golden_boy) gb.push(cand(b, 'golden_boy', d * (vies ? VIES_POSICAO.golden_boy[b.g] ?? 1 : 1), false));
   }
   return { melhor_do_mundo: votar(w, 'melhor_do_mundo', bo, ano), golden_boy: votar(w, 'golden_boy', gb, ano), guarda_redes: votar(w, 'guarda_redes', gr, ano) };
 }

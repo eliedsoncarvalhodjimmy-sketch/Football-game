@@ -56,7 +56,7 @@ export const COLECTIVO = {
  *  fora da curva na POR1/NED1/TUR1 com boa campanha europeia pode entrar no top 30 da Bola de Ouro, mas não no top 20. */
 export const VISIBILIDADE_LIGA = {
   big5: ['ENG1', 'ESP1', 'ITA1', 'GER1', 'FRA1'],
-  fora_big5: { melhor_do_mundo: 0.68, guarda_redes: 0.8, golden_boy: 0.85 } as Record<string, number>,
+  fora_big5: { melhor_do_mundo: 0.65, guarda_redes: 0.8, golden_boy: 0.85 } as Record<string, number>,
   continental: { por_ponto: 0.004, tecto: 0.08 },
 };
 
@@ -70,7 +70,12 @@ export const FAMA = { peso: 0.08 };
 export const AURA = { ano_1: 0.05, ano_2: 0.025 };
 
 /** Viés de posição (decisão do utilizador: ligado, moderado): factor por grupo no desempenho da Bola de Ouro. */
-export const VIES_POSICAO = { ligado: true, factor: { AVA: 1, MED: 0.9, DEF: 0.75, GR: 0.55 } as Record<string, number> };
+export const VIES_POSICAO = {
+  ligado: true,
+  factor: { AVA: 1, MED: 0.9, DEF: 0.8, GR: 0.65 } as Record<string, number>,
+  /** Golden Boy (PARAGEM D): viés mais suave, no desempenho e com o mesmo botão. */
+  golden_boy: { AVA: 1, MED: 1, DEF: 0.85, GR: 0.7 } as Record<string, number>,
+};
 
 /** Melhor guarda-redes: golos evitados (xG − golos) por 90, defesas por 90, penáltis defendidos, jogos sem sofrer
  *  acima do esperado pela defesa da equipa (xG sofrido por jogo), erros e nota nos jogos grandes. Pontos = base + escala × z. */
