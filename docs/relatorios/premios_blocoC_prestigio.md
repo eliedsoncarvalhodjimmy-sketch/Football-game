@@ -90,3 +90,22 @@ Tecto: +5% do patrocínio. Sem efeito desportivo nem na reputação do clube.
 - Felipe Valujo: guarda_redes 1× vencedor; reputação de entrada como treinador/staff: 48
 - Serge Sangaroré: golden_boy 1× vencedor; reputação de entrada como treinador/staff: 46
 
+## 6. Regressão das 6 sementes (10 épocas cada)
+
+| Medida | Antes do Bloco C (fecho do Prompt 6) | Com o Bloco C | Alarme |
+|---|---|---|---|
+| Campeões distintos por liga (8 ligas, média) | 3,90 | 3,81 | — |
+| Inglaterra, % dos títulos europeus | 28,9% | 33,9% | 25–45% |
+| Arábia, títulos asiáticos (em 10) | 3,3 | 3,8 | 3–5 |
+| Brasil, Libertadores (em 10) | 8,3 | 7,3 | — |
+
+Por semente (com o Bloco C):
+
+    semente | campeões distintos 8 ligas (média / mín) | ligas 10/10 | ENG % europeus | KSA asiáticos | BRA Libertadores | por liga
+    7 | 3.62 / 3 | 0 | 30% | 3/10 | 7/10 | [5, 5, 3, 3, 3, 3, 3, 4]
+    11 | 3.88 / 2 | 0 | 20% | 8/10 | 6/10 | [7, 4, 3, 2, 6, 2, 3, 4]
+    42 | 3.50 / 2 | 0 | 37% | 4/10 | 8/10 | [3, 4, 4, 4, 2, 5, 3, 3]
+    99 | 4.12 / 2 | 0 | 33% | 2/10 | 4/10 | [7, 5, 3, 4, 4, 3, 2, 5]
+    123 | 4.12 / 2 | 0 | 53% | 3/10 | 9/10 | [5, 4, 5, 6, 3, 3, 2, 5]
+    2026 | 3.62 / 2 | 0 | 30% | 3/10 | 10/10 | [4, 4, 4, 2, 6, 2, 3, 4]
+    média | 3.81 | 0.00 | 33.9% | 3.8 | 7.3 | todas as ligas 5.54
