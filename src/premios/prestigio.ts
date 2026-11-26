@@ -24,7 +24,8 @@ export class Prestigio {
   registar(p: LinhaPremio) {
     const dia = Prestigio.dia(p.ano);
     const fin = p.finalistas ?? (p.idx !== null ? [{ idx: p.idx }] : []);
-    fin.forEach((f, i) => { if (f.idx >= 0) this.juntar(f.idx, { premio: p.premio, ano: p.ano, lugar: i === 0 ? 'vencedor' : i < 3 ? 'top3' : 'finalista', dia }); });
+    // Nomeação garantida (ex.: GR na Bola de Ouro, por completude da lista): sem selo nem prestígio, como ficou decidido.
+    fin.forEach((f, i) => { if (f.idx >= 0 && !('garantido' in f && f.garantido)) this.juntar(f.idx, { premio: p.premio, ano: p.ano, lugar: i === 0 ? 'vencedor' : i < 3 ? 'top3' : 'finalista', dia }); });
   }
 
   /** Prémios reais recentes: o vencedor recebe o selo se existir no mundo um só jogador com esse nome. */

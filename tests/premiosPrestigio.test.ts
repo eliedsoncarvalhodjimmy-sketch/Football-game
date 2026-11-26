@@ -92,4 +92,13 @@ describe('prestígio dos prémios (Prompt 8, Bloco C)', () => {
     const ficheiros = [...readdirSync('src/match').map((f) => `src/match/${f}`), 'src/players/evolucao.ts', 'src/players/store.ts', 'src/engine/season/temporada.ts'];
     for (const f of ficheiros) if (f.endsWith('.ts')) expect(readFileSync(f, 'utf8'), f).not.toMatch(/prestigio/i);
   });
+
+  it('nomeação garantida (GR na Bola de Ouro): está na lista, mas não ganha selo nem prestígio por isso', () => {
+    const p = w.prestigio!;
+    const outro = w.jogadores!.n - 2;
+    const antes = p.valor(outro, dia);
+    p.registar({ ...linha('melhor_do_mundo', [outro]), finalistas: [{ jogador: '', clube: '', pontos: 0, idx: outro, garantido: true }] });
+    expect(p.valor(outro, dia)).toBe(antes);
+    expect(p.selos.has(outro)).toBe(antes > 0); // só continua a existir se já tinha selos de outro prémio
+  });
 });

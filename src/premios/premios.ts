@@ -23,6 +23,9 @@ export interface Candidato {
   comp: Componentes;
   /** Boletins em que ficou em 1.º. */
   primeiros: number;
+  /** Nomeação garantida (ex.: GR na Bola de Ouro): está na lista por completude, não pelos votos. Sem efeito na
+   *  carreira — não ganha o selo de finalista nem o prestígio que isso daria (ver `atribuirPremios`). */
+  garantido?: boolean;
 }
 export interface Votacao { boletins: number; unanime: boolean; margem: number; porPais: Record<string, number> }
 export type IdPremio = 'melhor_do_mundo' | 'golden_boy' | 'guarda_redes';
@@ -211,7 +214,7 @@ function votar(w: World, premio: IdPremio, lista: Candidato[], ano: number, gara
   const ordenados = [...cs].sort((a, b) => b.pontos - a.pontos || b.comp.total - a.comp.total || a.idx - b.idx);
   let fin = ordenados.slice(0, FINALISTAS[premio]);
   if (garantir.length) {
-    const faltamNaLista = garantir.map((idx) => ordenados.find((c) => c.idx === idx)).filter((c): c is Candidato => !!c && !fin.includes(c));
+    const faltamNaLista = garantir.map((idx) => ordenados.find((c) => c.idx === idx)).filter((c): c is Candidato => !!c && !fin.includes(c)).map((c) => ({ ...c, garantido: true }));
     if (faltamNaLista.length) fin = [...fin.slice(0, Math.max(0, FINALISTAS[premio] - faltamNaLista.length)), ...faltamNaLista].sort((a, b) => b.pontos - a.pontos || b.comp.total - a.comp.total || a.idx - b.idx);
   }
   return { candidatos: fin, votacao: { boletins, unanime: !!fin[0] && fin[0].primeiros >= JURI.unanimidade * boletins, margem: fin.length > 1 ? fin[0].pontos - fin[1].pontos : 0, porPais } };
@@ -228,7 +231,7 @@ export function atribuirPremios(w: World, regs: RegistoEpoca[], ano: number): st
     if (!v) continue;
     const linha: LinhaPremio = {
       ano, premio: k, jogador: v.jogador, clube: v.clube, nota: '', fonte: 'jogo', idx: v.idx,
-      finalistas: res[k].candidatos.map((x) => ({ jogador: x.jogador, clube: x.clube, pontos: x.pontos, idx: x.idx, comp: x.comp, primeiros: x.primeiros })),
+      finalistas: res[k].candidatos.map((x) => ({ jogador: x.jogador, clube: x.clube, pontos: x.pontos, idx: x.idx, comp: x.comp, primeiros: x.primeiros, garantido: x.garantido })),
       votacao: res[k].votacao,
     };
     w.historico.registarPremio(linha);
