@@ -7,50 +7,64 @@
 | Medida | Viés ligado | Viés desligado |
 |---|---|---|
 | Anos atribuídos | 50 | 50 |
-| Vencedores por posição (AVA / MED / DEF / GR) | 96% / 4% / 0% / 0% | 92% / 8% / 0% / 0% |
-| Top 3 por posição (AVA / MED / DEF / GR) | 84% / 14% / 2% / 0% | 81% / 17% / 2% / 0% |
-| Top 30 por posição (AVA / MED / DEF / GR) | 65% / 26% / 10% / 0% | 61% / 24% / 14% / 1% |
-| Vencedores por liga | ENG1 18, ITA1 10, GER1 10, ESP1 9, FRA1 3 | ITA1 15, ENG1 13, ESP1 12, GER1 9, FRA1 1 |
-| Liga com mais vitórias (fracção) | ENG1 36% | ITA1 30% |
-| Ligas diferentes / clubes diferentes | 5 / 20 | 5 / 19 |
-| Clube com mais vitórias | SV Mühlwangen 8 | SV Mühlwangen 8 |
-| Jogadores diferentes; bicampeões / tricampeões seguidos; maior série | 34; 9 / 3; 3 | 34; 6 / 2; 3 |
+| Vencedores por posição (AVA / MED / DEF / GR) | 84% / 10% / 4% / 2% | 58% / 16% / 16% / 10% |
+| Top 3 por posição (AVA / MED / DEF / GR) | 75% / 17% / 7% / 1% | 40% / 25% / 25% / 10% |
+| Top 30 por posição (AVA / MED / DEF / GR) | 57% / 33% / 11% / 0% | 31% / 25% / 28% / 17% |
+| Vencedores por liga | ENG1 17, GER1 13, ITA1 7, ESP1 7, FRA1 6 | GER1 14, ITA1 11, ESP1 10, ENG1 8, FRA1 7 |
+| Liga com mais vitórias (fracção) | ENG1 34% | GER1 28% |
+| Ligas diferentes / clubes diferentes | 5 / 19 | 5 / 18 |
+| Clube com mais vitórias | SV Mühlwangen 13 | SV Mühlwangen 10 |
+| Jogadores diferentes; bicampeões / tricampeões seguidos; maior série | 34; 7 / 2; 4 | 35; 8 / 2; 3 |
 | Mais vitórias do mesmo jogador | 6 | 4 |
-| Dinastias de clube (3+ vitórias em 5 anos) | 3 (FC Casteldorato, SV Mühlwangen, Brombury United) | 2 (SV Mühlwangen, UD Mirallosa) |
-| O melhor desempenho bruto ganha / fica no top 3 | 32% / 62% | 38% / 64% |
-| Fora das Big 5: no top 20 / no top 30 (por ano, média) | 0.08 / 0.20 | 0.02 / 0.14 |
+| Dinastias de clube (3+ vitórias em 5 anos) | 2 (Carnley Albion, SV Mühlwangen) | 4 (FC Casteldorato, AS Fonteroc, SV Mühlwangen, UD Mirallosa) |
+| O melhor desempenho bruto ganha / fica no top 3 | 30% / 78% | 46% / 64% |
+| Fora das Big 5: no top 20 / no top 30 (por ano, média) | 0.06 / 0.14 | 0.00 / 0.00 |
 | Calendário: ano civil no top 30 / nos elegíveis | 0% / 20% | 0% / 20% |
-| Nacionalidades dos vencedores (top 5) | ITA 13, GER 13, ESP 8, ENG 7, FRA 6 | ITA 17, ESP 8, ENG 6, GER 5, FRA 4 |
+| Nacionalidades dos vencedores (top 5) | GER 16, ENG 10, ITA 8, ESP 7, FRA 4 | ESP 10, GER 9, FRA 9, ITA 8, ENG 6 |
 
 ## Golden Boy
 
 | Medida | Viés ligado | Viés desligado |
 |---|---|---|
 | Anos atribuídos | 50 | 50 |
-| Vencedores por posição (AVA / MED / DEF / GR) | 36% / 62% / 2% / 0% | 42% / 56% / 2% / 0% |
-| Top 3 por posição (AVA / MED / DEF / GR) | 35% / 55% / 9% / 1% | 35% / 56% / 9% / 1% |
-| Vencedores por liga | ESP1 14, ITA1 9, ENG1 8, GER1 8, POR1 2, BRA1 2, FRA1 2, BRA2 1, GER2 1, POL1 1, USA1 1, ARG1 1 | ESP1 10, ITA1 8, ENG1 7, GER1 7, FRA1 5, BRA1 3, ESP2 3, POL1 3, ARG1 1, EUR1 1, KOR1 1, NOR1 1 |
-| Liga com mais vitórias (fracção) | ESP1 28% | ESP1 20% |
-| Ligas diferentes / clubes diferentes | 12 / 38 | 12 / 36 |
-| Clube com mais vitórias | Albarrada CF 5 | AC Pontemarino 4 |
-| Jogadores diferentes; bicampeões / tricampeões seguidos; maior série | 50; 0 / 0; 1 | 49; 1 / 0; 2 |
-| Mais vitórias do mesmo jogador | 1 | 2 |
-| Dinastias de clube (3+ vitórias em 5 anos) | 0 (—) | 1 (AJ Villegarde) |
-| O melhor desempenho bruto ganha / fica no top 3 | 50% / 76% | 50% / 74% |
-| Golden Boys que chegam depois ao top 30 da Bola de Ouro | 16 de 50 | 22 de 50 |
-| Golden Boys que ganham depois a Bola de Ouro | 3 | 2 |
+| Vencedores por posição (AVA / MED / DEF / GR) | 40% / 52% / 8% / 0% | 22% / 38% / 34% / 6% |
+| Top 3 por posição (AVA / MED / DEF / GR) | 31% / 53% / 16% / 0% | 22% / 37% / 33% / 8% |
+| Vencedores por liga | ESP1 12, ENG1 9, ITA1 9, FRA1 6, ARG1 5, BRA1 3, POR1 2, GER1 2, AFR1 1, DEN1 1 | ITA1 13, FRA1 10, GER1 10, ESP1 8, BRA1 3, ESP2 2, ARG1 2, ENG1 1, BEL1 1 |
+| Liga com mais vitórias (fracção) | ESP1 24% | ITA1 26% |
+| Ligas diferentes / clubes diferentes | 10 / 35 | 9 / 33 |
+| Clube com mais vitórias | Albarrada CF 3 | FC Casteldorato 6 |
+| Jogadores diferentes; bicampeões / tricampeões seguidos; maior série | 49; 1 / 0; 2 | 47; 3 / 0; 2 |
+| Mais vitórias do mesmo jogador | 2 | 2 |
+| Dinastias de clube (3+ vitórias em 5 anos) | 1 (FC Casteldorato) | 0 (—) |
+| O melhor desempenho bruto ganha / fica no top 3 | 48% / 68% | 58% / 84% |
+| Golden Boys que chegam depois ao top 30 da Bola de Ouro | 16 de 50 | 14 de 50 |
+| Golden Boys que ganham depois a Bola de Ouro | 2 | 1 |
 
 ## Melhor guarda-redes
 
 | Medida | Viés ligado | Viés desligado |
 |---|---|---|
 | Anos atribuídos | 50 | 50 |
-| Vencedores por liga | ENG1 25, ITA1 9, ESP1 8, GER1 5, FRA1 3 | ENG1 22, ESP1 11, ITA1 9, GER1 6, FRA1 2 |
-| Liga com mais vitórias (fracção) | ENG1 50% | ENG1 44% |
-| Ligas diferentes / clubes diferentes | 5 / 34 | 5 / 37 |
-| Clube com mais vitórias | Radton Borough 3 | Eversbridge United 4 |
-| Jogadores diferentes; bicampeões / tricampeões seguidos; maior série | 44; 4 / 0; 2 | 46; 3 / 1; 3 |
-| Mais vitórias do mesmo jogador | 2 | 3 |
-| Dinastias de clube (3+ vitórias em 5 anos) | 0 (—) | 1 (Eversbridge United) |
-| O melhor desempenho bruto ganha / fica no top 3 | 70% / 100% | 84% / 92% |
+| Vencedores por liga | ENG1 20, ITA1 12, ESP1 9, GER1 7, FRA1 2 | ENG1 27, ITA1 8, GER1 7, ESP1 7, FRA1 1 |
+| Liga com mais vitórias (fracção) | ENG1 40% | ENG1 54% |
+| Ligas diferentes / clubes diferentes | 5 / 40 | 5 / 36 |
+| Clube com mais vitórias | Falbridge City 3 | Dunbury Wanderers 3 |
+| Jogadores diferentes; bicampeões / tricampeões seguidos; maior série | 49; 0 / 0; 1 | 47; 2 / 0; 2 |
+| Mais vitórias do mesmo jogador | 2 | 2 |
+| Dinastias de clube (3+ vitórias em 5 anos) | 0 (—) | 0 (—) |
+| O melhor desempenho bruto ganha / fica no top 3 | 72% / 96% | 80% / 96% |
 
+## Depois das correcções da PARAGEM D: segunda semente (7), viés ligado
+
+| Medida | Semente 2026 | Semente 7 | 100 anos |
+|---|---|---|---|
+| Bola de Ouro, vencedores AVA / MED / DEF / GR | 84% / 10% / 4% / 2% | 78% / 16% / 6% / 0% | 81% / 13% / 5% / 1% |
+| Bola de Ouro, top 30 com DEF / com GR | 11% / 0% | 7% / 0% | 9% / 0% |
+| Bola de Ouro, liga com mais vitórias | ENG1 34% | ENG1 32% | — |
+| Bola de Ouro, melhor desempenho bruto ganha / top 3 | 30% / 78% | 30% / 70% | — |
+| Bola de Ouro, fora das Big 5 no top 20 / top 30 (por ano) | 0,06 / 0,14 | 0,02 / 0,10 | — |
+| Golden Boy, vencedores AVA + MED | 92% | 86% | 89% |
+| Golden Boy que chega depois ao top 30 da Bola de Ouro | 32% | 28% | 30% |
+| Melhor GR, liga com mais vitórias | ENG1 40% | ENG1 54% | — |
+
+Nota: o "desempenho bruto" divide o desempenho pelo factor de posição; num vencedor de época histórica fica um pouco acima do real (sem efeito nos números de posição).
