@@ -29,6 +29,10 @@ export interface ContextoCena {
   /** 1 = opacidade normal; desce a 0 durante o fade de saída (saltar ou fim). A cena não precisa de lhe fazer nada:
    *  o motor já desenha por cima um fade a preto; está aqui só se uma cena quiser reagir. */
   opacidadeSaida: number;
+  /** Prompt 11, Bloco 6: o motor mediu menos de 40 fps e activou o modo leve (automático, só nesta cutscene) — a
+   *  cena deve saltar partículas, feixes de luz e brilhos (`glow`/`streak`/`raios`/`particulas`), mantendo o resto
+   *  (fotografias, logótipo, escudos, texto, painel). Uma vez activo, fica assim até ao fim da cutscene. */
+  modoLeve: boolean;
 }
 
 export type FuncaoCena = (ctx: ContextoCena, canvas: CanvasRenderingContext2D) => void;

@@ -3,7 +3,7 @@
 // `cenaCL`/`cenaEL`). O fade de saída ao saltar já é feito pelo motor (`opacidadeSaida`, ver `tipos.ts`); aqui só
 // os fades "naturais" da própria linha de tempo (entrada e o acto `fade`), tal como no protótipo.
 import { PALETA_CUTSCENE } from '../config/cutscene.ts';
-import { carregarImagens, FICHEIROS_COMPETICAO, PASTA_CUTSCENE } from './imagens.ts';
+import { carregarImagens, libertarImagens, FICHEIROS_COMPETICAO, PASTA_CUTSCENE } from './imagens.ts';
 import { easeOut, prog } from './utilitarios.ts';
 import { vinheta } from './efeitos.ts';
 import { geometria, type Desenho, type EscudosCena, type ImagensCena } from './cenas/comum.ts';
@@ -24,17 +24,22 @@ export async function carregarImagensCompeticao(idComp: IdCompeticao, baseUrl = 
   return out;
 }
 
+/** Liberta as fotografias/logótipos de uma competição (Bloco 6: "libertar tudo no fim"; ao reabrir, recarregam). */
+export function libertarImagensCompeticao(idComp: IdCompeticao, baseUrl = '') {
+  libertarImagens(FICHEIROS_COMPETICAO[idComp].map((f) => `${baseUrl}${PASTA_CUTSCENE}${f}`));
+}
+
 /** A função de desenho (`FuncaoCena`) para abrir na cutscene: escolhe Champions ou Liga Europa por
  *  `dados.competicao`. `imagens` e `escudos` já devem estar carregados (ver `carregarImagensCompeticao` e
  *  `src/cutscene/combinarEscudos.ts`); em falta, cada um usa o seu plano B (fundo simples / escudo genérico). */
 export function criarCenaEuropeia(imagens: ImagensCena, escudos: EscudosCena = { casa: null, fora: null }): FuncaoCena {
   return (c: ContextoCena, ctx: CanvasRenderingContext2D) => {
-    const { t, tl, largura: W, altura: H, dpr, dados } = c;
+    const { t, tl, largura: W, altura: H, dpr, dados, modoLeve } = c;
     const actos = tl.actos;
     const clim = easeOut(prog(t, actos.climax));
     ctx.save();
     if (clim > 0) ctx.translate(Math.sin(t * 53) * 1.6 * clim, Math.cos(t * 47) * 1.6 * clim);
-    const d: Desenho = { ctx, t, dur: tl.dur, actos, dados, P: PALETA_CUTSCENE[dados.competicao], g: geometria(dados.competicao, W, H), W, H, dpr };
+    const d: Desenho = { ctx, t, dur: tl.dur, actos, dados, P: PALETA_CUTSCENE[dados.competicao], g: geometria(dados.competicao, W, H), W, H, dpr, modoLeve };
     if (dados.competicao === 'champions') desenharCenaChampions(d, imagens, escudos);
     else desenharCenaEuropa(d, imagens, escudos);
     ctx.restore();

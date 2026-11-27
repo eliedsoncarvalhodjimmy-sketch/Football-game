@@ -28,7 +28,7 @@ function bandaMultidao(img: HTMLImageElement | null, W: number, H: number, dpr: 
 }
 
 export function desenharCenaEuropa(d: Desenho, imagens: ImagensCena, escudos: EscudosCena) {
-  const { ctx, t, dur, actos: c, P, g, W, H, dpr } = d;
+  const { ctx, t, dur, actos: c, P, g, W, H, dpr, modoLeve } = d;
   const k = t / dur;
   const clim = easeOut(prog(t, c.climax)), aF = easeOut(prog(t, c.fundo)), pn = easeOut(prog(t, c.painel));
   const dim = easeInOut(prog(t, [c.marca[0], c.marca[0] + 4]));
@@ -43,8 +43,8 @@ export function desenharCenaEuropa(d: Desenho, imagens: ImagensCena, escudos: Es
   gr.addColorStop(0, 'rgba(5,2,1,.5)'); gr.addColorStop(0.45, 'rgba(5,2,1,.1)'); gr.addColorStop(1, 'rgba(5,2,1,.85)');
   ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
 
-  // linhas laranja angulares (como o troféu)
-  if (c.faixas) {
+  // linhas laranja angulares (como o troféu) — Bloco 6: saltadas no modo leve
+  if (c.faixas && !modoLeve) {
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     for (let i = 0; i < 7; i++) {
       const p = easeInOut(prog(t, [c.faixas[0] + i * 0.4, c.faixas[0] + i * 0.4 + 3.4]));
@@ -61,13 +61,15 @@ export function desenharCenaEuropa(d: Desenho, imagens: ImagensCena, escudos: Es
   const band = bandaMultidao(imagens['el_multidao.jpg'], W, H, dpr);
   const bandA = Math.max(0.45 * pn, ep);
   if (band && bandA > 0) { ctx.save(); ctx.globalAlpha = bandA; ctx.drawImage(band, 0, H - Math.round(H * 0.4), W, Math.round(H * 0.4)); ctx.restore(); }
-  particulas(ctx, W, H, t, (0.5 + 0.5 * aF) * (1 + clim * 2), P.glow, 1.6);
+  if (!modoLeve) particulas(ctx, W, H, t, (0.5 + 0.5 * aF) * (1 + clim * 2), P.glow, 1.6);
 
   // logótipo
   const mi = easeOut(prog(t, c.marca)), Lk = g.L;
   if (mi > 0) {
-    glow(ctx, W / 2, g.yL - Lk * 0.1, Lk * 1.1, '255,138,31', 0.4 * mi);
-    streak(ctx, W / 2, g.yL - Lk * 0.1, W, Math.max(2, g.m * 0.008), Math.sin(Math.PI * clamp(prog(t, [c.marca[0], c.marca[0] + 1]))) * 0.8, '255,160,60');
+    if (!modoLeve) {
+      glow(ctx, W / 2, g.yL - Lk * 0.1, Lk * 1.1, '255,138,31', 0.4 * mi);
+      streak(ctx, W / 2, g.yL - Lk * 0.1, W, Math.max(2, g.m * 0.008), Math.sin(Math.PI * clamp(prog(t, [c.marca[0], c.marca[0] + 1]))) * 0.8, '255,160,60');
+    }
     logo(ctx, imagens['el_logo.png'], W / 2, g.yL, Lk * (0.85 + 0.15 * mi) * (1 + 0.05 * clim), mi);
   }
 
@@ -94,5 +96,5 @@ export function desenharCenaEuropa(d: Desenho, imagens: ImagensCena, escudos: Es
   textoFase(d);
   escudosEVS(d, escudos, 1);
   rodape(d);
-  raios(ctx, W, H, W / 2, g.yL, t, clim, P.glow, 12);
+  if (!modoLeve) raios(ctx, W, H, W / 2, g.yL, t, clim, P.glow, 12);
 }

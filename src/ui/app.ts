@@ -18,8 +18,8 @@ import { AudioManager } from '../audio/AudioManager.ts';
 import { htmlDefinicoes, ligarDefinicoes } from './ecraSom.ts';
 import { htmlDefinicoesCutscene, ligarDefinicoesCutscene } from './ecraCutscene.ts';
 import { abrirCutscene } from './cutscene.ts';
-import { criarCenaEuropeia, carregarImagensCompeticao } from '../cutscene/cena.ts';
-import { carregarEscudosReais } from '../cutscene/escudosReais.ts';
+import { criarCenaEuropeia, carregarImagensCompeticao, libertarImagensCompeticao } from '../cutscene/cena.ts';
+import { carregarEscudosReais, libertarEscudosReais } from '../cutscene/escudosReais.ts';
 import { TL_CHAMPIONS } from '../cutscene/timelines/champions.ts';
 import { TL_EUROPA } from '../cutscene/timelines/europa.ts';
 import { lerFrequenciaCutscene, deveMostrarCutscene } from '../cutscene/persistencia.ts';
@@ -307,16 +307,19 @@ function barraTopo(r: Resumo) {
     <button class="btn prim continuar" id="b-continuar" ${E.aAvancar ? 'disabled' : ''}>${E.aAvancar ? 'A simular…' : 'Continuar'} ${svg('seta')}</button></div>`;
 }
 
-/** Prompt 11, Bloco 5: abre a cutscene europeia (imagens e escudo real já carregados); `aoFechar` corre sempre, ao
- *  fim da cutscene ou ao saltar. Nunca bloqueia o dia: qualquer erro (imagens, rede) salta logo para `aoFechar`. */
+/** Prompt 11, Bloco 5/6: abre a cutscene europeia (imagens e escudo real carregados só agora, "na véspera do dia
+ *  europeu", nunca antes); `aoFechar` corre sempre, ao fim da cutscene ou ao saltar — e liberta logo as imagens
+ *  (Bloco 6: "libertar tudo no fim"). Nunca bloqueia o dia: qualquer erro (imagens, rede) salta logo para `aoFechar`. */
 async function abrirCutsceneEuropeia(dados: DadosCutscene, escudoCasaId: string, escudoForaId: string, aoFechar: () => void) {
+  const base = import.meta.env.BASE_URL;
+  const libertar = () => { libertarImagensCompeticao(dados.competicao, base); void libertarEscudosReais(escudoCasaId, escudoForaId, base); };
   try {
-    const base = import.meta.env.BASE_URL;
     const [imagens, escudos] = await Promise.all([carregarImagensCompeticao(dados.competicao, base), carregarEscudosReais(escudoCasaId, escudoForaId, base)]);
     const tl = dados.competicao === 'champions' ? TL_CHAMPIONS : TL_EUROPA;
-    abrirCutscene({ idComp: dados.competicao, tl, dados, desenhar: criarCenaEuropeia(imagens, escudos), audio }, aoFechar);
+    abrirCutscene({ idComp: dados.competicao, tl, dados, desenhar: criarCenaEuropeia(imagens, escudos), audio }, () => { libertar(); aoFechar(); });
   } catch (e) {
     console.warn('Cutscene europeia não pôde correr:', e);
+    libertar();
     aoFechar();
   }
 }

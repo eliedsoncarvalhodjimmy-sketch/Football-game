@@ -61,9 +61,12 @@ async function carregarTudo() {
 }
 carregarTudo();
 
-function abrir(reduzidoForcado = false) {
+function abrir(reduzidoForcado = false, modoLeveForcado = false) {
   const tl = comp === 'champions' ? TL_CHAMPIONS : TL_EUROPA;
   const desenhar = criarCenaEuropeia(imagens[comp] ?? {}, { casa: null, fora: null });
+  // Bloco 6: limiteFps absurdamente alto força o modo leve ao fim de 1 s (janela cheia), para ver o resultado sem
+  // precisar de um dispositivo lento a sério.
+  const desempenho = modoLeveForcado ? { limiteFps: 1000, janela: 5, arranqueS: 1 } : undefined;
   if (reduzidoForcado) {
     // Simula o modo reduzido sem precisar de mudar as definições do sistema (só para este teste).
     const original = window.matchMedia;
@@ -71,7 +74,8 @@ function abrir(reduzidoForcado = false) {
     abrirCutscene({ idComp: comp, tl, dados: dadosExemplo(comp), desenhar, audio }, () => { window.matchMedia = original; estado('Cutscene (reduzida) terminou.'); });
     return;
   }
-  abrirCutscene({ idComp: comp, tl, dados: dadosExemplo(comp), desenhar, audio }, () => estado('Cutscene terminou (ou foi saltada). Repara se a música/ambiente voltariam aqui (Bloco 5).'));
+  abrirCutscene({ idComp: comp, tl, dados: dadosExemplo(comp), desenhar, audio, desempenho }, () => estado('Cutscene terminou (ou foi saltada). Repara se a música/ambiente voltariam aqui (Bloco 5).'));
 }
 $('#bPlay').addEventListener('click', () => abrir(false));
 $('#bReduzido').addEventListener('click', () => abrir(true));
+$('#bLeve')?.addEventListener('click', () => abrir(false, true));

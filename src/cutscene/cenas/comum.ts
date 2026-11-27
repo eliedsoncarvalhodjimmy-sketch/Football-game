@@ -29,6 +29,8 @@ export interface Desenho {
   W: number;
   H: number;
   dpr: number;
+  /** Prompt 11, Bloco 6: modo leve (fps baixo) — a cena salta partículas, feixes de luz e brilhos. */
+  modoLeve: boolean;
 }
 
 export function geometria(idComp: IdCompeticao, W: number, H: number): Geometria {

@@ -27,7 +27,7 @@ function trofeuCL(img: HTMLImageElement | null, W: number, H: number, dpr: numbe
 }
 
 export function desenharCenaChampions(d: Desenho, imagens: ImagensCena, escudos: EscudosCena) {
-  const { ctx, t, dur, actos: c, P, g, W, H, dpr } = d;
+  const { ctx, t, dur, actos: c, P, g, W, H, dpr, modoLeve } = d;
   const k = t / dur;
   const clim = easeOut(prog(t, c.climax)), aF = easeOut(prog(t, c.fundo)), pn = easeOut(prog(t, c.painel)), tr = easeOut(prog(t, c.trofeu));
 
@@ -43,24 +43,26 @@ export function desenharCenaChampions(d: Desenho, imagens: ImagensCena, escudos:
   ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
   if (pn > 0) { ctx.fillStyle = `rgba(4,10,60,${(0.3 * pn).toFixed(3)})`; ctx.fillRect(0, 0, W, H); }
 
-  // feixes de luz a oscilar
-  ctx.save(); ctx.globalCompositeOperation = 'lighter';
-  ([[0.12, 1], [0.88, -1]] as [number, number][]).forEach(([fx, s], i) => {
-    const an = Math.sin(t * 0.45 + i * 2) * 0.12 * s, x0 = W * fx;
-    ctx.fillStyle = `rgba(${P.glow},${(0.07 + 0.08 * clim).toFixed(3)})`;
-    ctx.beginPath(); ctx.moveTo(x0 - W * 0.03, -10); ctx.lineTo(x0 + W * 0.03, -10);
-    ctx.lineTo(W * 0.5 + Math.sin(an) * W + W * 0.2, H * 0.95); ctx.lineTo(W * 0.5 + Math.sin(an) * W - W * 0.2, H * 0.95);
-    ctx.closePath(); ctx.fill();
-  });
-  ctx.restore();
+  // feixes de luz a oscilar (Bloco 6: saltados no modo leve)
+  if (!modoLeve) {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    ([[0.12, 1], [0.88, -1]] as [number, number][]).forEach(([fx, s], i) => {
+      const an = Math.sin(t * 0.45 + i * 2) * 0.12 * s, x0 = W * fx;
+      ctx.fillStyle = `rgba(${P.glow},${(0.07 + 0.08 * clim).toFixed(3)})`;
+      ctx.beginPath(); ctx.moveTo(x0 - W * 0.03, -10); ctx.lineTo(x0 + W * 0.03, -10);
+      ctx.lineTo(W * 0.5 + Math.sin(an) * W + W * 0.2, H * 0.95); ctx.lineTo(W * 0.5 + Math.sin(an) * W - W * 0.2, H * 0.95);
+      ctx.closePath(); ctx.fill();
+    });
+    ctx.restore();
+  }
 
   // troféu a emergir (ecrã)
   if (tr > 0) {
     const tc = trofeuCL(imagens['cl_trofeu.jpg'], W, H, dpr);
     if (tc) { ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = tr * 0.8; ctx.drawImage(tc, 0, (1 - tr) * H * 0.06, W, H); ctx.restore(); }
-    glow(ctx, W / 2, H * 0.62, W * 0.55, '150,200,255', 0.25 * tr);
+    if (!modoLeve) glow(ctx, W / 2, H * 0.62, W * 0.55, '150,200,255', 0.25 * tr);
   }
-  particulas(ctx, W, H, t, (0.4 + 0.6 * aF) * (1 + clim * 2), P.glow);
+  if (!modoLeve) particulas(ctx, W, H, t, (0.4 + 0.6 * aF) * (1 + clim * 2), P.glow);
 
   // marca: bola gigante -> logótipo no topo
   const mi = easeOut(prog(t, c.marca)), mu = easeInOut(prog(t, c.marcaSobe));
@@ -68,9 +70,11 @@ export function desenharCenaChampions(d: Desenho, imagens: ImagensCena, escudos:
   const Rbig = g.m * 0.3, yBig = H * 0.42;
   if (mi > 0) {
     const R = lerp(Rbig, Rsm, mu) * (0.5 + 0.5 * mi) * (1 + 0.06 * clim), cy = lerp(yBig, ySm, mu);
-    glow(ctx, W / 2, cy, R * 2.4, '120,180,255', 0.55 * mi * (1 - 0.4 * mu));
-    const pulso = Math.sin(Math.PI * clamp(prog(t, [c.marca[0], c.marca[0] + 1.3])));
-    streak(ctx, W / 2, yBig, W * 1.3, Math.max(2, g.m * 0.012), pulso * 0.95 * (1 - mu), '150,200,255');
+    if (!modoLeve) {
+      glow(ctx, W / 2, cy, R * 2.4, '120,180,255', 0.55 * mi * (1 - 0.4 * mu));
+      const pulso = Math.sin(Math.PI * clamp(prog(t, [c.marca[0], c.marca[0] + 1.3])));
+      streak(ctx, W / 2, yBig, W * 1.3, Math.max(2, g.m * 0.012), pulso * 0.95 * (1 - mu), '150,200,255');
+    }
     if (1 - mu > 0) logo(ctx, imagens['cl_bola.png'], W / 2, cy, R * 2, mi * (1 - mu));
     if (mu > 0) { const sz = Lk * (1 + 0.06 * clim); logo(ctx, imagens['cl_logo.png'], W / 2, yL, sz, mu); }
   }
@@ -96,6 +100,8 @@ export function desenharCenaChampions(d: Desenho, imagens: ImagensCena, escudos:
   textoFase(d);
   escudosEVS(d, escudos, 1 - 0.8 * tr);
   rodape(d);
-  raios(ctx, W, H, W / 2, yL, t, clim, P.glow);
-  streak(ctx, W / 2, H * 0.5, W * 1.4, Math.max(2, g.m * 0.01), clim * (0.5 + 0.5 * Math.sin(t * 9)) * 0.6, '150,200,255');
+  if (!modoLeve) {
+    raios(ctx, W, H, W / 2, yL, t, clim, P.glow);
+    streak(ctx, W / 2, H * 0.5, W * 1.4, Math.max(2, g.m * 0.01), clim * (0.5 + 0.5 * Math.sin(t * 9)) * 0.6, '150,200,255');
+  }
 }

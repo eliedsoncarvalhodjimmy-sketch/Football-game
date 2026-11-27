@@ -13,6 +13,7 @@ import { Relogio, type FonteTempo } from '../src/cutscene/relogio.ts';
 import { normalizarNome } from '../src/cutscene/normalizar.ts';
 import { combinarEscudos, type ClubeParaEscudo } from '../src/cutscene/combinarEscudos.ts';
 import { geometria } from '../src/cutscene/cenas/comum.ts';
+import { MedidorDesempenho } from '../src/cutscene/desempenho.ts';
 import type { LinhaTempo } from '../src/cutscene/tipos.ts';
 
 describe('dados da cutscene a partir da chave do motor (Prompt 11)', () => {
@@ -198,13 +199,43 @@ describe('frequência das cutscenes: definições e política (Prompt 11, Bloco 
   });
 });
 
+describe('modo leve por desempenho (Prompt 11, Bloco 6)', () => {
+  it('60 fps constantes: nunca activa o modo leve', () => {
+    const m = new MedidorDesempenho({ limiteFps: 40, janela: 20, arranqueS: 1 });
+    for (let i = 0; i < 100; i++) expect(m.registar(1 + i * (1 / 60), 1000 / 60)).toBe(false);
+    expect(m.modoLeve).toBe(false);
+    expect(m.fpsMedio).toBeCloseTo(60, 0);
+  });
+  it('25 fps sustentados (abaixo do limite): activa o modo leve e nunca mais desliga', () => {
+    const m = new MedidorDesempenho({ limiteFps: 40, janela: 20, arranqueS: 1 });
+    let leve = false;
+    for (let i = 0; i < 25 && !leve; i++) leve = m.registar(1 + i * (1 / 25), 1000 / 25);
+    expect(leve).toBe(true);
+    expect(m.modoLeve).toBe(true);
+    // mesmo que os frames melhorem depois, continua leve (não alterna a meio da cutscene).
+    expect(m.registar(5, 1000 / 60)).toBe(true);
+  });
+  it('um soluço isolado (um frame lento numa janela maioritariamente boa) não chega a activar', () => {
+    const m = new MedidorDesempenho({ limiteFps: 40, janela: 20, arranqueS: 1 });
+    let t = 1, leve = false;
+    for (let i = 0; i < 19 && !leve; i++) { leve = m.registar(t, 1000 / 60); t += 1 / 60; }
+    leve = m.registar(t, 80); // um único frame lento (soluço), não o suficiente para baixar a média de 20 frames
+    expect(leve).toBe(false);
+  });
+  it('ignora os primeiros frames (arranque): fps baixo só aí não activa nada', () => {
+    const m = new MedidorDesempenho({ limiteFps: 40, janela: 5, arranqueS: 1 });
+    for (let i = 0; i < 10; i++) expect(m.registar(i * 0.05, 200)).toBe(false); // t < 1 s: ignorado
+    expect(m.fpsMedio).toBeNull();
+  });
+});
+
 describe('regras de ouro (Prompt 11)', () => {
   it('o motor de simulação (incluindo o 2D), o mercado, os prémios e os jogadores nunca importam de src/cutscene/', () => {
     const ficheiros = [...listarTs('src/engine'), ...listarTs('src/match'), ...listarTs('src/players'), ...listarTs('src/economia'), ...listarTs('src/mercado'), ...listarTs('src/premios')];
     for (const f of ficheiros) expect(readFileSync(f, 'utf8'), f).not.toMatch(/from ['"].*\/cutscene\//);
   });
   it('só src/cutscene/motor.ts (e o invólucro em src/ui/cutscene.ts) tocam no <canvas>/DOM; a linha de tempo e os dados são puros', () => {
-    for (const f of [...listarTs('src/cutscene/timelines'), 'src/cutscene/dados.ts', 'src/cutscene/utilitarios.ts', 'src/cutscene/tipos.ts', 'src/cutscene/relogio.ts', 'src/cutscene/normalizar.ts', 'src/cutscene/combinarEscudos.ts', 'src/cutscene/escudo.ts', 'src/cutscene/efeitos.ts', 'src/cutscene/cenas/comum.ts']) {
+    for (const f of [...listarTs('src/cutscene/timelines'), 'src/cutscene/dados.ts', 'src/cutscene/utilitarios.ts', 'src/cutscene/tipos.ts', 'src/cutscene/relogio.ts', 'src/cutscene/normalizar.ts', 'src/cutscene/combinarEscudos.ts', 'src/cutscene/escudo.ts', 'src/cutscene/efeitos.ts', 'src/cutscene/cenas/comum.ts', 'src/cutscene/desempenho.ts', 'src/cutscene/persistencia.ts']) {
       const txt = readFileSync(f, 'utf8');
       expect(txt, f).not.toMatch(/getContext\(/);
       expect(txt, f).not.toMatch(/document\./);

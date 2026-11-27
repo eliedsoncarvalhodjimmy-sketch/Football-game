@@ -3,6 +3,7 @@
 // a chamada `abrirCutscene` nem deve acontecer nesse caso (quem chama decide e segue a transição normal).
 import { Cutscene } from '../cutscene/motor.ts';
 import { CUTSCENE } from '../config/cutscene.ts';
+import type { OpcoesDesempenho } from '../cutscene/desempenho.ts';
 import type { DadosCutscene, FuncaoCena, IdCompeticao, LinhaTempo } from '../cutscene/tipos.ts';
 import type { AudioManager } from '../audio/AudioManager.ts';
 
@@ -13,6 +14,8 @@ export interface OpcoesAbrirCutscene {
   desenhar: FuncaoCena;
   /** Opcional: sem áudio, a cutscene corre à mesma, com a mesma duração (performance.now()). */
   audio?: AudioManager;
+  /** Prompt 11, Bloco 6: afina o medidor de desempenho (ex.: forçar o modo leve num teste manual). */
+  desempenho?: OpcoesDesempenho;
 }
 
 /** Abre a cutscene a cobrir o ecrã. `aoFechar` chama-se uma única vez, ao terminar (naturalmente ou ao saltar). */
@@ -54,6 +57,7 @@ export function abrirCutscene(op: OpcoesAbrirCutscene, aoFechar: () => void) {
     desenhar: op.desenhar,
     fonteTempo: op.audio ?? null,
     aoTerminar: fechar,
+    ...(op.desempenho ? { desempenho: op.desempenho } : {}),
   });
   cena.aoPoderSaltar((pode) => botaoSaltar.classList.toggle('on', pode));
   el.addEventListener('pointerdown', (ev) => { if ((ev.target as HTMLElement).closest('.cs-saltar')) return; cena.tocouNoEcra(); });

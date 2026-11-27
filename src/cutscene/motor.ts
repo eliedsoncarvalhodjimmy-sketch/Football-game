@@ -2,6 +2,7 @@
 // Puro: sem DOM próprio (recebe o <canvas> já criado) e sem Web Audio (só a interface `FonteTempo`, do relógio).
 import { CUTSCENE } from '../config/cutscene.ts';
 import { Relogio, type FonteTempo } from './relogio.ts';
+import { MedidorDesempenho, DESEMPENHO_DEFEITO, type OpcoesDesempenho } from './desempenho.ts';
 import type { ContextoCena, DadosCutscene, FuncaoCena, LinhaTempo } from './tipos.ts';
 
 export interface OpcoesCutscene {
@@ -15,6 +16,8 @@ export interface OpcoesCutscene {
   aoTerminar: () => void;
   /** `true` força o modo de movimento reduzido (testes); por omissão lê `prefers-reduced-motion`. */
   reduzidoForcado?: boolean;
+  /** Prompt 11, Bloco 6: afina o medidor de desempenho (testes); por omissão, `DESEMPENHO_DEFEITO`. */
+  desempenho?: OpcoesDesempenho;
 }
 
 export class Cutscene {
@@ -26,6 +29,8 @@ export class Cutscene {
   private inicioSalto = 0;
   private podeMostrarSaltar = false;
   private aoMudarSaltar?: (pode: boolean) => void;
+  private medidor: MedidorDesempenho;
+  private ultimoFrameMs: number | null = null;
   readonly reduzido: boolean;
 
   constructor(private op: OpcoesCutscene) {
@@ -34,7 +39,11 @@ export class Cutscene {
     this.ctx = c;
     this.relogio = new Relogio(op.fonteTempo ?? null);
     this.reduzido = op.reduzidoForcado ?? (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this.medidor = new MedidorDesempenho(op.desempenho ?? DESEMPENHO_DEFEITO);
   }
+
+  /** Fps médio mais recente (janela cheia); `null` no arranque ou com poucos frames (Bloco 6: para o relatório). */
+  fpsMedio() { return this.medidor.fpsMedio; }
 
   /** Liga um aviso quando o botão de saltar pode aparecer (depois de `saltar_apos_s` ou de um toque antes disso). */
   aoPoderSaltar(f: (pode: boolean) => void) { this.aoMudarSaltar = f; }
@@ -94,7 +103,12 @@ export class Cutscene {
     const largura = canvas.clientWidth, altura = canvas.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, CUTSCENE.dpr_maximo);
     this.ctx.clearRect(0, 0, largura, altura);
     const opacidadeSaida = this.saltando ? Math.max(0, 1 - (performance.now() - this.inicioSalto) / CUTSCENE.saltar_fade_ms) : 1;
-    const contexto: ContextoCena = { t, tl: this.op.tl, dados: this.op.dados, largura, altura, dpr, opacidadeSaida };
+    const agora = performance.now();
+    const jaEstavaLeve = this.medidor.modoLeve;
+    const modoLeve = this.medidor.registar(t, this.ultimoFrameMs === null ? 0 : agora - this.ultimoFrameMs);
+    this.ultimoFrameMs = agora;
+    if (modoLeve && !jaEstavaLeve) console.info(`Cutscene: modo leve activado (fps médio ~${Math.round(this.medidor.fpsMedio ?? 0)}).`);
+    const contexto: ContextoCena = { t, tl: this.op.tl, dados: this.op.dados, largura, altura, dpr, opacidadeSaida, modoLeve };
     this.op.desenhar(contexto, this.ctx);
     if (opacidadeSaida < 1) { this.ctx.save(); this.ctx.fillStyle = `rgba(0,0,0,${(1 - opacidadeSaida).toFixed(3)})`; this.ctx.fillRect(0, 0, largura, altura); this.ctx.restore(); }
   }

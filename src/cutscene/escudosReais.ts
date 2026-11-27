@@ -1,7 +1,7 @@
 // Prompt 11, Bloco 5: liga os dois clubes de um jogo aos seus escudos reais, por `public/escudos/escudos.json`
 // (gerado por `scripts/cutscene/gerar-escudos.ts`, ver Bloco 2). Sem manifesto, sem entrada para o clube, ou erro
 // de rede: fica `null` para esse clube — a cena usa o escudo genérico (`src/cutscene/escudo.ts`), nunca lança.
-import { carregarImagens } from './imagens.ts';
+import { carregarImagens, libertarImagens } from './imagens.ts';
 import type { EscudosCena } from './cenas/comum.ts';
 
 let manifestoCache: Promise<Record<string, string>> | null = null;
@@ -22,4 +22,12 @@ export async function carregarEscudosReais(casaId: string, foraId: string, baseU
   if (!urls.length) return { casa: null, fora: null };
   const carregadas = await carregarImagens(urls);
   return { casa: urlCasa ? carregadas.get(urlCasa) ?? null : null, fora: urlFora ? carregadas.get(urlFora) ?? null : null };
+}
+
+/** Liberta os escudos reais destes dois clubes (Bloco 6: "libertar tudo no fim"). O manifesto já está em cache
+ *  (resolvido durante `carregarEscudosReais`), por isso não volta a pedir a rede. */
+export async function libertarEscudosReais(casaId: string, foraId: string, baseUrl = '') {
+  const manifesto = await carregarManifesto(baseUrl);
+  const urls = [manifesto[casaId], manifesto[foraId]].filter((f): f is string => !!f).map((f) => `${baseUrl}escudos/${f}`);
+  libertarImagens(urls);
 }
