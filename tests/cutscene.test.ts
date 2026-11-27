@@ -8,6 +8,8 @@ import { TL_CHAMPIONS } from '../src/cutscene/timelines/champions.ts';
 import { TL_EUROPA } from '../src/cutscene/timelines/europa.ts';
 import { prog, clamp, easeOut, easeInOut } from '../src/cutscene/utilitarios.ts';
 import { Relogio, type FonteTempo } from '../src/cutscene/relogio.ts';
+import { normalizarNome } from '../src/cutscene/normalizar.ts';
+import { combinarEscudos, type ClubeParaEscudo } from '../src/cutscene/combinarEscudos.ts';
 import type { LinhaTempo } from '../src/cutscene/tipos.ts';
 
 describe('dados da cutscene a partir da chave do motor (Prompt 11)', () => {
@@ -92,13 +94,50 @@ describe('relógio mestre (Prompt 11, Bloco 1)', () => {
   });
 });
 
+describe('ligação de escudos a clubes por nome (Prompt 11, Bloco 2)', () => {
+  it('normalizarNome: ignora acentos, maiúsculas e pontuação', () => {
+    expect(normalizarNome('Sporting Clube de Portugal')).toBe('sportingclubedeportugal');
+    expect(normalizarNome('Sport Lisboa e Benfica')).toBe('sportlisboaebenfica');
+    expect(normalizarNome('São Paulo')).toBe(normalizarNome('Sao Paulo'));
+    expect(normalizarNome('FC Porto')).toBe('fcporto');
+  });
+
+  const clubes: ClubeParaEscudo[] = [
+    { id: 'por_porto', nome: 'FC Porto', nome_curto: 'Porto' },
+    { id: 'por_benfica', nome: 'Sport Lisboa e Benfica', nome_curto: 'Benfica' },
+    { id: 'eng_liverpool', nome: 'Liverpool FC', nome_curto: 'Liverpool' },
+  ];
+
+  it('combina por id, por nome ou por nome curto do ficheiro (sem extensão, normalizado)', () => {
+    const { mapa, clubesSemImagem, ficheirosNaoUsados } = combinarEscudos(clubes, ['por_porto.png', 'Benfica.jpg', 'liverpoolfc.webp', 'desconhecido.png']);
+    expect(mapa.get('por_porto')).toBe('por_porto.png');
+    expect(mapa.get('por_benfica')).toBe('Benfica.jpg');
+    expect(mapa.get('eng_liverpool')).toBe('liverpoolfc.webp');
+    expect(clubesSemImagem).toEqual([]);
+    expect(ficheirosNaoUsados).toEqual(['desconhecido.png']);
+  });
+
+  it('sem ficheiros (ou pasta vazia/inexistente): todos os clubes ficam sem imagem, sem rebentar', () => {
+    const { mapa, clubesSemImagem, ficheirosNaoUsados } = combinarEscudos(clubes, []);
+    expect(mapa.size).toBe(0);
+    expect(clubesSemImagem).toEqual(clubes);
+    expect(ficheirosNaoUsados).toEqual([]);
+  });
+
+  it('cada clube fica com um só ficheiro: o segundo ficheiro que combine com o mesmo clube não o substitui', () => {
+    const { mapa, ficheirosNaoUsados } = combinarEscudos(clubes, ['por_porto.png', 'fcporto.jpg']);
+    expect(mapa.get('por_porto')).toBe('por_porto.png');
+    expect(ficheirosNaoUsados).toEqual(['fcporto.jpg']);
+  });
+});
+
 describe('regras de ouro (Prompt 11)', () => {
   it('o motor de simulação (incluindo o 2D), o mercado, os prémios e os jogadores nunca importam de src/cutscene/', () => {
     const ficheiros = [...listarTs('src/engine'), ...listarTs('src/match'), ...listarTs('src/players'), ...listarTs('src/economia'), ...listarTs('src/mercado'), ...listarTs('src/premios')];
     for (const f of ficheiros) expect(readFileSync(f, 'utf8'), f).not.toMatch(/from ['"].*\/cutscene\//);
   });
-  it('só src/cutscene/motor.ts (e o invólucro em src/ui/cutscene.ts) tocam no <canvas>; a linha de tempo e os dados são puros', () => {
-    for (const f of [...listarTs('src/cutscene/timelines'), 'src/cutscene/dados.ts', 'src/cutscene/utilitarios.ts', 'src/cutscene/tipos.ts', 'src/cutscene/relogio.ts']) {
+  it('só src/cutscene/motor.ts (e o invólucro em src/ui/cutscene.ts) tocam no <canvas>/DOM; a linha de tempo e os dados são puros', () => {
+    for (const f of [...listarTs('src/cutscene/timelines'), 'src/cutscene/dados.ts', 'src/cutscene/utilitarios.ts', 'src/cutscene/tipos.ts', 'src/cutscene/relogio.ts', 'src/cutscene/normalizar.ts', 'src/cutscene/combinarEscudos.ts', 'src/cutscene/escudo.ts', 'src/cutscene/efeitos.ts']) {
       const txt = readFileSync(f, 'utf8');
       expect(txt, f).not.toMatch(/getContext\(/);
       expect(txt, f).not.toMatch(/document\./);

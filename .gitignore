@@ -7,3 +7,6 @@ data/referencia/
 # Prompt 10: ficheiros de áudio originais do utilizador (qualidade/tamanho completos, alguns comerciais/oficiais —
 # UEFA, música com direitos). Só os ficheiros processados em public/audio/ (comprimidos, ao orçamento) entram no jogo.
 assets/audio-fonte/
+# Prompt 11: escudos originais dos clubes, fornecidos pelo utilizador (qualidade completa). Só os ficheiros
+# processados em public/escudos/ (WebP, ≤ 256×256, ≤ 20 KB) entram no jogo.
+assets/escudos-fonte/
