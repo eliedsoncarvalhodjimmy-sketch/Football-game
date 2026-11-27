@@ -35,7 +35,7 @@ export function abrirCutscene(op: OpcoesAbrirCutscene, aoFechar: () => void) {
   };
 
   if (reduzido) {
-    el.innerHTML = `<div class="cs-cartaz"><b>${esc(op.dados.casa.nome)} · ${esc(op.dados.fora.nome)}</b><span>${esc(op.dados.fase)}</span><span>${esc(op.dados.estadio)} · ${esc(op.dados.cidade)}</span><span>${esc(op.dados.data)}</span></div>`;
+    el.innerHTML = `<div class="cs-cartaz"><b>${esc(op.dados.casa.nome)} · ${esc(op.dados.fora.nome)}</b><span>${esc(op.dados.fase)}</span><span>${esc(op.dados.estadio)}</span></div>`;
     document.body.appendChild(el);
     op.audio?.tocarCutscene(op.idComp, () => {}, 0.4); // "áudio baixo" no cartaz estático
     setTimeout(fechar, CUTSCENE.reduzido_duracao_s * 1000);

@@ -986,3 +986,8 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - **Carregamento:** `carregarImagensCompeticao(idComp, baseUrl)` em `cena.ts` carrega as fotografias/logótipos de uma competição (usa o cache de `imagens.ts`); escudos reais continuam por fornecer (nenhum ficheiro em `assets/escudos-fonte/` ainda) — todos os clubes usam o escudo genérico.
     - **Verificado visualmente** (Playwright, headless, 6 instantes: 0, 7, 12, 18, 24, 35 s) em `test-cutscene/` com as imagens reais da UEFA já carregadas: logótipo, fase/mão, escudos genéricos, "VS", troféu e rodapé (estádio/cidade/data) tal como no protótipo aprovado, nas duas competições.
     - **Testes:** `tests/cutscene.test.ts` alargado com `geometria()` (Champions com lockup maior do que a Liga Europa; cresce com o ecrã) e `comum.ts` acrescentado à regra de ouro (puro, só recebe `ctx`).
+
+216. **Prompt 11: rodapé da cutscene só com o nome do estádio.**
+    - **Pedido do utilizador:** tirar a cidade e a hora do rodapé da cutscene — fica só o nome do estádio.
+    - `src/cutscene/cenas/comum.ts` (`rodape`): uma só linha, `dados.estadio`, sem a segunda linha (data/hora). `src/ui/cutscene.ts` (cartaz do modo reduzido): o mesmo ajuste, por coerência (já não mostra cidade nem data/hora).
+    - `DadosCutscene.cidade`/`.data` continuam no tipo (podem servir noutro sítio, ex.: ecrã antes de abrir a cutscene); só deixaram de aparecer no desenho.

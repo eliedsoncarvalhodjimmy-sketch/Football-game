@@ -74,7 +74,7 @@ export function escudosEVS(d: Desenho, escudos: EscudosCena, vsFade = 1) {
 }
 
 export function rodape(d: Desenho) {
-  const { ctx, t, actos: c, dados, P, g, W, H } = d;
+  const { ctx, t, actos: c, dados, g, W, H } = d;
   const ep = easeOut(prog(t, c.estadio));
   if (ep <= 0) return;
   const bg2 = ctx.createLinearGradient(0, H * 0.76, 0, H);
@@ -82,12 +82,9 @@ export function rodape(d: Desenho) {
   ctx.fillStyle = bg2; ctx.fillRect(0, H * 0.76, W, H * 0.24);
   ctx.save(); ctx.globalAlpha = ep; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   ctx.shadowColor = 'rgba(0,0,0,.85)'; ctx.shadowBlur = 8;
-  const y = H * 0.885 + (1 - ep) * H * 0.03, txt = `${dados.estadio} · ${dados.cidade}`.toUpperCase();
+  const y = H * 0.885 + (1 - ep) * H * 0.03, txt = dados.estadio.toUpperCase();
   ctx.fillStyle = '#fff';
-  const s1 = fitText(ctx, txt, W * 0.9, g.m * 0.052, 700);
+  fitText(ctx, txt, W * 0.9, g.m * 0.052, 700);
   ctx.fillText(txt, W / 2, y);
-  ctx.fillStyle = P.acc;
-  fitText(ctx, dados.data.toUpperCase(), W * 0.9, g.m * 0.042, 600);
-  ctx.fillText(dados.data.toUpperCase(), W / 2, y + s1 * 1.35);
   ctx.restore();
 }
