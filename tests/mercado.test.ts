@@ -107,15 +107,16 @@ describe('negociação', () => {
 });
 
 describe('janelas e inscrições', () => {
-  it('janelas por liga; as de ano civil têm as suas', () => {
+  it('janelas por liga; calendário único (DECISIONS 210): o Brasil usa as mesmas janelas que a Inglaterra', () => {
     const m = w.mercado!;
     const eng = w.ligaPorId('ENG1').clubes[0], bra = w.ligaPorId('BRA1').clubes[0];
     const d = (y: number, mo: number, da: number) => Math.floor(Date.UTC(y, mo - 1, da) / 864e5);
-    expect(m.janelaAberta(eng, d(2026, 7, 15))).toBe(true);
-    expect(m.janelaAberta(eng, d(2026, 10, 15))).toBe(false);
-    expect(m.janelaAberta(eng, d(2027, 1, 20))).toBe(true);
-    expect(m.janelaAberta(bra, d(2027, 3, 1))).toBe(true);
-    expect(m.janelaAberta(eng, d(2027, 3, 1))).toBe(false);
+    for (const c of [eng, bra]) {
+      expect(m.janelaAberta(c, d(2026, 7, 15))).toBe(true);
+      expect(m.janelaAberta(c, d(2026, 10, 15))).toBe(false);
+      expect(m.janelaAberta(c, d(2027, 1, 20))).toBe(true);
+      expect(m.janelaAberta(c, d(2027, 3, 1))).toBe(false);
+    }
   });
 
   it('mínimo de nacionais (Alemanha 12) e estrangeiros = fora da confederação', () => {

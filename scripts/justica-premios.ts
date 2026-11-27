@@ -94,7 +94,7 @@ if (process.argv[2] !== '--relatorio') {
     linhas.push(['O melhor desempenho bruto ganha / fica no top 3', (c) => { const xs = anos(c, pr); const melhor = (a: Ano) => a.fin.reduce((m, f, i) => (f.bruto > a.fin[m].bruto ? i : m), 0); return `${pct(xs.filter((a) => melhor(a) === 0).length, xs.length)} / ${pct(xs.filter((a) => melhor(a) < 3).length, xs.length)}`; }]);
     if (pr === 'melhor_do_mundo') {
       linhas.push(['Fora das Big 5: no top 20 / no top 30 (por ano, média)', (c) => { const xs = anos(c, pr); const n = (k: number) => (xs.reduce((s, a) => s + a.fin.slice(0, k).filter((f) => !BIG5.has(f.liga)).length, 0) / Math.max(1, xs.length)).toFixed(2); return `${n(20)} / ${n(30)}`; }]);
-      linhas.push(['Calendário: ano civil no top 30 / nos elegíveis', (c) => { const xs = anos(c, pr); const t30 = xs.flatMap((a) => a.fin.slice(0, 30)); const el = c.elegiveis.reduce((s, e) => ({ a: s.a + (e.calendario.ano_civil ?? 0), t: s.t + Object.values(e.calendario).reduce((x, y) => x + y, 0) }), { a: 0, t: 0 }); return `${pct(t30.filter((f) => f.calendario === 'ano_civil').length, t30.length)} / ${pct(el.a, el.t)}`; }]);
+      // Calendário único (migração concluída, DECISIONS 210): já não há ligas de ano civil a comparar.
       linhas.push(['Nacionalidades dos vencedores (top 5)', (c) => conta(v(c), (f) => f.pais).slice(0, 5).map(([k, n]) => `${k} ${n}`).join(', ')]);
     }
     if (pr === 'golden_boy') {

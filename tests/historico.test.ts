@@ -14,7 +14,7 @@ describe('dados reais', () => {
   it('ficheiros de histórico carregados (6 ligas, 3 competições UEFA, 2 prémios)', async () => {
     const d = await dados();
     for (const id of ['ENG1', 'ESP1', 'ITA1', 'FRA1', 'GER1', 'POR1', 'UCL', 'UEL', 'UECL', 'premio_melhor_do_mundo', 'premio_golden_boy']) expect(d.historico[id]?.length).toBeGreaterThan(3);
-    expect(d.historico.ENG1.length).toBe(34);
+    expect(d.historico.ENG1.length).toBe(127); // 93 da 1.ª Divisão (1888–89 a 1991–92) + 34 da Premier League
     expect(d.historico.POR1.length).toBe(92);
     expect(parseCsv('# comentário\na,b\n1,2\n')).toEqual([{ a: '1', b: '2' }]);
   });
@@ -25,7 +25,7 @@ describe('dados reais', () => {
     expect(t('POR1', 'Benfica')).toBe(38);
     expect(t('ITA1', 'Juventus')).toBe(36);
     expect(t('ESP1', 'Real Madrid')).toBe(36);
-    expect(t('ENG1', 'Manchester United')).toBe(13);
+    expect(t('ENG1', 'Manchester United')).toBe(20); // 13 da Premier League + 7 da 1.ª Divisão (anteriores)
     expect(t('UCL', 'Real Madrid')).toBe(15);
     expect(nomeCanonico('Hamburgo')).toBe('Hamburger SV');
     // Títulos revogados não contam.
@@ -39,15 +39,21 @@ describe('dados reais', () => {
     expect(h.factosTitulo('ITA1', '2019–20', []).join(' ')).toMatch(/Juventus soma 9 títulos seguidos/);
   });
 
-  it('início oficial de cada competição (Bundesliga 1963, Ligue 1 1980, Primeira Liga 1960, Serie A 1930); os títulos anteriores continuam a contar', () => {
+  it('início oficial de cada competição (Bundesliga 1963, Ligue 1 1980, Primeira Liga 1960, Serie A 1930, Premier League 1992); os títulos anteriores continuam a contar', () => {
     const h = w.historico!;
     expect(h.competicao('GER1', [])[0].epoca).toBe('1963–64');
     expect(h.competicao('FRA1', [])[0].epoca).toBe('1980–81');
     expect(h.competicao('POR1', [])[0].epoca).toBe('1960–61');
     expect(h.competicao('ITA1', [])[0].epoca).toBe('1930–31');
+    expect(h.competicao('ENG1', [])[0].epoca).toBe('1992–93');
     const b = h.titulos('GER1', []).find((x) => x.clube === 'Bayern de Munique')!;
     expect(b.anteriores).toBe(1);
     expect(h.titulos('POR1', []).find((x) => x.clube === 'Benfica')!.titulos).toBe(38);
+    // Liverpool: 18 títulos da 1.ª Divisão (anteriores) + 2 da Premier League (DECISIONS: preenchido a partir de
+    // conhecimento geral, não de um PDF, a pedido do utilizador — ver packs/eng/historico/ENG1.csv).
+    const liv = h.titulos('ENG1', []).find((x) => x.clube === 'Liverpool')!;
+    expect(liv.anteriores).toBe(18);
+    expect(liv.titulos).toBe(20);
   });
 
   it('Golden Boy e Troféu Yashin (Melhor guarda-redes), dos PDFs do utilizador', () => {

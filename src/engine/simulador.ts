@@ -1,7 +1,6 @@
 // Ponto de entrada do motor. O mundo avança semana a semana por data real
-// (segundas-feiras). Cada calendário ("ago_mai", "ano_civil") tem a sua época a
-// decorrer; quando uma termina, fecha-se (passagem de época desse calendário) e
-// abre-se a seguinte. As ligas de ano civil começam em 2027 (decisão do utilizador).
+// (segundas-feiras). Calendário único ("ago_mai"; decisão do utilizador, 27/11/2026); a estrutura suporta mais
+// de um calendário em paralelo (cada um com a sua época a decorrer, em `temporadas`), caso volte a ser preciso.
 import { JOVEM_TITULAR, ANCORA_EVOLUCAO } from '../config/academia.ts';
 import { EFEITOS_TREINADOR } from '../config/treinadores.ts';
 import type { World } from './world.ts';

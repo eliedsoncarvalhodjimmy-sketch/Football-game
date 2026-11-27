@@ -749,9 +749,9 @@
     "max_plantel": 29
   },
   "calendario": {
-    "_origem": "decisão do utilizador (13/11/2026): as ligas marcadas \"ano civil\" na folha jogam Fevereiro–Dezembro e começam na época de 2027 (salta o resto de 2026); a Libertadores acompanha esse calendário",
+    "_origem": "decisão do utilizador (13/11/2026): as ligas marcadas \"ano civil\" na folha jogam Fevereiro–Dezembro e começam na época de 2027 (salta o resto de 2026); a Libertadores acompanha esse calendário. Migração para o calendário único (decisão do utilizador, 27/11/2026): todas as ligas passam a Agosto–Maio; a folha continua marcada \"ano civil\" (ver calendario_folha), mas o jogo ignora-o.",
     "continentais": {
-      "CLI": "ano_civil",
+      "CLI": "ago_mai",
       "UCL": "ago_mai",
       "UEL": "ago_mai",
       "UECL": "ago_mai",

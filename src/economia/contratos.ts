@@ -21,15 +21,12 @@ export function salarioMercado(st: PlayerStore, j: number, indice: number, dia: 
   return Math.max(S.minimo, Math.round(s / 1000) * 1000);
 }
 
-/** Dia (absoluto) do fim da época `anos` à frente, no calendário do clube (30/06 ou 31/12). */
+/** Dia (absoluto) do fim da época `anos` à frente (30/06; calendário único, Agosto–Maio). */
 export function fimDeEpoca(w: World, c: number, dia: number, anos: number): number {
-  const l = w.liga[c];
-  const civil = l >= 0 && w.ligas[l].regras.epoca.calendario === 'ano_civil';
   const d = new Date(dia * 86400000);
   let ano = d.getUTCFullYear();
-  if (!civil && d.getUTCMonth() >= 6) ano++; // depois de Julho, a época acaba no ano seguinte
-  if (civil) ano = Math.max(ano, w.epocaPorGrupo.ano_civil ?? ano); // o ano civil ainda não começou (2026)
-  const fim = civil ? Date.UTC(ano + anos - 1, 11, 31) : Date.UTC(ano + anos - 1, 5, 30);
+  if (d.getUTCMonth() >= 6) ano++; // depois de Julho, a época acaba no ano seguinte
+  const fim = Date.UTC(ano + anos - 1, 5, 30);
   return Math.floor(fim / 86400000);
 }
 

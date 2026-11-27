@@ -19,7 +19,7 @@
     "descem": "folha",
     "forca_desportiva": "proposta Claude (ranking UEFA): a validar",
     "geracao": "proposta Claude: bandas de reputação provisórias",
-    "calendario": "decisão do utilizador (13/11/2026): as ligas marcadas \"ano civil\" na folha jogam Fevereiro–Dezembro e começam na época de 2027 (salta o resto de 2026); a Libertadores acompanha esse calendário (folha: \"ano civil\")",
+    "calendario": "decisão do utilizador (13/11/2026): as ligas marcadas \"ano civil\" na folha jogam Fevereiro–Dezembro e começam na época de 2027 (salta o resto de 2026); a Libertadores acompanha esse calendário (folha: \"ano civil\"); migração para o calendário único (decisão do utilizador, 27/11/2026): esta liga passa a jogar Agosto–Maio, como todas as outras",
     "min_nacionais_plantel": "decisão do utilizador (13/11/2026): 0 (sem regra) em todas as ligas, excepto Alemanha 12, Inglaterra 8 e Itália 8; nacional = formado no país; os valores da folha ficam guardados mas não se usam"
   },
   "a_obter": [
@@ -47,7 +47,7 @@
     "sorteio"
   ],
   "epoca": {
-    "calendario": "ano_civil"
+    "calendario": "ago_mai"
   },
   "split_folha": null,
   "indice_riqueza": 2,

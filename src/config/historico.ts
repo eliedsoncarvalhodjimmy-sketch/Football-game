@@ -26,7 +26,7 @@ export const NOMES_EQUIVALENTES: Record<string, string[]> = {
 
 /** Ano a partir do qual conta o histórico de cada competição (resposta do utilizador). As épocas anteriores ficam nos
  *  ficheiros e continuam a contar nos títulos dos clubes ("não se apagam"), mas não aparecem na lista da competição. */
-export const INICIO_HISTORICO: Record<string, number> = { GER1: 1963, FRA1: 1980, POR1: 1960, ITA1: 1930 };
+export const INICIO_HISTORICO: Record<string, number> = { GER1: 1963, FRA1: 1980, POR1: 1960, ITA1: 1930, ENG1: 1992 };
 
 /** Ficheiros de histórico de prémios (packs/_continental/historico/premio_<id>.csv) — os ids dos prémios do jogo. */
 export const PREMIOS_HISTORICO = {

@@ -53,15 +53,15 @@ describe('10 épocas do mundo fictício', async () => {
     expect(vagas).toEqual([]);
   });
 
-  it('ligas de ano civil começam em 2027 e têm 10 épocas próprias; Libertadores no ano civil', () => {
-    const ac = H.filter((r) => r.grupo === 'ano_civil');
-    expect(ac.map((r) => r.epoca)).toEqual([2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036]);
-    for (const r of ac) {
-      expect(Object.keys(r.continentais)).toEqual(['CLI']);
+  it('calendário único: um só grupo (ago_mai), 10 épocas seguidas; a Libertadores joga lá com as outras (DECISIONS 210)', () => {
+    expect(new Set(H.map((r) => r.grupo))).toEqual(new Set(['ago_mai']));
+    expect(H.map((r) => r.epoca)).toEqual([2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035]);
+    for (const r of H) {
       expect(r.tabelas.BRA1).toBeDefined();
-      expect(r.tabelas.ENG1).toBeUndefined();
+      expect(r.tabelas.ENG1).toBeDefined();
+      expect(r.continentais.CLI).toBeDefined();
+      expect(r.continentais.UCL).toBeDefined();
     }
-    for (const r of H.filter((h) => h.grupo === 'ago_mai')) expect(r.continentais.CLI).toBeUndefined();
   });
 
   it('calendários sem conflitos (todas as competições)', () => {

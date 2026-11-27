@@ -17,8 +17,6 @@ export const NEGOCIACAO = {
   pico_ultima_semana: 2.5,
 };
 
-/** Janelas próprias das ligas de calendário anual (as folhas trazem as europeias). */
-export const JANELAS_ANO_CIVIL = [{ abre: '01-15', fecha: '03-31' }, { abre: '07-01', fecha: '08-15' }];
 
 /** Inscrições: mínimo de nacionais (formados no país) e máximo de estrangeiros (fora da confederação do clube). */
 export const INSCRICAO = {

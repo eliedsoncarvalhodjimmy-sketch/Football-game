@@ -67,8 +67,8 @@ export class World {
   modo: 'teste' | 'gerado' = 'teste';
   /** Qualificados para as competições continentais da época actual. */
   qualificados = new Map<string, Qualificado[]>();
-  /** Época actual de cada calendário (ago_mai: 2026 = 2026/27; ano_civil: 2027). */
-  epocaPorGrupo: Record<string, number> = { ago_mai: 2026, ano_civil: 2027 };
+  /** Época actual de cada calendário (calendário único, ago_mai: 2026 = 2026/27). */
+  epocaPorGrupo: Record<string, number> = { ago_mai: 2026 };
   /** Última classificação conhecida da liga principal de cada pacote (para as vagas). */
   entradasVagas = new Map<string, EntradaLiga>();
   /** Campeões em título (UCL, UEL, UECL) e ligas com o bónus do ranking, para as próximas vagas. */

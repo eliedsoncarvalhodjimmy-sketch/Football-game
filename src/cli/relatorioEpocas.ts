@@ -30,9 +30,9 @@ const NOMES_COMP: Record<string, string> = {
 const pct = (x: number, n: number) => (n ? ((100 * x) / n).toFixed(1) + '%' : '—');
 const media = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 const ep = (e: number) => `${e}/${String(e + 1).slice(2)}`;
-/** Rótulo de uma época: "2026/27" (Agosto–Maio) ou "2027" (ano civil). */
-const rot = (r: { grupo: string; epoca: number }) => (r.grupo === 'ano_civil' ? String(r.epoca) : ep(r.epoca));
-const NOME_GRUPO: Record<string, string> = { ago_mai: 'Agosto–Maio', ano_civil: 'ano civil (Fevereiro–Dezembro)' };
+/** Rótulo de uma época: "2026/27" (calendário "ago_mai"); outro calendário que não atravesse o ano usaria só o ano. */
+const rot = (r: { grupo: string; epoca: number }) => (r.grupo === 'ago_mai' ? ep(r.epoca) : String(r.epoca));
+const NOME_GRUPO: Record<string, string> = { ago_mai: 'Agosto–Maio' };
 const ok = (b: boolean) => (b ? '✅' : '❌');
 
 function nome(w: World, c: number, pais = false): string {
@@ -94,7 +94,8 @@ export function metricasRealismo(w: World, hist: RegistoEpoca[], favoritos: Dado
   // Clubes que subiram e desceram logo a seguir ("ioiô").
   let ioio = 0, subidasComSeguinte = 0;
   const porGrupo = (g: string) => hist.filter((h) => h.grupo === g);
-  for (const hs of [porGrupo('ago_mai'), porGrupo('ano_civil')]) for (let i = 0; i + 1 < hs.length; i++) {
+  const grupos = [...new Set(hist.map((h) => h.grupo))];
+  for (const hs of grupos.map(porGrupo)) for (let i = 0; i + 1 < hs.length; i++) {
     for (const m of hs[i].movimentos) {
       if (m.via === 'exterior' || m.de === 'exterior' || nivel(w, m.para) >= nivel(w, m.de)) continue;
       subidasComSeguinte++;
@@ -117,7 +118,9 @@ export function relatorioResumo(d: DadosRelatorio): string {
   const p = (s = '') => L.push(s);
   p(`# Simulação de ${d.epocas} épocas — semente ${d.semente}`);
   p();
-  p(`> **DADOS DE TESTE.** Mundo fictício (${w.ligas.length} ligas, ${d.pacotes} pacotes). Dois calendários: Agosto–Maio (${rot(H.find((r) => r.grupo === 'ago_mai')!)} a ${rot([...H].reverse().find((r) => r.grupo === 'ago_mai')!)}) e ano civil, Fevereiro–Dezembro (${H.some((r) => r.grupo === 'ano_civil') ? `${rot(H.find((r) => r.grupo === 'ano_civil')!)} a ${rot([...H].reverse().find((r) => r.grupo === 'ano_civil')!)}` : '—'}). Uma página por época em [epocas/](epocas/), com todas as classificações finais.`);
+  const grupos = [...new Set(H.map((r) => r.grupo))];
+  const calendarios = grupos.map((g) => `${NOME_GRUPO[g] ?? g} (${rot(H.find((r) => r.grupo === g)!)} a ${rot([...H].reverse().find((r) => r.grupo === g)!)})`).join(', ');
+  p(`> **DADOS DE TESTE.** Mundo fictício (${w.ligas.length} ligas, ${d.pacotes} pacotes). Calendário${grupos.length > 1 ? 's' : ''}: ${calendarios}. Uma página por época em [epocas/](epocas/), com todas as classificações finais.`);
   p();
 
   // ---------- Testes ----------
@@ -170,11 +173,11 @@ export function relatorioResumo(d: DadosRelatorio): string {
 
   // ---------- Campeões ----------
   p('## 2. Campeões por liga');
-  for (const g of ['ago_mai', 'ano_civil']) {
+  for (const g of [...new Set(H.map((r) => r.grupo))]) {
     const HG = H.filter((r) => r.grupo === g);
     if (!HG.length) continue;
     p();
-    p(`### Calendário ${NOME_GRUPO[g]}`);
+    p(`### Calendário ${NOME_GRUPO[g] ?? g}`);
     p();
     p(`| Liga | ${HG.map(rot).join(' | ')} | Diferentes |`);
     p(`|---|${HG.map(() => '---').join('|')}|---:|`);
@@ -229,11 +232,11 @@ export function relatorioResumo(d: DadosRelatorio): string {
   // ---------- Taças ----------
   p('## 5. Taças nacionais (vencedores)');
   p();
-  for (const g of ['ago_mai', 'ano_civil']) {
+  for (const g of [...new Set(H.map((r) => r.grupo))]) {
     const HG = H.filter((r) => r.grupo === g);
     const pacs = w.pacotes.filter((pk) => w.ligas[pk.ligas[0]].regras.epoca.calendario === g && pk.tacas.length);
     if (!HG.length || !pacs.length) continue;
-    p(`| Taça (${NOME_GRUPO[g]}) | ${HG.map(rot).join(' | ')} |`);
+    p(`| Taça (${NOME_GRUPO[g] ?? g}) | ${HG.map(rot).join(' | ')} |`);
     p(`|---|${HG.map(() => '---').join('|')}|`);
     for (const pk of pacs) for (const tc of pk.tacas) p(`| ${tc.nome} (${pk.manifest.nome}) | ${HG.map((r) => (r.tacas[tc.id] ? w.clubes[r.tacas[tc.id].vencedor].nome_curto : '')).join(' | ')} |`);
     p();

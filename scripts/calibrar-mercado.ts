@@ -25,7 +25,7 @@ const regLiga = (c: number) => (w.liga[c] >= 0 ? w.ligas[w.liga[c]].regras.id : 
 // A liga de cada clube no momento do negócio: guardamos ao registar (o registo só tem clubes).
 const origLen = { v: 0 };
 while (grupos.some((g) => sim.historico.filter((r) => r.grupo === g).length < N)) {
-  // Semana de janela: alguma liga tem a janela aberta (as de ano civil têm datas próprias).
+  // Semana de janela: alguma liga tem a janela aberta.
   const jan = w.ligas.some((L) => L.clubes.length > 0 && m.janelaAberta(L.clubes[0], sim.segunda + 3));
   const h0 = sim.historico.length;
   const t = performance.now(); sim.simularSemana(); semanas.push({ ms: performance.now() - t, janela: jan, fecho: sim.historico.length > h0 });

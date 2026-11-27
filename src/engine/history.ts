@@ -29,7 +29,7 @@ export interface RegistoContinental extends ResultadoMataMata {
 }
 
 export interface RegistoEpoca {
-  /** Calendário: "ago_mai" (epoca 2026 = 2026/27) ou "ano_civil" (epoca 2027 = época de 2027). */
+  /** Calendário (calendário único: "ago_mai", epoca 2026 = 2026/27). */
   grupo: string;
   epoca: number;
   tabelas: Record<string, LinhaTabela[]>;

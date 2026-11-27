@@ -65,27 +65,8 @@ export const CALENDARIO = {
       // Play-offs (subida, barragem, campeão) depois de todas as finais, para não haver choques.
       playoffs: [49, 50, 51],
     } as ModeloCalendario,
-    // Ligas de ano civil (decisão do utilizador, 13/11/2026): Fevereiro–Novembro, play-offs em Dezembro.
-    // Semana 0 = segunda-feira da semana de 1 de Janeiro. Sem competições UEFA; a Libertadores joga aqui.
-    ano_civil: {
-      inicio: '01-01',
-      primeira_semana: 5, // sábado ~6 Fev
-      ultima_semana: 46, // sábado ~20 Nov
-      paragens_selecoes: [12, 23, 36, 41],
-      continentais: {
-        acesso: [],
-        fase_liga: [],
-        playoff: [],
-        oitavos: [],
-        quartos: [],
-        meias: [],
-        final: 48,
-        grupos: [9, 11, 14, 16, 19, 21],
-        quartos_grupos: [31, 32],
-        meias_grupos: [39, 40],
-      },
-      final_taca: 47,
-      playoffs: [49, 50, 51],
-    } as ModeloCalendario,
+    // Ligas de ano civil (NOR1, URU1, BRA1, BRA2, ARG1, USA1, KOR1, COL1, ECU1) e a Libertadores (CLI) jogaram aqui
+    // Fevereiro–Novembro (decisão do utilizador, 13/11/2026). Migradas para "ago_mai" (decisão do utilizador,
+    // 27/11/2026: calendário único); o modelo ficou sem ligas e foi removido. Ver DECISIONS.md, entradas 206 e 210.
   } as Record<string, ModeloCalendario>,
 };

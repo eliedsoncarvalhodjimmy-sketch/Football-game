@@ -7,7 +7,7 @@ import { Rng } from '../core/rng.ts';
 import { folgaFinanciamento, cobrirFalta } from '../club/financas.ts';
 import { CONTRATO, EMPRESTIMOS, ESTATUTOS, type Estatuto } from '../config/contratosJogador.ts';
 import { CLAUSULAS as CL } from '../config/clausulas.ts';
-import { NEGOCIACAO as N, JANELAS_ANO_CIVIL, INSCRICAO, IA_MERCADO as IA, PLANO_PLANTEL, GIGANTES } from '../config/negociacao.ts';
+import { NEGOCIACAO as N, INSCRICAO, IA_MERCADO as IA, PLANO_PLANTEL, GIGANTES } from '../config/negociacao.ts';
 import { PlanosPlantel, type Necessidade } from './planoPlantel.ts';
 import { IDX_POS, FAMILIARIDADE, POSICOES as POS_NOMES } from '../config/papeis.ts';
 import { CONFEDERACAO_PAIS } from '../config/paises.ts';
@@ -211,7 +211,7 @@ export class Mercado {
     const l = this.w.liga[c];
     if (l < 0) return true;
     const r = this.w.ligas[l].regras;
-    const jan = r.epoca.calendario === 'ano_civil' ? JANELAS_ANO_CIVIL : r.janelas_transferencias;
+    const jan = r.janelas_transferencias;
     const d = new Date(dia * 864e5);
     const md = (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
     for (const x of jan) {

@@ -132,7 +132,7 @@ describe('uma época com a economia ligada', () => {
     for (const [j, fim] of fims) {
       const cl = w.jogadores!.clube[j] >= 0 ? w.jogadores!.clube[j] : -1;
       if (fim > sim.segunda + 30) continue; // só os que acabaram na primeira passagem de Agosto–Maio
-      if (cl >= 0 && (w.liga[cl] < 0 || w.ligas[w.liga[cl]].regras.epoca.calendario !== 'ago_mai')) continue; // saiu do jogo ou ano civil
+      if (cl >= 0 && w.liga[cl] < 0) continue; // saiu do jogo
       if (st.clube[j] === -3) { livres++; expect(st.salario[j]).toBe(0); expect(w.plantel.some((p) => p.includes(j))).toBe(false); }
       else if (st.clube[j] >= 0) { renovados++; expect(st.fimContrato[j]).toBeGreaterThan(fim); }
     }

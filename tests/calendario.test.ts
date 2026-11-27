@@ -50,9 +50,11 @@ describe('calendário das ligas', async () => {
     expect(verificarCalendario(todos)).toEqual([]);
   });
 
-  it('ligas de ano civil usam o calendário Fevereiro–Dezembro (8 ligas da folha)', () => {
-    const anoCivil = w.ligas.filter((l) => l.regras.epoca.calendario === 'ano_civil').map((l) => l.regras.id).sort();
-    expect(anoCivil).toEqual(['ARG1', 'BRA1', 'BRA2', 'COL1', 'ECU1', 'KOR1', 'NOR1', 'URU1', 'USA1']);
+  it('calendário único: todas as ligas jogam Agosto–Maio (migração de 27/11/2026, DECISIONS 206 e 210)', () => {
+    const outros = w.ligas.filter((l) => l.regras.epoca.calendario !== 'ago_mai').map((l) => l.regras.id);
+    expect(outros).toEqual([]);
+    // As antigas ligas de ano civil continuam no jogo, agora com o calendário comum.
+    for (const id of ['ARG1', 'BRA1', 'BRA2', 'COL1', 'ECU1', 'KOR1', 'NOR1', 'URU1', 'USA1']) expect(w.ligaPorId(id).regras.epoca.calendario).toBe('ago_mai');
   });
 
   it('jornadas dentro da época; só as divisões inferiores jogam nas paragens de selecções', () => {

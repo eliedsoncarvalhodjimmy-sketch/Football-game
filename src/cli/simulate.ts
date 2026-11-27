@@ -60,7 +60,7 @@ async function correr(semente: number, n: number, medir: boolean) {
     sim.simularSemana();
     if (medir) out.semanasMs.push(performance.now() - ts);
   }
-  // Choques entre calendários (ex.: clube norueguês na liga de ano civil e na UEFA), por data absoluta.
+  // Choques entre calendários (hoje há só um, mas o código é geral), por data absoluta.
   out.calendario.push({ epoca: 'todas (entre calendários)', problemas: verificarCalendarioMundo(fechadas).map((p) => `${p.tipo}: ${p.msg}`), jogos: 0 });
   out.favoritos = sim.inicios;
   out.memoriaMB = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -92,6 +92,6 @@ if (comRelatorio) {
   const dir = new URL('../../docs/relatorios/', import.meta.url).pathname;
   mkdirSync(`${dir}epocas`, { recursive: true });
   writeFileSync(`${dir}simulacao_${N}_epocas.md`, relatorioResumo(res));
-  for (const r of res.historico) writeFileSync(`${dir}epocas/epoca_${r.grupo === 'ano_civil' ? `${r.epoca}_ano_civil` : `${r.epoca}-${String(r.epoca + 1).slice(2)}`}.md`, relatorioEpoca(res, r));
+  for (const r of res.historico) writeFileSync(`${dir}epocas/epoca_${r.grupo === 'ago_mai' ? `${r.epoca}-${String(r.epoca + 1).slice(2)}` : `${r.epoca}_${r.grupo}`}.md`, relatorioEpoca(res, r));
   console.log(`Relatório: docs/relatorios/simulacao_${N}_epocas.md e docs/relatorios/epocas/`);
 }

@@ -129,8 +129,10 @@ for (const r of ligasF) {
     subidas: { directas: sobemFinal, playoff: c.playoff ? { de: c.playoff.de, ate: c.playoff.ate, destino: c.playoff.destino } : null },
     descidas: { directas: descem, barragem: c.barragem ? { posicao: c.barragem.posicao, adversario: c.barragem.adversario, maos: 2 } : null, exterior: false },
     desempates: DESEMPATES[pais] ?? D_PADRAO,
-    // Decisão do utilizador (13/11/2026): as ligas marcadas "ano civil" jogam Fevereiro–Dezembro.
-    epoca: { calendario: /ano civil/i.test(String(r['calendário'] ?? '')) ? 'ano_civil' : 'ago_mai' },
+    // Decisão do utilizador (13/11/2026): as ligas marcadas "ano civil" jogavam Fevereiro–Dezembro.
+    // Migração para o calendário único (decisão do utilizador, 27/11/2026): todas as ligas em Agosto–Maio, o que
+    // a folha diz fica só em calendario_folha, para referência.
+    epoca: { calendario: 'ago_mai' },
     split_folha: /split|fase final/i.test(formato ?? '') ? formato : null,
     indice_riqueza: num(r['índice_riqueza_1a100']) ?? 0,
     geracao: c.rep ? { rep_tecto: c.rep[0], rep_piso: c.rep[1] } : null,

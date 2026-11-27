@@ -59,8 +59,8 @@ export function verificarCalendarioEpoca(t: Temporada): ProblemaCalendario[] {
   return verificarCalendario(t.jogos, cont, new Set(t.ligas.keys()));
 }
 
-/** Calendário de várias épocas, de todos os calendários, por data absoluta: apanha choques entre uma liga
- *  de ano civil e uma competição de Agosto–Maio (ex.: clubes noruegueses na UEFA). */
+/** Calendário de várias épocas, de todos os calendários, por data absoluta: apanha choques entre ligas de
+ *  calendários diferentes e as suas competições continentais (hoje há só um calendário, mas o código é geral). */
 export function verificarCalendarioMundo(ts: Temporada[]): ProblemaCalendario[] {
   const cont = new Set<string>();
   const ligas = new Set<string>();

@@ -1,6 +1,5 @@
-// Datas. Cada época de cada modelo de calendário começa na segunda-feira da
-// semana que contém o seu dia de início (1 de Julho em "ago_mai", 1 de Janeiro
-// em "ano_civil"). Os dias absolutos contam-se desde 1970-01-01 (UTC).
+// Datas. Cada época de cada modelo de calendário começa na segunda-feira da semana que contém o seu dia de início
+// (1 de Julho em "ago_mai", o único hoje). Os dias absolutos contam-se desde 1970-01-01 (UTC).
 import { CALENDARIO } from '../../config/calendario.ts';
 
 const DIA_MS = 86400000;

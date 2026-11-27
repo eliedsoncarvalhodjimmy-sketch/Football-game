@@ -1,5 +1,103 @@
-# Histórico da Premier League. Fonte: Premier League — Wikipédia (PDF do utilizador). Épocas até 2025–26 inclusive; a partir de 2026–27 é o jogo.
+# Histórico da Premier League (desde 1992–93) e da 1.ª Divisão inglesa (1888–89 a 1991–92). Fonte da Premier League:
+# Premier League — Wikipédia (PDF do utilizador). A 1.ª Divisão (campeão e vice de cada época, mais alguns treinadores e
+# notas) foi preenchida pelo Claude a partir de conhecimento geral, não de um documento enviado — decisão do utilizador
+# (27/11/2026, questão sobre os títulos do Liverpool); a rever com mais atenção do que o resto do ficheiro. Sem época
+# 1915–16 a 1918–19 (1.ª Guerra) e 1939–40 a 1945–46 (2.ª Guerra): a 1.ª Divisão não jogou. Épocas até 2025–26 inclusive;
+# a partir de 2026–27 é o jogo.
 epoca,campeao,vice,terceiro,quarto,melhor_marcador,clube_marcador,golos,treinador_campeao,capitao,pontos_campeao,era,nota,origem
+1888–89,Preston North End,Aston Villa,,,,,,,,,1.ª Divisão,"invictos na liga (""Invincibles""); 1.ª época da Football League",real
+1889–90,Preston North End,Everton,,,,,,,,,1.ª Divisão,,real
+1890–91,Everton,Preston North End,,,,,,,,,1.ª Divisão,,real
+1891–92,Sunderland,Preston North End,,,,,,,,,1.ª Divisão,,real
+1892–93,Sunderland,Preston North End,,,,,,,,,1.ª Divisão,,real
+1893–94,Aston Villa,Sunderland,,,,,,,,,1.ª Divisão,,real
+1894–95,Sunderland,Everton,,,,,,,,,1.ª Divisão,,real
+1895–96,Aston Villa,Derby County,,,,,,,,,1.ª Divisão,,real
+1896–97,Aston Villa,Sheffield United,,,,,,,,,1.ª Divisão,"liga e FA Cup (""double"")",real
+1897–98,Sheffield United,Sunderland,,,,,,,,,1.ª Divisão,,real
+1898–99,Aston Villa,Liverpool,,,,,,,,,1.ª Divisão,,real
+1899–1900,Aston Villa,Sheffield United,,,,,,,,,1.ª Divisão,,real
+1900–01,Liverpool,Sunderland,,,,,,Tom Watson,,,1.ª Divisão,1.º título do Liverpool,real
+1901–02,Sunderland,Everton,,,,,,,,,1.ª Divisão,,real
+1902–03,Sheffield Wednesday,Aston Villa,,,,,,,,,1.ª Divisão,,real
+1903–04,Sheffield Wednesday,Manchester City,,,,,,,,,1.ª Divisão,,real
+1904–05,Newcastle United,Everton,,,,,,,,,1.ª Divisão,,real
+1905–06,Liverpool,Preston North End,,,,,,Tom Watson,,,1.ª Divisão,,real
+1906–07,Newcastle United,Bristol City,,,,,,,,,1.ª Divisão,,real
+1907–08,Manchester United,Aston Villa,,,,,,,,,1.ª Divisão,1.º título do Manchester United,real
+1908–09,Newcastle United,Everton,,,,,,,,,1.ª Divisão,,real
+1909–10,Aston Villa,Liverpool,,,,,,,,,1.ª Divisão,,real
+1910–11,Manchester United,Aston Villa,,,,,,,,,1.ª Divisão,,real
+1911–12,Blackburn Rovers,Everton,,,,,,,,,1.ª Divisão,,real
+1912–13,Sunderland,Aston Villa,,,,,,,,,1.ª Divisão,,real
+1913–14,Blackburn Rovers,Aston Villa,,,,,,,,,1.ª Divisão,,real
+1914–15,Everton,Oldham Athletic,,,,,,,,,1.ª Divisão,última época antes da Primeira Guerra Mundial,real
+1919–20,West Bromwich Albion,Burnley,,,,,,,,,1.ª Divisão,regresso após a Primeira Guerra Mundial (sem época 1915–16 a 1918–19),real
+1920–21,Burnley,Manchester City,,,,,,,,,1.ª Divisão,,real
+1921–22,Liverpool,Tottenham Hotspur,,,,,,,,,1.ª Divisão,,real
+1922–23,Liverpool,Sunderland,,,,,,,,,1.ª Divisão,,real
+1923–24,Huddersfield Town,Cardiff City,,,,,,,,,1.ª Divisão,decidido pela média de golos (diferença de 0,024 sobre o Cardiff),real
+1924–25,Huddersfield Town,West Bromwich Albion,,,,,,,,,1.ª Divisão,,real
+1925–26,Huddersfield Town,Arsenal,,,,,,,,,1.ª Divisão,3 títulos seguidos (1.º clube a consegui-lo),real
+1926–27,Newcastle United,Huddersfield Town,,,,,,,,,1.ª Divisão,,real
+1927–28,Everton,Huddersfield Town,,,,,,,,,1.ª Divisão,,real
+1928–29,Sheffield Wednesday,Leicester City,,,,,,,,,1.ª Divisão,,real
+1929–30,Sheffield Wednesday,Derby County,,,,,,,,,1.ª Divisão,,real
+1930–31,Arsenal,Aston Villa,,,,,,Herbert Chapman,,,1.ª Divisão,1.º título do Arsenal,real
+1931–32,Everton,Arsenal,,,,,,,,,1.ª Divisão,,real
+1932–33,Arsenal,Aston Villa,,,,,,Herbert Chapman,,,1.ª Divisão,,real
+1933–34,Arsenal,Huddersfield Town,,,,,,George Allison,,,1.ª Divisão,Herbert Chapman morreu a meio da época,real
+1934–35,Arsenal,Sunderland,,,,,,George Allison,,,1.ª Divisão,,real
+1935–36,Sunderland,Derby County,,,,,,,,,1.ª Divisão,,real
+1936–37,Manchester City,Charlton Athletic,,,,,,,,,1.ª Divisão,,real
+1937–38,Arsenal,Wolverhampton Wanderers,,,,,,George Allison,,,1.ª Divisão,,real
+1938–39,Everton,Wolverhampton Wanderers,,,,,,,,,1.ª Divisão,última época antes da Segunda Guerra Mundial,real
+1946–47,Liverpool,Manchester United,,,,,,George Kay,,,1.ª Divisão,regresso após a Segunda Guerra Mundial (sem época 1939–40 a 1945–46),real
+1947–48,Arsenal,Manchester United,,,,,,Tom Whittaker,,,1.ª Divisão,,real
+1948–49,Portsmouth,Manchester United,,,,,,,,,1.ª Divisão,,real
+1949–50,Portsmouth,Wolverhampton Wanderers,,,,,,,,,1.ª Divisão,,real
+1950–51,Tottenham Hotspur,Manchester United,,,,,,Arthur Rowe,,,1.ª Divisão,1.º título do Tottenham,real
+1951–52,Manchester United,Tottenham Hotspur,,,,,,Matt Busby,,,1.ª Divisão,,real
+1952–53,Arsenal,Preston North End,,,,,,Tom Whittaker,,,1.ª Divisão,,real
+1953–54,Wolverhampton Wanderers,West Bromwich Albion,,,,,,Stan Cullis,,,1.ª Divisão,,real
+1954–55,Chelsea,Wolverhampton Wanderers,,,,,,,,,1.ª Divisão,1.º título do Chelsea,real
+1955–56,Manchester United,Blackpool,,,,,,Matt Busby,,,1.ª Divisão,,real
+1956–57,Manchester United,Tottenham Hotspur,,,,,,Matt Busby,,,1.ª Divisão,,real
+1957–58,Wolverhampton Wanderers,Preston North End,,,,,,Stan Cullis,,,1.ª Divisão,,real
+1958–59,Wolverhampton Wanderers,Manchester United,,,,,,Stan Cullis,,,1.ª Divisão,,real
+1959–60,Burnley,Wolverhampton Wanderers,,,,,,,,,1.ª Divisão,,real
+1960–61,Tottenham Hotspur,Sheffield Wednesday,,,,,,Bill Nicholson,,,1.ª Divisão,liga e FA Cup (""double""),real
+1961–62,Ipswich Town,Burnley,,,,,,Alf Ramsey,,,1.ª Divisão,único título do Ipswich,real
+1962–63,Everton,Tottenham Hotspur,,,,,,Harry Catterick,,,1.ª Divisão,,real
+1963–64,Liverpool,Manchester United,,,,,,Bill Shankly,,,1.ª Divisão,,real
+1964–65,Manchester United,Leeds United,,,,,,Matt Busby,,,1.ª Divisão,,real
+1965–66,Liverpool,Leeds United,,,,,,Bill Shankly,,,1.ª Divisão,,real
+1966–67,Manchester United,Nottingham Forest,,,,,,Matt Busby,,,1.ª Divisão,,real
+1967–68,Manchester City,Manchester United,,,,,,Joe Mercer,,,1.ª Divisão,,real
+1968–69,Leeds United,Liverpool,,,,,,Don Revie,,,1.ª Divisão,1.º título do Leeds,real
+1969–70,Everton,Leeds United,,,,,,Harry Catterick,,,1.ª Divisão,,real
+1970–71,Arsenal,Leeds United,,,,,,Bertie Mee,,,1.ª Divisão,liga e FA Cup (""double""),real
+1971–72,Derby County,Leeds United,,,,,,Brian Clough,,,1.ª Divisão,1.º título do Derby,real
+1972–73,Liverpool,Arsenal,,,,,,Bill Shankly,,,1.ª Divisão,,real
+1973–74,Leeds United,Liverpool,,,,,,Don Revie,,,1.ª Divisão,,real
+1974–75,Derby County,Liverpool,,,,,,Dave Mackay,,,1.ª Divisão,,real
+1975–76,Liverpool,Queens Park Rangers,,,,,,Bob Paisley,,,1.ª Divisão,,real
+1976–77,Liverpool,Manchester City,,,,,,Bob Paisley,,,1.ª Divisão,,real
+1977–78,Nottingham Forest,Liverpool,,,,,,Brian Clough,,,1.ª Divisão,único título do Nottingham Forest,real
+1978–79,Liverpool,Nottingham Forest,,,,,,Bob Paisley,,,1.ª Divisão,,real
+1979–80,Liverpool,Manchester United,,,,,,Bob Paisley,,,1.ª Divisão,,real
+1980–81,Aston Villa,Ipswich Town,,,,,,,,,1.ª Divisão,,real
+1981–82,Liverpool,Ipswich Town,,,,,,Bob Paisley,,,1.ª Divisão,,real
+1982–83,Liverpool,Watford,,,,,,Bob Paisley,,,1.ª Divisão,,real
+1983–84,Liverpool,Southampton,,,,,,Joe Fagan,,,1.ª Divisão,,real
+1984–85,Everton,Liverpool,,,,,,Howard Kendall,,,1.ª Divisão,,real
+1985–86,Liverpool,Everton,,,,,,Kenny Dalglish,,,1.ª Divisão,liga e FA Cup (""double""); Dalglish jogador-treinador,real
+1986–87,Everton,Liverpool,,,,,,Howard Kendall,,,1.ª Divisão,,real
+1987–88,Liverpool,Manchester United,,,,,,Kenny Dalglish,,,1.ª Divisão,,real
+1988–89,Arsenal,Liverpool,,,,,,George Graham,,,1.ª Divisão,decidido no último jogo em Anfield (golo de Michael Thomas),real
+1989–90,Liverpool,Aston Villa,,,,,,Kenny Dalglish,,,1.ª Divisão,,real
+1990–91,Arsenal,Liverpool,,,,,,George Graham,,,1.ª Divisão,,real
+1991–92,Leeds United,Manchester United,,,,,,Howard Wilkinson,,,1.ª Divisão,última época da 1.ª Divisão antes da Premier League,real
 1992–93,Manchester United,Aston Villa,Norwich City,Blackburn Rovers,,,,Alex Ferguson,,,,,real
 1993–94,Manchester United,Blackburn Rovers,Newcastle United,Arsenal,,,,Alex Ferguson,,,,,real
 1994–95,Blackburn Rovers,Manchester United,Nottingham Forest,Liverpool,,,,Kenny Dalglish,,,,,real

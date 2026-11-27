@@ -1,6 +1,6 @@
 // Prompt 8, Bloco A: a janela dos prémios (1 de Agosto a 28 de Julho), somada entre clubes; títulos repartidos pelos
-// minutos de cada passagem por um clube; estatísticas novas de guarda-redes; jogadores de ligas de ano civil; guarda de
-// integridade; e o histórico das últimas 3 épocas por jogador (que não entra nos prémios).
+// minutos de cada passagem por um clube; estatísticas novas de guarda-redes; guarda de integridade; e o histórico das
+// últimas 3 épocas por jogador (que não entra nos prémios).
 import { describe, expect, it, beforeAll } from 'vitest';
 import { mundo } from './helpers.ts';
 import { Simulador } from '../src/engine/simulador.ts';
@@ -72,8 +72,8 @@ describe('janela dos prémios (Prompt 8, Bloco A)', () => {
     jp.inicio = ini;
   });
 
-  it('liga de ano civil: os jogos de Janeiro e Fevereiro contam na janela aberta a 1 de Agosto', () => {
-    for (let k = 0; k < 15; k++) sim.simularSemana(); // até meados de Fevereiro de 2027
+  it('BRA1 no calendário único: os seus jogos de meio de época contam na janela como os de qualquer outra liga (DECISIONS 210)', () => {
+    for (let k = 0; k < 15; k++) sim.simularSemana(); // mais algumas semanas de Agosto–Maio
     const st = w.jogadores!;
     let n = 0;
     for (const c of w.ligaPorId('BRA1').clubes) for (const j of w.plantel[c]) {

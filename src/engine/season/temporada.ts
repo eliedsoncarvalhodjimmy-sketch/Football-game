@@ -58,9 +58,9 @@ export class Temporada {
   base: number;
 
   /**
-   * @param grupo modelo de calendário ("ago_mai" ou "ano_civil"): só entram as ligas, taças e
+   * @param grupo modelo de calendário (calendário único: "ago_mai"): só entram as ligas, taças e
    *              continentais desse calendário.
-   * @param ano   ano de início da época (2026 = 2026/27 em ago_mai; 2027 = época de 2027 em ano_civil).
+   * @param ano   ano de início da época (2026 = 2026/27 em ago_mai).
    */
   constructor(public w: World, public grupo = 'ago_mai', public ano = w.epoca) {
     const ep = ano;
