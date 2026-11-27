@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FutCEO — Cutscene europeia (teste)</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #05070d; color: #e8ecf4; font: 15px system-ui; }
+      #painel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; background: rgba(8,12,22,.94); padding: 10px 14px 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      #painel button, #painel input, #painel label { font: 14px system-ui; }
+      #painel button { background: #141c2e; border: 1px solid #2a3858; color: #dbe4f5; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+      #estado { font-size: 12px; color: #9fb0cc; width: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="painel">
+      <button id="bCL">Champions League</button>
+      <button id="bEL">Liga Europa</button>
+      <button id="bPlay">▶ Ver cutscene (cenas provisórias)</button>
+      <label>Áudio da intro (opcional): <input type="file" id="fAudio" accept="audio/*"></label>
+      <button id="bReduzido">Testar modo reduzido</button>
+      <div id="estado">Bloco 1: cenas em cores só para verificar a linha de tempo e o relógio. As cenas finais (fotografias, logótipos, escudos) chegam nos Blocos 2–4.</div>
+    </div>
+    <script type="module" src="../src/cutscene/dev/main.ts"></script>
+  </body>
+</html>

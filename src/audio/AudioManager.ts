@@ -9,7 +9,7 @@ import { CATALOGO_VAZIO, type Catalogo, type ContextoMusica, type IdCutscene, ty
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 /** Um som a tocar num canal (Web Audio): a sua fonte + o seu próprio ganho, para crossfade sem tocar no ganho do canal. */
-interface Som { fonte: AudioBufferSourceNode; ganho: GainNode; terminou: boolean }
+interface Som { fonte: AudioBufferSourceNode; ganho: GainNode; terminou: boolean; inicioCtx: number }
 /** O mesmo papel com o HTMLAudioElement como alternativa. */
 interface SomHtml { el: HTMLAudioElement }
 
@@ -152,7 +152,7 @@ export class AudioManager {
   /** Cutscene europeia (Champions ou Liga Europa, config `AUDIO.cutscenes`); música e ambiente baixam primeiro. Chama
    *  `aoAcabar` quando o áudio termina naturalmente, for cortado pelo fim da cutscene ou for saltado. Sem ficheiro
    *  (competição não mapeada ou ficheiro em falta): não toca nada e `aoAcabar` corre já, para a transição seguir normal. */
-  tocarCutscene(id: IdCutscene, aoAcabar: () => void) {
+  tocarCutscene(id: IdCutscene, aoAcabar: () => void, volumeExtra = 1) {
     const catalogoId = AUDIO.cutscenes[id];
     const item = catalogoId ? this.catalogo.obter(catalogoId) : undefined;
     if (!item) { aoAcabar(); return; }
@@ -160,7 +160,7 @@ export class AudioManager {
     this.fadeCanal('musica', 0, AUDIO.fade.cutscene_entrada_ms);
     this.fadeCanal('ambiente', 0, AUDIO.fade.cutscene_entrada_ms);
     setTimeout(() => {
-      this.tocarNoCanal('cutscene', catalogoId, false, 1, () => this.terminarCutscene());
+      this.tocarNoCanal('cutscene', catalogoId, false, volumeExtra, () => this.terminarCutscene());
     }, AUDIO.fade.cutscene_entrada_ms);
   }
 
@@ -186,6 +186,13 @@ export class AudioManager {
   /** Já tocou esta cutscene/evento com esta chave nesta sessão? (ex.: "champions|2027-03-10"). Marca-a como vista. */
   marcarVisto(chave: string): boolean { const visto = this.jaTocou.has(chave); this.jaTocou.add(chave); return visto; }
 
+  /** Tempo decorrido (segundos) do som a tocar num canal, pelo relógio do AudioContext (Prompt 11: relógio mestre da
+   *  cutscene). `null` sem Web Audio ou sem nada a tocar nesse canal — quem chama usa então `performance.now()`. */
+  tempoCanal(canal: Canal): number | null {
+    const s = this.actuais[canal];
+    return s && this.ctx ? this.ctx.currentTime - s.inicioCtx : null;
+  }
+
   // ---------------------------------------------------------------- reprodução interna por canal
 
   private tocarNoCanal(canal: Canal, id: string, loop: boolean, volumeExtra = 1, aoAcabar?: () => void) {
@@ -210,7 +217,7 @@ export class AudioManager {
     const dur = canal === 'cutscene' ? AUDIO.fade.cutscene_entrada_ms : canal === 'musica' ? AUDIO.fade.musica_crossfade_ms : AUDIO.fade.ambiente_crossfade_ms;
     const agora = this.ctx.currentTime;
     ganho.gain.linearRampToValueAtTime(volumeExtra, agora + dur / 1000);
-    const som: Som = { fonte, ganho, terminou: false };
+    const som: Som = { fonte, ganho, terminou: false, inicioCtx: agora };
     fonte.start();
     if (!loop) fonte.onended = () => { som.terminou = true; if (this.actuais[canal] === som) delete this.actuais[canal]; aoAcabar?.(); };
     if (anterior) this.desligarSom(anterior, dur);

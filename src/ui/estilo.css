@@ -673,3 +673,12 @@ select[multiple] { min-height: 140px; }
 .jg-final { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 12px 16px; }
 @media (max-width: 760px) { .jg-corpo { grid-template-columns: 1fr; } .jg-relato { max-height: 30vh; } .jogo2d { padding: 10px; } }
 .jg-final[hidden] { display: none; }
+
+/* Cutscene europeia (Prompt 11). */
+.cutscene { position: fixed; inset: 0; z-index: 60; background: #05070d; touch-action: manipulation; }
+.cutscene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cs-saltar { position: absolute; right: 14px; top: 14px; z-index: 2; display: none; background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.35); color: #fff; padding: 9px 16px; border-radius: 999px; font: 600 14px system-ui; cursor: pointer; }
+.cs-saltar.on { display: block; }
+.cs-cartaz { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #fff; text-align: center; padding: 24px; font-family: system-ui; }
+.cs-cartaz b { font-size: 22px; letter-spacing: .04em; }
+.cs-cartaz span { color: #9fb0cc; font-size: 14px; }

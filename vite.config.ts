@@ -12,6 +12,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         'test-faces': resolve(__dirname, 'test-faces/index.html'),
+        'test-cutscene': resolve(__dirname, 'test-cutscene/index.html'),
       },
     },
   },
