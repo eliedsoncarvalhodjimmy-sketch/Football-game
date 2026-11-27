@@ -14,6 +14,13 @@ import { htmlMercado, htmlNegociacao, htmlAcademia, htmlScouting, rascunhoInicia
 import { eventoA3, mudancaA3, entradaA3, SELECTOR, ligarA3 } from './eventosA3.ts';
 import { htmlStaff, htmlFinancas, htmlInfra, htmlCompeticoes, htmlEscritorio, type UiStaff, type UiComp } from './ecrasA4.ts';
 import { eventoA4, mudancaA4, entradaA4, SELECTOR_A4, ligarA4 } from './eventosA4.ts';
+import { AudioManager } from '../audio/AudioManager.ts';
+import { htmlDefinicoes, ligarDefinicoes } from './ecraSom.ts';
+
+/** Prompt 10: único gestor de áudio da aplicação. Definições em localStorage, nunca no save; ligado ao primeiro
+ *  toque (desbloqueio em iOS/Android) e a pausar/retomar em segundo plano. */
+export const audio = new AudioManager();
+audio.ligarAutomatismos();
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const fE = (v: number) => `€${Math.round(v).toLocaleString('pt-PT')}`;
@@ -265,7 +272,7 @@ function ecraJogo() {
   const nav = (k: string, t: string) => `<a class="nav ${k === activo ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${t}</a>`;
   raiz().innerHTML = `<div class="app">
     <nav class="lateral" aria-label="Navegação principal"><div class="marca">${escudo(r.clube.cores)}<div><b>FutCEO</b><small>${esc(r.clube.nome)}</small></div></div>
-      ${ECRAS.map(([k, t]) => nav(k, t)).join('')}<div style="flex:1"></div><a class="nav" href="#" id="b-menu">${svg('seta')}Menu principal</a></nav>
+      ${ECRAS.map(([k, t]) => nav(k, t)).join('')}<div style="flex:1"></div>${nav('definicoes', 'Som')}<a class="nav" href="#" id="b-menu">${svg('seta')}Menu principal</a></nav>
     <main class="principal" id="principal">${barraTopo(r)}<div id="conteudo">${conteudoSincrono(r) ?? '<div class="rot" style="padding:24px">A carregar…</div>'}</div></main>
     <nav class="inferior" aria-label="Navegação">${INFERIOR.map((k) => `<a class="${k === activo ? 'activo' : ''}" href="#" data-ecra="${k}">${svg(k)}${ECRAS.find((x) => x[0] === k)![1].split(' ')[0]}</a>`).join('')}<a href="#" id="b-menu2">${svg('mais')}Menu</a></nav></div>`;
   const el = raiz();
@@ -274,6 +281,7 @@ function ecraJogo() {
   el.querySelector('#b-continuar')!.addEventListener('click', avancar);
   el.querySelector('#b-guardar')!.addEventListener('click', async () => { await gravar(false); const b = el.querySelector('#gravado') as HTMLElement; b.textContent = 'Gravado'; setTimeout(() => (b.textContent = ''), 1800); });
   ligarConteudo(el.querySelector('#conteudo')!);
+  if (E.ecra === 'definicoes') ligarDefinicoes(el.querySelector('#conteudo')!, audio, ecraJogo);
   if (conteudoSincrono(r) === null) void carregarVista();
 }
 
@@ -313,6 +321,7 @@ async function avancar() {
 /** Ecrãs que só precisam do resumo (os outros pedem uma vista ao worker). */
 function conteudoSincrono(r: Resumo): string | null {
   if (E.ecra === 'inicio') return htmlInicio(r);
+  if (E.ecra === 'definicoes') return `<div class="topo"><h1>Definições</h1></div>${htmlDefinicoes(audio)}`;
   if (['plantel', 'jogador', 'mercado', 'negociacao', 'academia', 'staff', 'financas', 'infra', 'classificacao', 'escritorio'].includes(E.ecra)) return null;
   const [, t, parte] = ECRAS.find((x) => x[0] === E.ecra)!;
   return `<div class="topo"><h1>${t}</h1></div><section class="c em-breve"><h2>Em construção</h2><div>Este ecrã chega na parte ${parte} do Bloco A. O desenho é o do protótipo.</div></section>`;

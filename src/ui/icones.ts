@@ -22,6 +22,8 @@ export const ICON: Record<string, string> = {
   taca: '<path d="M7 3h10v4a5 5 0 0 1-10 0z"/><path d="M12 12v5M8 21h8M9 17h6"/>',
   cont: '<path d="M12 2l2.9 6.2 6.6.6-5 4.5 1.5 6.6L12 16.6 6 19.9l1.5-6.6-5-4.5 6.6-.6z"/>',
   mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  som: '<path d="M4 9v6h4l5 5V4L8 9z"/><path d="M17 8.5a5 5 0 0 1 0 7"/><path d="M19.5 6a8 8 0 0 1 0 12"/>',
+  somMudo: '<path d="M4 9v6h4l5 5V4L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/>',
 };
 
 export const svg = (k: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] ?? ''}</svg>`;
