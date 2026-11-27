@@ -5,8 +5,9 @@ import { clamp, rnd } from './utilitarios.ts';
 
 export interface OpcoesCover { zoom?: number; fx?: number; fy?: number; ax?: number; ay?: number; alpha?: number; px?: number; py?: number }
 
-/** Desenha uma imagem a cobrir um rectângulo, com zoom e ponto de foco (fx,fy) colocado em (ax,ay). */
-export function cover(ctx: CanvasRenderingContext2D, img: CanvasImageSource & { width: number; height: number }, x: number, y: number, w: number, h: number, o: OpcoesCover = {}) {
+/** Desenha uma imagem a cobrir um rectângulo, com zoom e ponto de foco (fx,fy) colocado em (ax,ay). Em falta
+ *  (`null`, ex.: ainda a carregar): não desenha nada — a cena por cima já previu um fundo simples. */
+export function cover(ctx: CanvasRenderingContext2D, img: (CanvasImageSource & { width: number; height: number }) | null, x: number, y: number, w: number, h: number, o: OpcoesCover = {}) {
   const { zoom = 1, fx = 0.5, fy = 0.5, ax = 0.5, ay = 0.5, alpha = 1, px = 0, py = 0 } = o;
   if (!img || alpha <= 0) return;
   const r = Math.max(w / img.width, h / img.height) * zoom, iw = img.width * r, ih = img.height * r;

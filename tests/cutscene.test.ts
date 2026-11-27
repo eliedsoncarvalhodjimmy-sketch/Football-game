@@ -10,6 +10,7 @@ import { prog, clamp, easeOut, easeInOut } from '../src/cutscene/utilitarios.ts'
 import { Relogio, type FonteTempo } from '../src/cutscene/relogio.ts';
 import { normalizarNome } from '../src/cutscene/normalizar.ts';
 import { combinarEscudos, type ClubeParaEscudo } from '../src/cutscene/combinarEscudos.ts';
+import { geometria } from '../src/cutscene/cenas/comum.ts';
 import type { LinhaTempo } from '../src/cutscene/tipos.ts';
 
 describe('dados da cutscene a partir da chave do motor (Prompt 11)', () => {
@@ -131,13 +132,26 @@ describe('ligação de escudos a clubes por nome (Prompt 11, Bloco 2)', () => {
   });
 });
 
+describe('geometria do ecrã (Prompt 11, Blocos 3-4)', () => {
+  it('o lockup da Champions é maior do que o da Liga Europa (0.4 vs 0.36 do módulo m), ao mesmo ecrã', () => {
+    const gCL = geometria('champions', 900, 1600), gEL = geometria('europa', 900, 1600);
+    expect(gCL.L).toBeGreaterThan(gEL.L);
+    expect(gCL.m).toBeCloseTo(gEL.m, 6); // "m" não depende da competição, só do ecrã
+  });
+  it('é sempre positiva e cresce com o ecrã', () => {
+    const pequeno = geometria('champions', 400, 700), grande = geometria('champions', 900, 1600);
+    for (const g of [pequeno, grande]) for (const v of Object.values(g)) expect(v).toBeGreaterThan(0);
+    expect(grande.m).toBeGreaterThan(pequeno.m);
+  });
+});
+
 describe('regras de ouro (Prompt 11)', () => {
   it('o motor de simulação (incluindo o 2D), o mercado, os prémios e os jogadores nunca importam de src/cutscene/', () => {
     const ficheiros = [...listarTs('src/engine'), ...listarTs('src/match'), ...listarTs('src/players'), ...listarTs('src/economia'), ...listarTs('src/mercado'), ...listarTs('src/premios')];
     for (const f of ficheiros) expect(readFileSync(f, 'utf8'), f).not.toMatch(/from ['"].*\/cutscene\//);
   });
   it('só src/cutscene/motor.ts (e o invólucro em src/ui/cutscene.ts) tocam no <canvas>/DOM; a linha de tempo e os dados são puros', () => {
-    for (const f of [...listarTs('src/cutscene/timelines'), 'src/cutscene/dados.ts', 'src/cutscene/utilitarios.ts', 'src/cutscene/tipos.ts', 'src/cutscene/relogio.ts', 'src/cutscene/normalizar.ts', 'src/cutscene/combinarEscudos.ts', 'src/cutscene/escudo.ts', 'src/cutscene/efeitos.ts']) {
+    for (const f of [...listarTs('src/cutscene/timelines'), 'src/cutscene/dados.ts', 'src/cutscene/utilitarios.ts', 'src/cutscene/tipos.ts', 'src/cutscene/relogio.ts', 'src/cutscene/normalizar.ts', 'src/cutscene/combinarEscudos.ts', 'src/cutscene/escudo.ts', 'src/cutscene/efeitos.ts', 'src/cutscene/cenas/comum.ts']) {
       const txt = readFileSync(f, 'utf8');
       expect(txt, f).not.toMatch(/getContext\(/);
       expect(txt, f).not.toMatch(/document\./);
