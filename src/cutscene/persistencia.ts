@@ -25,3 +25,11 @@ export function deveMostrarCutscene(freq: FrequenciaCutscene, primeiraFase: bool
   if (freq === 'sempre') return true;
   return primeiraFase;
 }
+
+/** Decide se a cutscene deve abrir: há dados completos (fase, estádio, clubes) e a política manda mostrar. Sem
+ *  `info` (a chave não é europeia) ou sem `dadosCutscene` (dados em falta): nunca abre — o dia segue directo para
+ *  o ecrã do jogo, sem erro (Bloco 7: "sem escudos/estádio/dados, a cutscene salta-se sozinha"). */
+export function devoAbrirCutscene(info: { primeiraFase: boolean } | null, dadosCutscene: unknown | null, freq: FrequenciaCutscene): boolean {
+  if (!info || !dadosCutscene) return false;
+  return deveMostrarCutscene(freq, info.primeiraFase);
+}

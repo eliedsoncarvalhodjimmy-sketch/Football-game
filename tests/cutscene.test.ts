@@ -4,7 +4,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parseChave, faseContinental, idCutsceneDaCompeticao, chaveFaseCutscene, primeiraDaFase } from '../src/cutscene/dados.ts';
-import { lerFrequenciaCutscene, gravarFrequenciaCutscene, deveMostrarCutscene, type Armazenamento } from '../src/cutscene/persistencia.ts';
+import { lerFrequenciaCutscene, gravarFrequenciaCutscene, deveMostrarCutscene, devoAbrirCutscene, type Armazenamento } from '../src/cutscene/persistencia.ts';
+import { AudioManager } from '../src/audio/AudioManager.ts';
 import { CUTSCENE } from '../src/config/cutscene.ts';
 import { TL_CHAMPIONS } from '../src/cutscene/timelines/champions.ts';
 import { TL_EUROPA } from '../src/cutscene/timelines/europa.ts';
@@ -226,6 +227,45 @@ describe('modo leve por desempenho (Prompt 11, Bloco 6)', () => {
     const m = new MedidorDesempenho({ limiteFps: 40, janela: 5, arranqueS: 1 });
     for (let i = 0; i < 10; i++) expect(m.registar(i * 0.05, 200)).toBe(false); // t < 1 s: ignorado
     expect(m.fpsMedio).toBeNull();
+  });
+});
+
+describe('devoAbrirCutscene: nunca abre sem dados completos (Prompt 11, Bloco 7)', () => {
+  const dadosOk = { competicao: 'champions', fase: 'Final', estadio: 'X', cidade: 'Y', data: 'Z', casa: { nome: 'A', sigla: 'A', cor: '#fff' }, fora: { nome: 'B', sigla: 'B', cor: '#000' } };
+  it('sem dadosCutscene (estádio/escudos/dados em falta): nunca abre, seja qual for a política', () => {
+    for (const freq of ['sempre', 'primeira_fase', 'nunca'] as const) expect(devoAbrirCutscene({ primeiraFase: true }, null, freq)).toBe(false);
+  });
+  it('sem info (a chave nem é europeia): nunca abre, mesmo com dados completos', () => {
+    expect(devoAbrirCutscene(null, dadosOk, 'sempre')).toBe(false);
+  });
+  it('com tudo completo: segue a política de frequência (mesma regra de deveMostrarCutscene)', () => {
+    expect(devoAbrirCutscene({ primeiraFase: false }, dadosOk, 'sempre')).toBe(true);
+    expect(devoAbrirCutscene({ primeiraFase: false }, dadosOk, 'primeira_fase')).toBe(false);
+    expect(devoAbrirCutscene({ primeiraFase: true }, dadosOk, 'primeira_fase')).toBe(true);
+    expect(devoAbrirCutscene({ primeiraFase: true }, dadosOk, 'nunca')).toBe(false);
+  });
+});
+
+describe('ordem dos actos de conteúdo (Prompt 11, Bloco 7): fase, depois escudos, depois estádio', () => {
+  for (const [nome, tl] of [['Champions', TL_CHAMPIONS], ['Liga Europa', TL_EUROPA]] as [string, LinhaTempo][]) {
+    it(`${nome}: a fase entra antes (ou ao mesmo tempo d)os escudos, que entram antes do estádio`, () => {
+      expect(tl.actos.fase[0]).toBeLessThanOrEqual(tl.actos.home[0]);
+      expect(tl.actos.home[0]).toBeLessThanOrEqual(tl.actos.estadio[0]);
+      expect(tl.actos.away[0]).toBeLessThanOrEqual(tl.actos.estadio[0]);
+    });
+  }
+});
+
+describe('saltar corta a cutscene e o áudio (Prompt 11, Bloco 7)', () => {
+  it('a cutscene saltada acaba por si (aoAcabar chamado) mesmo sem o fim natural do áudio', async () => {
+    const cat = { obter: (id: string) => ({ id, ficheiro: `audio/${id}.mp3`, categoria: 'cutscene' as const, duracao: 38, loop: false, volumeBase: 1 }) };
+    const a = new AudioManager(cat);
+    let acabou = false;
+    a.tocarCutscene('champions', () => { acabou = true; });
+    expect(acabou).toBe(false);
+    a.saltarCutscene(); // corta já, com um fade curto (ver config/audio.ts: cutscene_saida_ms)
+    await new Promise((r) => setTimeout(r, 400));
+    expect(acabou).toBe(true); // o dia segue: aoAcabar foi chamado, não ficou pendurado
   });
 });
 

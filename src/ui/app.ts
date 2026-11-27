@@ -22,7 +22,7 @@ import { criarCenaEuropeia, carregarImagensCompeticao, libertarImagensCompeticao
 import { carregarEscudosReais, libertarEscudosReais } from '../cutscene/escudosReais.ts';
 import { TL_CHAMPIONS } from '../cutscene/timelines/champions.ts';
 import { TL_EUROPA } from '../cutscene/timelines/europa.ts';
-import { lerFrequenciaCutscene, deveMostrarCutscene } from '../cutscene/persistencia.ts';
+import { lerFrequenciaCutscene, devoAbrirCutscene } from '../cutscene/persistencia.ts';
 import type { DadosCutscene } from '../cutscene/tipos.ts';
 
 /** Prompt 10: único gestor de áudio da aplicação. Definições em localStorage, nunca no save; ligado ao primeiro
@@ -341,7 +341,7 @@ async function avancar() {
         E.aAvancar = false;
         const dados = v.vista.dados;
         const abrirEcraDoJogo = () => abrirJogo2D(dados, () => ecraJogo());
-        if (j2d.cutscene && dados.dadosCutscene && deveMostrarCutscene(lerFrequenciaCutscene(), j2d.cutscene.primeiraFase)) {
+        if (dados.dadosCutscene && devoAbrirCutscene(j2d.cutscene, dados.dadosCutscene, lerFrequenciaCutscene())) {
           await abrirCutsceneEuropeia(dados.dadosCutscene, dados.escudoCasaId, dados.escudoForaId, abrirEcraDoJogo);
         } else {
           abrirEcraDoJogo();
