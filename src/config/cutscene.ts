@@ -5,6 +5,10 @@ export const PALETA_CUTSCENE = {
   europa: { nome: 'LIGA EUROPA', glow: '255,138,31', acc: '#ff8a1f' },
 } as const;
 
+export type FrequenciaCutscene = 'sempre' | 'primeira_fase' | 'nunca';
+/** Ordem de apresentação no ecrã de Definições. */
+export const FREQUENCIAS_CUTSCENE: readonly FrequenciaCutscene[] = ['sempre', 'primeira_fase', 'nunca'];
+
 export const CUTSCENE = {
   /** O motor não tem horas; as noites europeias usam esta hora fixa na data mostrada. */
   hora_fixa: '21:00',
@@ -17,5 +21,7 @@ export const CUTSCENE = {
   /** devicePixelRatio máximo a usar no canvas (desempenho em ecrãs muito densos). */
   dpr_maximo: 2,
   /** Frequência (Definições → "Cutscenes europeias"). Por omissão: só a primeira de cada fase. */
-  frequencia_defeito: 'primeira_fase' as 'sempre' | 'primeira_fase' | 'nunca',
+  frequencia_defeito: 'primeira_fase' as FrequenciaCutscene,
+  /** Definições da frequência: chave do localStorage (nunca no save, como o volume do som). */
+  chave_definicoes: 'futceo:cutscene',
 };

@@ -38,4 +38,27 @@ export function idCutsceneDaCompeticao(comp: string): 'champions' | 'europa' | n
   return base === 'UCL' ? 'champions' : base === 'UEL' ? 'europa' : null;
 }
 
+/** Identifica a "fase" para a regra de frequência "só a primeira de cada fase" (Bloco 5): mesma chave para a ida e a
+ *  volta de uma eliminatória (não deve mostrar a cutscene duas vezes), e para todas as jornadas da fase de liga
+ *  (só a primeira jornada conta). Diferentes rondas das eliminatórias (oitavos/quartos/meias/final) já são fases
+ *  diferentes. `null` se a chave não for válida ou a competição não tiver cutscene (ver `idCutsceneDaCompeticao`). */
+export function chaveFaseCutscene(chave: string): string | null {
+  const p = parseChave(chave);
+  if (!p) return null;
+  const idComp = idCutsceneDaCompeticao(p.comp);
+  if (!idComp) return null;
+  const categoria = p.comp.endsWith('_ko') ? `ko${p.ronda}` : p.comp.endsWith('_PO') ? 'po' : p.comp.endsWith('_pe') ? 'pe' : 'liga';
+  return `${p.ano}|${idComp}|${categoria}`;
+}
+
+/** É `chave` o primeiro jogo da sua fase, entre todos os jogos 2D do utilizador já guardados (`outrasChaves`,
+ *  qualquer competição — a `Sessao` passa as chaves de `registo.jogos2d`)? Usado pela regra de frequência "só a
+ *  primeira de cada fase" (Bloco 5): a 2.ª mão de uma eliminatória, ou a 2.ª jornada em diante da fase de liga, já
+ *  não é a primeira (a 1.ª mão/jornada está nas `outrasChaves`). `chave` nunca conta como "outra" a si própria. */
+export function primeiraDaFase(chave: string, outrasChaves: readonly string[]): boolean {
+  const alvo = chaveFaseCutscene(chave);
+  if (!alvo) return false;
+  return !outrasChaves.some((k) => k !== chave && chaveFaseCutscene(k) === alvo);
+}
+
 export { temMao };

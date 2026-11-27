@@ -16,6 +16,14 @@ import { htmlStaff, htmlFinancas, htmlInfra, htmlCompeticoes, htmlEscritorio, ty
 import { eventoA4, mudancaA4, entradaA4, SELECTOR_A4, ligarA4 } from './eventosA4.ts';
 import { AudioManager } from '../audio/AudioManager.ts';
 import { htmlDefinicoes, ligarDefinicoes } from './ecraSom.ts';
+import { htmlDefinicoesCutscene, ligarDefinicoesCutscene } from './ecraCutscene.ts';
+import { abrirCutscene } from './cutscene.ts';
+import { criarCenaEuropeia, carregarImagensCompeticao } from '../cutscene/cena.ts';
+import { carregarEscudosReais } from '../cutscene/escudosReais.ts';
+import { TL_CHAMPIONS } from '../cutscene/timelines/champions.ts';
+import { TL_EUROPA } from '../cutscene/timelines/europa.ts';
+import { lerFrequenciaCutscene, deveMostrarCutscene } from '../cutscene/persistencia.ts';
+import type { DadosCutscene } from '../cutscene/tipos.ts';
 
 /** Prompt 10: único gestor de áudio da aplicação. Definições em localStorage, nunca no save; ligado ao primeiro
  *  toque (desbloqueio em iOS/Android) e a pausar/retomar em segundo plano. */
@@ -281,7 +289,7 @@ function ecraJogo() {
   el.querySelector('#b-continuar')!.addEventListener('click', avancar);
   el.querySelector('#b-guardar')!.addEventListener('click', async () => { await gravar(false); const b = el.querySelector('#gravado') as HTMLElement; b.textContent = 'Gravado'; setTimeout(() => (b.textContent = ''), 1800); });
   ligarConteudo(el.querySelector('#conteudo')!);
-  if (E.ecra === 'definicoes') ligarDefinicoes(el.querySelector('#conteudo')!, audio, ecraJogo);
+  if (E.ecra === 'definicoes') { ligarDefinicoes(el.querySelector('#conteudo')!, audio, ecraJogo); ligarDefinicoesCutscene(el.querySelector('#conteudo')!, ecraJogo); }
   if (conteudoSincrono(r) === null) void carregarVista();
 }
 
@@ -299,6 +307,20 @@ function barraTopo(r: Resumo) {
     <button class="btn prim continuar" id="b-continuar" ${E.aAvancar ? 'disabled' : ''}>${E.aAvancar ? 'A simular…' : 'Continuar'} ${svg('seta')}</button></div>`;
 }
 
+/** Prompt 11, Bloco 5: abre a cutscene europeia (imagens e escudo real já carregados); `aoFechar` corre sempre, ao
+ *  fim da cutscene ou ao saltar. Nunca bloqueia o dia: qualquer erro (imagens, rede) salta logo para `aoFechar`. */
+async function abrirCutsceneEuropeia(dados: DadosCutscene, escudoCasaId: string, escudoForaId: string, aoFechar: () => void) {
+  try {
+    const base = import.meta.env.BASE_URL;
+    const [imagens, escudos] = await Promise.all([carregarImagensCompeticao(dados.competicao, base), carregarEscudosReais(escudoCasaId, escudoForaId, base)]);
+    const tl = dados.competicao === 'champions' ? TL_CHAMPIONS : TL_EUROPA;
+    abrirCutscene({ idComp: dados.competicao, tl, dados, desenhar: criarCenaEuropeia(imagens, escudos), audio }, aoFechar);
+  } catch (e) {
+    console.warn('Cutscene europeia não pôde correr:', e);
+    aoFechar();
+  }
+}
+
 async function avancar() {
   if (E.aAvancar) return;
   E.aAvancar = true; ecraJogo();
@@ -306,11 +328,22 @@ async function avancar() {
     const r = await pedir<'estado'>({ tipo: 'avancar', semanas: 1 });
     E.resumo = r.resumo; E.registo = r.registo;
     // Fase 6 do motor 2D: houve um jogo do utilizador esta semana → abre o ecrã do jogo (por lances).
+    // Prompt 11, Bloco 5: se for um jogo europeu (Champions/Liga Europa) e a frequência escolhida mandar mostrar,
+    // a cutscene entra primeiro; o ecrã do jogo só abre quando ela fechar (ou nunca, se não houver cutscene).
     const j2d = r.resumo.jogo2d;
     if (j2d && j2d.chave !== jogoVisto) {
       jogoVisto = j2d.chave;
       const v = await pedir<'vista'>({ tipo: 'vista', pedido: { ecra: 'jogo' } });
-      if (v.vista.ecra === 'jogo' && v.vista.dados) { E.aAvancar = false; abrirJogo2D(v.vista.dados, () => ecraJogo()); }
+      if (v.vista.ecra === 'jogo' && v.vista.dados) {
+        E.aAvancar = false;
+        const dados = v.vista.dados;
+        const abrirEcraDoJogo = () => abrirJogo2D(dados, () => ecraJogo());
+        if (j2d.cutscene && dados.dadosCutscene && deveMostrarCutscene(lerFrequenciaCutscene(), j2d.cutscene.primeiraFase)) {
+          await abrirCutsceneEuropeia(dados.dadosCutscene, dados.escudoCasaId, dados.escudoForaId, abrirEcraDoJogo);
+        } else {
+          abrirEcraDoJogo();
+        }
+      }
     }
     UI.rascunho = null; UI.formacaoVer = null;
     if (E.registo.semanas % INTERFACE.gravacao_automatica_semanas === 0) await gravar(true);
@@ -321,7 +354,7 @@ async function avancar() {
 /** Ecrãs que só precisam do resumo (os outros pedem uma vista ao worker). */
 function conteudoSincrono(r: Resumo): string | null {
   if (E.ecra === 'inicio') return htmlInicio(r);
-  if (E.ecra === 'definicoes') return `<div class="topo"><h1>Definições</h1></div>${htmlDefinicoes(audio)}`;
+  if (E.ecra === 'definicoes') return `<div class="topo"><h1>Definições</h1></div>${htmlDefinicoes(audio)}${htmlDefinicoesCutscene()}`;
   if (['plantel', 'jogador', 'mercado', 'negociacao', 'academia', 'staff', 'financas', 'infra', 'classificacao', 'escritorio'].includes(E.ecra)) return null;
   const [, t, parte] = ECRAS.find((x) => x[0] === E.ecra)!;
   return `<div class="topo"><h1>${t}</h1></div><section class="c em-breve"><h2>Em construção</h2><div>Este ecrã chega na parte ${parte} do Bloco A. O desenho é o do protótipo.</div></section>`;

@@ -3,7 +3,9 @@
 // verifica à mão em test-cutscene/ (sem Playwright nem jsdom neste projecto — ver o relatório).
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
-import { parseChave, faseContinental, idCutsceneDaCompeticao } from '../src/cutscene/dados.ts';
+import { parseChave, faseContinental, idCutsceneDaCompeticao, chaveFaseCutscene, primeiraDaFase } from '../src/cutscene/dados.ts';
+import { lerFrequenciaCutscene, gravarFrequenciaCutscene, deveMostrarCutscene, type Armazenamento } from '../src/cutscene/persistencia.ts';
+import { CUTSCENE } from '../src/config/cutscene.ts';
 import { TL_CHAMPIONS } from '../src/cutscene/timelines/champions.ts';
 import { TL_EUROPA } from '../src/cutscene/timelines/europa.ts';
 import { prog, clamp, easeOut, easeInOut } from '../src/cutscene/utilitarios.ts';
@@ -142,6 +144,57 @@ describe('geometria do ecrã (Prompt 11, Blocos 3-4)', () => {
     const pequeno = geometria('champions', 400, 700), grande = geometria('champions', 900, 1600);
     for (const g of [pequeno, grande]) for (const v of Object.values(g)) expect(v).toBeGreaterThan(0);
     expect(grande.m).toBeGreaterThan(pequeno.m);
+  });
+});
+
+describe('frequência: "só a primeira de cada fase" (Prompt 11, Bloco 5)', () => {
+  it('chaveFaseCutscene: mesma fase para a ida e a volta da mesma eliminatória; fases diferentes para rondas diferentes', () => {
+    const ida = '2027|UCL_ko|1|3|9|1', volta = '2027|UCL_ko|1|9|3|2', quartos = '2027|UCL_ko|2|3|9|1';
+    expect(chaveFaseCutscene(ida)).toBe(chaveFaseCutscene(volta));
+    expect(chaveFaseCutscene(ida)).not.toBe(chaveFaseCutscene(quartos));
+  });
+  it('chaveFaseCutscene: todas as jornadas da fase de liga partilham a mesma fase', () => {
+    expect(chaveFaseCutscene('2027|UCL|1|3|9|1')).toBe(chaveFaseCutscene('2027|UCL|4|3|7|1'));
+  });
+  it('chaveFaseCutscene: Champions e Liga Europa nunca partilham fase; competições sem cutscene dão null', () => {
+    expect(chaveFaseCutscene('2027|UCL|1|3|9|1')).not.toBe(chaveFaseCutscene('2027|UEL|1|3|9|1'));
+    expect(chaveFaseCutscene('2027|UECL|1|3|9|1')).toBeNull();
+    expect(chaveFaseCutscene('disparate')).toBeNull();
+  });
+  it('primeiraDaFase: verdadeiro sem outros jogos da mesma fase; falso depois da ida (já visto) e nas jornadas seguintes', () => {
+    const ida = '2027|UCL_ko|1|3|9|1', volta = '2027|UCL_ko|1|9|3|2';
+    expect(primeiraDaFase(ida, [ida])).toBe(true); // só a própria chave
+    expect(primeiraDaFase(volta, [ida, volta])).toBe(false); // a ida já contava
+    const j1 = '2027|UCL|1|3|9|1', j2 = '2027|UCL|2|3|7|1';
+    expect(primeiraDaFase(j1, [j1])).toBe(true);
+    expect(primeiraDaFase(j2, [j1, j2])).toBe(false);
+  });
+});
+
+describe('frequência das cutscenes: definições e política (Prompt 11, Bloco 5)', () => {
+  function armazenamentoFalso(): Armazenamento {
+    const m = new Map<string, string>();
+    return { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => m.set(k, v) };
+  }
+  it('sem nada guardado (ou armazenamento bloqueado): devolve a frequência por defeito, nunca lança', () => {
+    expect(lerFrequenciaCutscene(armazenamentoFalso())).toBe(CUTSCENE.frequencia_defeito);
+    const quebrado: Armazenamento = { getItem: () => { throw new Error('bloqueado'); }, setItem: () => { throw new Error('bloqueado'); } };
+    expect(lerFrequenciaCutscene(quebrado)).toBe(CUTSCENE.frequencia_defeito);
+    expect(() => gravarFrequenciaCutscene('sempre', quebrado)).not.toThrow();
+  });
+  it('grava e lê de volta; valor inválido guardado cai na por defeito', () => {
+    const arm = armazenamentoFalso();
+    gravarFrequenciaCutscene('nunca', arm);
+    expect(lerFrequenciaCutscene(arm)).toBe('nunca');
+    arm.setItem(CUTSCENE.chave_definicoes, 'disparate');
+    expect(lerFrequenciaCutscene(arm)).toBe(CUTSCENE.frequencia_defeito);
+  });
+  it('deveMostrarCutscene: "nunca" nunca mostra, "sempre" mostra sempre, "primeira_fase" segue a 1.ª fase', () => {
+    expect(deveMostrarCutscene('nunca', true)).toBe(false);
+    expect(deveMostrarCutscene('nunca', false)).toBe(false);
+    expect(deveMostrarCutscene('sempre', false)).toBe(true);
+    expect(deveMostrarCutscene('primeira_fase', true)).toBe(true);
+    expect(deveMostrarCutscene('primeira_fase', false)).toBe(false);
   });
 });
 

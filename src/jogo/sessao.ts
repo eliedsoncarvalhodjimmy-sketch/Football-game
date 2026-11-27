@@ -27,6 +27,9 @@ import { Rng } from '../core/rng.ts';
 import { STAFF_UTILIZADOR, BILHETE_UTILIZADOR, OBRAS_UTILIZADOR } from '../config/negociacaoUtilizador.ts';
 import { FORMACAO_POR_ID, type Instrucoes } from '../config/tacticas.ts';
 import { vistaPlantel, vistaJogador, vistaTactica, zonasLiga, escalaoDe, type VistaPlantel, type VistaJogador, type VistaTactica } from './vistas.ts';
+import { CUTSCENE } from '../config/cutscene.ts';
+import { parseChave, idCutsceneDaCompeticao, faseContinental, primeiraDaFase } from '../cutscene/dados.ts';
+import type { DadosCutscene, IdCompeticao } from '../cutscene/tipos.ts';
 
 export type Etapa = 'dados' | 'mundo' | 'motor' | 'reconstrucao' | 'pronto';
 export type Progresso = (etapa: Etapa, fraccao: number, texto: string) => void;
@@ -108,12 +111,20 @@ export interface Resumo {
   tarefas: { tipo: 'contrato' | 'lesao' | 'treinador' | 'sugestao'; texto: string; detalhe: string; jogador?: string }[];
   ultimos: JogoResumo[];
   semanas: number;
-  /** Último jogo do utilizador jogado no motor 2D (para abrir o ecrã do jogo). */
-  jogo2d: { chave: string; texto: string } | null;
+  /** Último jogo do utilizador jogado no motor 2D (para abrir o ecrã do jogo). `cutscene` só existe nos jogos da
+   *  Champions/Liga Europa (Prompt 11, Bloco 5): a interface decide se mostra, pela frequência escolhida nas
+   *  Definições e por `primeiraFase` (mesma fase já vista = ida/volta da mesma eliminatória, ou jornada seguinte
+   *  da fase de liga). */
+  jogo2d: { chave: string; texto: string; cutscene: { idComp: IdCompeticao; primeiraFase: boolean } | null } | null;
 }
 
-/** O jogo do utilizador para o ecrã do jogo (Fase 6): a configuração exacta do motor 2D (determinística) e o resultado. */
-export interface VistaJogo2D { chave: string; config: Config2D; nomes: [string, string]; cores: [[string, string], [string, string]]; resultado: [number, number]; data: string }
+/** O jogo do utilizador para o ecrã do jogo (Fase 6): a configuração exacta do motor 2D (determinística) e o resultado.
+ *  `dadosCutscene` (Prompt 11, Bloco 5) só existe nos jogos europeus; `escudoCasaId`/`escudoForaId` são os ids dos
+ *  clubes, para a interface ir buscar o escudo real a `public/escudos/escudos.json` (se existir). */
+export interface VistaJogo2D {
+  chave: string; config: Config2D; nomes: [string, string]; cores: [[string, string], [string, string]]; resultado: [number, number]; data: string;
+  dadosCutscene: DadosCutscene | null; escudoCasaId: string; escudoForaId: string;
+}
 
 const DIA_MS = 864e5;
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -483,8 +494,18 @@ export class Sessao {
       tarefas,
       ultimos: t ? meus.filter((j) => j.r).slice(-5).reverse().map((j) => this.jogoResumo(t, j)) : [],
       semanas: this.registo?.semanas ?? 0,
-      jogo2d: this.ultimoJogo2D ? { chave: this.ultimoJogo2D.chave, texto: `${w.clubes[this.ultimoJogo2D.casa].nome} ${this.ultimoJogo2D.resumo.golos[0]}–${this.ultimoJogo2D.resumo.golos[1]} ${w.clubes[this.ultimoJogo2D.fora].nome}` } : null,
+      jogo2d: this.ultimoJogo2D ? { chave: this.ultimoJogo2D.chave, texto: `${w.clubes[this.ultimoJogo2D.casa].nome} ${this.ultimoJogo2D.resumo.golos[0]}–${this.ultimoJogo2D.resumo.golos[1]} ${w.clubes[this.ultimoJogo2D.fora].nome}`, cutscene: this.infoCutscene(this.ultimoJogo2D.chave) } : null,
     };
+  }
+
+  /** "champions"/"europa" + se é o primeiro jogo desta fase (Bloco 5: regra "só a primeira de cada fase"), a partir
+   *  dos jogos 2D já guardados no registo — nenhum estado novo: `jogos2d` já tem todos os jogos do utilizador
+   *  (qualquer competição), guardados pela ordem em que aconteceram. */
+  private infoCutscene(chave: string): { idComp: IdCompeticao; primeiraFase: boolean } | null {
+    const p = parseChave(chave);
+    const idComp = p ? idCutsceneDaCompeticao(p.comp) : null;
+    if (!idComp) return null;
+    return { idComp, primeiraFase: primeiraDaFase(chave, Object.keys(this.registo?.jogos2d ?? {})) };
   }
 
   /** O último jogo do utilizador no motor 2D (ou null). */
@@ -492,6 +513,19 @@ export class Sessao {
     const u = this.ultimoJogo2D, w = this.w;
     if (!u || !w) return null;
     const cor = (c: number) => w.clubes[c].cores as [string, string];
-    return { chave: u.chave, config: u.config, nomes: [w.clubes[u.casa].nome, w.clubes[u.fora].nome], cores: [cor(u.casa), cor(u.fora)], resultado: u.resumo.golos, data: dataPt(u.dia) };
+    const p = parseChave(u.chave);
+    const idComp = p ? idCutsceneDaCompeticao(p.comp) : null;
+    const dadosCutscene: DadosCutscene | null = idComp && p ? {
+      competicao: idComp,
+      fase: faseContinental(p.comp, p.ronda, p.segundaMao),
+      estadio: w.clubes[u.casa].estadio, cidade: w.clubes[u.casa].cidade,
+      data: `${dataPt(u.dia)} · ${CUTSCENE.hora_fixa}`,
+      casa: { nome: w.clubes[u.casa].nome, sigla: w.clubes[u.casa].nome_curto, cor: cor(u.casa)[0] },
+      fora: { nome: w.clubes[u.fora].nome, sigla: w.clubes[u.fora].nome_curto, cor: cor(u.fora)[0] },
+    } : null;
+    return {
+      chave: u.chave, config: u.config, nomes: [w.clubes[u.casa].nome, w.clubes[u.fora].nome], cores: [cor(u.casa), cor(u.fora)], resultado: u.resumo.golos, data: dataPt(u.dia),
+      dadosCutscene, escudoCasaId: w.clubes[u.casa].id, escudoForaId: w.clubes[u.fora].id,
+    };
   }
 }
