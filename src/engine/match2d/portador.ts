@@ -310,7 +310,15 @@ export function executarRemate(s: Estado2D, j: Jogador2D, semente: string, cabec
   const chave = `${semente}|${j.id}|${s.tick}|rem`;
   const ang = Math.atan2(alvo.y - s.bola.p.y, alvo.x - s.bola.p.x) + sigma * normal(chave + '|ang');
   const v = cabeca ? (bolaParada ? REMATE.v_cabeca_bp : REMATE.v_cabeca) : Math.min(REMATE.v_max, REMATE.v_base + REMATE.v_ponto * (longe ? at(j, 'rld') : at(j, 'fin')));
-  const vz = cabeca ? REMATE.vz_cabeca : REMATE.vz[0] + (REMATE.vz[1] - REMATE.vz[0] + (longe ? REMATE.vz_longe_extra : 0)) * aleatorio(chave + '|vz') * (longe ? 1 : 0.6) * (1 + pressao * 0.5);
+  // Altura (Anexo C): aponta a uma altura na linha de golo (rasteiro a ângulo superior) com um erro vertical que cresce
+  // com o erro do remate e a distância — os remates mais falhados vão por cima da barra (ou à barra).
+  let vz = REMATE.vz_cabeca;
+  if (!cabeca) {
+    const [z0, z1] = REMATE.z_alvo;
+    const zAlvo = Math.max(0, z0 + (z1 - z0) * aleatorio(chave + '|z') + sigma * d * REMATE.erro_vertical * normal(chave + '|vz'));
+    const t = d / (v * 0.95); // o ar trava ~5% até à baliza
+    vz = (zAlvo - s.bola.z + 0.5 * BOLA.g * t * t) / t;
+  }
   void o;
   return { v: { x: Math.cos(ang) * v, y: Math.sin(ang) * v }, vz };
 }

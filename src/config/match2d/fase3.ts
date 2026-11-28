@@ -79,13 +79,14 @@ export const AEREO = {
 /** Remate (base; afinação na Fase 5) e guarda-redes. */
 export const REMATE = {
   /** Velocidade: 18 + 0,7 × Finalização (ou Remate de longe a mais de 20 m), até 32 m/s; subida 0,5–4 m/s. */
-  v_base: 18, v_ponto: 0.7, v_max: 32, vz: [0.5, 4] as [number, number],
+  v_base: 18, v_ponto: 0.7, v_max: 32,
+  /** Altura pretendida na linha de golo (m, uniforme) e erro vertical (m por rad de erro e por m de distância). Antes
+   *  a subida era aleatória (0,5–4 m/s) e todos os remates cruzavam a linha abaixo de 1 m (decisão 229). */
+  z_alvo: [0.15, 1.9] as [number, number], erro_vertical: 0.35,
   /** Erro do ângulo (rad): (base + por ponto abaixo de 20) × (1 + d ÷ 30) × (1 + pressão). */
   erro_base: 0.102, erro_ponto: 0.009, pressao: 0.7,
   /** O erro do remate cresce com a distância: × (1 + d / erro_dist_m). */
   erro_dist_m: 27,
-  /** Subida (m/s) a mais nos remates de longe, para a bola poder sair por cima da barra. */
-  vz_longe_extra: 3,
   /** Aponta a x m para dentro do poste do lado oposto ao guarda-redes. */
   margem_poste: 0.7,
   /** Baliza (m): meia largura e altura da barra. */

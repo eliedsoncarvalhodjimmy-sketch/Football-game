@@ -11,6 +11,6 @@ export const JOGO_2D = {
   vantagem_casa: 0.13,
   /** Os clubes reais marcam menos no motor 2D do que no modo rápido (atributos de finalização mais baixos do que nos
    *  plantéis de teste): estes atributos multiplicam por isto para as médias de golos baterem. */
-  finalizacao: 1.1, atributos_finalizacao: ['fin', 'cmp', 'rld', 'cab'] as string[],
+  finalizacao: 1.17, atributos_finalizacao: ['fin', 'cmp', 'rld', 'cab'] as string[],
   atributo_max: 20,
 };
