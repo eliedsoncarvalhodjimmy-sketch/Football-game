@@ -106,22 +106,23 @@ export const JOGADAS: Jogada[] = [
 export const LANCES = {
   /** Um lance começa no início da sequência, no máximo `antes_max` s antes do momento-chave, e acaba `depois` s depois
    *  (num golo, `depois_golo`). Uma bola parada mostra-se desde `antes_bola_parada` s antes do toque. */
-  antes_max: 13, antes_min: 6, depois: 3, depois_golo: 5, antes_bola_parada: 8,
-  /** Jogo corrido: pelo menos 1 sequência de construção a cada `corrido_janela_s` (entre as com mais passes, ≥ `corrido_passes`),
-   *  mostrada até `corrido_max_s`. */
-  corrido_janela_s: 360, corrido_passes: 5, corrido_max_s: 20,
-  /** Fracção mínima do tempo mostrado em jogo corrido (com margem sobre os 20% da secção 2.2). */
-  corrido_min: 0.22,
+  antes_max: 10, antes_min: 5, depois: 2.5, depois_golo: 4, antes_bola_parada: 6,
+  /** Jogo corrido (resumo alargado): no máximo 1 sequência de construção a cada `corrido_janela_s` (entre as com mais
+   *  passes, ≥ `corrido_passes`), mostrada até `corrido_max_s`. Nos highlights é tempero, não o prato principal. */
+  corrido_janela_s: 900, corrido_passes: 5, corrido_max_s: 12,
+  /** Fracção mínima do tempo mostrado em jogo corrido (resumo alargado). */
+  corrido_min: 0.1,
   /** Pontuação de importância. */
   pontos: { golo: 100, penalti: 90, vermelho: 85, remate_perigoso: 60, defesa_dificil: 55, contra_ataque: 50, livre_directo: 45, remate_enquadrado: 35, canto: 30, cruzamento_perigoso: 30, amarelo: 25, corte_area: 20 },
   /** Remate perigoso (prioridade alta): xG ≥ isto; defesa difícil: remate com xG ≥ isto defendido. */
   xg_alto: 0.15, xg_defesa: 0.08,
   /** Contra-ataque: recuperação antes de x (referencial de quem ataca) e remate/cruzamento até s segundos depois. */
   contra_x: 50, contra_s: 12,
-  /** Avanço rápido entre lances (fixo, não depende da velocidade escolhida) e replay dos golos (s antes do golo, a 0,5×). */
-  avanco_rapido: 16, replay_s: 6, replay_vel: 0.5,
-  /** "Só relato" entre lances (nível Lances-chave): segundos por intervalo. */
-  relato_s: 4.5,
-  /** Orçamento do nível "Alargados" (min a 1×, incluindo o avanço rápido entre lances) e a tolerância. */
-  orcamento_min: 15, tolerancia_min: 1,
+  /** Replay dos golos (s antes do golo, a 0,5×). */
+  replay_s: 5, replay_vel: 0.5,
+  /** Highlights: entre lances, corte directo (o resto do jogo não se vê) — um cartão com o minuto e o marcador
+   *  durante `corte_s` segundos reais, e começa o lance seguinte. */
+  corte_s: 1.5,
+  /** Orçamento do "Resumo alargado" (min reais a 1×, com replays e cortes) e a tolerância. */
+  orcamento_min: 4, tolerancia_min: 0.5,
 };

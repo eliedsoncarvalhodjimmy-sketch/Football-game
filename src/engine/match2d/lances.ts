@@ -1,12 +1,12 @@
-// Motor 2D táctico — apresentação por lances (secção 2.2, modelo FM). O motor simula os 90 minutos em tempo real; aqui
-// escolhe-se o que se mostra: cada posse recebe uma pontuação de importância, o lance começa antes do momento-chave e
-// acaba depois dele, e três níveis (Lances-chave, Alargados, Jogo completo) decidem o que entra. Entre lances o jogo
-// passa em avanço rápido (16×). Lógica pura: funciona sobre o registo de eventos e de posses de um Motor2D.
+// Motor 2D táctico — highlights (os melhores momentos). O motor simula os 90 minutos; aqui escolhe-se o que se mostra:
+// cada posse recebe uma pontuação de importância, o lance começa antes do momento-chave e acaba depois dele, e dois
+// níveis (Resumo curto, Resumo alargado) decidem o que entra. Entre lances há um corte directo (o resto do jogo não se
+// vê). Lógica pura: funciona sobre o registo de eventos e de posses de um Motor2D.
 import { LANCES as L } from '../../config/match2d/fase5.ts';
 import { TICK_S } from '../../config/match2d/fisica.ts';
 import type { Evento2D, Posse2D, Equipa } from './tipos.ts';
 
-export type NivelLances = 'chave' | 'alargados' | 'completo';
+export type NivelLances = 'chave' | 'alargados';
 export type Prioridade = 'sempre' | 'alta' | 'media' | 'corrido';
 
 export interface Lance {
@@ -87,12 +87,8 @@ function isCanto(rep: Evento2D) {
   return (rep.x < 2 || rep.x > 103) && (rep.y < 2 || rep.y > 66);
 }
 
-/** Entre lances: avanço rápido no campo (16×) ou só relato (salta, uns segundos por intervalo). */
-export type EntreLances = 'avanco' | 'relato';
-export const ENTRE_POR_NIVEL: Record<NivelLances, EntreLances> = { chave: 'relato', alargados: 'avanco', completo: 'avanco' };
-
-/** Duração a 1× (s): lances + replays + o resto do intervalo [t0, t1] em avanço rápido (ou só relato). */
-export function duracao(lances: Lance[], t0 = 0, t1 = T(90 * 60), entre: EntreLances = 'avanco'): { duracao_s: number; mostrado_s: number; corrido_s: number } {
+/** Duração real a 1× (s): lances + replays dos golos + um corte entre cada lance (e um antes do primeiro). */
+export function duracao(lances: Lance[]): { duracao_s: number; mostrado_s: number; corrido_s: number } {
   let mostrado = 0, corrido = 0, replay = 0;
   for (const l of lances) {
     const d = (l.fim - l.inicio) * TICK_S;
@@ -100,9 +96,7 @@ export function duracao(lances: Lance[], t0 = 0, t1 = T(90 * 60), entre: EntreLa
     if (l.prioridade === 'corrido') corrido += d;
     if (l.replay) replay += ((l.replay.fim - l.replay.inicio) * TICK_S) / L.replay_vel;
   }
-  const resto = Math.max(0, (t1 - t0) * TICK_S - mostrado);
-  const entreS = entre === 'avanco' ? resto / L.avanco_rapido : (lances.length + 1) * L.relato_s;
-  return { duracao_s: mostrado + replay + entreS, mostrado_s: mostrado + replay, corrido_s: corrido };
+  return { duracao_s: mostrado + replay + (lances.length + 1) * L.corte_s, mostrado_s: mostrado + replay, corrido_s: corrido };
 }
 
 /** Junta lances que se sobrepõem (fica a prioridade e o momento do mais importante). */
@@ -119,18 +113,15 @@ function juntar(lances: Lance[]): Lance[] {
 }
 
 /**
- * Escolhe os lances do intervalo [t0, t1] (ticks) para o nível. "Alargados" cumpre o orçamento (15 min a 1× para 90 min,
- * proporcional para um bloco): primeiro tudo o que é sempre/alta/média mais 1 jogo corrido por janela de 7 min; se passar
- * do orçamento corta os de prioridade média menos importantes; se faltar, acrescenta jogo corrido.
+ * Escolhe os lances do intervalo [t0, t1] (ticks) para o nível. "Resumo curto": só golos, penáltis, expulsões e grandes
+ * ocasiões. "Resumo alargado" cumpre o orçamento (~4 min reais para 90 min, proporcional para um bloco): primeiro tudo
+ * o que é sempre/alta/média mais algum jogo corrido; se passar do orçamento corta os de prioridade média menos
+ * importantes (e depois os de alta, nunca os "sempre"); se faltar, acrescenta jogo corrido.
  */
 export function seleccionar(cands: Lance[], nivel: NivelLances, t0 = 0, t1 = T(90 * 60), alvoS?: number): Seleccao {
   const dentro = cands.filter((l) => l.momento >= t0 && l.momento < t1);
-  if (nivel === 'completo') {
-    const l: Lance = { inicio: t0, fim: t1, momento: t0, equipa: 0, prioridade: 'corrido', tipo: 'jogo_completo', pontos: 0 };
-    return { lances: [l], ...duracao([l], t0, t1) };
-  }
   let base = dentro.filter((l) => l.prioridade === 'sempre' || l.prioridade === 'alta' || (nivel === 'alargados' && l.prioridade === 'media'));
-  if (nivel === 'chave') { const lances = juntar(base); return { lances, ...duracao(lances, t0, t1, 'relato') }; }
+  if (nivel === 'chave') { const lances = juntar(base); return { lances, ...duracao(lances) }; }
   // Jogo corrido obrigatório: a mais longa de cada janela.
   const corridos = dentro.filter((l) => l.prioridade === 'corrido').sort((a, b) => b.pontos - a.pontos);
   const jan = T(L.corrido_janela_s), escolhidos = new Set<Lance>();
@@ -142,27 +133,27 @@ export function seleccionar(cands: Lance[], nivel: NivelLances, t0 = 0, t1 = T(9
   let lances = juntar([...base, ...escolhidos]);
   // Acima do orçamento: corta os de prioridade média, do menos importante para o mais.
   const medias = base.filter((l) => l.prioridade === 'media').sort((a, b) => a.pontos - b.pontos);
-  while (duracao(lances, t0, t1).duracao_s > alvo && medias.length) {
+  while (duracao(lances).duracao_s > alvo && medias.length) {
     const fora = medias.shift()!;
     base = base.filter((l) => l !== fora);
     lances = juntar([...base, ...escolhidos]);
   }
   // Ainda acima: corta os de prioridade alta menos importantes (nunca os "sempre").
   const altas = base.filter((l) => l.prioridade === 'alta').sort((a, b) => a.pontos - b.pontos);
-  while (duracao(lances, t0, t1).duracao_s > alvo + tol / 2 && altas.length) {
+  while (duracao(lances).duracao_s > alvo + tol / 2 && altas.length) {
     const fora = altas.shift()!;
     base = base.filter((l) => l !== fora);
     lances = juntar([...base, ...escolhidos]);
   }
   // Jogo corrido mínimo (secção 2.2: ≥ 20% do mostrado): acrescenta construção e, para caber no orçamento, corta os
   // lances de prioridade média menos importantes.
-  const quota = () => { const d = duracao(lances, t0, t1); return d.mostrado_s > 0 ? d.corrido_s / d.mostrado_s : 1; };
+  const quota = () => { const d = duracao(lances); return d.mostrado_s > 0 ? d.corrido_s / d.mostrado_s : 1; };
   for (const c of corridos) {
     if (quota() >= L.corrido_min) break;
     if (escolhidos.has(c)) continue;
     escolhidos.add(c);
     lances = juntar([...base, ...escolhidos]);
-    while (duracao(lances, t0, t1).duracao_s > alvo + tol && medias.length) {
+    while (duracao(lances).duracao_s > alvo + tol && medias.length) {
       const fora = medias.shift()!;
       base = base.filter((l) => l !== fora);
       lances = juntar([...base, ...escolhidos]);
@@ -170,10 +161,10 @@ export function seleccionar(cands: Lance[], nivel: NivelLances, t0 = 0, t1 = T(9
   }
   // Abaixo: acrescenta jogo corrido (os de mais passes).
   for (const c of corridos) {
-    if (duracao(lances, t0, t1).duracao_s >= alvo - tol) break;
+    if (duracao(lances).duracao_s >= alvo - tol) break;
     if (escolhidos.has(c)) continue;
     escolhidos.add(c);
     lances = juntar([...base, ...escolhidos]);
   }
-  return { lances, ...duracao(lances, t0, t1) };
+  return { lances, ...duracao(lances) };
 }

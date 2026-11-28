@@ -104,26 +104,25 @@ describe('motor 2D — Fase 5: jogadas-padrão (secção 11)', () => {
   });
 });
 
-describe('motor 2D — Fase 5: apresentação por lances (secção 2.2)', () => {
+describe('motor 2D — highlights (os melhores momentos, não os 90 minutos)', () => {
   const cands = candidatos(jogo.registo, jogo.posses);
   const golos = jogo.registo.filter((x) => x.tipo === 'golo').map((x) => x.tick);
 
-  it('Alargados: ~15 min a 1× (12–16), todos os golos, jogo corrido ≥ 20% do mostrado', () => {
+  it('Resumo alargado: ~4 min reais (3–5) para os 90 min, todos os golos, algum jogo corrido', () => {
     const s = seleccionar(cands, 'alargados');
-    expect(s.duracao_s / 60).toBeGreaterThanOrEqual(12);
-    expect(s.duracao_s / 60).toBeLessThanOrEqual(16);
+    expect(s.duracao_s / 60).toBeGreaterThanOrEqual(3);
+    expect(s.duracao_s / 60).toBeLessThanOrEqual(5);
     for (const t of golos) expect(s.lances.some((l) => l.inicio <= t && t <= l.fim)).toBe(true);
-    expect(s.corrido_s / s.mostrado_s).toBeGreaterThanOrEqual(0.2);
+    expect(s.corrido_s / s.mostrado_s).toBeGreaterThanOrEqual(0.05);
     // Cada lance começa antes do momento-chave (no máximo 15–25 s; dois lances juntados podem começar antes) e acaba depois.
     for (const l of s.lances) { expect(l.momento - l.inicio).toBeLessThanOrEqual(400); expect(l.fim).toBeGreaterThanOrEqual(l.momento); }
   });
 
-  it('Lances-chave é mais curto e só tem "sempre" e prioridade alta; Jogo completo é o jogo todo', () => {
+  it('Resumo curto é mais curto, só tem "sempre" e prioridade alta, e não deixa nenhum golo de fora', () => {
     const ch = seleccionar(cands, 'chave'), al = seleccionar(cands, 'alargados');
     expect(ch.duracao_s).toBeLessThan(al.duracao_s);
     for (const l of ch.lances) expect(['sempre', 'alta']).toContain(l.prioridade);
-    const co = seleccionar(cands, 'completo');
-    expect(co.duracao_s).toBeCloseTo(90 * 60, -1);
+    for (const t of golos) expect(ch.lances.some((l) => l.inicio <= t && t <= l.fim)).toBe(true);
   });
 
   it('o relógio do ecrã: simula por blocos à frente, mostra os golos e chega ao fim', () => {
@@ -139,8 +138,9 @@ describe('motor 2D — Fase 5: apresentação por lances (secção 2.2)', () => 
     }
     vistos = m.registo.filter((x) => x.tipo === 'golo' && a.lances.some((l) => l.inicio <= x.tick && x.tick <= l.fim)).length;
     expect(a.modo).toBe('fim');
-    expect(real / 60).toBeGreaterThan(12); expect(real / 60).toBeLessThanOrEqual(16);
+    // Highlights: o jogo inteiro vê-se em poucos minutos reais (não 90), com cortes entre lances e nunca avanço rápido.
+    expect(real / 60).toBeGreaterThan(2); expect(real / 60).toBeLessThanOrEqual(6);
     expect(vistos).toBe(m.registo.filter((x) => x.tipo === 'golo').length);
-    expect(modos.has('avanco') && modos.has('lance')).toBe(true);
+    expect(modos.has('corte') && modos.has('lance')).toBe(true);
   }, 60_000);
 });

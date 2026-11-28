@@ -1,7 +1,7 @@
-// Ecrã do jogo do utilizador (Fase 6 do motor 2D; docs/tactics/MOTOR_2D.md, secção 2.2, modelo FM). O worker jogou o
-// jogo no motor 2D e devolveu a configuração exacta; aqui o mesmo jogo (determinístico) corre de novo na página, em
-// blocos à frente do ecrã, e mostra-se por lances: 1× nos lances, replay dos golos a 0,5×, avanço rápido ⏩ 16× entre
-// lances (ou só relato, nos Lances-chave). O marcador e o relato nunca mostram o que ainda não passou no ecrã.
+// Ecrã do jogo do utilizador: highlights (os melhores momentos), não os 90 minutos. O worker jogou o jogo no motor 2D e
+// devolveu a configuração exacta; aqui o mesmo jogo (determinístico) corre de novo na página, em blocos à frente do
+// ecrã, e mostram-se só os lances escolhidos: 1× nos lances, replay dos golos a 0,5×, e entre lances um corte directo
+// com o minuto e o marcador. O marcador e o relato nunca mostram o que ainda não passou no ecrã.
 import { Motor2D } from '../engine/match2d/Motor2D.ts';
 import { Apresentacao } from '../engine/match2d/apresentacao.ts';
 import type { NivelLances } from '../engine/match2d/lances.ts';
@@ -12,8 +12,8 @@ import { AUDIO } from '../config/audio.ts';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 const relogio = (tk: number) => `${Math.floor(tk / 600)}:${String(Math.floor((tk / 10) % 60)).padStart(2, '0')}`;
-const NOME_LANCE: Record<string, string> = { golo: 'Golo', penalti: 'Penálti', vermelho: 'Expulsão', remate_perigoso: 'Ocasião de golo', defesa_dificil: 'Grande defesa', contra_ataque: 'Contra-ataque', livre_directo: 'Livre directo', remate_enquadrado: 'Remate enquadrado', canto: 'Canto', cruzamento_perigoso: 'Cruzamento perigoso', amarelo: 'Cartão amarelo', corte_area: 'Corte na área', construcao: 'Jogo corrido', jogo_completo: '' };
-const NIVEIS: [NivelLances, string][] = [['chave', 'Lances-chave'], ['alargados', 'Alargados'], ['completo', 'Jogo completo']];
+const NOME_LANCE: Record<string, string> = { golo: 'Golo', penalti: 'Penálti', vermelho: 'Expulsão', remate_perigoso: 'Ocasião de golo', defesa_dificil: 'Grande defesa', contra_ataque: 'Contra-ataque', livre_directo: 'Livre directo', remate_enquadrado: 'Remate enquadrado', canto: 'Canto', cruzamento_perigoso: 'Cruzamento perigoso', amarelo: 'Cartão amarelo', corte_area: 'Corte na área', construcao: 'Jogo corrido' };
+const NIVEIS: [NivelLances, string][] = [['chave', 'Resumo curto'], ['alargados', 'Resumo alargado']];
 const VELS: [number, string][] = [[0.5, '0,5×'], [1, '1×'], [2, '2×'], [4, '4×']];
 
 /** Contraste: texto escuro sobre cores claras. */
@@ -117,10 +117,22 @@ export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void, audio?: AudioM
     const b = { x: lerp(ant.bola.x, act.bola.x), y: lerp(ant.bola.y, act.bola.y) }, z = lerp(ant.z ?? 0, act.z ?? 0);
     cx.beginPath(); cx.ellipse(px(b.x), py(b.y) + 0.3 * ESC, (0.75 + z * 0.05) * ESC, 0.45 * ESC, 0, 0, 7); cx.fillStyle = 'rgba(0,0,0,.35)'; cx.fill();
     cx.beginPath(); cx.arc(px(b.x), py(b.y - z * 0.45), (0.75 + z * 0.08) * ESC, 0, 7); cx.fillStyle = '#fff'; cx.fill(); cx.lineWidth = 1.5; cx.strokeStyle = '#111'; cx.stroke();
-    // Lance actual e modo (⏩, replay, relato).
+    // Corte entre lances: cartão com o minuto e o marcador do lance seguinte (o campo fica escurecido por trás).
+    if (apres.modo === 'corte') {
+      const e = apres.estatisticas(), prox = apres.proximoLance();
+      const min = `${Math.floor(Math.min(54000, apres.t) / 600) + 1}'`;
+      const placar = `${v.nomes[0]} ${e ? e.golos[0] : 0} – ${e ? e.golos[1] : 0} ${v.nomes[1]}`;
+      cx.fillStyle = 'rgba(8,10,14,.72)'; cx.fillRect(0, 0, cv.width, cv.height);
+      cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillStyle = '#fff';
+      cx.font = `800 ${6 * ESC}px Inter, sans-serif`; cx.fillText(min, cv.width / 2, cv.height / 2 - 4 * ESC);
+      cx.font = `700 ${2.4 * ESC}px Inter, sans-serif`; cx.fillText(placar, cv.width / 2, cv.height / 2 + 2.5 * ESC);
+      if (prox) { cx.font = `600 ${1.8 * ESC}px Inter, sans-serif`; cx.fillStyle = 'rgba(255,255,255,.75)'; cx.fillText(NOME_LANCE[prox.tipo] ?? '', cv.width / 2, cv.height / 2 + 6.5 * ESC); }
+      return;
+    }
+    // Lance actual e modo (replay).
     const l = apres.lanceActual(), dentro = l && apres.t >= l.inicio;
     cx.textBaseline = 'middle'; cx.textAlign = 'left'; cx.font = `700 ${1.6 * ESC}px Inter, sans-serif`;
-    const etiqueta = apres.modo === 'avanco' ? '⏩ 16×' : apres.modo === 'replay' ? 'REPLAY 0,5×' : apres.modo === 'relato' ? '⏭ Relato' : dentro && l ? NOME_LANCE[l.tipo] ?? '' : '';
+    const etiqueta = apres.modo === 'replay' ? 'REPLAY 0,5×' : dentro && l ? NOME_LANCE[l.tipo] ?? '' : '';
     if (etiqueta) {
       const w = cx.measureText(etiqueta).width + 2 * ESC;
       cx.fillStyle = apres.modo === 'replay' ? 'rgba(200,30,40,.85)' : 'rgba(0,0,0,.55)'; cx.fillRect(px(0.5), py(0.5), w, 3 * ESC);
