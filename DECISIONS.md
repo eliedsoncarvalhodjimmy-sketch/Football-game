@@ -1073,3 +1073,8 @@ Registo das escolhas feitas perante ambiguidade, e das decisões do utilizador. 
     - `scripts/validar-motor2d.ts`: a verificação dos lances passa a usar a faixa dos highlights (Resumo alargado 3–6 min, decisão 225), em vez dos 12–16 min antigos.
     - Três testes de amostra pequena ajustados ao que a amostra grande mede (não ao resultado do teste): o livre directo do teste passa de 23 m para 19 m (a regra nova); passes em 10 min > 85 (média medida ~98; o limiar antigo, 120, estava acima da média do próprio motor); Tiki-Taka > 1,6× os passes do Jogo Directo em 2 jogos (em 10 jogos: 1,78× antes e 1,83× depois). Nas faixas por estilo (`--estilos`), 6 métricas fora antes e 5 depois.
     - Testes: poste e barra ressaltam sem golo; entre os postes não há ferro; o efeito curva a bola no ar e não no chão.
+
+228. **Ecrã 3D: depois de um golo, a bola fica na rede e a câmara na baliza do golo.**
+    - Verificado com Playwright (vídeos de um canto com golo de cabeça, um livre directo com efeito e um remate ao poste): no motor, logo a seguir ao golo a posse passa a quem sofreu e a bola volta a rolar para o meio-campo (`bolaExterna`); nos ~4 s que o lance mostra depois do golo via-se a bola sair da rede e a câmara "baliza" virar para a outra baliza.
+    - Correcção só no desenho (`Campo3D`, `APOS_GOLO_S` = 4 s): a bola fica no fundo da rede onde entrou e a câmara segue a baliza do golo; num replay (o marcador volta atrás) o estado limpa-se. O motor e os resultados não mudam.
+    - Encontrado e ainda por decidir: o motor só faz remates rasteiros — em 20 jogos, os 75 remates que cruzaram a linha perto da baliza passaram todos abaixo de 1 m; nunca há bola por cima da barra nem na barra.

@@ -9,6 +9,8 @@ type Foto = ReturnType<Motor2D['fotografia']>;
 export type ModoCamara = 0 | 1 | 2;
 export const NOMES_CAMARA = ['lateral', 'baliza', 'campo todo'] as const;
 
+/** Segundos em que a bola fica na rede depois de um golo (o lance mostra ~4 s depois do golo). */
+const APOS_GOLO_S = 4;
 const PW = 105, PH = 68, GH = 3.66, GBAR = 2.44, GD = 2.2, BR = 0.11, TAU = Math.PI * 2;
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -46,6 +48,8 @@ export class Campo3D {
   private abanar = 0;
   private golosVistos = -1;
   private rede = { gx: -1, amt: 0, y: 34, z: 1 };
+  /** Depois de um golo: a bola fica na rede e a câmara na baliza onde entrou (o motor já a leva para a saída). */
+  private aposGolo = { t: 0, gx: 0, y: 34 };
   modo: ModoCamara = 0;
   nomes = true;
 
@@ -184,15 +188,20 @@ export class Campo3D {
    */
   desenhar(ant: Foto, act: Foto, alfa: number, dt: number) {
     const W = this.cv.width, H = this.cv.height; this.W = W; this.H = H;
-    const bx = lerp(ant.bola.x, act.bola.x, alfa), by = lerp(ant.bola.y, act.bola.y, alfa), bz = Math.max(BR, lerp(ant.z ?? 0, act.z ?? 0, alfa) + BR);
-    // Baliza atacada: a de quem tem a posse (a equipa 0 ataca sempre para x = 105).
-    const gx = act.posse === 1 ? 0 : PW;
+    let bx = lerp(ant.bola.x, act.bola.x, alfa), by = lerp(ant.bola.y, act.bola.y, alfa), bz = Math.max(BR, lerp(ant.z ?? 0, act.z ?? 0, alfa) + BR);
+    // Golo: a bancada abana e a rede faz "barriga" onde a bola entrou (C2). Durante APOS_GOLO_S a bola fica no fundo da
+    // rede e a câmara não muda de baliza (no motor, a posse passa logo a quem sofreu e a bola volta à saída).
+    const golos = act.golos[0] + act.golos[1];
+    if (this.golosVistos >= 0 && golos > this.golosVistos) { this.abanar = 3.2; this.aposGolo = { t: APOS_GOLO_S, gx: act.golos[0] > (ant.golos?.[0] ?? act.golos[0]) || act.bola.x > PW / 2 ? PW : 0, y: Math.max(34 - GH + 0.3, Math.min(34 + GH - 0.3, by)) }; }
+    else if (golos < this.golosVistos) this.aposGolo.t = 0; // replay: volta atrás no tempo
+    this.golosVistos = golos;
+    this.aposGolo.t = Math.max(0, this.aposGolo.t - dt);
+    const ag = this.aposGolo.t > 0 ? this.aposGolo : null;
+    if (ag) { bx = ag.gx + (ag.gx > 0 ? 1 : -1) * (GD - 0.5); by = ag.y; bz = BR; }
+    // Baliza atacada: a de quem tem a posse (a equipa 0 ataca sempre para x = 105); depois de um golo, a do golo.
+    const gx = ag ? ag.gx : act.posse === 1 ? 0 : PW;
     this.seguir(dt, bx, by, gx);
     this.montarCamara();
-    // Golo: a bancada abana e a rede faz "barriga" onde a bola entrou (C2).
-    const golos = act.golos[0] + act.golos[1];
-    if (this.golosVistos >= 0 && golos > this.golosVistos) this.abanar = 3.2;
-    this.golosVistos = golos;
     this.abanar = Math.max(0, this.abanar - dt);
     const dentro = (bx < 0 || bx > PW) && Math.abs(by - 34) < GH && bz < GBAR;
     if (dentro) { this.rede.gx = bx < 0 ? 0 : PW; this.rede.amt = Math.min(1.1, this.rede.amt + dt * 3); this.rede.y = by; this.rede.z = bz; }
