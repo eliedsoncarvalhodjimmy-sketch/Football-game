@@ -21,4 +21,14 @@ export const AUDIO = {
   },
   /** Competição → id no catálogo (Bloco 3). Alargar a outra competição é só acrescentar aqui. */
   cutscenes: { champions: 'cut_champions', europa: 'cut_europa' } as Record<string, string>,
+  /** Lotação (0–1) abaixo da qual o estádio soa mais vazio (Bloco 3). */
+  lotacao_vazia_abaixo: 0.25,
+  /** Jogos importantes (europeus) soam mais alto (Bloco 3): ambiente ×(1 + isto). */
+  volume_extra_jogo_importante: 0.125,
+  /** Quanto tempo a ambiência de tensão dura depois de um golo, antes de voltar ao ambiente normal (Bloco 3). */
+  tensao_golo_ms: 6000,
 };
+
+/** Faixas de música de gestão (Bloco 4), na ordem em que `preparar.ts` as regista; as que faltarem no catálogo são
+ *  saltadas sozinhas (silêncio), sem precisar de mudar esta lista. */
+export const PLAYLIST_GESTAO = ['mus_gestao_1', 'mus_gestao_2', 'mus_gestao_3', 'mus_gestao_4', 'mus_gestao_5'];

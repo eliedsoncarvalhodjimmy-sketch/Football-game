@@ -17,18 +17,32 @@ import { eventoA4, mudancaA4, entradaA4, SELECTOR_A4, ligarA4 } from './eventosA
 import { AudioManager } from '../audio/AudioManager.ts';
 import { htmlDefinicoes, ligarDefinicoes } from './ecraSom.ts';
 import { htmlDefinicoesCutscene, ligarDefinicoesCutscene } from './ecraCutscene.ts';
+import { htmlCreditosAudio } from './ecraCreditosAudio.ts';
 import { abrirCutscene } from './cutscene.ts';
 import { criarCenaEuropeia, carregarImagensCompeticao, libertarImagensCompeticao } from '../cutscene/cena.ts';
 import { carregarEscudosReais, libertarEscudosReais } from '../cutscene/escudosReais.ts';
 import { TL_CHAMPIONS } from '../cutscene/timelines/champions.ts';
 import { TL_EUROPA } from '../cutscene/timelines/europa.ts';
 import { lerFrequenciaCutscene, devoAbrirCutscene } from '../cutscene/persistencia.ts';
+import { idCutsceneDaCompeticao } from '../cutscene/dados.ts';
 import type { DadosCutscene } from '../cutscene/tipos.ts';
+import { carregarCatalogoReal } from '../audio/catalogoReal.ts';
+import { PlaylistGestao } from '../audio/playlist.ts';
+import { AUDIO, PLAYLIST_GESTAO } from '../config/audio.ts';
 
 /** Prompt 10: único gestor de áudio da aplicação. Definições em localStorage, nunca no save; ligado ao primeiro
  *  toque (desbloqueio em iOS/Android) e a pausar/retomar em segundo plano. */
 export const audio = new AudioManager();
 audio.ligarAutomatismos();
+void carregarCatalogoReal(import.meta.env.BASE_URL).then((c) => audio.definirCatalogo(c));
+const playlistGestao = new PlaylistGestao(audio, PLAYLIST_GESTAO);
+
+/** Em qual contexto de música estamos (para não recomeçar a mesma faixa/playlist sem necessidade a cada ecrã). */
+let contextoMusica: 'menu' | 'gestao' | null = null;
+/** Contexto "menu" (antes de entrar numa carreira): música do menu, sem playlist de gestão a tocar. */
+function entrarMenu() { if (contextoMusica === 'menu') return; contextoMusica = 'menu'; playlistGestao.parar(); audio.definirMusica('menu', 'mus_menu'); }
+/** Contexto "gestão" (dentro de uma carreira): a playlist decide a faixa (Bloco 4), não uma música fixa. */
+function entrarGestao() { if (contextoMusica === 'gestao') return; contextoMusica = 'gestao'; audio.definirMusica('menu', null); playlistGestao.iniciar(); }
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const fE = (v: number) => `€${Math.round(v).toLocaleString('pt-PT')}`;
@@ -106,6 +120,7 @@ function ecraEntrada(contaSel: string | null = null, erro = '') {
 
 /** Carreiras gravadas da conta (continuar, apagar) e nova carreira. */
 async function ecraCarreiras() {
+  entrarMenu();
   const gs = await listar(E.conta!);
   if (!gs.length) { novaCarreira(); return; }
   const p = lerPerfil(E.conta!);
@@ -227,6 +242,7 @@ async function comecarCarreira() {
   if (E.ranhura === null) { alert('Não há ranhuras livres: apaga uma carreira.'); await ecraCarreiras(); return; }
   E.resumo = r.resumo; E.registo = r.registo; E.ecra = 'inicio';
   await gravar(false);
+  entrarGestao();
   ecraJogo();
 }
 
@@ -235,6 +251,7 @@ async function continuar(g: Gravacao) {
   try {
     const r = await pedir<'estado'>({ tipo: 'carregar', registo: g.registo }, c.progresso);
     E.resumo = r.resumo; E.registo = r.registo; E.ranhura = g.ranhura; E.ecra = 'inicio';
+    entrarGestao();
     ecraJogo();
   } catch (e) { alert(`Não foi possível carregar: ${(e as Error).message}`); }
   c.fechar();
@@ -312,7 +329,11 @@ function barraTopo(r: Resumo) {
  *  (Bloco 6: "libertar tudo no fim"). Nunca bloqueia o dia: qualquer erro (imagens, rede) salta logo para `aoFechar`. */
 async function abrirCutsceneEuropeia(dados: DadosCutscene, escudoCasaId: string, escudoForaId: string, aoFechar: () => void) {
   const base = import.meta.env.BASE_URL;
-  const libertar = () => { libertarImagensCompeticao(dados.competicao, base); void libertarEscudosReais(escudoCasaId, escudoForaId, base); };
+  const libertar = () => {
+    libertarImagensCompeticao(dados.competicao, base);
+    void libertarEscudosReais(escudoCasaId, escudoForaId, base);
+    audio.libertarBuffers([AUDIO.cutscenes[dados.competicao]]); // Prompt 10, Bloco 5: liberta o buffer decodificado
+  };
   try {
     const [imagens, escudos] = await Promise.all([carregarImagensCompeticao(dados.competicao, base), carregarEscudosReais(escudoCasaId, escudoForaId, base)]);
     const tl = dados.competicao === 'champions' ? TL_CHAMPIONS : TL_EUROPA;
@@ -330,6 +351,11 @@ async function avancar() {
   try {
     const r = await pedir<'estado'>({ tipo: 'avancar', semanas: 1 });
     E.resumo = r.resumo; E.registo = r.registo;
+    // Prompt 10, Bloco 5: pré-decodifica o áudio da cutscene "na véspera" (o próximo jogo do utilizador já é
+    // europeu) — toca sem atraso quando chegar a vez; nunca pré-cacheia na instalação, só quando é mesmo preciso.
+    const proxComp = r.resumo.proximo?.comp;
+    const proxIdCutscene = proxComp ? idCutsceneDaCompeticao(proxComp) : null;
+    if (proxIdCutscene) audio.preDecodificar(AUDIO.cutscenes[proxIdCutscene]);
     // Fase 6 do motor 2D: houve um jogo do utilizador esta semana → abre o ecrã do jogo (por lances).
     // Prompt 11, Bloco 5: se for um jogo europeu (Champions/Liga Europa) e a frequência escolhida mandar mostrar,
     // a cutscene entra primeiro; o ecrã do jogo só abre quando ela fechar (ou nunca, se não houver cutscene).
@@ -340,7 +366,7 @@ async function avancar() {
       if (v.vista.ecra === 'jogo' && v.vista.dados) {
         E.aAvancar = false;
         const dados = v.vista.dados;
-        const abrirEcraDoJogo = () => abrirJogo2D(dados, () => ecraJogo());
+        const abrirEcraDoJogo = () => abrirJogo2D(dados, () => ecraJogo(), audio);
         if (dados.dadosCutscene && devoAbrirCutscene(j2d.cutscene, dados.dadosCutscene, lerFrequenciaCutscene())) {
           await abrirCutsceneEuropeia(dados.dadosCutscene, dados.escudoCasaId, dados.escudoForaId, abrirEcraDoJogo);
         } else {
@@ -357,7 +383,7 @@ async function avancar() {
 /** Ecrãs que só precisam do resumo (os outros pedem uma vista ao worker). */
 function conteudoSincrono(r: Resumo): string | null {
   if (E.ecra === 'inicio') return htmlInicio(r);
-  if (E.ecra === 'definicoes') return `<div class="topo"><h1>Definições</h1></div>${htmlDefinicoes(audio)}${htmlDefinicoesCutscene()}`;
+  if (E.ecra === 'definicoes') return `<div class="topo"><h1>Definições</h1></div>${htmlDefinicoes(audio)}${htmlDefinicoesCutscene()}${htmlCreditosAudio()}`;
   if (['plantel', 'jogador', 'mercado', 'negociacao', 'academia', 'staff', 'financas', 'infra', 'classificacao', 'escritorio'].includes(E.ecra)) return null;
   const [, t, parte] = ECRAS.find((x) => x[0] === E.ecra)!;
   return `<div class="topo"><h1>${t}</h1></div><section class="c em-breve"><h2>Em construção</h2><div>Este ecrã chega na parte ${parte} do Bloco A. O desenho é o do protótipo.</div></section>`;
@@ -485,5 +511,6 @@ export async function arrancar() {
   const c = carregamento();
   try { await pedir<'ok'>({ tipo: 'preparar' }, c.progresso); } catch { /* o erro volta a aparecer ao gerar o mundo */ }
   c.fechar();
+  entrarMenu();
   ecraEntrada();
 }

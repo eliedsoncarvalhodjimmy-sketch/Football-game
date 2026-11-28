@@ -133,6 +133,23 @@ export class AudioManager {
     return p;
   }
 
+  /** Decodifica antecipadamente um som (ex.: a cutscene do próximo dia europeu, Prompt 10 Bloco 5), para tocar sem
+   *  atraso quando for preciso. Com tudo silenciado, ou sem ficheiro: não faz nada (nunca decodifica às escondas
+   *  com o utilizador calado). */
+  preDecodificar(id: string) {
+    if (this.def.silenciado) return;
+    const item = this.catalogo.obter(id);
+    if (!item) return;
+    this.garantirContexto();
+    void this.decodificar(item.ficheiro);
+  }
+
+  /** Liberta os buffers decodificados destes ids (memória) quando já não vão voltar a tocar tão cedo (ex.: a
+   *  cutscene europeia, depois de fechar). Decodifica-se de novo, do zero, se algum destes voltar a tocar. */
+  libertarBuffers(ids: string[]) {
+    for (const id of ids) { const item = this.catalogo.obter(id); if (item) this.buffers.delete(item.ficheiro); }
+  }
+
   // ---------------------------------------------------------------- API pública (Bloco 3/4 ligam os eventos a isto)
 
   /** Ambiente (estádio, imprensa...). `null` desliga com crossfade. Ficheiro em falta: silêncio, sem aviso repetido. */
@@ -176,8 +193,30 @@ export class AudioManager {
   private cutsceneAoAcabar: (() => void) | null = null;
   private terminarCutscene() {
     this.pararCanal('cutscene');
+    // "Regressa ao fluxo normal desse dia (música de gestão com fade in)" — a música e o ambiente só tinham baixado
+    // o volume (fadeCanal), não pararam: aqui sobem de volta ao volume escolhido pelo utilizador.
+    this.fadeCanal('musica', this.def.volume.musica, AUDIO.fade.cutscene_corte_ms);
+    this.fadeCanal('ambiente', this.def.volume.ambiente, AUDIO.fade.cutscene_corte_ms);
     const cb = this.cutsceneAoAcabar; this.cutsceneAoAcabar = null;
     cb?.();
+  }
+
+  /** Baixa (ou volta a subir) um canal com fade, sem parar o que lá está a tocar — ex.: a música durante uma
+   *  partida ou a conferência de imprensa (ao voltar, a mesma faixa continua, só estava mais baixa). `paraZero`
+   *  (por omissão) baixa a 0; `false` sobe de volta ao volume escolhido pelo utilizador para esse canal. */
+  duckCanal(canal: Canal, ms: number, paraZero = true) {
+    this.fadeCanal(canal, paraZero ? 0 : this.def.volume[canal], ms);
+  }
+
+  /** Há som para este id no catálogo? (Prompt 10, Bloco 3: ex. escolher `amb_estadio_vazio` só se existir). */
+  existeSom(id: string): boolean { return !!this.catalogo.obter(id); }
+
+  /** Toca uma faixa de música uma vez, sem o loop nativo do catálogo (a playlist de gestão, Bloco 4, decide repetir
+   *  ou não); chama `aoAcabar` quando terminar. Ficheiro em falta: silêncio, `aoAcabar` chamado já (a playlist avança). */
+  tocarFaixaMusica(id: string, aoAcabar: () => void) {
+    this.musicaContexto = 'gestao';
+    if (!this.catalogo.obter(id)) { aoAcabar(); return; }
+    this.tocarNoCanal('musica', id, false, 1, aoAcabar);
   }
 
   /** Pára tudo imediatamente (ex.: ao sair do jogo). */

@@ -364,6 +364,22 @@ export class Economia {
     return { custo, semanas };
   }
 
+  /** Ocupação do estádio (0–1) de um jogo em casa (adversário −1 = médio) — a mesma fórmula de `receitaJogo`, exposta
+   *  à parte para quem só precise da lotação (Prompt 10, Bloco 3: escolher o ambiente do estádio, cheio ou vazio). */
+  ocupacaoJogo(c: number, adv: number, tipo: 'liga' | 'taca' | 'continental' | 'playoff'): number {
+    const w = this.w, s = this.clubes;
+    const rep = w.reputacao[c];
+    let ocup = B.ocupacao.a + (B.ocupacao.b * rep) / 100 + B.ocupacao.fidelidade * (s.fidelidade[c] - 10) + B.forma * ((s.forma[c] || 1.4) - 1.4);
+    if (adv >= 0) {
+      ocup += B.rival * this.intensidadeRival(c, adv);
+      if (w.reputacao[adv] > rep + 10) ocup += B.jogo_grande;
+    }
+    if (tipo === 'continental' || tipo === 'playoff') ocup += B.ocupacao_continental;
+    const f = this.precoBilhete.get(c);
+    if (f) ocup *= Math.pow(1 / f, BILHETE_UTILIZADOR.elasticidade);
+    return clamp(ocup, B.ocupacao.min, 1);
+  }
+
   /** Receita de bilheteira de um jogo em casa (adversário −1 = médio). */
   receitaJogo(c: number, adv: number, tipo: 'liga' | 'taca' | 'continental' | 'playoff'): number {
     const w = this.w, s = this.clubes;
@@ -371,17 +387,12 @@ export class Economia {
     const ind = indiceRiqueza(w, c);
     let preco = B.preco_base * Math.pow(ind / 100, B.expoente_riqueza) * (B.piso_preco_reputacao + (1 - B.piso_preco_reputacao) * rep / 100);
     preco *= 1 + EI.estadio_preco * (this.nivel(c, 'estadio') - 5);
-    let ocup = B.ocupacao.a + (B.ocupacao.b * rep) / 100 + B.ocupacao.fidelidade * (s.fidelidade[c] - 10) + B.forma * ((s.forma[c] || 1.4) - 1.4);
-    if (adv >= 0) {
-      ocup += B.rival * this.intensidadeRival(c, adv);
-      if (w.reputacao[adv] > rep + 10) ocup += B.jogo_grande;
-    }
-    if (tipo === 'continental') { preco *= B.preco_continental; ocup += B.ocupacao_continental; }
+    if (tipo === 'continental') preco *= B.preco_continental;
     else if (tipo === 'taca') preco *= B.preco_taca;
-    else if (tipo === 'playoff') { preco *= B.preco_playoff; ocup += B.ocupacao_continental; }
+    else if (tipo === 'playoff') preco *= B.preco_playoff;
     const f = this.precoBilhete.get(c);
-    if (f) { preco *= f; ocup *= Math.pow(1 / f, BILHETE_UTILIZADOR.elasticidade); }
-    return s.capacidade[c] * clamp(ocup, B.ocupacao.min, 1) * preco;
+    if (f) preco *= f;
+    return s.capacidade[c] * this.ocupacaoJogo(c, adv, tipo) * preco;
   }
 
   // ---------------------------------------------------------------- semana e mês

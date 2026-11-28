@@ -7,6 +7,8 @@ import { Apresentacao } from '../engine/match2d/apresentacao.ts';
 import type { NivelLances } from '../engine/match2d/lances.ts';
 import type { VistaJogo2D } from '../jogo/sessao.ts';
 import type { Evento2D } from '../engine/match2d/tipos.ts';
+import type { AudioManager } from '../audio/AudioManager.ts';
+import { AUDIO } from '../config/audio.ts';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 const relogio = (tk: number) => `${Math.floor(tk / 600)}:${String(Math.floor((tk / 10) % 60)).padStart(2, '0')}`;
@@ -21,7 +23,7 @@ function textoSobre(cor: string) {
   return l > 0.6 ? '#111' : '#fff';
 }
 
-export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void) {
+export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void, audio?: AudioManager) {
   const el = document.createElement('div');
   el.className = 'jogo2d';
   el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', `${v.nomes[0]} contra ${v.nomes[1]}`);
@@ -44,13 +46,24 @@ export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void) {
   const motor = new Motor2D(v.config);
   const apres = new Apresentacao(motor, 'alargados');
   apres.simular(Infinity, 3000);
-  let vel = 1, pausa = false, ult = 0, vivo = true, uRelato = -1;
+  let vel = 1, pausa = false, ult = 0, vivo = true, uRelato = -1, uSom = 0;
   const nomes = new Map(v.config.equipas.flatMap((q) => q.jogadores.map((j) => [j.id, j.nome] as const)));
   const nome = (id?: string) => (id ? nomes.get(id) ?? '' : '');
+
+  // Prompt 10, Bloco 3: som ambiente do estádio. Sem `amb_estadio_vazio` no catálogo (ainda não fornecido), fica
+  // sempre `amb_estadio_cheio`, com o volume mais baixo nos jogos de pouca gente — exactamente como o fallback pede.
+  const ambienteId = v.lotacao < AUDIO.lotacao_vazia_abaixo && audio?.existeSom('amb_estadio_vazio') ? 'amb_estadio_vazio' : 'amb_estadio_cheio';
+  const volumeAmbiente = (ambienteId === 'amb_estadio_cheio' && v.lotacao < AUDIO.lotacao_vazia_abaixo ? 0.5 : 1) * (v.jogoImportante ? 1 + AUDIO.volume_extra_jogo_importante : 1);
+  let timerTensao: ReturnType<typeof setTimeout> | null = null;
+  audio?.duckCanal('musica', AUDIO.fade.ambiente_crossfade_ms);
+  audio?.definirAmbiente(ambienteId, volumeAmbiente);
 
   const fechar = () => { vivo = false; el.remove(); aoFechar(); };
   const final = () => {
     vivo = false;
+    if (timerTensao) clearTimeout(timerTensao);
+    audio?.definirAmbiente(null); // desvanece em ~1,5s (ver fadeCanal/pararCanal)
+    audio?.duckCanal('musica', AUDIO.fade.musica_crossfade_ms, false); // regressa a música de gestão
     const f = el.querySelector('#jg-final') as HTMLElement;
     f.querySelector('b')!.textContent = `Final: ${v.nomes[0]} ${v.resultado[0]} – ${v.resultado[1]} ${v.nomes[1]}`;
     f.hidden = false;
@@ -127,6 +140,17 @@ export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void) {
     // Relato: os últimos eventos relevantes até ao minuto mostrado.
     const r = motor.registo; let a = 0, z = r.length;
     while (a < z) { const m = (a + z) >> 1; if (r[m].tick <= t) a = m + 1; else z = m; }
+    // Ocasião de golo: crossfade para a ambiência de tensão (se existir), de volta ao normal passado um tempo.
+    if (audio && a > uSom) {
+      for (let k = uSom; k < a; k++) {
+        if (r[k].tipo !== 'golo') continue;
+        audio.definirAmbiente('amb_estadio_tensao', volumeAmbiente);
+        if (timerTensao) clearTimeout(timerTensao);
+        timerTensao = setTimeout(() => { if (vivo) audio.definirAmbiente(ambienteId, volumeAmbiente); }, AUDIO.tensao_golo_ms);
+        break;
+      }
+    }
+    uSom = a;
     if (a === uRelato) return; uRelato = a;
     const linhas: string[] = [];
     for (let k = a - 1; k >= 0 && linhas.length < 12; k--) { const f = TXT[r[k].tipo], txt = f ? f(r[k]) : ''; if (txt) linhas.push(`<div><span class="pt" style="background:${cores[r[k].equipa][0]}"></span>${relogio(r[k].tick)} · ${txt}</div>`); }

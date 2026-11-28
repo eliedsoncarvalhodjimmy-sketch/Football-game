@@ -120,10 +120,12 @@ export interface Resumo {
 
 /** O jogo do utilizador para o ecrã do jogo (Fase 6): a configuração exacta do motor 2D (determinística) e o resultado.
  *  `dadosCutscene` (Prompt 11, Bloco 5) só existe nos jogos europeus; `escudoCasaId`/`escudoForaId` são os ids dos
- *  clubes, para a interface ir buscar o escudo real a `public/escudos/escudos.json` (se existir). */
+ *  clubes, para a interface ir buscar o escudo real a `public/escudos/escudos.json` (se existir). `lotacao` (0–1) e
+ *  `jogoImportante` (Prompt 10, Bloco 3) escolhem o ambiente do estádio (cheio/vazio, volume). */
 export interface VistaJogo2D {
   chave: string; config: Config2D; nomes: [string, string]; cores: [[string, string], [string, string]]; resultado: [number, number]; data: string;
   dadosCutscene: DadosCutscene | null; escudoCasaId: string; escudoForaId: string;
+  lotacao: number; jogoImportante: boolean;
 }
 
 const DIA_MS = 864e5;
@@ -523,9 +525,11 @@ export class Sessao {
       casa: { nome: w.clubes[u.casa].nome, sigla: w.clubes[u.casa].nome_curto, cor: cor(u.casa)[0] },
       fora: { nome: w.clubes[u.fora].nome, sigla: w.clubes[u.fora].nome_curto, cor: cor(u.fora)[0] },
     } : null;
+    const lotacao = w.economia ? w.economia.ocupacaoJogo(u.casa, u.fora, idComp ? 'continental' : 'liga') : 1;
     return {
       chave: u.chave, config: u.config, nomes: [w.clubes[u.casa].nome, w.clubes[u.fora].nome], cores: [cor(u.casa), cor(u.fora)], resultado: u.resumo.golos, data: dataPt(u.dia),
       dadosCutscene, escudoCasaId: w.clubes[u.casa].id, escudoForaId: w.clubes[u.fora].id,
+      lotacao, jogoImportante: idComp !== null,
     };
   }
 }

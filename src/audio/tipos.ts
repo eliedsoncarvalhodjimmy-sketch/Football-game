@@ -4,7 +4,7 @@ import type { Canal } from '../config/audio.ts';
 export type ContextoMusica = 'menu' | 'gestao' | 'partida';
 export type IdCutscene = 'champions' | 'europa';
 
-/** Um som do catálogo (Bloco 2 popula; aqui é só a forma). */
+/** Um som do catálogo (Bloco 2 popula a partir de `public/audio/audio.json`, gerado por `scripts/audio/preparar.ts`). */
 export interface ItemCatalogo {
   id: string;
   ficheiro: string; // caminho em public/audio/
@@ -12,6 +12,8 @@ export interface ItemCatalogo {
   duracao: number; // segundos
   loop: boolean;
   volumeBase: number; // 0–1, afinação por item dentro do canal
+  /** Peso em bytes do ficheiro processado (informativo — orçamentos do Bloco 2); não usado para tocar. */
+  peso?: number;
 }
 
 /** O catálogo é só uma forma de encontrar o ficheiro de um id; sem ficheiro = silêncio (nunca erro). */

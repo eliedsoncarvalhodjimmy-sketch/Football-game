@@ -1,0 +1,83 @@
+[
+  {
+    "id": "amb_estadio_cheio",
+    "ficheiro": "amb_estadio_cheio.mp3",
+    "categoria": "ambiente",
+    "duracao": 25.656,
+    "peso": 410925,
+    "loop": true,
+    "volumeBase": 1
+  },
+  {
+    "id": "amb_imprensa",
+    "ficheiro": "amb_imprensa.mp3",
+    "categoria": "ambiente",
+    "duracao": 59.016,
+    "peso": 708525,
+    "loop": true,
+    "volumeBase": 1
+  },
+  {
+    "id": "cut_champions",
+    "ficheiro": "cut_champions.mp3",
+    "categoria": "cutscene",
+    "duracao": 38.472,
+    "peso": 615981,
+    "loop": false,
+    "volumeBase": 1
+  },
+  {
+    "id": "cut_europa",
+    "ficheiro": "cut_europa.mp3",
+    "categoria": "cutscene",
+    "duracao": 37.776,
+    "peso": 604845,
+    "loop": false,
+    "volumeBase": 1
+  },
+  {
+    "id": "mus_gestao_1",
+    "ficheiro": "mus_gestao_1.mp3",
+    "categoria": "musica",
+    "duracao": 189.888,
+    "peso": 3038637,
+    "loop": true,
+    "volumeBase": 1
+  },
+  {
+    "id": "mus_gestao_2",
+    "ficheiro": "mus_gestao_2.mp3",
+    "categoria": "musica",
+    "duracao": 207.288,
+    "peso": 3317175,
+    "loop": true,
+    "volumeBase": 1
+  },
+  {
+    "id": "mus_gestao_3",
+    "ficheiro": "mus_gestao_3.mp3",
+    "categoria": "musica",
+    "duracao": 214.632,
+    "peso": 3434541,
+    "loop": true,
+    "volumeBase": 1
+  },
+  {
+    "id": "mus_gestao_4",
+    "ficheiro": "mus_gestao_4.mp3",
+    "categoria": "musica",
+    "duracao": 197.328,
+    "peso": 3157677,
+    "loop": true,
+    "volumeBase": 1
+  },
+  {
+    "id": "mus_menu",
+    "ficheiro": "mus_menu.mp3",
+    "categoria": "musica",
+    "duracao": 234.624,
+    "peso": 3754413,
+    "loop": true,
+    "volumeBase": 1
+  }
+]

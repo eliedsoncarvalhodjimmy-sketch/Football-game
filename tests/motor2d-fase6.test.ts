@@ -75,6 +75,10 @@ describe('motor 2D — Fase 6: integração no jogo do utilizador', () => {
     const v = s.vistaJogo2D()!;
     expect(v.resultado).toEqual(u.resumo.golos);
     expect(v.config.equipas[0].jogadores).toHaveLength(11);
+    // Prompt 10, Bloco 3: lotação do estádio (para o ambiente) e se é jogo importante — um jogo de liga não é.
+    expect(v.lotacao).toBeGreaterThanOrEqual(0);
+    expect(v.lotacao).toBeLessThanOrEqual(1);
+    expect(v.jogoImportante).toBe(false);
     // Carregar: mesmo resumo e mesma tabela, sem voltar a simular o jogo 2D (o resumo vem da gravação).
     const b = new Sessao(fonte());
     const reg = JSON.parse(JSON.stringify(s.registo));
