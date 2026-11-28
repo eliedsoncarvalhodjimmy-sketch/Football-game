@@ -673,6 +673,16 @@ select[multiple] { min-height: 140px; }
 .jg-final { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 12px 16px; }
 @media (max-width: 760px) { .jg-corpo { grid-template-columns: 1fr; } .jg-relato { max-height: 30vh; } .jogo2d { padding: 10px; } }
 .jg-final[hidden] { display: none; }
+/* Campo 3D (Anexo C, C1): placar por cima do campo e barra de relato em baixo, com a cor de quem tem a bola. */
+.jg-palco { position: relative; border-radius: 12px; overflow: hidden; background: #000; container-type: inline-size; }
+.jg-palco canvas { border-radius: 0; }
+.jg-board { position: absolute; top: 1.6cqw; left: 50%; transform: translateX(-50%); display: flex; height: max(4.4cqw, 28px); color: #fff; border-radius: .9cqw; overflow: hidden; box-shadow: 0 .3cqw 1.2cqw rgba(0,0,0,.55); background: #16101f; font-family: var(--f-num); font-size: max(2.2cqw, 13px); }
+.jg-board > * { display: flex; align-items: center; justify-content: center; padding: 0 max(1cqw, 7px); }
+.jg-board .clk { background: #3b1260; font-weight: 600; font-variant-numeric: tabular-nums; min-width: max(6.6cqw, 50px); }
+.jg-board .tm { font-weight: 700; letter-spacing: .06em; background: var(--c); min-width: max(6cqw, 42px); }
+.jg-board .sc { font-weight: 700; font-size: 1.25em; min-width: max(8cqw, 56px); }
+.jg-say { position: absolute; left: 0; right: 0; bottom: 0; padding: max(.9cqw, 6px) 2cqw; background: var(--c, #222a33); color: #fff; font: 500 max(1.8cqw, 12px)/1.25 system-ui, sans-serif; text-align: center; transition: background .25s; }
+.jg-say:empty { display: none; }
 
 /* Cutscene europeia (Prompt 11). */
 .cutscene { position: fixed; inset: 0; z-index: 60; background: #05070d; touch-action: manipulation; }

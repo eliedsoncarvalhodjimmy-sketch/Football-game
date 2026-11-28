@@ -9,6 +9,7 @@ import type { VistaJogo2D } from '../jogo/sessao.ts';
 import type { Evento2D } from '../engine/match2d/tipos.ts';
 import type { AudioManager } from '../audio/AudioManager.ts';
 import { AUDIO } from '../config/audio.ts';
+import { Campo3D, equipamento, NOMES_CAMARA, type ModoCamara } from './campo3d.ts';
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 const relogio = (tk: number) => `${Math.floor(tk / 600)}:${String(Math.floor((tk / 10) % 60)).padStart(2, '0')}`;
@@ -29,17 +30,22 @@ export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void, audio?: AudioM
   el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', `${v.nomes[0]} contra ${v.nomes[1]}`);
   // Cores das equipas: a de fora usa a segunda cor se as principais forem parecidas.
   const c0 = v.cores[0][0], c1 = v.cores[1][0] === c0 ? v.cores[1][1] : v.cores[1][0];
+  const sigla = (n: string) => n.replace(/^(FC|SC|CF|CD|SL|AC|AS|SS|UD|RC|CA|SE|FK|SK|NK|KV|BV|SV|VfB|VfL|TSG|RB)\s+/i, '').slice(0, 3).toUpperCase();
   el.innerHTML = `<div class="jg-cab">
       <div class="jg-eq"><span class="pt" style="background:${c0}"></span>${esc(v.nomes[0])}</div>
-      <div class="jg-placar"><b id="jg-golos">0 – 0</b><small id="jg-tempo">0:00</small></div>
+      <div></div>
       <div class="jg-eq dir">${esc(v.nomes[1])}<span class="pt" style="background:${c1}"></span></div>
     </div>
     <div class="jg-ctrl">
       <div class="seg" id="jg-nivel">${NIVEIS.map(([k, t]) => `<button data-n="${k}" class="${k === 'alargados' ? 'on' : ''}">${t}</button>`).join('')}</div>
       <div class="seg" id="jg-vel">${VELS.map(([k, t]) => `<button data-v="${k}" class="${k === 1 ? 'on' : ''}">${t}</button>`).join('')}</div>
+      <button class="btn" id="jg-cam">Câmara: ${NOMES_CAMARA[0]}</button><button class="btn" id="jg-nomes" aria-pressed="true">Nomes: ligados</button>
       <button class="btn" id="jg-pausa">Pausa</button><button class="btn" id="jg-fim">Saltar para o fim</button>
     </div>
-    <div class="jg-corpo"><canvas id="jg-campo" width="1050" height="700" aria-label="Campo"></canvas><div class="jg-relato" id="jg-relato" aria-live="polite"></div></div>
+    <div class="jg-corpo"><div class="jg-palco"><canvas id="jg-campo" width="1050" height="683" aria-label="Campo"></canvas>
+      <div class="jg-board" aria-label="Marcador"><div class="clk" id="jg-tempo">0:00</div><div class="tm" style="--c:${c0}">${esc(sigla(v.nomes[0]))}</div><div class="sc" id="jg-golos">0 – 0</div><div class="tm" style="--c:${c1}">${esc(sigla(v.nomes[1]))}</div></div>
+      <div class="jg-say" id="jg-say" aria-live="polite"></div></div>
+      <div class="jg-relato" id="jg-relato" aria-live="polite"></div></div>
     <div class="jg-final" id="jg-final" hidden><b></b><button class="btn prim" id="jg-continuar">Continuar</button></div>`;
   document.body.appendChild(el);
 
@@ -81,42 +87,24 @@ export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void, audio?: AudioM
     vel = Number(b.dataset.v);
     el.querySelectorAll('#jg-vel button').forEach((x) => x.classList.toggle('on', x === b));
   });
+  el.querySelector('#jg-cam')!.addEventListener('click', (ev) => { campo.modo = ((campo.modo + 1) % 3) as ModoCamara; (ev.currentTarget as HTMLElement).textContent = `Câmara: ${NOMES_CAMARA[campo.modo]}`; });
+  el.querySelector('#jg-nomes')!.addEventListener('click', (ev) => { campo.nomes = !campo.nomes; const b = ev.currentTarget as HTMLElement; b.setAttribute('aria-pressed', String(campo.nomes)); b.textContent = campo.nomes ? 'Nomes: ligados' : 'Nomes: desligados'; });
   el.querySelector('#jg-pausa')!.addEventListener('click', (ev) => { pausa = !pausa; (ev.target as HTMLElement).textContent = pausa ? 'Retomar' : 'Pausa'; });
   el.querySelector('#jg-fim')!.addEventListener('click', final);
   el.querySelector('#jg-continuar')!.addEventListener('click', fechar);
 
-  // ---------------------------------------------------------------- desenho
+  // ---------------------------------------------------------------- desenho (campo 3D, Anexo C)
   const cv = el.querySelector('#jg-campo') as HTMLCanvasElement, cx = cv.getContext('2d')!;
-  const MARG = 3, ESC = cv.width / (105 + 2 * MARG);
-  const px = (x: number) => (x + MARG) * ESC, py = (y: number) => (y + MARG) * ESC;
+  const ESC = cv.width / 111; // escala dos cartões e etiquetas por cima do campo (px por "metro" de ecrã)
+  const px = (x: number) => (x + 3) * ESC, py = (y: number) => (y + 3) * ESC;
   const cores = [[c0, textoSobre(c0)], [c1, textoSobre(c1)]];
-  function relvado() {
-    cx.fillStyle = '#2e7d3a'; cx.fillRect(0, 0, cv.width, cv.height);
-    for (let k = 0; k < 11; k++) { cx.fillStyle = 'rgba(255,255,255,.035)'; cx.fillRect((k * 10 + MARG) * ESC, MARG * ESC, 5 * ESC, 68 * ESC); }
-    cx.strokeStyle = 'rgba(255,255,255,.7)'; cx.lineWidth = Math.max(1, ESC * 0.25);
-    const R = (x: number, y: number, a: number, b: number) => cx.strokeRect(px(x), py(y), a * ESC, b * ESC);
-    R(0, 0, 105, 68); R(0, 13.85, 16.5, 40.3); R(88.5, 13.85, 16.5, 40.3); R(0, 24.85, 5.5, 18.3); R(99.5, 24.85, 5.5, 18.3);
-    cx.beginPath(); cx.moveTo(px(52.5), py(0)); cx.lineTo(px(52.5), py(68)); cx.stroke();
-    cx.beginPath(); cx.arc(px(52.5), py(34), 9.15 * ESC, 0, 7); cx.stroke();
-  }
+  // Guarda-redes com cor própria (amarelo / laranja do protótipo), diferente das duas equipas.
+  const campo = new Campo3D(cv, [equipamento(c0, '#e8c21a'), equipamento(c1, '#ef8a17')]);
+  let dtUltimo = 0;
   function desenhar() {
     const f = apres.fotosEcra();
-    relvado();
-    if (!f) return;
-    const { ant, act, alfa } = f, lerp = (a: number, b: number) => a + (b - a) * alfa;
-    const antes = new Map(ant.jogadores.map((j) => [j.id, j]));
-    for (const j of act.jogadores) {
-      const a = antes.get(j.id) ?? j, x = lerp(a.x, j.x), y = lerp(a.y, j.y), c = cores[j.equipa];
-      let dc = j.corpo - a.corpo; while (dc > Math.PI) dc -= 2 * Math.PI; while (dc < -Math.PI) dc += 2 * Math.PI;
-      cx.save(); cx.translate(px(x), py(y)); cx.rotate(a.corpo + dc * alfa);
-      cx.fillStyle = '#fff'; cx.beginPath(); cx.moveTo(2.4 * ESC, 0); cx.lineTo(1.55 * ESC, -0.65 * ESC); cx.lineTo(1.55 * ESC, 0.65 * ESC); cx.closePath(); cx.fill(); cx.restore();
-      cx.beginPath(); cx.arc(px(x), py(y), 1.35 * ESC, 0, 7); cx.fillStyle = c[0]; cx.fill();
-      cx.lineWidth = 1.5; cx.strokeStyle = 'rgba(0,0,0,.45)'; cx.stroke();
-      cx.fillStyle = c[1]; cx.font = `700 ${1.45 * ESC}px Inter, sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(String(j.numero), px(x), py(y) + 0.1 * ESC);
-    }
-    const b = { x: lerp(ant.bola.x, act.bola.x), y: lerp(ant.bola.y, act.bola.y) }, z = lerp(ant.z ?? 0, act.z ?? 0);
-    cx.beginPath(); cx.ellipse(px(b.x), py(b.y) + 0.3 * ESC, (0.75 + z * 0.05) * ESC, 0.45 * ESC, 0, 0, 7); cx.fillStyle = 'rgba(0,0,0,.35)'; cx.fill();
-    cx.beginPath(); cx.arc(px(b.x), py(b.y - z * 0.45), (0.75 + z * 0.08) * ESC, 0, 7); cx.fillStyle = '#fff'; cx.fill(); cx.lineWidth = 1.5; cx.strokeStyle = '#111'; cx.stroke();
+    if (!f) { cx.fillStyle = '#0e1317'; cx.fillRect(0, 0, cv.width, cv.height); return; }
+    campo.desenhar(f.ant, f.act, f.alfa, dtUltimo);
     // Corte entre lances: cartão com o minuto e o marcador do lance seguinte (o campo fica escurecido por trás).
     if (apres.modo === 'corte') {
       const e = apres.estatisticas(), prox = apres.proximoLance();
@@ -167,10 +155,18 @@ export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void, audio?: AudioM
     const linhas: string[] = [];
     for (let k = a - 1; k >= 0 && linhas.length < 12; k--) { const f = TXT[r[k].tipo], txt = f ? f(r[k]) : ''; if (txt) linhas.push(`<div><span class="pt" style="background:${cores[r[k].equipa][0]}"></span>${relogio(r[k].tick)} · ${txt}</div>`); }
     (el.querySelector('#jg-relato') as HTMLElement).innerHTML = linhas.join('');
+    // Barra de relato no campo: o último evento, na cor de quem o fez (C1).
+    for (let k = a - 1; k >= 0; k--) {
+      const f = TXT[r[k].tipo], txt = f ? f(r[k]) : '';
+      if (!txt) continue;
+      const say = el.querySelector('#jg-say') as HTMLElement;
+      say.innerHTML = txt; say.style.setProperty('--c', cores[r[k].equipa][0]);
+      break;
+    }
   }
   function ciclo(tm: number) {
     if (!vivo) return;
-    const dt = ult ? Math.min(0.1, (tm - ult) / 1000) : 0; ult = tm;
+    const dt = ult ? Math.min(0.1, (tm - ult) / 1000) : 0; ult = tm; dtUltimo = dt;
     if (apres.precisaSimular()) apres.simular(Infinity, 600);
     if (!pausa) apres.avancar(dt, vel);
     desenhar(); paineis();

@@ -958,7 +958,7 @@ export class Motor2D {
     return { tick: s.tick, bola: { ...b.p }, z: b.z, dono: b.dono, remate: !!b.remate, conducao: s.conducao?.tipo ?? null,
       passe: b.passe ? { de: b.passe.de, para: b.passe.para, destino: { ...b.passe.destino }, aereo: !!b.passe.aereo } : null, posse: s.posse, reposicao: s.reposicao ? s.reposicao.tipo : null,
       golos: [...s.estat.golos],
-      jogadores: s.jogadores.map((j) => ({ id: j.id, equipa: j.equipa, numero: j.numero, nome: j.nome, x: j.p.x, y: j.p.y, corpo: j.corpo, ax: j.ancora.x, ay: j.ancora.y, accao: j.accao, tarefa: j.tarefaBola, intensidade: j.intensidade, alvo: j.alvoAccao ? { ...j.alvoAccao } : null, ultrapassado: s.tick < j.ultrapassadoAte })),
+      jogadores: s.jogadores.map((j) => ({ id: j.id, equipa: j.equipa, numero: j.numero, nome: j.nome, gr: j.pos === 'GR', x: j.p.x, y: j.p.y, corpo: j.corpo, ax: j.ancora.x, ay: j.ancora.y, accao: j.accao, tarefa: j.tarefaBola, intensidade: j.intensidade, alvo: j.alvoAccao ? { ...j.alvoAccao } : null, ultrapassado: s.tick < j.ultrapassadoAte })),
       equipas: s.equipas.map((e) => ({ fase: e.fase, faseDesde: e.faseDesde, bloco: { ...e.bloco }, alvo: { ...e.alvo }, mistura: e.mistura, estilo: e.estilo, formacao: e.formacao, nome: e.nome })) };
   }
 }
