@@ -35,7 +35,7 @@ export function planear(s: Estado2D, r: Reposicao2D, semente: string): PlanoBola
   if (r.tipo === 'livre') {
     const dGolo = Math.hypot(C.comprimento - loc.x, MEIO - loc.y);
     if (dGolo < BP.livre_directo_m && Math.abs(loc.y - MEIO) < BP.livre_directo_largura) return planoLivreDirecto(s, a, d, r.local, dGolo, campo);
-    if (loc.x > BP.livre_cruzado_x) return planoCruzamento(s, a, d, r.local, loc.y > MEIO ? 1 : -1, aleatorio(chave + '|lado') < 0.5 ? 'primeiro_poste' : 'segundo_poste', campo, 'livre_cruzado');
+    if (loc.x > BP.livre_cruzado_x) return planoCruzamento(s, a, d, r.local, loc.y > MEIO ? 1 : -1, (() => { const r = aleatorio(chave + '|lado'); return r < BP.livre_cruzado_curto ? 'curto' : r < (1 + BP.livre_cruzado_curto) / 2 ? 'primeiro_poste' : 'segundo_poste'; })(), campo, 'livre_cruzado');
   }
   return null;
 }

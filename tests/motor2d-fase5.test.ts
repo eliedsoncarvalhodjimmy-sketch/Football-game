@@ -144,3 +144,47 @@ describe('motor 2D — highlights (os melhores momentos, não os 90 minutos)', (
     expect(modos.has('corte') && modos.has('lance')).toBe(true);
   }, 60_000);
 });
+
+describe('motor 2D — física da baliza e efeito (Anexo C)', () => {
+  // A bola é posta a 0,4 m da linha de fundo (x = 105), em remate, sem ninguém perto: um tick de movimento chega.
+  const preparar = (y: number, z: number, vz = 0) => {
+    const m = motor('poste');
+    const s = m.estado, b = s.bola;
+    for (const j of s.jogadores) j.p = { x: 20 + (j.lugar % 5), y: 10 + j.lugar };
+    const rematador = s.jogadores.find((j) => j.equipa === 0 && j.chave !== 'GR')!;
+    Object.assign(b, { p: { x: 104.6, y }, z, v: { x: 25, y: 0 }, vz, dono: null, ultimo: rematador.id, equipaUltima: 0, tickUltimo: s.tick, passe: null,
+      remate: { de: rematador.id, xg: 0.1, tick: s.tick } });
+    (m as unknown as { moverBola(): void }).moverBola();
+    return { s, b, eventos: s.eventos.map((e) => [e.tipo, e.subtipo]) };
+  };
+
+  it('ao poste: a bola ressalta para o campo, sem golo', () => {
+    const { b, eventos } = preparar(34 + 3.66, 0.8);
+    expect(eventos).toContainEqual(['poste', 'POSTE']);
+    expect(eventos.some(([t]) => t === 'golo')).toBe(false);
+    expect(b.p.x).toBeLessThan(105);
+    expect(b.v.x).toBeLessThan(0);
+    expect(b.remate).toBeNull();
+  });
+
+  it('à barra: a bola ressalta (para baixo/para trás), sem golo', () => {
+    const { b, eventos } = preparar(34, 2.44, 0);
+    expect(eventos).toContainEqual(['poste', 'BARRA']);
+    expect(eventos.some(([t]) => t === 'golo')).toBe(false);
+    expect(b.v.x).toBeLessThan(0);
+  });
+
+  it('entre os postes e abaixo da barra: não bate no ferro', () => {
+    const { eventos } = preparar(34 + 1, 1);
+    expect(eventos.some(([t]) => t === 'poste')).toBe(false);
+  });
+
+  it('o efeito curva a bola no ar (Magnus) e não actua no chão', async () => {
+    const { avancarBola3D } = await import('../src/engine/match2d/bola.ts');
+    let ar = { p: { x: 0, y: 0 }, z: 1, v: { x: 25, y: 0 }, vz: 5, efeito: 0.28 };
+    let chao = { p: { x: 0, y: 0 }, z: 0, v: { x: 25, y: 0 }, vz: 0, efeito: 0.28 };
+    for (let i = 0; i < 20; i++) { ar = { ...avancarBola3D(ar, 0.02), efeito: 0.28 }; chao = { ...avancarBola3D(chao, 0.02), efeito: 0.28 }; }
+    expect(ar.p.y).toBeGreaterThan(0.5);
+    expect(Math.abs(chao.p.y)).toBeLessThan(1e-9);
+  });
+});

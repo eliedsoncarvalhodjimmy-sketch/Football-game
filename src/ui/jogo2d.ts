@@ -13,7 +13,7 @@ import { Campo3D, equipamento, NOMES_CAMARA, type ModoCamara } from './campo3d.t
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 const relogio = (tk: number) => `${Math.floor(tk / 600)}:${String(Math.floor((tk / 10) % 60)).padStart(2, '0')}`;
-const NOME_LANCE: Record<string, string> = { golo: 'Golo', penalti: 'Penálti', vermelho: 'Expulsão', remate_perigoso: 'Ocasião de golo', defesa_dificil: 'Grande defesa', contra_ataque: 'Contra-ataque', livre_directo: 'Livre directo', remate_enquadrado: 'Remate enquadrado', canto: 'Canto', cruzamento_perigoso: 'Cruzamento perigoso', amarelo: 'Cartão amarelo', corte_area: 'Corte na área', construcao: 'Jogo corrido' };
+const NOME_LANCE: Record<string, string> = { golo: 'Golo', poste: 'Ao ferro', penalti: 'Penálti', vermelho: 'Expulsão', remate_perigoso: 'Ocasião de golo', defesa_dificil: 'Grande defesa', contra_ataque: 'Contra-ataque', livre_directo: 'Livre directo', remate_enquadrado: 'Remate enquadrado', canto: 'Canto', cruzamento_perigoso: 'Cruzamento perigoso', amarelo: 'Cartão amarelo', corte_area: 'Corte na área', construcao: 'Jogo corrido' };
 const NIVEIS: [NivelLances, string][] = [['chave', 'Resumo curto'], ['alargados', 'Resumo alargado']];
 const VELS: [number, string][] = [[0.5, '0,5×'], [1, '1×'], [2, '2×'], [4, '4×']];
 
@@ -128,7 +128,7 @@ export function abrirJogo2D(v: VistaJogo2D, aoFechar: () => void, audio?: AudioM
     }
   }
   const TXT: Partial<Record<Evento2D['tipo'], (x: Evento2D) => string>> = {
-    golo: (x) => `<b>GOLO! ${esc(nome(x.jogador))}</b>`, remate: (x) => `${esc(nome(x.jogador))} remata`, defesa: (x) => `${esc(nome(x.jogador))} defende`,
+    golo: (x) => `<b>GOLO! ${esc(nome(x.jogador))}</b>`, poste: (x) => `<b>${x.subtipo === 'BARRA' ? 'Na barra!' : 'Bate no poste!'}</b> ${esc(nome(x.jogador))}`, remate: (x) => `${esc(nome(x.jogador))} remata`, defesa: (x) => `${esc(nome(x.jogador))} defende`,
     cartao: (x) => `${x.subtipo === 'AMARELO' ? '🟨' : '🟥'} ${esc(nome(x.jogador))}`, expulsao: (x) => `<b>${esc(nome(x.jogador))} expulso</b>`, penalti: () => '<b>Penálti!</b>',
     falta: (x) => `Falta de ${esc(nome(x.jogador))}`, desarme: (x) => `${esc(nome(x.jogador))} desarma ${esc(nome(x.outro))}`, bloqueio: (x) => `${esc(nome(x.jogador))} bloqueia o remate`,
     reposicao: (x) => (x.x < 2 || x.x > 103) && (x.y < 2 || x.y > 66) ? `Canto para a equipa de ${esc(nome(x.jogador))}` : '', drible: (x) => `${esc(nome(x.jogador))} dribla ${esc(nome(x.outro))}`, cruzamento: (x) => `${esc(nome(x.jogador))} cruza`, intervalo: () => '<b>Intervalo</b>', fora_de_jogo: (x) => `${esc(nome(x.jogador))} em fora de jogo`,

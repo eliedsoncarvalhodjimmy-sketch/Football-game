@@ -294,7 +294,7 @@ export function executarBola(s: Estado2D, j: Jogador2D, o: Escolha, semente: str
 }
 
 /** Remate: aponta ao canto mais longe do guarda-redes, com erro (Finalização/Remate de longe, distância, pressão). */
-export function executarRemate(s: Estado2D, j: Jogador2D, semente: string, cabeca = false): { v: V2; vz: number } {
+export function executarRemate(s: Estado2D, j: Jogador2D, semente: string, cabeca = false, bolaParada = false): { v: V2; vz: number } {
   const e = j.equipa, o = paraEquipa(e, j.p), gr = s.jogadores.find((q) => q.equipa !== e && q.chave === 'GR');
   const grY = gr ? paraEquipa(e, gr.p).y : C.largura / 2;
   const alvoY = C.largura / 2 + (grY > C.largura / 2 ? -1 : 1) * (REMATE.meia_baliza - REMATE.margem_poste);
@@ -305,12 +305,12 @@ export function executarRemate(s: Estado2D, j: Jogador2D, semente: string, cabec
   const adv = s.jogadores.filter((q) => q.equipa !== e && q.chave !== 'GR');
   const encostados = adv.filter((q) => dist(q.p, j.p) < 2).length;
   const naLinha = adv.filter((q) => dist(q.p, j.p) < d && distSeg(q.p, j.p, alvo) < 1.2).length;
-  const pressao = Math.min(REMATE.pressao_max, REMATE.pressao * encostados + REMATE.pressao_linha * naLinha);
+  const pressao = Math.min(REMATE.pressao_max, REMATE.pressao * encostados + REMATE.pressao_linha * naLinha) * (cabeca && bolaParada ? REMATE.pressao_cabeca : 1);
   const sigma = (REMATE.erro_base + REMATE.erro_ponto * Math.max(0, 20 - attr)) * (1 + d / REMATE.erro_dist_m) * (1 + pressao);
   const chave = `${semente}|${j.id}|${s.tick}|rem`;
   const ang = Math.atan2(alvo.y - s.bola.p.y, alvo.x - s.bola.p.x) + sigma * normal(chave + '|ang');
-  const v = cabeca ? 13 : Math.min(REMATE.v_max, REMATE.v_base + REMATE.v_ponto * (longe ? at(j, 'rld') : at(j, 'fin')));
-  const vz = cabeca ? 0.5 : REMATE.vz[0] + (REMATE.vz[1] - REMATE.vz[0] + (longe ? REMATE.vz_longe_extra : 0)) * aleatorio(chave + '|vz') * (longe ? 1 : 0.6) * (1 + pressao * 0.5);
+  const v = cabeca ? (bolaParada ? REMATE.v_cabeca_bp : REMATE.v_cabeca) : Math.min(REMATE.v_max, REMATE.v_base + REMATE.v_ponto * (longe ? at(j, 'rld') : at(j, 'fin')));
+  const vz = cabeca ? REMATE.vz_cabeca : REMATE.vz[0] + (REMATE.vz[1] - REMATE.vz[0] + (longe ? REMATE.vz_longe_extra : 0)) * aleatorio(chave + '|vz') * (longe ? 1 : 0.6) * (1 + pressao * 0.5);
   void o;
   return { v: { x: Math.cos(ang) * v, y: Math.sin(ang) * v }, vz };
 }

@@ -81,7 +81,7 @@ export const REMATE = {
   /** Velocidade: 18 + 0,7 × Finalização (ou Remate de longe a mais de 20 m), até 32 m/s; subida 0,5–4 m/s. */
   v_base: 18, v_ponto: 0.7, v_max: 32, vz: [0.5, 4] as [number, number],
   /** Erro do ângulo (rad): (base + por ponto abaixo de 20) × (1 + d ÷ 30) × (1 + pressão). */
-  erro_base: 0.084, erro_ponto: 0.009, pressao: 0.7,
+  erro_base: 0.102, erro_ponto: 0.009, pressao: 0.7,
   /** O erro do remate cresce com a distância: × (1 + d / erro_dist_m). */
   erro_dist_m: 27,
   /** Subida (m/s) a mais nos remates de longe, para a bola poder sair por cima da barra. */
@@ -93,6 +93,14 @@ export const REMATE = {
   /** xG estimado (para a decisão): e^(−d/k) × ângulo, com pressão e bloqueios. */
   /** Pressão no remate: por defensor encostado (< 2 m), por corpo na linha de remate, e máximo. */
   pressao_linha: 0.4, pressao_max: 1.6,
+  /** No cabeceamento a um cruzamento de bola parada a pressão pesa menos (o atacante chega em corrida e já ganhou o
+   *  duelo aéreo; Anexo C, cantos 3–6%). */
+  pressao_cabeca: 0.5,
+  /** Cabeceamento à baliza: para baixo (m/s), como se cabeceia — à altura da cabeça atravessava a área cheia e era
+   *  cabeceado outra vez pelos defesas em 63% dos casos. */
+  vz_cabeca: -1.5,
+  /** Velocidade do cabeceamento (m/s); ao cruzamento de bola parada, em corrida, sai com mais força. */
+  v_cabeca: 13, v_cabeca_bp: 19,
   xg_k: 9, xg_escala: 0.6, xg_pressao: 0.35, xg_bloqueio: 0.4,
 };
 
@@ -109,6 +117,9 @@ export const GR = {
   desvio_canto: 0.75,
   /** Sai aos cruzamentos dentro da pequena área (+ x m) se lá chegar. */
   sai_cruzamento_m: 3,
+  /** Cabeceamento de bola parada (vem de perto e de cima, desviado no último instante): P(defender) × (1 − x) — com
+   *  a subtracção não mudava nada (a fórmula satura em 0,97). Anexo C, cantos 3–6%. */
+  cabeca_penal: 0.12,
 };
 
 /** Linha defensiva (secção 9.1). */

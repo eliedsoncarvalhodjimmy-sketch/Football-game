@@ -18,7 +18,7 @@ import { avaliarJogadas } from './jogadas.ts';
 const naPropriaAreaAbs = naGrandeArea;
 /** Só os passes contam para a precisão (não os alívios nem os desvios de cabeça). */
 const contaPasse = (tipo?: string) => tipo !== 'ALIVIAR' && tipo !== 'CABECA';
-import { BOLA_PARADA, PENALTI, CARTOES, CANTOS } from '../../config/match2d/fase5.ts';
+import { BOLA_PARADA, PENALTI, CARTOES, CANTOS, BALIZA } from '../../config/match2d/fase5.ts';
 import { moverJogador, intensidadePara, limitesFisicos, gastar, reaccaoCansaco, actualizarQuebra } from './fisica.ts';
 import { avancarBola3D, preverTrajectoria, pontoIntercepcao, tempoChegada, TICKS_SEM_RETOQUE } from './bola.ts';
 import { tempoDecisao, normal } from './passe.ts';
@@ -472,6 +472,8 @@ export class Motor2D {
       const curto = plano.variante === 'curto' || plano.variante === 'entrada_area';
       const o: Escolha = { tipo: curto ? 'PASSE_CURTO' : 'CRUZAMENTO', pontuacao: 0, sucesso: 0.7, valor: 0, receptor, destino: { ...receptor.p }, aereo: !curto, altura: BOLA_PARADA.altura_cruzamento };
       this.executarEscolha(m, o);
+      // Cruzamento de bola parada: o atacante ataca a bola em corrida (vantagem no duelo aéreo, ver moverBola).
+      if (!curto && s.bola.passe) s.bola.passe.bolaParada = true;
       return;
     }
     // Remates de bola parada.
@@ -479,7 +481,7 @@ export class Motor2D {
     b.dono = null; b.ultimo = m.id; b.equipaUltima = e; b.tickUltimo = s.tick; b.passe = null; s.conducao = null;
     const golo = paraAbsoluto(e, { x: C.comprimento, y: C.largura / 2 });
     const q = (y: number) => paraAbsoluto(e, { x: C.comprimento, y: C.largura / 2 + y });
-    let alvo: V2, v: number, zAlvo: number;
+    let alvo: V2, v: number, zAlvo: number, efeito = 0;
     if (plano.tipo === 'penalti') {
       const lado = plano.lado ?? 1;
       alvo = plano.resultado === 'golo' ? q(lado * 2.6) : plano.resultado === 'fora' ? q(lado * 4.4) : q(lado * 0.9);
@@ -492,7 +494,7 @@ export class Motor2D {
       const grY = gr ? paraEquipa(e, gr.p).y - C.largura / 2 : 0;
       const attr = (at(m, 'bpa') + at(m, 'rld')) / 2;
       const sigma = BOLA_PARADA.livre_erro_base + BOLA_PARADA.livre_erro_ponto * Math.max(0, 20 - attr);
-      const base = q((grY > 0 ? -1 : 1) * 2.8);
+      const base = q((grY > 0 ? -1 : 1) * BOLA_PARADA.livre_y_canto);
       const ang = Math.atan2(base.y - b.p.y, base.x - b.p.x) + sigma * normal(`${this.semente}|${s.tick}|livre`);
       const dd = dist(b.p, base);
       alvo = { x: b.p.x + Math.cos(ang) * dd, y: b.p.y + Math.sin(ang) * dd };
@@ -500,6 +502,13 @@ export class Motor2D {
       const bloqueia = this.r('barreira') < BOLA_PARADA.barreira_bloqueia;
       b.remate = { de: m.id, xg: 0.06, tick: s.tick, tipo: 'LIVRE', ignorar: bloqueia ? [] : plano.barreira };
       if (bloqueia && plano.barreira?.length) { const w = this.jog(plano.barreira[0]); if (w) { alvo = { ...w.p }; zAlvo = 0.8; } }
+      else {
+        // Efeito (Anexo C, C2/C4): a bola sai para o lado de fora da barreira e curva para o alvo.
+        const bar = (plano.barreira ?? []).map((id) => this.jog(id)).filter((w): w is Jogador2D => !!w);
+        const dx = alvo.x - b.p.x, dy = alvo.y - b.p.y, l = hyp(dx, dy) || 1;
+        const lado = bar.length ? (bar.reduce((a, w) => a + (w.p.x - b.p.x) * (-dy / l) + (w.p.y - b.p.y) * (dx / l), 0) >= 0 ? 1 : -1) : (this.r('efeito') < 0.5 ? 1 : -1);
+        efeito = lado * BOLA_PARADA.livre_efeito;
+      }
       s.estat.livresDirectos[e]++; s.estat.xg[e] += 0.06;
     }
     void golo;
@@ -507,6 +516,19 @@ export class Motor2D {
     const d = dist(b.p, alvo), t = d / v;
     b.v = { x: ((alvo.x - b.p.x) / d) * v, y: ((alvo.y - b.p.y) / d) * v };
     b.vz = (zAlvo + 0.5 * BOLA.g * t * t) / t; b.z = 0.1;
+    if (efeito) {
+      // Com efeito, a pontaria compensa a curva: simula a trajectória e corrige o ângulo até cruzar a linha no alvo.
+      let ang = Math.atan2(b.v.y, b.v.x);
+      for (let it = 0; it < 4; it++) {
+        let st = { p: b.p, v: { x: Math.cos(ang) * v, y: Math.sin(ang) * v }, z: 0.1, vz: b.vz, efeito };
+        for (let k = 0; k < 150 && (st.p.x - alvo.x) * (b.p.x - alvo.x) > 0; k++) st = { ...avancarBola3D(st, 0.02), efeito };
+        const erro = st.p.y - alvo.y;
+        if (Math.abs(erro) < 0.05) break;
+        ang -= Math.max(-0.3, Math.min(0.3, erro / (d * Math.cos(ang))));
+      }
+      b.v = { x: Math.cos(ang) * v, y: Math.sin(ang) * v };
+      b.efeito = efeito; b.efeitoTick = s.tick;
+    }
     s.estat.remates[e]++;
     m.corpo = Math.atan2(b.v.y, b.v.x);
     this.ev('remate', e, m, null, undefined, b.remate.tipo, b.remate.xg);
@@ -743,7 +765,9 @@ export class Motor2D {
       return;
     }
     const antes = b.p, zAntes = b.z;
-    ({ p: b.p, v: b.v, z: b.z, vz: b.vz } = avancarBola3D({ p: b.p, v: b.v, z: b.z, vz: b.vz }, dt));
+    const efeito = b.efeito && b.efeitoTick === b.tickUltimo ? b.efeito : 0;
+    ({ p: b.p, v: b.v, z: b.z, vz: b.vz } = avancarBola3D({ p: b.p, v: b.v, z: b.z, vz: b.vz, efeito }, dt));
+    if (this.bateNaBaliza(antes, zAntes)) return;
     const z = Math.min(zAntes, b.z), vel = hyp(b.v.x, b.v.y);
     // Candidatos ao contacto: ao alcance do percurso neste tick, à altura do pé, da cabeça ou das mãos do GR na área.
     const cands: { j: Jogador2D; d: number; tipo: 'pe' | 'cabeca' | 'maos' }[] = [];
@@ -761,8 +785,8 @@ export class Motor2D {
         if (d <= alcance && z <= GR.z_max) {
           // Num remate, defender é mais difícil longe do corpo e com a bola rápida (cerca de 70% dos remates enquadrados).
           if (b.remate && b.remate.forcado !== 'defesa') {
-            const p = (GR.defesa_base - (0.75 * d) / max - (vel - 20) / 35 + (at(j, 'ref') - 10) / 40);
-            if (this.r(`gr|${j.id}`) > Math.max(0.05, Math.min(0.97, p))) continue;
+            const p = GR.defesa_base - (0.75 * d) / max - (vel - 20) / 35 + (at(j, 'ref') - 10) / 40;
+            if (this.r(`gr|${j.id}`) > Math.max(0.05, Math.min(0.97, p)) * (b.remate.bolaParada ? 1 - GR.cabeca_penal : 1)) continue;
           }
           cands.push({ j, d, tipo: 'maos' });
         }
@@ -779,8 +803,13 @@ export class Motor2D {
         const p = (1 - (d - RECEPCAO.corpo_m) / (BOLA.alcance - RECEPCAO.corpo_m)) * Math.max(0.3, Math.min(1, 1.2 - vel / 25));
         if (this.r(`perna|${j.id}`) > p) continue;
       }
+      // À altura da cabeça, um cabeceamento de bola parada só é travado por quem tem o corpo na linha (a menos de
+      // `corpo_m`): não há tempo para reagir de cabeça a uma bola cabeceada a 19 m/s; antes, os defesas voltavam a
+      // cabeceá-la em mais de um terço dos casos e os cantos ficavam abaixo de 3% (Anexo C).
+      if (b.remate?.bolaParada && z > BOLA.z_pe && z <= BOLA.z_cabeca && j.equipa !== b.equipaUltima && d > RECEPCAO.corpo_m) continue;
       if (z <= BOLA.z_pe && d <= BOLA.alcance) cands.push({ j, d, tipo: 'pe' });
-      else if (z > BOLA.z_pe && z <= BOLA.z_cabeca && d <= AEREO.alcance) cands.push({ j, d, tipo: 'cabeca' });
+      // Ao cruzamento de bola parada, o atacante chega em corrida e salta mais longe (`alcance_ataque`).
+      else if (z > BOLA.z_pe && z <= BOLA.z_cabeca && d <= AEREO.alcance + (b.passe?.bolaParada && j.equipa === b.equipaUltima ? BOLA_PARADA.alcance_ataque : 0)) cands.push({ j, d, tipo: 'cabeca' });
     }
     if (cands.length) {
       // O GR com as mãos tem prioridade na sua área; no ar, disputa de cabeça entre as duas equipas.
@@ -793,7 +822,8 @@ export class Motor2D {
         return disputa || c.j.equipa !== b.equipaUltima || naAreaAdversaria(c.j);
       });
       if (cab.length && !cands.some((c) => c.tipo === 'pe')) {
-        const forca = (j: Jogador2D) => 0.5 * at(j, 'cab') + 0.3 * at(j, 'imp') + 0.2 * at(j, 'for') + AEREO.ruido_duelo * normal(`${this.semente}|${s.tick}|${j.id}|ar`);
+        const bp = b.passe?.bolaParada ? b.equipaUltima : -1;
+        const forca = (j: Jogador2D) => 0.5 * at(j, 'cab') + 0.3 * at(j, 'imp') + 0.2 * at(j, 'for') + (j.equipa === bp ? BOLA_PARADA.duelo_ataque : 0) + AEREO.ruido_duelo * normal(`${this.semente}|${s.tick}|${j.id}|ar`);
         const w = cab.reduce((a, c) => (forca(c.j) > forca(a.j) ? c : a));
         this.cabeceamento(w.j);
         return;
@@ -802,6 +832,37 @@ export class Motor2D {
       if (pe) { this.contacto(pe.j, vel); return; }
     }
     this.foraDoCampo();
+  }
+
+  /**
+   * Postes e barra (Anexo C, C2): se a bola cruza a linha de golo neste tick a menos de um raio de um poste (cilindro)
+   * ou da barra, ressalta (coeficiente ~0,55, como no protótipo) em vez de entrar ou sair. A bola fica solta: acabou o
+   * remate e quem estiver perto vai à recarga. Devolve se bateu.
+   */
+  private bateNaBaliza(antes: V2, zAntes: number): boolean {
+    const s = this.estado, b = s.bola, F = BALIZA;
+    for (const gx of [0, C.comprimento]) {
+      if ((antes.x - gx) * (b.p.x - gx) > 0 || antes.x === b.p.x) continue; // não cruzou esta linha
+      const f = (gx - antes.x) / (b.p.x - antes.x), yC = antes.y + (b.p.y - antes.y) * f, zC = zAntes + (b.z - zAntes) * f;
+      const dentro = gx === 0 ? 1 : -1; // sentido do campo a partir desta linha
+      const r = F.poste_r + F.bola_r;
+      let n: [number, number, number] | null = null, tipo = '';
+      for (const py of [C.largura / 2 - REMATE.meia_baliza, C.largura / 2 + REMATE.meia_baliza]) {
+        if (Math.abs(yC - py) < r && zC < REMATE.barra + F.bola_r) { const dy = (yC - py) / r; n = [dentro * Math.sqrt(Math.max(0, 1 - dy * dy)), dy, 0]; tipo = 'POSTE'; }
+      }
+      if (!n && Math.abs(yC - C.largura / 2) < REMATE.meia_baliza && Math.abs(zC - REMATE.barra) < r) { const dz = (zC - REMATE.barra) / r; n = [dentro * Math.sqrt(Math.max(0, 1 - dz * dz)), 0, dz]; tipo = 'BARRA'; }
+      if (!n) continue;
+      const vn = b.v.x * n[0] + b.v.y * n[1] + b.vz * n[2];
+      if (vn >= 0) continue;
+      const k = (1 + F.ressalto) * vn;
+      b.v = { x: b.v.x - k * n[0], y: b.v.y - k * n[1] }; b.vz -= k * n[2];
+      b.p = { x: gx + dentro * 0.15, y: yC }; b.z = Math.max(0, zC);
+      const autor = this.jog(b.remate?.de ?? b.ultimo);
+      b.remate = null; b.passe = null; b.efeito = 0; this.versaoBola++;
+      this.ev('poste', b.equipaUltima, autor, null, undefined, tipo);
+      return true;
+    }
+    return false;
   }
 
   /** O guarda-redes chega à bola: agarra ou desvia (secção 9.3; afinação na Fase 5). */
@@ -842,12 +903,14 @@ export class Motor2D {
     // Um passe pelo ar que um colega ganha de cabeça chegou ao destino (passe certo).
     if (b.passe && e === b.equipaUltima && contaPasse(b.passe.tipo)) s.estat.certos[e]++;
     this.ev('cabeceamento', e, j);
+    // Cabeceamento a um cruzamento de bola parada (canto, livre lateral): o atacante chega em corrida e marcado à zona.
+    const deBolaParada = !!b.passe?.bolaParada && e === b.equipaUltima;
     b.ultimo = j.id; b.equipaUltima = e; b.tickUltimo = s.tick; b.passe = null; b.remate = null;
     this.versaoBola++;
     const [v0, v1] = AEREO.v, [z0, z1] = AEREO.vz;
     if (naAreaAdversaria(j)) {
-      const xg = xgEstimado(s, j, true), r = executarRemate(s, j, this.semente, true);
-      b.v = r.v; b.vz = r.vz; b.remate = { de: j.id, xg, tick: s.tick };
+      const xg = xgEstimado(s, j, true), r = executarRemate(s, j, this.semente, true, deBolaParada);
+      b.v = r.v; b.vz = r.vz; b.remate = { de: j.id, xg, tick: s.tick, tipo: 'CABECA', bolaParada: deBolaParada };
       s.estat.remates[e]++; s.estat.xg[e] += xg;
       this.ev('remate', e, j, null, undefined, 'CABECA', xg);
       return;

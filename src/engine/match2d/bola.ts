@@ -18,7 +18,7 @@ export function avancarBola(p: V2, v: V2, dt: number): { p: V2; v: V2 } {
   return { p: { x: p.x + (v.x / s) * media * dt, y: p.y + (v.y / s) * media * dt }, v: { x: (v.x / s) * ns, y: (v.y / s) * ns } };
 }
 
-export interface EstadoBola3D { p: V2; z: number; v: V2; vz: number }
+export interface EstadoBola3D { p: V2; z: number; v: V2; vz: number; /** Efeito (Magnus), rad/s: só actua no ar. */ efeito?: number }
 
 /**
  * Avança a bola dt segundos em 3D. No ar: gravidade, arrasto ligeiro e, ao chegar ao chão, ressalto (perde 55% da
@@ -27,7 +27,9 @@ export interface EstadoBola3D { p: V2; z: number; v: V2; vz: number }
 export function avancarBola3D(b: EstadoBola3D, dt: number): EstadoBola3D {
   if (b.z <= 0 && b.vz <= 0) { const r = avancarBola(b.p, b.v, dt); return { p: r.p, v: r.v, z: 0, vz: 0 }; }
   const f = dt === 0.1 ? AR_01 : Math.exp(-B.ar_k * dt);
-  const v = { x: b.v.x * f, y: b.v.y * f };
+  // Efeito (Magnus, Anexo C C2): aceleração lateral = efeito × (−vy, vx); a bola curva no ar e nunca no chão.
+  const ef = b.efeito ?? 0, vx0 = b.v.x - b.v.y * ef * dt, vy0 = b.v.y + b.v.x * ef * dt;
+  const v = { x: vx0 * f, y: vy0 * f };
   let z = b.z + b.vz * dt - 0.5 * B.g * dt * dt, vz = b.vz - B.g * dt;
   let vh = v;
   if (z <= 0) {
@@ -35,7 +37,7 @@ export function avancarBola3D(b: EstadoBola3D, dt: number): EstadoBola3D {
     if (-vz > B.ressalto_min_vz) { vz = -vz * B.ressalto_vz; vh = { x: v.x * B.ressalto_h, y: v.y * B.ressalto_h }; }
     else vz = 0;
   }
-  return { p: { x: b.p.x + ((b.v.x + v.x) / 2) * dt, y: b.p.y + ((b.v.y + v.y) / 2) * dt }, v: vh, z, vz };
+  return { p: { x: b.p.x + ((b.v.x + v.x) / 2) * dt, y: b.p.y + ((b.v.y + v.y) / 2) * dt }, v: vh, z, vz, efeito: z > 0 ? ef : 0 };
 }
 
 export interface PontoTraj { t: number; p: V2; z: number; s: number }

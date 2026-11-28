@@ -5,7 +5,7 @@
  *  adversária em x = 105, centro y = 34). */
 export const BOLA_PARADA = {
   /** Variantes de canto e o seu peso (o melhor cabeceador vai à zona da variante escolhida). */
-  variantes_canto: { primeiro_poste: 0.3, segundo_poste: 0.35, curto: 0.12, entrada_area: 0.23 },
+  variantes_canto: { primeiro_poste: 0.35, segundo_poste: 0.45, curto: 0.07, entrada_area: 0.13 },
   /** Zonas de ataque num canto (y relativo ao lado do canto: + = lado do canto). */
   zonas_ataque: { primeiro_poste: [100.5, 3.5], segundo_poste: [99, -4.5], centro: [99.5, 0], penalti: [94, -1], entrada_area: [87.5, 2] } as Record<string, [number, number]>,
   /** Jogadores na área num canto a favor (Catenaccio: 4, centrais incluídos). Os restantes: 2 atrás e o resto à entrada. */
@@ -21,14 +21,29 @@ export const BOLA_PARADA = {
   /** Tempo para todos chegarem às posições antes de marcar (s, máximo). */
   espera_posicoes_s: 12, posicao_ok_m: 2.5,
   /** Livre directo: até esta distância da baliza e com este ângulo (|y − 34| máximo). */
-  livre_directo_m: 28, livre_directo_largura: 18,
+  livre_directo_m: 22, livre_directo_largura: 12,
   /** Livre lateral perigoso (cruzado como um canto): x mínimo no último terço. */
   livre_cruzado_x: 72,
+  /** Livre lateral/afastado: parte joga-se curto (desde que só os livres perto e centrais são directos, os outros
+   *  iam todos para a área e os cruzamentos passavam a faixa). */
+  livre_cruzado_curto: 0.45,
   /** Barreira: jogadores por distância (< 20 m: 4; < 25 m: 3; senão 2), a 9,15 m da bola. */
   barreira_m: 9.15,
   /** P(a barreira bloquear) e o erro do remate de livre (rad) = base + por ponto abaixo de 20 em (Bolas paradas + Remate de longe)/2. */
-  barreira_bloqueia: 0.22, livre_erro_base: 0.05, livre_erro_ponto: 0.006, livre_v: 25, livre_z_baliza: 1.4,
+  barreira_bloqueia: 0.16, livre_erro_base: 0.035, livre_erro_ponto: 0.006, livre_v: 25, livre_z_baliza: 2.0,
+  /** Livre directo (Anexo C, C4): ao canto alto (|y| do alvo a partir do centro da baliza) com efeito (rad/s, Magnus)
+   *  a contornar a barreira. */
+  livre_y_canto: 3.1, livre_efeito: 0.28,
+  /** Duelo aéreo num cruzamento de bola parada: o atacante ataca a bola em corrida (pontos a mais na força do duelo,
+   *  na escala dos atributos; o ruído do duelo é 2). */
+  duelo_ataque: 8,
+  /** E chega mais longe (m a mais de alcance de cabeça): sem isto os atacantes só ganhavam 17% dos cruzamentos de bola
+   *  parada (os defesas 39%, o GR 28%) e os cantos ficavam abaixo de 3%. */
+  alcance_ataque: 0.6,
 };
+
+/** Balizas (Anexo C, C2): raio dos postes e da barra (cilindros, m), raio da bola e coeficiente de ressalto no ferro. */
+export const BALIZA = { poste_r: 0.06, bola_r: 0.11, ressalto: 0.55 };
 
 /** Penálti: P(golo) = base + por ponto (Finalização+Compostura+Bolas paradas)/3 − por ponto (Reflexos+Um-contra-um)/2 do GR,
  *  limitado; dos que não entram, esta fracção sai fora (o resto o GR defende). */
@@ -113,7 +128,7 @@ export const LANCES = {
   /** Fracção mínima do tempo mostrado em jogo corrido (resumo alargado). */
   corrido_min: 0.1,
   /** Pontuação de importância. */
-  pontos: { golo: 100, penalti: 90, vermelho: 85, remate_perigoso: 60, defesa_dificil: 55, contra_ataque: 50, livre_directo: 45, remate_enquadrado: 35, canto: 30, cruzamento_perigoso: 30, amarelo: 25, corte_area: 20 },
+  pontos: { golo: 100, penalti: 90, vermelho: 85, poste: 62, remate_perigoso: 60, defesa_dificil: 55, contra_ataque: 50, livre_directo: 45, remate_enquadrado: 35, canto: 30, cruzamento_perigoso: 30, amarelo: 25, corte_area: 20 },
   /** Remate perigoso (prioridade alta): xG ≥ isto; defesa difícil: remate com xG ≥ isto defendido. */
   xg_alto: 0.15, xg_defesa: 0.08,
   /** Contra-ataque: recuperação antes de x (referencial de quem ataca) e remate/cruzamento até s segundos depois. */

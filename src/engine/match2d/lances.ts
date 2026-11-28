@@ -38,6 +38,7 @@ export function candidatos(registo: Evento2D[], posses: Posse2D[], ate = Infinit
       const e = evs[i];
       switch (e.tipo) {
         case 'golo': propor(e, 'sempre', 'golo', P.golo); break;
+        case 'poste': propor(e, 'alta', 'poste', P.poste); break;
         case 'penalti': propor(e, 'sempre', 'penalti', P.penalti); break;
         case 'expulsao': propor(e, 'sempre', 'vermelho', P.vermelho); break;
         case 'cartao': if (e.subtipo === 'AMARELO') propor(e, 'media', 'amarelo', P.amarelo); break;

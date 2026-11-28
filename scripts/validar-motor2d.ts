@@ -86,12 +86,13 @@ async function principal() {
   }
   const jogos = neutros.length / 2;
   console.log(`\nOutros (por jogo, as duas equipas): amarelos ${(soma(neutros.map((l) => l.amarelos)) / jogos).toFixed(2)} · vermelhos ${(soma(neutros.map((l) => l.vermelhos)) / jogos).toFixed(2)} · penáltis ${(soma(neutros.map((l) => l.penaltis)) / jogos).toFixed(2)}`);
-  // Apresentação por lances num lote de 50 jogos (secção 2.2): Alargados 12–16 min, todos os golos, jogo corrido ≥ 20%.
+  // Highlights num lote de 50 jogos (decisão 225): Resumo alargado 3–6 min (~4; golos nunca se cortam), todos os
+  // golos, jogo corrido ≥ 10% do mostrado.
   const L = neutros.filter((l) => l.lances).slice(0, 50).map((l) => l.lances!);
   if (L.length) {
     const minA = Math.min(...L.map((x) => x.alargados_min)), maxA = Math.max(...L.map((x) => x.alargados_min));
     const golos = soma(L.map((x) => x.golos)), vistos = soma(L.map((x) => x.golosVistos)), corrido = Math.min(...L.map((x) => x.corridoPct));
-    const ok = minA >= 12 && maxA <= 16 && vistos === golos && corrido >= 20;
+    const ok = minA >= 3 && maxA <= 6 && vistos === golos && corrido >= 10;
     if (!ok) falhas++;
     console.log(`\nLances (${L.length} jogos): Alargados ${minA.toFixed(1)}–${maxA.toFixed(1)} min (média ${med(L.map((x) => x.alargados_min)).toFixed(1)}; ${med(L.map((x) => x.n)).toFixed(0)} lances) · golos vistos ${vistos}/${golos} · jogo corrido ≥ ${corrido.toFixed(0)}% do mostrado · Lances-chave ${med(L.map((x) => x.chave_min)).toFixed(1)} min · ${ok ? '✓' : '✗'}`);
   }

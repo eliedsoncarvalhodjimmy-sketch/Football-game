@@ -66,13 +66,16 @@ export interface Bola2D {
   ultimo: string | null; equipaUltima: Equipa; tickUltimo: number;
   /** Passe em curso: de quem, para quem (o receptor pretendido), o destino pretendido, o tipo, se vai pelo ar e se o
    *  receptor estava em fora de jogo quando a bola partiu. */
-  passe: { de: string; para: string; destino: V2; tick: number; tipo?: string; aereo?: boolean; foraDeJogo?: boolean } | null;
+  passe: { de: string; para: string; destino: V2; tick: number; tipo?: string; aereo?: boolean; foraDeJogo?: boolean; bolaParada?: boolean } | null;
+  /** Efeito (Magnus, Anexo C C2): aceleração lateral = efeito × (−vy, vx), só no ar e só até ao toque seguinte (vale
+   *  enquanto `tickUltimo === efeitoTick`). */
+  efeito?: number; efeitoTick?: number;
   /** Remate em curso: de quem, o xG e o tick. */
-  remate: { de: string; xg: number; tick: number; tipo?: 'PENALTI' | 'LIVRE'; forcado?: 'golo' | 'defesa' | 'fora'; ignorar?: string[] } | null;
+  remate: { de: string; xg: number; tick: number; tipo?: 'PENALTI' | 'LIVRE' | 'CABECA'; forcado?: 'golo' | 'defesa' | 'fora'; ignorar?: string[]; /** Cabeceamento a um cruzamento de bola parada. */ bolaParada?: boolean } | null;
 }
 
 export interface Evento2D { tick: number; tipo: 'passe' | 'recepcao' | 'intercepcao' | 'mau_toque' | 'bola_solta' | 'fora' | 'reposicao'
-  | 'remate' | 'golo' | 'defesa' | 'desarme' | 'falta' | 'fora_de_jogo' | 'cabeceamento' | 'cruzamento' | 'drible' | 'alivio' | 'bloqueio' | 'mentalidade' | 'troca' | 'intervalo' | 'cartao' | 'penalti' | 'expulsao' | 'jogada'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2; /** Tipo do passe (PASSE_CURTO, CRUZAMENTO, ...). */ subtipo?: string; /** Sucesso previsto pelo portador. */ previsto?: number }
+  | 'remate' | 'golo' | 'poste' | 'defesa' | 'desarme' | 'falta' | 'fora_de_jogo' | 'cabeceamento' | 'cruzamento' | 'drible' | 'alivio' | 'bloqueio' | 'mentalidade' | 'troca' | 'intervalo' | 'cartao' | 'penalti' | 'expulsao' | 'jogada'; equipa: Equipa; jogador?: string; outro?: string; x: number; y: number; /** Passe: destino pretendido. */ alvo?: V2; /** Tipo do passe (PASSE_CURTO, CRUZAMENTO, ...). */ subtipo?: string; /** Sucesso previsto pelo portador. */ previsto?: number }
 
 export interface Estatisticas2D {
   passes: [number, number]; certos: [number, number]; intercepcoes: [number, number]; mausToques: [number, number];
