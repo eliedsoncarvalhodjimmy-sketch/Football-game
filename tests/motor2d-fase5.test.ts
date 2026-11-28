@@ -73,7 +73,7 @@ describe('motor 2D — Fase 5: bolas paradas, penáltis e cartões', () => {
   });
 
   it('livre directo perto da área: barreira a 9,15 m da bola', () => {
-    const m = motor('livre'), s = m.estado, local = { x: 82, y: 34 };
+    const m = motor('livre'), s = m.estado, local = { x: 86, y: 34 }; // 19 m: os directos são só a menos de 22 m
     const p = planear(s, { tipo: 'livre', equipa: 0, local, marcador: '', desde: 0 }, 'x')!;
     expect(p.tipo).toBe('livre_directo');
     expect(p.barreira!.length).toBeGreaterThanOrEqual(3);

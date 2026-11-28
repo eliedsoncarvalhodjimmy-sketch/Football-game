@@ -55,7 +55,8 @@ describe('motor 2D — Fase 2: bola e passes curtos', () => {
       donoAntes = s.bola.dono;
     }
     const e = s.estat, passes = e.passes[0] + e.passes[1], certos = e.certos[0] + e.certos[1];
-    expect(passes).toBeGreaterThan(120);
+    // ~441 passes por equipa e por jogo na validação de 200 jogos = ~98 em 10 min para as duas (decisão 227).
+    expect(passes).toBeGreaterThan(85);
     // Com a pressão e os desarmes da Fase 3 o acerto desce do ~95% da Fase 2 (sem pressão) para valores reais.
     expect(certos / passes).toBeGreaterThan(0.65);
     expect(mudancas).toBeGreaterThan(100);
